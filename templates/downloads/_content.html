@@ -1,13 +1,14 @@
+
 <section class="page-heading download-heading">
-  <p class="eyebrow">Stewardence Collector</p>
+  <p class="eyebrow">StewardSensors for Windows</p>
   <h1>See what is installed. Decide what it means.</h1>
   <p>
-    Run a bounded, one-shot Windows scan, review the JSON evidence yourself,
-    then upload it to your Stewardence workspace.
+    Download one Windows setup executable, run a bounded one-shot observation,
+    review the resulting evidence, then upload it to your Stewardence workspace.
   </p>
   <div class="hero-actions">
     <a class="button button-large" href="{{ release.asset_url }}">
-      Download for Windows
+      Download StewardSensors
     </a>
     {% if request.user.is_authenticated and request.organization_id %}
       <a class="text-link" href="{% url 'inventory:discovery' %}">
@@ -27,6 +28,7 @@
       change installed software, or remain running.
     </p>
   </article>
+
   <article class="card">
     <p class="eyebrow">Evidence boundary</p>
     <h2>Installation is only an observation</h2>
@@ -40,24 +42,42 @@
 
 <section class="card release-card">
   <p class="eyebrow">Versioned release</p>
-  <h2>Collector {{ release.version }}</h2>
+  <h2>StewardSensors {{ release.version }}</h2>
+
   <p>
-    The archive contains one Collector executable, one PowerShell
-    bootstrapper, and one cryptographically signed installation profile. The
-    bootstrapper verifies the profile, executable, and module manifest before
-    running the scan.
+    StewardSensors is delivered as a single Windows executable. Its embedded
+    installation profile is cryptographically signed, and the setup process
+    verifies the sensor executable and module manifest before collection runs.
+    No PowerShell script or execution-policy change is required.
   </p>
+
   <dl class="release-facts">
-    <div><dt>Archive</dt><dd>{{ release.asset_name }}</dd></div>
-    <div><dt>Archive SHA-256</dt><dd><code>{{ release.sha256 }}</code></dd></div>
-    <div><dt>Executable SHA-256</dt><dd><code>{{ release.executable_sha256 }}</code></dd></div>
-    <div><dt>Profile SHA-256</dt><dd><code>{{ release.profile_sha256 }}</code></dd></div>
-    <div><dt>Signing key SHA-256</dt><dd><code>{{ release.public_key_sha256 }}</code></dd></div>
+    <div>
+      <dt>Download</dt>
+      <dd>{{ release.asset_name }}</dd>
+    </div>
+    <div>
+      <dt>Setup SHA-256</dt>
+      <dd><code>{{ release.sha256 }}</code></dd>
+    </div>
+    <div>
+      <dt>Embedded sensor SHA-256</dt>
+      <dd><code>{{ release.executable_sha256 }}</code></dd>
+    </div>
+    <div>
+      <dt>Profile SHA-256</dt>
+      <dd><code>{{ release.profile_sha256 }}</code></dd>
+    </div>
+    <div>
+      <dt>Signing key SHA-256</dt>
+      <dd><code>{{ release.public_key_sha256 }}</code></dd>
+    </div>
   </dl>
+
   <p class="muted">
-    The profile is signed for integrity, but the MVP executable does not carry
-    a commercial Windows Authenticode publisher certificate. Windows may show
-    an unknown-publisher warning.
+    The installation profile is signed for integrity, but this release does
+    not yet carry a commercial Windows Authenticode publisher certificate.
+    Windows may therefore show an unknown-publisher warning.
   </p>
 </section>
 

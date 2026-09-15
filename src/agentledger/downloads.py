@@ -1,20 +1,18 @@
+
 from django.shortcuts import render
 
 COLLECTOR_RELEASE = {
-    "version": "0.1.0",
-    "asset_name": "Stewardence-Collector-Windows-x64-v0.1.0.zip",
+    "version": "0.2.0",
+    "asset_name": "StewardSensors-setup.exe",
     "asset_url": (
         "https://github.com/AnarchI-Technologies-MAIN/"
-        "stewardence-mvp-v1.8/releases/download/collector-v0.1.0/"
-        "Stewardence-Collector-Windows-x64-v0.1.0.zip"
+        "stewardence-mvp-v1.8/releases/download/stewardsensors-v0.2.0/"
+        "StewardSensors-setup.exe"
     ),
-    "sha256": "fe7239402a29aa2bf4e732b2de4f9533ba240ddd0d7d46386d0d659926b57b3a",
-    "executable_sha256": (
-        "e8228a6cccd79c47f427be3f01ef7973b94a5a0ab71d87c27ba7abf3df1ef00c"
-    ),
-    "profile_sha256": (
-        "d71d6d65d359f70ada3c04ed31e60dea1d9f73f53b2a3be1677225ef7e27d12a"
-    ),
+    # Replaced with the exact release metadata values when v0.2.0 is built.
+    "sha256": "67ac4b3220d1ddd6864df193cd2495d2b448583d663df42c3f4425a44618a8a5",
+    "executable_sha256": "660771f8a0f8e28705cea589fead6ffd5694bab56f3eb62e5c9f3cabf3a3ea13",
+    "profile_sha256": "5e974fbc70836a4faa540d462e5f2a61a246e4f7afd3ad9792436a717d2d644c",
     "public_key_sha256": (
         "c6208fe13ee170ca940752100c053625b82c6b63bdad1f3a660ff7e7e841ae4f"
     ),

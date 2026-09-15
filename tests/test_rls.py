@@ -180,6 +180,7 @@ def test_organization_scoped_tables_have_required_column_and_forced_rls():
             WHERE n.nspname = 'public'
               AND c.relkind = 'r'
               AND a.attname = 'organization_id'
+              AND a.attnotnull
             ORDER BY c.relname
             """
         )
@@ -198,6 +199,23 @@ def test_organization_scoped_tables_have_required_column_and_forced_rls():
             ("organizations_organizationmember", True, True, True),
             ("report_artifacts", True, True, True),
             ("reports", True, True, True),
+        ]
+
+        cursor.execute(
+            """
+            SELECT c.relname, c.relrowsecurity, c.relforcerowsecurity, a.attnotnull
+            FROM pg_class AS c
+            JOIN pg_attribute AS a ON a.attrelid = c.oid
+            JOIN pg_namespace AS n ON n.oid = c.relnamespace
+            WHERE n.nspname = 'public'
+              AND c.relkind = 'r'
+              AND a.attname = 'organization_id'
+              AND NOT a.attnotnull
+            ORDER BY c.relname
+            """
+        )
+        assert cursor.fetchall() == [
+            ("billing_subscription", False, False, False),
         ]
         cursor.execute(
             """

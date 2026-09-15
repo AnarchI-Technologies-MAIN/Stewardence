@@ -12,6 +12,7 @@ from apps.audit.models import AuditEvent
 from apps.imports.models import ImportBatch, ImportRow
 from apps.inventory.models import InventoryItem
 from apps.organizations.models import Organization, OrganizationMember
+from tests.conftest import grant_core_entitlement
 
 pytestmark = pytest.mark.django_db
 
@@ -32,6 +33,7 @@ def import_context(client):
         organization=organization,
         role=OrganizationMember.Role.OWNER,
     )
+    grant_core_entitlement(user, organization)
     client.force_login(user)
     session = client.session
     session["active_organization_id"] = str(organization.id)

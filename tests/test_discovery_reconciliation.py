@@ -26,6 +26,7 @@ from apps.reports.context import build_report_context
 from apps.reports.services import create_report
 from apps.roi.engine import Assumption, AssumptionProvenance, ROIInputs
 from collector.contract import digest
+from tests.conftest import grant_core_entitlement
 from tests.test_collector import encoded, example_bundle
 
 pytestmark = pytest.mark.django_db
@@ -74,6 +75,7 @@ def later_bundle(*, include_record=True):
 
 
 def activate_client(client, user, organization):
+    grant_core_entitlement(user, organization)
     client.force_login(user)
     session = client.session
     session["active_organization_id"] = str(organization.id)

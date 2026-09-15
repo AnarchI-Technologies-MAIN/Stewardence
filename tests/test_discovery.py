@@ -9,6 +9,7 @@ from apps.inventory.discovery import ingest_bundle
 from apps.inventory.models import DetectionEvidence, DiscoveryScan, InventoryItem
 from apps.organizations.models import Organization, OrganizationMember
 from collector.contract import digest
+from tests.conftest import grant_core_entitlement
 from tests.test_collector import encoded, example_bundle
 
 pytestmark = pytest.mark.django_db
@@ -36,6 +37,7 @@ def test_evidence_upload_requires_membership_and_writer_role(client):
     user = User.objects.create_user("viewer@example.com", "Strong!Password98")
     org = Organization.objects.create(name="View only")
     OrganizationMember.objects.create(user=user, organization=org, role="viewer")
+    grant_core_entitlement(user, org)
     client.force_login(user)
     session = client.session
     session["active_organization_id"] = str(org.id)
@@ -54,6 +56,7 @@ def test_valid_upload_records_only_current_tenant(client):
     user = User.objects.create_user("owner-discovery@example.com", "Strong!Password98")
     org = Organization.objects.create(name="Own firm")
     OrganizationMember.objects.create(user=user, organization=org, role="owner")
+    grant_core_entitlement(user, org)
     client.force_login(user)
     session = client.session
     session["active_organization_id"] = str(org.id)

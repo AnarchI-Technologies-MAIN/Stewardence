@@ -12,6 +12,7 @@ dependencies = [
     "idna==3.19",
     "psycopg[binary]>=3.3,<3.4",
     "rfc8785==0.1.4",
+    "stripe>=13,<14",
     "whitenoise>=6.12,<7",
 ]
 

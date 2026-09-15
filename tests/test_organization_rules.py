@@ -13,6 +13,7 @@ from apps.organizations.models import Organization, OrganizationMember
 from apps.policies.engine import PolicyDefinitionError, PolicyResult
 from apps.policies.models import OrganizationRule
 from apps.policies.organization_rules import compile_organization_rule
+from tests.conftest import grant_core_entitlement
 
 pytestmark = pytest.mark.django_db
 
@@ -34,6 +35,7 @@ def rule_context(client):
         capabilities=["external_transfer"],
         human_approval=False,
     )
+    grant_core_entitlement(user, organization)
     client.force_login(user)
     session = client.session
     session["active_organization_id"] = str(organization.id)

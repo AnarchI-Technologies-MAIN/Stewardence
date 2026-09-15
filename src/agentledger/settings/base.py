@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "apps.accounts.apps.AccountsConfig",
+    "apps.billing.apps.BillingConfig",
     "apps.organizations.apps.OrganizationsConfig",
     "apps.inventory.apps.InventoryConfig",
     "apps.catalog.apps.CatalogConfig",
@@ -60,6 +61,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.billing.middleware.BillingEntitlementMiddleware",
     "agentledger.tenancy.middleware.TenantContextResolutionMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -117,3 +119,30 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "organizations:workspace-selection"
 LOGOUT_REDIRECT_URL = "accounts:login"
+
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+STRIPE_BILLING_PORTAL_CONFIGURATION_ID = os.getenv(
+    "STRIPE_BILLING_PORTAL_CONFIGURATION_ID",
+    "",
+)
+
+STRIPE_BILLING_PORTAL_FOUNDER_CONFIGURATION_ID = os.getenv(
+    "STRIPE_BILLING_PORTAL_FOUNDER_CONFIGURATION_ID",
+    "",
+)
+
+STRIPE_CORE_FOUNDER_INTRO_PRICE_ID = os.getenv(
+    "STRIPE_CORE_FOUNDER_INTRO_PRICE_ID",
+    "",
+)
+
+STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID = os.getenv(
+    "STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID",
+    "",
+)
+
+STRIPE_CORE_STANDARD_PRICE_ID = os.getenv(
+    "STRIPE_CORE_STANDARD_PRICE_ID",
+    "",
+)

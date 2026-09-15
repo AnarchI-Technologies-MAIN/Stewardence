@@ -16,6 +16,7 @@ from apps.jobs.models import BackgroundJob
 from apps.organizations.models import Organization, OrganizationMember
 from apps.policies.models import OrganizationRule
 from apps.reports.models import Report
+from tests.conftest import grant_core_entitlement
 
 pytestmark = pytest.mark.django_db
 
@@ -29,6 +30,7 @@ def inventory_context(client):
         organization=organization,
         role=OrganizationMember.Role.OWNER,
     )
+    grant_core_entitlement(user, organization)
     client.force_login(user)
     session = client.session
     session["active_organization_id"] = str(organization.id)

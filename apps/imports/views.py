@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 
 from apps.audit.append import append_audit_event
 from apps.audit.events import (
@@ -88,6 +88,7 @@ def _review_rows(rows):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def upload_csv_view(request):
     _require_writer(request)
     if request.method == "POST":
@@ -130,6 +131,7 @@ def upload_csv_view(request):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def review_import_view(request, batch_id):
     _require_writer(request)
     with transaction.atomic():

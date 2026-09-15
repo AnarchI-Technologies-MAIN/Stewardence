@@ -36,6 +36,10 @@ urlpatterns = [
         include("apps.accounts.urls"),
     ),
     path(
+        "billing/",
+        include("apps.billing.urls"),
+    ),
+    path(
         "workspaces/",
         include("apps.organizations.urls"),
     ),

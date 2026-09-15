@@ -278,7 +278,18 @@ def test_report_routes_are_tenant_scoped_and_generation_is_post_only(
     session["active_organization_id"] = str(other_organization.id)
     session.save()
 
-    assert client.get(reverse("reports:detail", args=(report.id,))).status_code == 404
+    response = client.get(
+        reverse(
+            "reports:detail",
+            args=(report.id,),
+        )
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "organizations:workspace-selection"
+    )
+    assert "active_organization_id" not in client.session
 
 
 def test_report_identity_model_rejects_instance_mutation(report_context):

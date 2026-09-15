@@ -39,7 +39,7 @@ def signup_view(request):
             "Your account is ready. Let's build your workspace.",
         )
 
-        return redirect("organizations:setup")
+        return redirect("billing:portfolio")
 
     return render(
         request,

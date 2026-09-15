@@ -6,6 +6,7 @@ from django.test import Client
 from django.urls import reverse
 
 from apps.organizations.models import Organization, OrganizationMember
+from tests.conftest import grant_core_entitlement
 
 pytestmark = pytest.mark.django_db
 
@@ -53,6 +54,9 @@ def isolation_fixture():
         organization=firm_b,
         role=OrganizationMember.Role.VIEWER,
     )
+
+    grant_core_entitlement(user_a, firm_a)
+
     return user_a, user_b, firm_a, firm_a_second, firm_b
 
 
@@ -77,7 +81,7 @@ def test_selection_lists_only_the_authenticated_users_firms(client, isolation_fi
 
     assert response.status_code == 200
     assert b"Firm A" in response.content
-    assert b"Firm A Second" in response.content
+    assert b"Firm A Second" not in response.content
     assert b"Firm B" not in response.content
 
 
@@ -123,7 +127,10 @@ def test_activation_is_post_only(client, isolation_fixture):
     assert response.status_code == 405
 
 
-def test_user_can_switch_between_own_firms(client, isolation_fixture):
+def test_membership_in_second_firm_does_not_extend_core_subscription(
+    client,
+    isolation_fixture,
+):
     user_a, _user_b, firm_a, firm_a_second, _firm_b = isolation_fixture
     client.force_login(user_a)
 
@@ -131,6 +138,7 @@ def test_user_can_switch_between_own_firms(client, isolation_fixture):
         reverse("organizations:workspace-activate"),
         {"organization_id": str(firm_a.id)},
     )
+
     assert first.status_code == 302
     assert client.session["active_organization_id"] == str(firm_a.id)
 
@@ -138,20 +146,30 @@ def test_user_can_switch_between_own_firms(client, isolation_fixture):
         reverse("organizations:workspace-activate"),
         {"organization_id": str(firm_a_second.id)},
     )
-    assert second.status_code == 302
-    assert client.session["active_organization_id"] == str(firm_a_second.id)
+
+    assert second.status_code == 403
+    assert "active_organization_id" not in client.session
 
 
-def test_stale_session_tenant_is_cleared_and_denied(client, isolation_fixture):
+def test_subscription_mismatched_session_tenant_is_cleared_before_resolution(
+    client,
+    isolation_fixture,
+):
     user_a, _user_b, _firm_a, _firm_a_second, firm_b = isolation_fixture
     client.force_login(user_a)
+
     session = client.session
     session["active_organization_id"] = str(firm_b.id)
     session.save()
 
-    response = client.get(reverse("organizations:workspace-selection"))
+    response = client.get(
+        reverse("organizations:workspace-selection")
+    )
 
-    assert response.status_code == 403
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "organizations:workspace-selection"
+    )
     assert "active_organization_id" not in client.session
 
 

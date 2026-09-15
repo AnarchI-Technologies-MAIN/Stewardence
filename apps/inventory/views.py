@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 
 from apps.assessments.snapshots import create_assessment_snapshot
 from apps.audit.append import append_audit_event
@@ -129,6 +129,7 @@ def inventory_detail_view(request, item_id):
 
 @login_required
 @transaction.atomic
+@require_http_methods(["GET", "POST"])
 def inventory_roi_view(request, item_id):
     item = _inventory_item(request, item_id)
     result = None
@@ -174,6 +175,7 @@ def inventory_roi_view(request, item_id):
 
 @login_required
 @transaction.atomic
+@require_http_methods(["GET", "POST"])
 def create_inventory_item_view(request):
     _require_inventory_writer(request)
     if request.method == "POST":
@@ -201,6 +203,7 @@ def create_inventory_item_view(request):
 
 @login_required
 @transaction.atomic
+@require_http_methods(["GET", "POST"])
 def edit_inventory_item_view(request, item_id):
     _require_inventory_writer(request)
     item = _inventory_item(request, item_id)

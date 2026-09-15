@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 
 from apps.audit.append import append_audit_event
 from apps.audit.events import EVENT_RULE_CHANGED, EVENT_RULE_CREATED
@@ -151,6 +151,7 @@ def detail_rule_view(request, rule_id):
 
 @login_required
 @transaction.atomic
+@require_http_methods(["GET", "POST"])
 def create_rule_view(request):
     _require_writer(request)
     form = OrganizationRuleForm(
@@ -162,6 +163,7 @@ def create_rule_view(request):
 
 @login_required
 @transaction.atomic
+@require_http_methods(["GET", "POST"])
 def edit_rule_view(request, rule_id):
     _require_writer(request)
     rule = _rule(request, rule_id)

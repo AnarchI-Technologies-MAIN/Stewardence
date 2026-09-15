@@ -22,6 +22,7 @@ from apps.inventory.models import InventoryItem
 from apps.organizations.models import Organization, OrganizationMember
 from apps.policies.models import OrganizationRule
 from apps.roi.engine import Assumption, AssumptionProvenance, ROIInputs
+from tests.conftest import grant_core_entitlement
 
 pytestmark = pytest.mark.django_db
 
@@ -262,6 +263,7 @@ def test_roi_workflow_can_save_and_open_tenant_scoped_snapshot(
     client, assessment_context
 ):
     user, organization, item = assessment_context
+    grant_core_entitlement(user, organization)
     client.force_login(user)
     session = client.session
     session["active_organization_id"] = str(organization.id)
@@ -311,6 +313,7 @@ def test_viewer_cannot_save_snapshot(client, assessment_context):
     membership = OrganizationMember.objects.get(user=user, organization=organization)
     membership.role = OrganizationMember.Role.VIEWER
     membership.save(update_fields=("role",))
+    grant_core_entitlement(user, organization)
     client.force_login(user)
     session = client.session
     session["active_organization_id"] = str(organization.id)

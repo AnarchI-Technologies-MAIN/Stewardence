@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Stewardence subscription confirmed{% endblock %}
+
+{% block content %}
+<section class="portfolio-shell">
+  <header class="portfolio-heading">
+    <p class="eyebrow">Subscription received</p>
+    <h1>Welcome to Stewardence.</h1>
+
+    {% if subscription and subscription.grants_access %}
+      <p>
+        Your subscription is active. Your Stewardence workspace is ready to configure.
+      </p>
+
+      <a class="button button-large" href="{% url 'organizations:setup' %}">
+        Continue to workspace setup
+      </a>
+    {% else %}
+      <p>
+        Stripe has returned you safely. We are confirming your subscription now.
+        Refresh this page in a moment if access is not yet active.
+      </p>
+
+      <a class="button button-outline" href="{% url 'billing:portfolio' %}">
+        Check subscription status
+      </a>
+    {% endif %}
+  </header>
+</section>
+{% endblock %}
