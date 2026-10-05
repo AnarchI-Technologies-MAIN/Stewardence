@@ -22,7 +22,9 @@ class AuditBatchSealPrepared:
 @dataclass(frozen=True)
 class AuditBatchSealHandler:
     using: str = "default"
-    persistence_isolation: str = "repeatable_read"
+    # Chain-head FOR UPDATE serializes sealers; immutable selected events form
+    # the batch. READ COMMITTED also permits the current control/lease fence.
+    persistence_isolation: str | None = None
 
     def prepare(
         self,

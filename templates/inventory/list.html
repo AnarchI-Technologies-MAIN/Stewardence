@@ -11,7 +11,7 @@
     <button class="button secondary" type="submit">Apply</button>
   </form>
   {% if items %}
-    <div class="inventory-grid">{% for item in items %}<article class="card"><p class="eyebrow">{{ item.get_status_display }}</p><h2><a href="{% url 'inventory:detail' item.id %}">{{ item.display_name }}</a></h2><p>{{ item.vendor_name }}</p><p class="muted">{{ item.department|default:"No team recorded" }} · {{ item.user_count }} user{{ item.user_count|pluralize }}</p><p>{{ item.get_autonomy_level_display }}</p></article>{% endfor %}</div>
+    <div class="inventory-grid">{% for item in items %}<article class="card"><p class="eyebrow">{% if item.declaration_contract and "status" not in item.declared_fields %}Current use unknown{% else %}{{ item.get_status_display }}{% endif %}</p><h2><a href="{% url 'inventory:detail' item.id %}">{{ item.display_name }}</a></h2><p>{{ item.vendor_name }}</p><p class="muted">{{ item.department|default:"No team recorded" }} · {% if item.declaration_contract and "user_count" not in item.declared_fields %}People using it unknown{% else %}{{ item.user_count }} user{{ item.user_count|pluralize }}{% endif %}</p><p>{% if item.declaration_contract and "autonomy_level" not in item.declared_fields %}Independent actions unknown{% else %}{{ item.get_autonomy_level_display }}{% endif %}</p></article>{% endfor %}</div>
   {% else %}
     <section class="card narrow-card"><h2>No matching software</h2><p>Add the first item or change the search and status filters.</p></section>
   {% endif %}

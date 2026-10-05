@@ -8,15 +8,17 @@
     <title>{% block title %}Stewardence{% endblock %}</title>
     <link rel="icon" type="image/png" href="{% static 'brand/stewardence-app-icon-dark.png' %}">
     <link rel="stylesheet" href="{% static 'agentledger.css' %}">
+    <link rel="stylesheet" href="{% static 'atlas.css' %}">
   </head>
   <body class="{% if request.user.is_authenticated %}app-body{% else %}public-body{% endif %}">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     {% if request.user.is_authenticated %}
       <div class="app-frame">
         <aside class="app-sidebar">
           <a class="sidebar-brand" href="{% url 'home' %}">
             <img
               class="brand-mark"
-              src="{% static 'brand/stewardence-app-icon-dark.png' %}"
+              src="{% static 'brand/atlas/overview.svg' %}"
               alt=""
               width="38"
               height="38"
@@ -30,41 +32,45 @@
           <nav class="sidebar-nav" aria-label="Primary navigation">
             <p class="nav-label">Workspace</p>
 
-            <a href="{% url 'organizations:workspace-selection' %}">
-              <span class="nav-icon">◇</span>
-              Firms
+            <a href="{% url 'organizations:workspace-selection' %}"{% if request.resolver_match.url_name == 'workspace-selection' %} aria-current="page"{% endif %}>
+              <span class="nav-icon" aria-hidden="true">◇</span>
+              Workspaces
             </a>
 
             {% if request.organization_id %}
-              <a href="{% url 'inventory:list' %}">
-                <span class="nav-icon">▦</span>
+              <a href="{% url 'inventory:list' %}"{% if request.resolver_match.namespace == 'inventory' %} aria-current="page"{% endif %}>
+                <span class="nav-icon" aria-hidden="true">▦</span>
                 Inventory
               </a>
 
-              <a href="{% url 'imports:upload' %}">
-                <span class="nav-icon">⇧</span>
+              <a href="{% url 'imports:upload' %}"{% if request.resolver_match.namespace == 'imports' %} aria-current="page"{% endif %}>
+                <span class="nav-icon" aria-hidden="true">⇧</span>
                 Import CSV
               </a>
 
-              <a href="{% url 'policies:list' %}">
-                <span class="nav-icon">⌁</span>
-                Rules
+              <a href="{% url 'policies:list' %}"{% if request.resolver_match.namespace == 'policies' %} aria-current="page"{% endif %}>
+                <span class="nav-icon" aria-hidden="true">⌁</span>
+                Policies &amp; rules
               </a>
             {% endif %}
 
-            <p class="nav-label nav-label-spaced">Organization</p>
+            {% if request.organization_id %}<a href="{% url 'reports:history' %}"{% if request.resolver_match.namespace == 'reports' %} aria-current="page"{% endif %}><span class="nav-icon" aria-hidden="true">▤</span><span>Report history</span></a>{% endif %}
+            {% if request.organization_id %}<a href="{% url 'core-operations' %}"><span class="nav-icon" aria-hidden="true">◷</span><span>Core operations</span></a>{% endif %}
+            {% if request.organization_id %}<a href="{% url 'core-workspace' %}"><span class="nav-icon" aria-hidden="true">◇</span><span>Core workflows</span></a>{% endif %}
+            {% if core_review_navigation_enabled %}<a href="{% url 'reviews:history' %}"{% if request.resolver_match.namespace == 'reviews' %} aria-current="page"{% endif %}><span class="nav-icon" aria-hidden="true">◇</span><span>Reviews and decisions</span></a>{% endif %}
+            <p class="nav-label nav-label-spaced">Account</p>
 
-            <a href="{% url 'organizations:setup' %}">
-              <span class="nav-icon">＋</span>
+            <a href="{% url 'organizations:setup' %}"{% if request.resolver_match.url_name == 'setup' %} aria-current="page"{% endif %}>
+              <span class="nav-icon" aria-hidden="true">＋</span>
               New workspace
             </a>
 
-            <a href="{% url 'download' %}">
-              <span class="nav-icon">↓</span>
+            <a href="{% url 'download' %}"{% if request.resolver_match.url_name == 'download' %} aria-current="page"{% endif %}>
+              <span class="nav-icon" aria-hidden="true">↓</span>
               Download StewardSensors
             </a>
-            <a href="{% url 'billing:account' %}">
-              <span class="nav-icon">$</span>
+            <a href="{% url 'billing:account' %}"{% if request.resolver_match.namespace == 'billing' %} aria-current="page"{% endif %}>
+              <span class="nav-icon" aria-hidden="true">$</span>
               Billing
             </a>
 
@@ -85,6 +91,7 @@
               {% csrf_token %}
               <button class="sidebar-logout" type="submit">Log out</button>
             </form>
+            {% if request.organization_id %}<form method="post" action="{% url 'core-pause' %}">{% csrf_token %}<button type="submit" class="sidebar-logout">Pause Core work</button></form>{% endif %}
           </div>
         </aside>
 
@@ -96,11 +103,18 @@
                 Deterministic AI risk and ROI assessment
               </p>
             </div>
+            <details class="mobile-workspace-nav"><summary>Workspace menu</summary><nav aria-label="Mobile workspace navigation">
+              <a href="{% url 'organizations:workspace-selection' %}">Workspaces</a>
+              {% if core_review_navigation_enabled %}<a href="{% url 'reviews:history' %}">Reviews and decisions</a>{% endif %}
+              {% if request.organization_id %}<a href="{% url 'inventory:list' %}">Inventory</a><a href="{% url 'imports:upload' %}">Import CSV</a><a href="{% url 'policies:list' %}">Policies and rules</a><a href="{% url 'reports:history' %}">Report history</a><a href="{% url 'core-workspace' %}">Core workflows</a><a href="{% url 'core-operations' %}">Recovery receipts</a>{% endif %}
+              <a href="{% url 'organizations:setup' %}">New workspace</a><a href="{% url 'billing:account' %}">Billing</a>
+              <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit">Log out</button></form>
+            </nav></details>
           </header>
 
-          <main class="page-shell">
+          <main class="page-shell" id="main-content" tabindex="-1">
             {% for message in messages %}
-              <div class="notice" role="status">
+              <div class="notice{% if message.level == 40 %} notice-error{% elif message.level == 30 %} notice-warning{% elif message.level == 25 %} notice-success{% endif %}" role="{% if message.level == 40 %}alert{% else %}status{% endif %}">
                 {{ message }}
               </div>
             {% endfor %}
@@ -123,7 +137,7 @@
         </a>
 
         <nav class="public-nav" aria-label="Account navigation">
-          <a href="{% url 'download' %}">Download</a>
+          <a href="{% url 'download' %}"{% if request.resolver_match.url_name == 'download' %} aria-current="page"{% endif %}>Download</a>
 
           <a href="{% url 'accounts:login' %}">Log in</a>
 
@@ -136,9 +150,9 @@
         </nav>
       </header>
 
-      <main class="public-main">
+      <main class="public-main" id="main-content" tabindex="-1">
         {% for message in messages %}
-          <div class="notice public-notice" role="status">
+          <div class="notice public-notice{% if message.level == 40 %} notice-error{% elif message.level == 30 %} notice-warning{% elif message.level == 25 %} notice-success{% endif %}" role="{% if message.level == 40 %}alert{% else %}status{% endif %}">
             {{ message }}
           </div>
         {% endfor %}

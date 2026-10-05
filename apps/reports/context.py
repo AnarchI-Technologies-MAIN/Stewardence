@@ -131,7 +131,11 @@ def build_report_context(report: Report) -> dict[str, Any]:
         provenance = item.get("provenance")
         if provenance is None:
             provenance = _legacy_inventory_provenance(item)
-        provenance = _require_mapping(provenance, "inventory provenance")
+        provenance = dict(_require_mapping(provenance, "inventory provenance"))
+        # Presentation of an absent optional field must not suggest a declaration
+        # of a known department. The admitted snapshot itself stays unchanged.
+        if not item.get("department"):
+            provenance["department"] = UNKNOWN
         monthly_cost_cents = int(item.get("monthly_cost_cents", 0))
         monthly_cost_provenance = provenance.get("monthly_cost_cents", UNKNOWN)
         if monthly_cost_provenance == UNKNOWN:

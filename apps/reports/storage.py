@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import os
+import tempfile
 import re
 import uuid
 from pathlib import Path
@@ -11,12 +13,14 @@ from botocore.config import Config
 from botocore.exceptions import BotoCoreError, ClientError
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from apps.jobs.recovery import ReplaySafeErrorWrapper
 
 PDF_CONTENT_TYPE = "application/pdf"
+MAX_PDF_BYTES = 16 * 1_048_576
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 
-class ReportStorageError(RuntimeError):
+class ReportStorageError(ReplaySafeErrorWrapper):
     pass
 
 
@@ -50,6 +54,8 @@ def validate_pdf_bytes(content: bytes) -> None:
         raise ReportStorageError("Report artifact content must be bytes")
     if not content:
         raise ReportStorageError("Report artifact cannot be empty")
+    if len(content)>MAX_PDF_BYTES:
+        raise ReportStorageError('Report artifact exceeds its size bound')
     if not content.startswith(b"%PDF-"):
         raise ReportStorageError("Report artifact is not a PDF")
 
@@ -90,10 +96,21 @@ class LocalPrivateReportStorage:
         path = self._path_for_key(key)
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        if path.exists():
-            raise ReportStorageError("Report object already exists")
-
-        path.write_bytes(content)
+        descriptor, temporary = tempfile.mkstemp(dir=path.parent, prefix=".report-")
+        try:
+            with os.fdopen(descriptor, "wb") as stream:
+                stream.write(content)
+                stream.flush()
+                os.fsync(stream.fileno())
+            try:
+                # Publish a complete private file without replacing an existing key.
+                os.link(temporary, path)
+            except FileExistsError as error:
+                if path.read_bytes() == content:
+                    return
+                raise ReportStorageError("Report object already exists") from error
+        finally:
+            Path(temporary).unlink(missing_ok=True)
 
     def get(self, *, key: str) -> bytes:
         path = self._path_for_key(key)
@@ -165,6 +182,9 @@ class S3PrivateReportStorage:
             aws_secret_access_key=secret_access_key,
             region_name=region_name,
             config=Config(
+                connect_timeout=10,
+                read_timeout=30,
+                retries={"max_attempts":1},
                 s3={
                     "addressing_style": addressing_style,
                 }
@@ -183,7 +203,16 @@ class S3PrivateReportStorage:
                 Key=key,
             )
             body = response["Body"]
-            return body.read()
+            try:
+                if response.get('ContentLength',0)>MAX_PDF_BYTES:
+                    raise ReportStorageError('Private report object exceeds its size bound')
+                content=body.read(MAX_PDF_BYTES+1)
+                if len(content)>MAX_PDF_BYTES:
+                    raise ReportStorageError('Private report object exceeds its size bound')
+                return content
+            finally:
+                close=getattr(body,'close',None)
+                if close is not None: close()
         except ClientError as error:
             if self._is_not_found(error):
                 return None
@@ -212,8 +241,17 @@ class S3PrivateReportStorage:
                 Key=key,
                 Body=content,
                 ContentType=content_type,
+                ACL='private',
+                IfNoneMatch="*",
             )
-        except (BotoCoreError, ClientError) as error:
+        except ClientError as error:
+            code = str(error.response.get("Error", {}).get("Code", ""))
+            if code in {"412", "PreconditionFailed", "409", "ConditionalRequestConflict"}:
+                if self._read_optional(key) == content:
+                    return
+                raise ReportStorageError("Report object creation conflict") from error
+            raise ReportStorageError("Private report object upload failed") from error
+        except BotoCoreError as error:
             raise ReportStorageError("Private report object upload failed") from error
 
     def get(self, *, key: str) -> bytes:

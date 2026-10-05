@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}{{ item.display_name }} - Stewardence{% endblock %}
+{% block content %}
+<section class="page-heading"><p class="eyebrow">Owner-declared knowledge</p><h1>{{ item.display_name }}</h1><p>You declared these details as of {{ record.declaration_as_of }}. This date does not establish when the software was observed or prove the details are true.</p></section>
+<dl class="card detail-grid">{% for row in knowledge_rows %}<div><dt>{{ row.label }}</dt><dd style="overflow-wrap:anywhere">{{ row.value }} <span class="muted">({{ row.provenance }})</span></dd></div>{% endfor %}</dl>
+<p><a class="button" href="{% url 'inventory:explicit-edit' item.id %}">Update my knowledge</a> <a class="button secondary" href="{% url 'inventory:list' %}">Back to inventory</a></p>
+<section class="card"><h2>Next review</h2><p>These records support a separately admitted review. This page does not calculate risk, savings, or verified permissions. Legacy return-on-investment calculations and archival changes are unavailable for these records.</p></section>
+{% endblock %}

@@ -1,0 +1,23 @@
+<section class="card">
+  <h2>Captured declaration changes</h2>
+  <p>These are two independently saved owner reviews. A changed declaration is not an observed change in a provider system. Attribution remains not established; previous completions are not carried forward.</p>
+  {% for change in comparison.declaration_changes %}
+    <article>
+      <h3>Tool {{ change.inventory_item_id }}: {{ change.change }}</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Field</th><th>Earlier value and source</th><th>Current value and source</th></tr></thead>
+        <tbody>{% for field in change.field_changes %}
+          <tr><td>{{ field.field }}</td><td>{% if field.before %}{{ field.before.value|default_if_none:"Unknown" }} · {{ field.before.provenance }}{% else %}Not in earlier capture{% endif %}</td><td>{% if field.after %}{{ field.after.value|default_if_none:"Unknown" }} · {{ field.after.provenance }}{% else %}Not in current capture{% endif %}</td></tr>
+        {% endfor %}</tbody>
+      </table></div>
+      {% if change.declaration_as_of_changed %}<p>The owner-declared evidence date also changed.</p>{% endif %}
+    </article>
+  {% empty %}<p>No captured tool declaration changes.</p>{% endfor %}
+  <h3>Exposure review changes</h3>
+  {% for change in comparison.exposure_changes %}<p>Tool {{ change.inventory_item_id }} has different declaration-based review answers. Review each dated snapshot to inspect its exact questions. A recorded answer does not establish that a control was tested.</p>{% empty %}<p>No declaration-based exposure answer changes.</p>{% endfor %}
+  <h3>Qualified policy result changes</h3>
+  {% for change in comparison.policy_result_changes %}<p>Tool {{ change.inventory_item_id }} has changed qualified policy results or applicability. Inputs and rules may change together; this comparison does not establish cause.</p>{% empty %}<p>No qualified policy result changes.</p>{% endfor %}
+  <p>Rule, profile or applicability changes: {{ comparison.configuration_changes|join:", "|default:"none recorded" }}.</p>
+  <p>Risk: not assessed. Benefit model: not supplied. This comparison creates no baseline, decision or scheduled work.</p>
+  <details><summary>Exact comparison identity</summary><p>{{ comparison.schema }} · SHA-256 {{ comparison.sha256 }}</p><p>Earlier {{ comparison.baseline_snapshot_id }} · current {{ comparison.current_snapshot_id }}</p></details>
+</section>

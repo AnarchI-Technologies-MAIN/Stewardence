@@ -17,6 +17,11 @@ pytestmark = pytest.mark.django_db
 User = get_user_model()
 
 
+@pytest.fixture(autouse=True)
+def enable_explicit_founder_offer(settings):
+    settings.FOUNDER_OFFER_ENABLED = True
+
+
 def make_user(email):
     return User.objects.create_user(
         email=email,

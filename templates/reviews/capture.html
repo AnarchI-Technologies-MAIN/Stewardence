@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}Review before capture - Stewardence{% endblock %}
+{% block content %}
+<section class="page-heading atlas-heading"><img class="page-emblem" src="{% static 'brand/atlas/reports.svg' %}" alt="" width="104" height="104"><div><p class="eyebrow">Your answers, deliberately recorded</p><h1>Review before saving</h1><p>Saving records the answers shown here in a dated, immutable capture. It does not verify controls, measure benefits or generate a PDF.</p></div></section>
+<p><a href="{% url 'reviews:history' %}">Evidence reviews</a> · <a href="{% url 'inventory:create' %}">Record a tool</a></p>
+{% if error %}<section class="card" role="alert"><h2>Capture needs attention</h2><p>{{ error }}</p><a href="{% url 'reviews:capture' %}">Open a fresh preview</a></section>{% endif %}
+{% if frame %}
+<section class="card"><h2>Review scope</h2><p>{{ records|length }} deliberately reviewed tool records. Answers remain customer declarations; unknown values remain unknown.</p><p>Industry recorded: {{ frame.industry }}. Accounting policy applies only to an accounting/bookkeeping workspace. Other workspaces receive generic exposure questions without an industry risk rating. No benefit model is supplied.</p>{% if frame.excluded_active_count %}<p>{{ frame.excluded_active_count }} other active records are excluded from this capture because they lack the explicit reviewed-answer contract. Their values are not silently promoted into declarations.</p>{% endif %}<p>Reviewed at {{ frame.reviewed_at }}. If the recorded answers change before saving, this preview will be rejected.</p></section>
+{% for record in records %}<section class="card"><h2>{{ record.name }}</h2><p>Owner-declared information date: {{ record.as_of }}. This date is not an observation or verification.</p><div class="table-wrap"><table><thead><tr><th>Question</th><th>Recorded answer</th><th>Basis</th></tr></thead><tbody>{% for field in record.fields %}<tr><td>{{ field.label }}</td><td>{{ field.display }}</td><td>{{ field.basis }}</td></tr>{% endfor %}</tbody></table></div></section>{% endfor %}
+<form method="post" class="card form-card">{% csrf_token %}{{ form.as_p }}<p>Retrying this same confirmation uses the same capture identity. Saving again from a new preview creates a new dated capture.</p><button type="submit">Save these reviewed answers</button></form>
+{% endif %}
+{% endblock %}

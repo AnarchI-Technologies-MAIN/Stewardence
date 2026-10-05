@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from unittest.mock import Mock
 
 
 class RecordingListener:
@@ -22,6 +23,7 @@ def test_run_worker_uses_railway_replica_and_runtime_database(monkeypatch):
 
     RecordingListener.instances = []
     resolver = object()
+    build_resolver = Mock(return_value=resolver)
 
     monkeypatch.setenv("RAILWAY_REPLICA_ID", "replica-123")
     monkeypatch.setenv("DATABASE_URL", "postgresql://worker:secret@db.internal/db")
@@ -29,10 +31,11 @@ def test_run_worker_uses_railway_replica_and_runtime_database(monkeypatch):
     monkeypatch.setattr(
         run_worker,
         "build_job_handler_resolver",
-        lambda *, using: resolver,
+        build_resolver,
     )
 
     call_command("run_worker")
+    build_resolver.assert_called_once_with(using='default',worker_id='replica-123')
 
     listener = RecordingListener.instances[0]
     assert listener.worker_id == "replica-123"
@@ -47,6 +50,7 @@ def test_run_worker_accepts_explicit_worker_id(monkeypatch):
     from apps.jobs.management.commands import run_worker
 
     RecordingListener.instances = []
+    build_resolver = Mock(return_value=object())
 
     monkeypatch.delenv("RAILWAY_REPLICA_ID", raising=False)
     monkeypatch.setenv("DATABASE_URL", "postgresql://worker:secret@db.internal/db")
@@ -54,10 +58,11 @@ def test_run_worker_accepts_explicit_worker_id(monkeypatch):
     monkeypatch.setattr(
         run_worker,
         "build_job_handler_resolver",
-        lambda *, using: object(),
+        build_resolver,
     )
 
     call_command("run_worker", worker_id="local-worker")
+    build_resolver.assert_called_once_with(using='default',worker_id='local-worker')
 
     assert RecordingListener.instances[0].worker_id == "local-worker"
 

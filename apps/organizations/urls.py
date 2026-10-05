@@ -1,4 +1,5 @@
 from django.urls import path
+from .workflow_profiles import workflow_profile_view
 
 from .views import (
     activate_workspace_action,
@@ -11,6 +12,7 @@ from .views import (
 app_name = "organizations"
 
 urlpatterns = [
+    path("workflow-profile/", workflow_profile_view, name="workflow-profile"),
     path(
         "",
         workspace_selection_view,

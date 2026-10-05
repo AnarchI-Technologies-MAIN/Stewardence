@@ -62,3 +62,45 @@ class AssessmentSnapshot(models.Model):
 
     def delete(self, *args, **kwargs):
         raise ValidationError("Assessment snapshots are immutable")
+
+
+class CaptureAdmissionGate(models.Model):
+    """Global operator gate; it is not tenant authority."""
+
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1)
+    enabled = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "assessment_capture_gate"
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(id=1), name="capture_gate_singleton"
+            )
+        ]
+
+    def __str__(self):
+        return "Assessment capture gate"
+
+
+class SnapshotCaptureReceipt(models.Model):
+    id = models.UUIDField(primary_key=True, editable=False)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    snapshot = models.OneToOneField(AssessmentSnapshot, on_delete=models.PROTECT)
+    reviewed_frame = models.JSONField(editable=False)
+    request_sha256 = models.CharField(max_length=64, editable=False)
+    admitted_at = models.DateTimeField(editable=False)
+
+    class Meta:
+        db_table = "assessment_capture_receipts"
+
+    def __str__(self):
+        return f"Assessment capture receipt {self.id}"
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise ValidationError("Capture receipts are immutable")
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError("Capture receipts are append-only")

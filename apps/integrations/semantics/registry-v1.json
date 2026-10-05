@@ -1,0 +1,57 @@
+{
+  "schema": "stewardence.semantic-registry.v1",
+  "status": "undeployed_candidate",
+  "writes_enabled": false,
+  "admission_enabled": false,
+  "files": {
+    "__init__.py": "8616557404019bcdeaa536839783891f30c2e22446cbb421682b3062c3cd35b6",
+    "adapters.py": "44c7fee56aabd19c283a7609c0e7e9a5b8544e3b9941b94bef0b10c9593ef732",
+    "contracts.py": "a7b493666a2a0f19715eca27f11d34c1be8a37b1074ef6457dd2f4d0b1aace8a",
+    "openapi-components-v1.json": "f162d4430274344a99bd0d492460790390885fc006ad95f26d736457020462e8",
+    "schemas/assertion-v1.json": "694f9d0ed4fd6c837f62cee3b5d8144afd57b949c311d4d8de6bce3c29dc9546",
+    "schemas/entity-profile-v1.json": "b15aba4c10a1decd594ab84ccb815e8a1b8d9076a8db58ff9eabe1a15afcd989",
+    "schemas/normalization-request-v1.json": "f202278140573c17f115a852615c78b334007732a34a35ab01a482e67fc47f1d",
+    "schemas/read-envelope-v1.json": "38a56681c61ae1e59e5a5b24971f770a6d46a66e5b1bfeb6cae0ed38d74a76b4",
+    "schemas/read-payload-v1.json": "b5b1939beb08311f7a81333897c0d6eea66592452112e9a6b247fbe74cd13d50"
+  },
+  "dependencies": {
+    "rfc8785": "0.1.4",
+    "jsonschema": "4.26.0",
+    "referencing": "0.37.0"
+  },
+  "artifact_digest": "29f2a2e08845bb7bdc35595eddb691627dc157391daf431938fff6a717e95e3c",
+  "adapters": [
+    {
+      "id": "quickbooks.sandbox.company-descriptor",
+      "version": "1.0.0",
+      "provider": "quickbooks_online",
+      "environment": "sandbox",
+      "api_version": "v3",
+      "namespace": "quickbooks.company_info",
+      "subject_kind": "accounting_company",
+      "pointers": {
+        "entity.provider_id": "/CompanyInfo/Id",
+        "entity.display_name": "/CompanyInfo/CompanyName"
+      },
+      "mapping_digest": "3e279d3582a1813172e98011c1afbe851a96320a839d79ee294287b17b1fc0b1",
+      "configuration": {},
+      "configuration_digest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "id": "microsoft.organization-descriptor",
+      "version": "1.0.0",
+      "provider": "microsoft_365",
+      "environment": "owner_preview",
+      "api_version": "graph.v1.0",
+      "namespace": "microsoft.directory",
+      "subject_kind": "directory_tenant",
+      "pointers": {
+        "entity.provider_id": "/value/0/id",
+        "entity.display_name": "/value/0/displayName"
+      },
+      "mapping_digest": "d8ca78e09727d83a997cf206af042d2abae662ad636d22edbb57a3b93bb25d22",
+      "configuration": {},
+      "configuration_digest": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import nullcontext
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -76,9 +77,13 @@ def render_account(
                 fake_billing_customer()
             ),
         ):
-            response = billing_account(
-                request
-            )
+            # Presentation tests mock their queries and transaction context.
+            # The POST guard tests below keep the real context untouched.
+            with patch(
+                "apps.billing.security.identity_transaction",
+                side_effect=lambda _user_id: nullcontext(),
+            ):
+                response = billing_account(request)
 
     return (
         response,

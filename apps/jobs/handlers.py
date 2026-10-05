@@ -11,6 +11,7 @@ from apps.reports.storage import (
     PrivateReportStorage,
     build_private_report_storage,
 )
+from apps.reviews.jobs import ReviewReportGenerationHandler
 
 
 class UnsupportedJobHandler(ValueError):
@@ -20,6 +21,7 @@ class UnsupportedJobHandler(ValueError):
 def build_job_handler_resolver(
     *,
     using: str = "default",
+    worker_id: str | None = None,
     report_renderer: ReportRenderer | None = None,
     report_storage: PrivateReportStorage | None = None,
 ) -> Callable[[str], JobHandler]:
@@ -42,10 +44,13 @@ def build_job_handler_resolver(
             if storage is None:
                 storage = build_private_report_storage()
 
-            return ReportGenerationHandler(
-                renderer=renderer,
-                storage=storage,
-                using=using,
+            return ReviewReportGenerationHandler(
+                worker_id=worker_id,
+                delegate=ReportGenerationHandler(
+                    renderer=renderer,
+                    storage=storage,
+                    using=using,
+                ),
             )
 
         raise UnsupportedJobHandler(f"No job handler is registered for {job_type}")

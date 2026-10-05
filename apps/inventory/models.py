@@ -73,6 +73,8 @@ class InventoryItem(models.Model):
         editable=False,
     )
     declared_fields = models.JSONField(default=list, blank=True, editable=False)
+    declaration_contract = models.CharField(max_length=64, default="", editable=False)
+    declaration_as_of = models.DateField(null=True, blank=True, editable=False)
     archived_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -119,6 +121,26 @@ class InventoryItem(models.Model):
     def monthly_cost_display(self) -> str:
         amount = Decimal(self.monthly_cost_cents) / Decimal(100)
         return f"{amount:.2f}"
+
+
+class ExplicitDeclarationGate(models.Model):
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    enabled = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "inventory_explicit_declaration_gate"
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(id=1), name="explicit_inventory_gate_singleton"
+            )
+        ]
+
+    def __str__(self):
+        return (
+            "Explicit inventory admission enabled"
+            if self.enabled
+            else "Explicit inventory admission closed"
+        )
 
 
 class DiscoveryScan(models.Model):

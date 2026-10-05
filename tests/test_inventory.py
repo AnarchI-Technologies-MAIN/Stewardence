@@ -201,7 +201,8 @@ def test_roi_page_handles_zero_cost_and_rejects_unknown_nonzero_values(
     }
 
     response = client.post(reverse("inventory:roi", args=(item.id,)), zero_payload)
-    assert b"Not available because monthly total cost is $0.00" in response.content
+    assert b"Required assumptions are unknown" in response.content
+    assert b"Monthly net value: Unknown" in response.content
     assert b"Infinity" not in response.content
 
     zero_payload["hours_saved_per_month"] = "2.00"

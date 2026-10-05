@@ -146,12 +146,12 @@ def test_customer_strings_are_escaped_and_inert():
 
     assert "<script>" not in html
     assert '<img src="file:' not in html
-    assert '<img class="brand-logo" src="data:image/png;base64,' in html
+    assert '<img class="brand-logo" src="data:image/svg+xml;base64,' in html
     assert "&lt;script&gt;" in html
     assert "&lt;img src=&quot;file:///etc/passwd&quot;&gt;" in html
 
 
-def test_container_sandbox_controls_and_generated_output_path(monkeypatch):
+def test_container_sandbox_controls_and_generated_output_path(monkeypatch, tmp_path):
     page = Mock()
     context = Mock()
     browser = Mock()
@@ -169,8 +169,9 @@ def test_container_sandbox_controls_and_generated_output_path(monkeypatch):
 
     page.pdf.side_effect = write_pdf
     monkeypatch.setattr("renderer.render.sync_playwright", lambda: manager)
+    monkeypatch.setattr('renderer.render.normalize_generated_pdf',lambda content,payload:content)
 
-    output_directory = Path.cwd()
+    output_directory = tmp_path
     rendered = render_pdf(valid_payload(), output_directory=output_directory)
 
     assert rendered.startswith(b"%PDF-")

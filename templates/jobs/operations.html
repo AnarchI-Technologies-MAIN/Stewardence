@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Core operations{% endblock %}
+{% block content %}
+<section class="page-heading atlas-heading"><img class="page-emblem" src="{% static 'brand/atlas/evidence-library.svg' %}" alt="" width="104" height="104"><div><p class="eyebrow">Current firm</p><h1>Core operations</h1><p>Calculated from stored jobs and receipts as of {{ as_of }}. These records do not establish live service health or whether a worker is running.</p></div></section>
+{% if not integrity_ok %}<section class="card" role="alert"><h2>Receipt integrity needs review</h2><p>Receipt metrics are withheld because verification failed.</p></section>{% endif %}
+<section class="card"><h2>Recorded workflow states</h2><dl>{% for row in counts %}<dt>{{ row.status|title }}</dt><dd>{{ row.count }}</dd>{% empty %}<dt>Coverage</dt><dd>No recorded workflows</dd>{% endfor %}</dl></section>
+<section class="card"><h2>Operations requiring review</h2>{% for job in alerts %}<p role="alert">{{ job.get_job_type_display }} stopped after {{ job.attempts }} attempt{{ job.attempts|pluralize }}. Review is required before it can resume.</p>{% empty %}<p>No recorded review holds. This does not prove every service is healthy.</p>{% endfor %}</section>
+<section class="card"><h2>Latest recovery receipts</h2><p>Showing up to 50 recorded outcomes.</p><table><thead><tr><th>Recorded</th><th>Outcome</th><th>Attempt</th><th>Receipt</th></tr></thead><tbody>{% for receipt in receipts %}<tr><td>{{ receipt.created_at }}</td><td>{{ receipt.get_outcome_display }}</td><td>{{ receipt.attempt }}</td><td>{{ receipt.id }}</td></tr>{% empty %}<tr><td colspan="4">No verified receipts available</td></tr>{% endfor %}</tbody></table></section>
+{% endblock %}

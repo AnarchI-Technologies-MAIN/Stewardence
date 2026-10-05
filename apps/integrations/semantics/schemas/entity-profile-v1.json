@@ -1,0 +1,34 @@
+{
+  "id": "stewardence.entity-descriptor.v1",
+  "version": 1,
+  "concepts": {
+    "entity.provider_id": {
+      "version": 1,
+      "type": "text",
+      "definition": "Provider-namespaced object identifier, not legal or cross-provider identity."
+    },
+    "entity.display_name": {
+      "version": 1,
+      "type": "text",
+      "definition": "Provider-declared display name; no legal-name or uniqueness assertion."
+    }
+  },
+  "currency_registry": {
+    "id": "stewardence.currency-subset.v1",
+    "codes": [
+      "USD",
+      "EUR",
+      "GBP",
+      "CAD"
+    ],
+    "note": "Explicit subset of ISO 4217 alphabetic identifiers; no minor-unit or conversion rule implied."
+  },
+  "unit_registry": {
+    "id": "stewardence.units-subset.v1",
+    "units": {
+      "1": "dimensionless",
+      "h": "hour",
+      "count": "count"
+    }
+  }
+}

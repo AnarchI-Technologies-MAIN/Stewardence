@@ -26,13 +26,20 @@ pytestmark = pytest.mark.django_db(transaction=True)
 
 @pytest.fixture
 def organization():
-    return Organization.objects.create(name="Phase 13 Queue Firm")
+    from django.contrib.auth import get_user_model
+    from apps.organizations.models import OrganizationMember
+    from conftest import grant_core_entitlement
+    org=Organization.objects.create(name="Phase 13 Queue Firm")
+    user=get_user_model().objects.create_user('queue-owner@example.invalid')
+    OrganizationMember.objects.create(user=user,organization=org,role='owner')
+    grant_core_entitlement(user,org)
+    return org
 
 
 def enqueue(
     organization,
     *,
-    job_type=BackgroundJob.Type.RISK_REASSESSMENT,
+    job_type=BackgroundJob.Type.REPORT_GENERATION,
     priority=100,
 ):
     return enqueue_job(
@@ -236,6 +243,7 @@ def test_retry_schedule_uses_database_attempt_count(organization):
         error_code="temporary_failure",
         safe_summary="The temporary operation failed.",
         fingerprint="temporary-failure-1",
+        retryable=True,
     )
 
     job.refresh_from_db()
@@ -261,6 +269,7 @@ def test_retry_schedule_uses_database_attempt_count(organization):
         error_code="temporary_failure",
         safe_summary="The temporary operation failed again.",
         fingerprint="temporary-failure-2",
+        retryable=True,
     )
 
     job.refresh_from_db()
@@ -289,6 +298,7 @@ def test_fifth_failure_is_terminal(organization):
             error_code="repeat_failure",
             safe_summary="The operation continued to fail.",
             fingerprint="repeat-failure",
+            retryable=True,
         )
 
     job.refresh_from_db()
@@ -394,18 +404,36 @@ class RecordingHandler:
 
 
 class FailingHandler:
-    def __init__(self, secret):
+    def __init__(self, secret, error_type=RuntimeError):
         self.secret = secret
+        self.error_type = error_type
 
     def prepare(self, job):
         return {"job_id": str(job.id)}
 
     def execute_external(self, prepared, heartbeat):
         heartbeat()
-        raise RuntimeError(self.secret)
+        raise self.error_type(self.secret)
 
     def persist(self, job, result):
         raise AssertionError("persist must not run after external failure")
+
+
+def test_expired_lease_cannot_publish_results(organization):
+    from django.db import connection
+    from apps.jobs.worker import execute_claimed_job, JobExecution
+    from apps.jobs.queue import claim_next_job, LostJobLease
+    queued = enqueue(organization)
+    claimed = claim_next_job("expired-worker")
+    class ExpiringHandler(RecordingHandler):
+        def execute_external(self, prepared, heartbeat):
+            with connection.cursor() as cursor:
+                cursor.execute("UPDATE background_jobs SET lock_expires_at = clock_timestamp() - interval '1 second' WHERE id = %s", [queued.id])
+            return prepared
+    handler = ExpiringHandler()
+    with pytest.raises(LostJobLease):
+        execute_claimed_job(JobExecution(claimed, "expired-worker"), handler)
+    assert handler.persisted_results == []
 
 
 def test_drain_queue_executes_until_queue_is_empty_with_tenant_boundaries(
@@ -413,7 +441,7 @@ def test_drain_queue_executes_until_queue_is_empty_with_tenant_boundaries(
 ):
     from apps.jobs.worker import drain_queue
 
-    first = enqueue(organization)
+    first = enqueue(organization,job_type=BackgroundJob.Type.RISK_REASSESSMENT)
     second = enqueue(
         organization,
         job_type=BackgroundJob.Type.REPORT_GENERATION,
@@ -451,13 +479,14 @@ def test_drain_queue_records_safe_retry_without_persisting_exception_text(
     organization,
 ):
     from apps.jobs.worker import drain_queue
+    from httpx import ReadTimeout
 
     secret = "SECRET-CUSTOMER-DATABASE-TOKEN"
-    job = enqueue(organization)
+    job = enqueue(organization, job_type=BackgroundJob.Type.REPORT_GENERATION)
 
     def resolver(job_type):
-        assert job_type == BackgroundJob.Type.RISK_REASSESSMENT
-        return FailingHandler(secret)
+        assert job_type == BackgroundJob.Type.REPORT_GENERATION
+        return FailingHandler(secret, ReadTimeout)
 
     processed = drain_queue(
         "worker-a",
@@ -473,7 +502,7 @@ def test_drain_queue_records_safe_retry_without_persisting_exception_text(
     assert job.attempts == 1
     assert job.error_code == "job_execution_failed"
     assert job.safe_error_summary == (
-        "The background operation failed and may be retried."
+        "The operation encountered a temporary failure and will retry within its attempt limit."
     )
     assert len(job.error_fingerprint) == 64
 
@@ -519,7 +548,9 @@ def test_drain_queue_failure_does_not_block_next_available_job(organization):
     failed_job.refresh_from_db()
     successful_job.refresh_from_db()
 
-    assert failed_job.status == BackgroundJob.Status.QUEUED
+    assert failed_job.status == BackgroundJob.Status.FAILED
+    assert failed_job.error_code == "job_requires_review"
+    assert "private failure detail" not in failed_job.safe_error_summary
     assert failed_job.attempts == 1
 
     assert successful_job.status == BackgroundJob.Status.COMPLETED

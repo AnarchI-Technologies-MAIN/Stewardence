@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stewardence:evidence:normalization-request:v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "request_schema_digest", "organization_id", "target_schema_id", "target_schema_digest", "semantic_profile_id", "semantic_profile_digest", "source", "adapter", "supersedes"],
+  "properties": {
+    "schema_id": {"const": "urn:stewardence:evidence:normalization-request:v1"},
+    "request_schema_digest": {"$ref": "urn:stewardence:evidence:read:v1#/properties/schema_digest"},
+    "organization_id": {"$ref": "urn:stewardence:evidence:read:v1#/properties/organization_id"},
+    "target_schema_id": {"const": "urn:stewardence:evidence:read:v1"},
+    "target_schema_digest": {"$ref": "urn:stewardence:evidence:read:v1#/properties/schema_digest"},
+    "semantic_profile_id": {"$ref": "urn:stewardence:evidence:read:v1#/properties/semantic_profile_id"},
+    "semantic_profile_digest": {"$ref": "urn:stewardence:evidence:read:v1#/properties/semantic_profile_digest"},
+    "source": {"$ref": "urn:stewardence:evidence:read:v1#/properties/source"},
+    "adapter": {"$ref": "urn:stewardence:evidence:read:v1#/properties/adapter"},
+    "supersedes": {"$ref": "urn:stewardence:evidence:read:v1#/properties/supersedes"}
+  }
+}

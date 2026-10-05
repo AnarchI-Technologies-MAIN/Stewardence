@@ -11,7 +11,6 @@ from django.test import RequestFactory
 from apps.billing.models import StripeWebhookEvent
 from apps.billing.views import stripe_webhook
 
-
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
@@ -37,6 +36,7 @@ def test_simultaneous_duplicate_delivery_runs_handler_once(
         "data": {
             "object": {
                 "id": "cs_concurrent_duplicate",
+                "client_reference_id": "c7e9e8d2-b8d0-4a5e-912a-842108b43e8f",
             },
         },
     }

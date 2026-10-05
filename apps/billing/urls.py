@@ -7,6 +7,7 @@ from .views import (
     founder_cancel,
     founder_cancel_undo,
     portfolio_view,
+    start_automation_checkout,
     start_core_checkout,
     stripe_webhook,
 )
@@ -14,6 +15,7 @@ from .views import (
 app_name = "billing"
 
 urlpatterns = [
+    path("checkout/automation/", start_automation_checkout, name="checkout-automation"),
     path(
         "account/",
         billing_account,

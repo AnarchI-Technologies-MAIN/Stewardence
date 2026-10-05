@@ -10,6 +10,7 @@ ROLE_NAMES = (
     "agentledger_owner",
     "agentledger_app",
     "agentledger_worker",
+    "agentledger_billing_admission",
 )
 
 
@@ -69,6 +70,9 @@ def main() -> int:
         "agentledger_owner": os.environ.get("AGENTLEDGER_OWNER_DB_PASSWORD", ""),
         "agentledger_app": os.environ.get("AGENTLEDGER_APP_DB_PASSWORD", ""),
         "agentledger_worker": os.environ.get("AGENTLEDGER_WORKER_DB_PASSWORD", ""),
+        "agentledger_billing_admission": os.environ.get(
+            "AGENTLEDGER_BILLING_ADMISSION_DB_PASSWORD", ""
+        ),
     }
     if not admin_database_url:
         raise SystemExit("DATABASE_ADMIN_URL is required")

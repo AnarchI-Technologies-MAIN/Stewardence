@@ -41,6 +41,16 @@ def normalized_declared_fields(field_names) -> list[str]:
 
 
 def inventory_provenance(item) -> dict[str, str]:
+    if getattr(item, "declaration_contract", "") == "core.inventory.declarations.v1":
+        declared = set(item.declared_fields)
+        return {
+            **{
+                field: DECLARED if field in declared else UNKNOWN
+                for field in INVENTORY_FACT_FIELDS
+            },
+            "product_id": UNKNOWN,
+            "source_type": DECLARED,
+        }
     if item.source_type != "discovered":
         facts = {field: DECLARED for field in INVENTORY_FACT_FIELDS}
         facts["product_id"] = CATALOG_DERIVED if item.product_id else UNKNOWN

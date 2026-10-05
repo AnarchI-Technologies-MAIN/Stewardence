@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Workflow profile{% endblock %}
+{% block content %}
+<section class="page-heading atlas-heading"><img class="page-emblem" src="{% static 'brand/atlas/admin.svg' %}" alt="" width="104" height="104"><div><p class="eyebrow">Workspace setup</p><h1>Choose workflow meaning</h1><p>Choose whether branches describe your business or your development environment. This meaning stays attached to the records you create.</p></div></section>
+{% if current %}<section class="card"><h2>Recorded profile</h2><p>{{ current.get_profile_display }} · {{ current.created_at }}</p><dl>{% for key,value in current.settings.items %}<dt>{{ key|title }}</dt><dd>{{ value }}</dd>{% endfor %}</dl><p>Changing this meaning requires a reviewed transition that preserves earlier records.</p></section>
+{% else %}<form method="post" class="card form-card">{% csrf_token %}<p>Business profiles use jurisdiction. Development profiles use repository reference and environment. Leave the other profile's settings empty. Other branch meanings require a registered profile.</p>{{ form.as_p }}<button class="button" type="submit">Record profile</button></form>{% endif %}
+{% if current and core_review_navigation_enabled %}<section class="card"><h2>Continue your review</h2><p>Your workflow meaning is recorded. Review your captured evidence and choose each next action deliberately.</p><a class="button" href="{% url 'reviews:history' %}">Open evidence reviews</a></section>{% endif %}
+{% endblock %}

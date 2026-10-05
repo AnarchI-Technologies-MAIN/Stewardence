@@ -77,6 +77,7 @@ class BaselineTests(SimpleTestCase):
 
     def test_production_settings_import_with_explicit_configuration(self):
         environment = os.environ.copy()
+        environment.pop("WORKER_DATABASE_URL", None)
         environment.update(
             {
                 "DJANGO_SECRET_KEY": "phase19-test-" + ("S3cur3!" * 8),
@@ -114,6 +115,7 @@ class BaselineTests(SimpleTestCase):
 
     def test_production_settings_reject_wildcard_host(self):
         environment = os.environ.copy()
+        environment.pop("WORKER_DATABASE_URL", None)
         environment.update(
             {
                 "DJANGO_SECRET_KEY": "phase19-test-" + ("S3cur3!" * 8),

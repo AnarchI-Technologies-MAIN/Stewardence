@@ -15,7 +15,10 @@ from .queue import (
     fail_job_with_fence,
     heartbeat_job_with_fence,
     recover_expired_jobs,
+    lock_job_for_persistence,
 )
+from .recovery import permits_retry
+from .receipts import record_recovery_receipt
 
 
 class JobHandler(Protocol):
@@ -44,6 +47,10 @@ def execute_claimed_job(
     using: str = "default",
 ) -> None:
     job = execution.job
+    if job.input_sha256 is not None:
+        import rfc8785
+        if hashlib.sha256(rfc8785.dumps(job.payload)).hexdigest()!=job.input_sha256:
+            raise ValueError('Admitted job input digest mismatch')
 
     with tenant_transaction(job.organization_id, using=using):
         prepared = handler.prepare(job)
@@ -67,14 +74,16 @@ def execute_claimed_job(
             None,
         ),
     ):
+        lock_job_for_persistence(job_id=job.id, worker_id=execution.worker_id,
+                                claim_token=job.claim_token, using=using)
         handler.persist(job, result)
-
-    complete_job_with_fence(
-        job_id=job.id,
-        worker_id=execution.worker_id,
-        claim_token=job.claim_token,
-        using=using,
-    )
+        complete_job_with_fence(
+            job_id=job.id,
+            worker_id=execution.worker_id,
+            claim_token=job.claim_token,
+            using=using,
+        )
+        record_recovery_receipt(job, "completed", using=using)
 
 
 def _safe_failure_fingerprint(job: ClaimedJob, error: Exception) -> str:
@@ -118,16 +127,31 @@ def drain_queue(
         except LostJobLease:
             raise
         except Exception as error:
-            fail_job_with_fence(
-                job_id=job.id,
-                worker_id=worker_id,
-                claim_token=job.claim_token,
-                error_code="job_execution_failed",
-                safe_summary="The background operation failed and may be retried.",
-                fingerprint=_safe_failure_fingerprint(job, error),
-                using=using,
-            )
+            retryable = job.job_type == 'report_generation' and permits_retry(error)
+            with tenant_transaction(job.organization_id, using=using):
+                _record_failure(job, execution, error, retryable, using)
 
         processed += 1
 
     return processed
+
+
+def _record_failure(job, execution, error, retryable, using):
+    will_retry = retryable and job.attempts < 5
+    code = "job_execution_failed" if will_retry else "job_requires_review"
+    if retryable and not will_retry:
+        code = "retry_limit_reached"
+    fingerprint = _safe_failure_fingerprint(job, error)
+    fail_job_with_fence(
+                job_id=job.id,
+                worker_id=execution.worker_id,
+                claim_token=job.claim_token,
+                error_code=code,
+                safe_summary=("The operation encountered a temporary failure and will retry within its attempt limit."
+                              if will_retry else "The operation stopped safely and requires review."),
+                fingerprint=fingerprint,
+                using=using,
+                retryable=retryable,
+    )
+    record_recovery_receipt(job, "retry" if retryable and job.attempts < 5 else "review",
+        reason_code=code, fingerprint=fingerprint, using=using)

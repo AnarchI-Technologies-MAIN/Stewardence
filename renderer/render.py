@@ -13,6 +13,7 @@ from playwright.sync_api import sync_playwright
 
 from .schema import validate_report_render_payload
 from .template import render_report_html
+from .canonical_pdf import normalize_generated_pdf
 
 OUTPUT_DIRECTORY = Path("/work/output")
 MAX_PDF_BYTES = 16 * 1_048_576
@@ -138,7 +139,10 @@ def render_pdf(
             raise RenderFailure("PDF renderer produced no output")
         if output_path.stat().st_size > max_pdf_bytes:
             raise RenderOutputTooLarge("PDF output exceeded the size limit")
-        return output_path.read_bytes()
+        normalized=normalize_generated_pdf(output_path.read_bytes(),validated)
+        if len(normalized)>max_pdf_bytes:
+            raise RenderOutputTooLarge('Normalized PDF output exceeded the size limit')
+        return normalized
     except PlaywrightTimeoutError as error:
         if browser is not None:
             browser.close()

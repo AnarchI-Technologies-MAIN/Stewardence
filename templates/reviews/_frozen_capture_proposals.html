@@ -1,0 +1,38 @@
+<section class="card">
+  <h2>All frozen proposals</h2>
+  <p>All proposals issued under this version are included here. Its coverage is limited: other Unknown or Concern answers remain visible in the full Exposure Review; having no proposal does not resolve or verify them.</p>
+  <p>These proposals describe the original captured outcomes. A missing owner statement means no disposition or completion statement was selected; it does not imply acceptance. Later decisions do not change this pack.</p>
+  {% for selected in frozen_proposals %}
+  <article>
+    <h3>{{ selected.proposal.proposal_text }}</h3>
+    <p><strong>Original captured outcome: {{ selected.proposal.original_outcome }}</strong>. Source: {{ selected.proposal.source.class }} / {{ selected.proposal.source.identity }}. {% if selected.proposal.severity %}Qualified policy severity: {{ selected.proposal.severity }}.{% endif %}</p>
+    <p>This is a proposal, not an authorized provider action. Verification is not established. Owner statements below do not change this original captured outcome.</p>
+    <details>
+      <summary>Exact proposal and frozen source</summary>
+      <p>Proposal {{ selected.proposal.proposal_id }}; SHA-256 {{ selected.proposal.sha256 }}.</p>
+      <p>Source digest {{ selected.proposal.source.digest }}; source contract {{ selected.proposal.source.contract }} / {{ selected.proposal.source.contract_version }}.</p>
+      <p>Revision {{ selected.revision_id }}; SHA-256 {{ selected.revision_sha256 }}; card {{ selected.card_index }}; full card SHA-256 {{ selected.card_sha256 }}.</p>
+      <p>Proposal receipt {{ selected.proposal_receipt_id }}; qualification SHA-256 {{ selected.qualification_sha256 }}.</p>
+    </details>
+    {% for entry in entries %}
+    {% if entry.event.payload.proposal_id == selected.proposal.proposal_id %}
+    <div>
+      <h4>Unverified owner statement — {{ entry.event.event_kind }}: {{ entry.event.state }}</h4>
+      <p>Responsible person: {{ entry.event.responsible_label }}. Recorded {{ entry.event.created_at }}; due {{ entry.event.due_date|default:"not set" }}.</p>
+      <p>{{ entry.event.notes }}</p>
+      <ul>{% for link in entry.event.links %}<li>{{ link }} — owner reference, not fetched or verified</li>{% endfor %}</ul>
+      <p>Completion or evidence review is an owner statement. Verified resolution is not established; the original source remains unchanged.</p>
+      <details>
+        <summary>Frozen statement binding</summary>
+        <p>Event {{ entry.selection.event_id }}; SHA-256 {{ entry.selection.event_sha256 }}.</p>
+        <p>Exact proposal {{ entry.selection.payload.proposal_id }}; SHA-256 {{ entry.selection.payload.proposal_sha256 }}.</p>
+        <p>Revision {{ entry.selection.payload.revision_id }}; SHA-256 {{ entry.selection.payload.revision_sha256 }}; full card SHA-256 {{ entry.selection.payload.card_sha256 }}.</p>
+        <p>Original outcome {{ entry.selection.payload.original_outcome }}; source digest {{ entry.selection.payload.source_digest }}.</p>
+      </details>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </article>
+  {% empty %}<p>No proposals were produced under the frozen proposal contract.</p>{% endfor %}
+  {% if not entries %}<p>No owner statements were selected at freeze.</p>{% endif %}
+</section>

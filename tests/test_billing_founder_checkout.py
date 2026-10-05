@@ -3,6 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
+from tests.stripe_fixtures import configure_paid_core_checkout
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory
 
@@ -26,6 +27,11 @@ from apps.billing.views import (
 
 pytestmark = pytest.mark.django_db
 User = get_user_model()
+
+
+@pytest.fixture(autouse=True)
+def enable_explicit_founder_offer(settings):
+    settings.FOUNDER_OFFER_ENABLED = True
 
 
 def make_user(email):
@@ -218,6 +224,7 @@ def test_checkout_without_available_slot_uses_standard_price(
 
 def test_matching_completed_checkout_claims_founder_slot(
     monkeypatch,
+    settings,
 ):
     user = make_user("claim-founder@example.com")
     customer = BillingCustomer.objects.create(user=user)
@@ -263,6 +270,7 @@ def test_matching_completed_checkout_claims_founder_slot(
         token=slot.reservation_token,
     )
 
+    configure_paid_core_checkout(monkeypatch,settings,customer,session)
     _handle_checkout_completed(session)
 
     subscription = Subscription.objects.get(
@@ -295,7 +303,7 @@ def test_matching_completed_checkout_claims_founder_slot(
     assert slot.claimed_at is not None
 
 
-def test_stale_reservation_token_cannot_claim_founder_slot():
+def test_stale_reservation_token_cannot_claim_founder_slot(monkeypatch,settings):
     user = make_user("stale-founder@example.com")
     customer = BillingCustomer.objects.create(user=user)
 
@@ -320,6 +328,7 @@ def test_stale_reservation_token_cannot_claim_founder_slot():
         token=slot.reservation_token,
     )
 
+    configure_paid_core_checkout(monkeypatch,settings,customer,stale_session)
     with pytest.raises(
         RuntimeError,
         match="could not prove its authoritative reservation",
@@ -502,8 +511,9 @@ def test_stripe_session_failure_releases_reservation(
             checkout_request(user)
         )
 
-    customer = BillingCustomer.objects.get(user=user)
-
+    # The identity transaction rolls back both the new customer and its
+    # reservation when Stripe fails. No slot remains allocated to this user.
+    assert not BillingCustomer.objects.filter(user=user).exists()
     assert not FounderSlot.objects.filter(
-        billing_customer=customer
+        billing_customer__user=user
     ).exists()

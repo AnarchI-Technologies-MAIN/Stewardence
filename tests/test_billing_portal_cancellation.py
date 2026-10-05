@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone as dt_timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
@@ -16,7 +16,8 @@ from apps.billing.views import (
     _handle_subscription_deleted,
     _handle_subscription_updated,
 )
-
+from tests.conftest import grant_paid_test_coverage
+from tests.stripe_fixtures import configure_paid_core_checkout
 
 pytestmark = pytest.mark.django_db
 User = get_user_model()
@@ -34,6 +35,7 @@ def make_subscription(
     email,
     founder=True,
     status=Subscription.Status.ACTIVE,
+    issued_coverage=True,
 ):
     user = make_user(email)
 
@@ -47,34 +49,27 @@ def make_subscription(
         portfolio=Subscription.Portfolio.CORE,
         status=status,
         stripe_subscription_id="sub_test",
-        stripe_schedule_id=(
-            "sub_sched_test"
-            if founder
-            else None
-        ),
+        stripe_schedule_id=("sub_sched_test" if founder else None),
         is_founder=founder,
-        founder_sequence=(
-            7
-            if founder
-            else None
-        ),
+        founder_sequence=(7 if founder else None),
         founder_intro_ends_at=(
             datetime(
                 2027,
                 3,
                 10,
-                tzinfo=dt_timezone.utc,
+                tzinfo=UTC,
             )
             if founder
             else None
         ),
-        current_price_cents=(
-            4900
-            if founder
-            else 9900
-        ),
+        current_price_cents=(4900 if founder else 9900),
     )
 
+    if issued_coverage and status in {
+        Subscription.Status.ACTIVE,
+        Subscription.Status.CANCELING,
+    }:
+        grant_paid_test_coverage(subscription)
     return user, customer, subscription
 
 
@@ -89,9 +84,7 @@ def stripe_subscription(
     return {
         "id": "sub_test",
         "status": status,
-        "cancel_at_period_end": (
-            cancel_at_period_end
-        ),
+        "cancel_at_period_end": (cancel_at_period_end),
         "current_period_end": period_end,
         "schedule": schedule,
         "items": {
@@ -110,9 +103,7 @@ def stripe_subscription(
 def test_portal_requires_authenticated_user(
     client,
 ):
-    response = client.get(
-        reverse("billing:portal")
-    )
+    response = client.get(reverse("billing:portal"))
 
     assert response.status_code == 302
 
@@ -127,31 +118,23 @@ def test_portal_session_uses_owned_stripe_customer(
         "sk_test_stewardence_unit_only",
     )
 
-    user = make_user(
-        "portal-owner@example.com"
-    )
+    user = make_user("portal-owner@example.com")
 
     BillingCustomer.objects.create(
         user=user,
         stripe_customer_id="cus_owned",
     )
 
-    settings.STRIPE_BILLING_PORTAL_CONFIGURATION_ID = (
-        "bpc_test"
-    )
+    settings.STRIPE_BILLING_PORTAL_CONFIGURATION_ID = "bpc_test"
 
-    settings.STRIPE_BILLING_PORTAL_FOUNDER_CONFIGURATION_ID = (
-        "bpc_founder_test"
-    )
+    settings.STRIPE_BILLING_PORTAL_FOUNDER_CONFIGURATION_ID = "bpc_founder_test"
 
     captured = {}
 
     def fake_create(**kwargs):
         captured.update(kwargs)
 
-        return SimpleNamespace(
-            url="https://billing.stripe.test/session"
-        )
+        return SimpleNamespace(url="https://billing.stripe.test/session")
 
     monkeypatch.setattr(
         "apps.billing.views.stripe.billing_portal.Session.create",
@@ -160,32 +143,21 @@ def test_portal_session_uses_owned_stripe_customer(
 
     client.force_login(user)
 
-    response = client.get(
-        reverse("billing:portal")
-    )
+    response = client.get(reverse("billing:portal"))
 
     assert response.status_code == 302
 
-    assert (
-        response["Location"]
-        == "https://billing.stripe.test/session"
-    )
+    assert response["Location"] == "https://billing.stripe.test/session"
 
     assert captured["customer"] == "cus_owned"
     assert captured["configuration"] == "bpc_test"
 
-    assert captured["return_url"].endswith(
-        reverse(
-            "organizations:workspace-selection"
-        )
-    )
+    assert captured["return_url"].endswith(reverse("organizations:workspace-selection"))
 
 
 def test_pending_cancellation_retains_access_and_founder():
-    _user, _customer, subscription = (
-        make_subscription(
-            email="canceling@example.com",
-        )
+    _user, _customer, subscription = make_subscription(
+        email="canceling@example.com",
     )
 
     _handle_subscription_updated(
@@ -196,39 +168,25 @@ def test_pending_cancellation_retains_access_and_founder():
 
     subscription.refresh_from_db()
 
-    assert (
-        subscription.status
-        == Subscription.Status.CANCELING
-    )
+    assert subscription.status == Subscription.Status.CANCELING
 
-    assert (
-        subscription.cancel_at_period_end
-        is True
-    )
+    assert subscription.cancel_at_period_end is True
 
     assert subscription.grants_access is True
     assert subscription.is_founder is True
 
-    assert (
-        subscription.stripe_schedule_id
-        == "sub_sched_test"
-    )
+    assert subscription.stripe_schedule_id == "sub_sched_test"
 
-    assert (
-        subscription.current_period_end
-        == datetime.fromtimestamp(
-            1800000000,
-            tz=dt_timezone.utc,
-        )
+    assert subscription.current_period_end == datetime.fromtimestamp(
+        1800000000,
+        tz=UTC,
     )
 
 
 def test_subscription_update_cannot_undo_schedule_owned_founder_cancel():
-    _user, _customer, subscription = (
-        make_subscription(
-            email="schedule-owned-cancel@example.com",
-            status=Subscription.Status.CANCELING,
-        )
+    _user, _customer, subscription = make_subscription(
+        email="schedule-owned-cancel@example.com",
+        status=Subscription.Status.CANCELING,
     )
 
     subscription.cancel_at_period_end = True
@@ -257,30 +215,19 @@ def test_subscription_update_cannot_undo_schedule_owned_founder_cancel():
 
     subscription.refresh_from_db()
 
-    assert (
-        subscription.status
-        == Subscription.Status.CANCELING
-    )
+    assert subscription.status == Subscription.Status.CANCELING
 
-    assert (
-        subscription.cancel_at_period_end
-        is True
-    )
+    assert subscription.cancel_at_period_end is True
 
     assert subscription.grants_access is True
     assert subscription.is_founder is True
 
-    assert (
-        subscription.stripe_schedule_id
-        == "sub_sched_test"
-    )
+    assert subscription.stripe_schedule_id == "sub_sched_test"
 
 
 def test_actual_deletion_ends_founder_economic_entitlement():
-    _user, _customer, subscription = (
-        make_subscription(
-            email="deleted-founder@example.com",
-        )
+    _user, _customer, subscription = make_subscription(
+        email="deleted-founder@example.com",
     )
 
     _handle_subscription_deleted(
@@ -292,10 +239,7 @@ def test_actual_deletion_ends_founder_economic_entitlement():
 
     subscription.refresh_from_db()
 
-    assert (
-        subscription.status
-        == Subscription.Status.CANCELED
-    )
+    assert subscription.status == Subscription.Status.CANCELED
 
     assert subscription.grants_access is False
     assert subscription.is_founder is False
@@ -309,18 +253,15 @@ def test_actual_deletion_ends_founder_economic_entitlement():
 
 def test_standard_resubscription_clears_active_founder_state(
     monkeypatch,
+    settings,
 ):
-    user, customer, subscription = (
-        make_subscription(
-            email="standard-resubscribe@example.com",
-            status=Subscription.Status.CANCELED,
-        )
+    user, customer, subscription = make_subscription(
+        email="standard-resubscribe@example.com",
+        status=Subscription.Status.CANCELED,
     )
 
     subscription.is_founder = True
-    subscription.stripe_schedule_id = (
-        "sub_sched_historical"
-    )
+    subscription.stripe_schedule_id = "sub_sched_historical"
 
     subscription.save(
         update_fields=[
@@ -339,21 +280,14 @@ def test_standard_resubscription_clears_active_founder_state(
         },
     }
 
-    _handle_checkout_completed(
-        session
-    )
+    configure_paid_core_checkout(monkeypatch, settings, customer, session)
+    _handle_checkout_completed(session)
 
     subscription.refresh_from_db()
 
-    assert (
-        subscription.stripe_subscription_id
-        == "sub_standard_new"
-    )
+    assert subscription.stripe_subscription_id == "sub_standard_new"
 
-    assert (
-        subscription.status
-        == Subscription.Status.ACTIVE
-    )
+    assert subscription.status == Subscription.Status.ACTIVE
 
     assert subscription.is_founder is False
     assert subscription.founder_sequence == 7

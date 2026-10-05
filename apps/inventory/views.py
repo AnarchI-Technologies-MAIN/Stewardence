@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -8,7 +9,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
 
 from apps.assessments.snapshots import create_assessment_snapshot
 from apps.audit.append import append_audit_event
@@ -21,7 +22,7 @@ from apps.policies.context import inventory_policy_context
 from apps.policies.engine import PolicyResult, evaluate_policies
 from apps.policies.packs.accounting import ACCOUNTING_RISK_PACK_V1
 from apps.policies.risk import calculate_policy_risk
-from apps.roi.engine import calculate_roi
+from apps.roi.engine_v2 import ROI_ENGINE_VERSION, calculate_roi
 from apps.roi.forms import ROIForm
 
 from .forms import InventoryItemForm
@@ -87,6 +88,9 @@ def inventory_list_view(request):
         )
     if status in InventoryItem.Status.values:
         items = items.filter(status=status)
+        items = items.filter(
+            Q(declaration_contract="") | Q(declared_fields__contains=["status"])
+        )
     membership = _membership(request)
     return render(
         request,
@@ -104,6 +108,8 @@ def inventory_list_view(request):
 @login_required
 def inventory_detail_view(request, item_id):
     item = _inventory_item(request, item_id)
+    if item.declaration_contract:
+        return redirect("inventory:explicit-detail", item_id=item.id)
     membership = _membership(request)
     policy_evaluation = evaluate_policies(
         ACCOUNTING_RISK_PACK_V1.rules,
@@ -132,6 +138,10 @@ def inventory_detail_view(request, item_id):
 @require_http_methods(["GET", "POST"])
 def inventory_roi_view(request, item_id):
     item = _inventory_item(request, item_id)
+    if item.declaration_contract:
+        from .explicit_views import unavailable
+
+        return unavailable()
     result = None
     if request.method == "POST":
         form = ROIForm(request.POST)
@@ -139,13 +149,30 @@ def inventory_roi_view(request, item_id):
             result = calculate_roi(form.to_inputs())
             if request.POST.get("action") == "save_snapshot":
                 _require_inventory_writer(request)
-                snapshot = create_assessment_snapshot(
-                    organization_id=_organization_id(request),
-                    created_by_id=request.user.id,
-                    assessed_item_id=item.id,
-                    roi_inputs=form.to_inputs(),
-                    captured_at=timezone.now(),
-                )
+                from apps.assessments.snapshots import ExplicitInventoryCaptureRequired
+
+                try:
+                    snapshot = create_assessment_snapshot(
+                        organization_id=_organization_id(request),
+                        created_by_id=request.user.id,
+                        assessed_item_id=item.id,
+                        roi_inputs=form.to_inputs(),
+                        captured_at=timezone.now(),
+                        roi_engine_version=ROI_ENGINE_VERSION,
+                    )
+                except ExplicitInventoryCaptureRequired:
+                    form.add_error(
+                        None,
+                        "This firm has knowledge records that require a deliberate "
+                        "evidence review. Use that review path before saving a new "
+                        "assessment.",
+                    )
+                    return render(
+                        request,
+                        "inventory/roi.html",
+                        {"item": item, "form": form, "roi_result": result},
+                        status=409,
+                    )
                 return redirect("assessments:detail", snapshot_id=snapshot.id)
     else:
         form = ROIForm(
@@ -177,7 +204,14 @@ def inventory_roi_view(request, item_id):
 @transaction.atomic
 @require_http_methods(["GET", "POST"])
 def create_inventory_item_view(request):
-    _require_inventory_writer(request)
+    membership = _require_inventory_writer(request)
+    if (
+        getattr(settings, "CORE_EXPLICIT_INVENTORY_ENABLED", False)
+        and membership.role == OrganizationMember.Role.OWNER
+    ):
+        from .explicit_views import explicit_inventory_view
+
+        return explicit_inventory_view(request)
     if request.method == "POST":
         form = InventoryItemForm(request.POST)
         if form.is_valid():
@@ -207,6 +241,10 @@ def create_inventory_item_view(request):
 def edit_inventory_item_view(request, item_id):
     _require_inventory_writer(request)
     item = _inventory_item(request, item_id)
+    if item.declaration_contract:
+        from .explicit_views import explicit_inventory_view
+
+        return explicit_inventory_view(request, item_id=item.id)
     if request.method == "POST":
         form = InventoryItemForm(request.POST, instance=item)
         if form.is_valid():
@@ -241,6 +279,10 @@ def edit_inventory_item_view(request, item_id):
 def archive_inventory_item_action(request, item_id):
     _require_inventory_writer(request)
     item = _inventory_item(request, item_id)
+    if item.declaration_contract:
+        from .explicit_views import unavailable
+
+        return unavailable()
     item.archived_at = timezone.now()
     item.declared_fields = sorted(set(item.declared_fields) | {"archived_at"})
     item.save(update_fields=("archived_at", "declared_fields", "updated_at"))

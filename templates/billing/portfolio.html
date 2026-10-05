@@ -6,10 +6,10 @@
 <section class="portfolio-shell">
   <header class="portfolio-heading">
     <p class="eyebrow">Welcome to Stewardence</p>
-    <h1>Choose how you want to steward your organization.</h1>
+    <h1>Choose your subscription plan.</h1>
     <p>
-      Your account is protected and ready. Select a subscription portfolio
-      to unlock your workspace and begin.
+      Compare the included capabilities and monthly rates. Core is available now;
+      Automation and Enterprise are not yet available for purchase.
     </p>
 
     {% if founder_offer_active %}
@@ -27,6 +27,7 @@
     <article class="portfolio-card portfolio-card-featured">
       <p class="portfolio-status">Available now</p>
       <h2>Core</h2>
+      <p class="portfolio-rate-note">For freelancers</p>
 
       {% if founder_offer_active %}
         <p class="portfolio-standard-price">$99 / month</p>
@@ -62,8 +63,9 @@
     </article>
 
     <article class="portfolio-card">
-      <p class="portfolio-status">Coming next</p>
+      <p class="portfolio-status">Not yet available</p>
       <h2>Automation</h2>
+      <p class="portfolio-rate-note">For organizations</p>
       <p class="portfolio-standard-price">$149 / month standard</p>
 
       {% if founder_offer_active %}
@@ -71,25 +73,30 @@
         <p class="portfolio-rate-note">
           Founding rate for 6 months, then $112/month while continuously subscribed.
         </p>
+      {% else %}
+        <p class="portfolio-price">$149 <span>/ month</span></p>
       {% endif %}
 
       <p>
         Everything in Core plus governed automated detection,
-        persistent assessment workflows, and qualified automation capabilities.
+        persistent assessment workflows, and automation capabilities as they become available.
       </p>
 
       <button class="button button-outline button-full" type="button" disabled>
-        Qualification in progress
+        Automation unavailable
       </button>
     </article>
 
     <article class="portfolio-card">
       <p class="portfolio-status">In development</p>
       <h2>Enterprise</h2>
+      <p class="portfolio-rate-note">For corporate organizations</p>
       <p class="portfolio-price">$500 <span>/ month</span></p>
+      <p class="portfolio-rate-note">Includes four branches. Each additional branch adds $25/month.</p>
       <p class="portfolio-rate-note">
-        Planned introductory rate: $375/month for the first 2 months.
+        Planned founder rate: $350/month for six months, then $400/month while founder status is retained.
       </p>
+      <p class="portfolio-rate-note">Founders receive five included branches. Each additional branch adds $25/month.</p>
 
       <p>
         Organization-scale stewardship with advanced governance,
@@ -98,7 +105,7 @@
       </p>
 
       <button class="button button-outline button-full" type="button" disabled>
-        Enterprise preview
+        Enterprise unavailable
       </button>
     </article>
 

@@ -65,3 +65,28 @@ class OrganizationMember(models.Model):
         return (
             f"{self.user.email} — {self.organization.name} ({self.get_role_display()})"
         )
+
+
+class WorkflowProfile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.OneToOneField(Organization, on_delete=models.PROTECT)
+    profile = models.CharField(max_length=32, choices=[("business.v1", "Business branches"),
+        ("development.v1", "Development branches")])
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    settings = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "organization_workflow_profiles"
+
+    def save(self, *args, **kwargs):
+        from django.core.exceptions import ValidationError
+        from apps.jobs.contracts import validate_branch_settings
+        if not self._state.adding:
+            raise ValidationError("Workflow profile meaning cannot be silently changed")
+        validate_branch_settings(self.profile, self.settings)
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        from django.core.exceptions import ValidationError
+        raise ValidationError("Workflow profile meaning cannot be silently changed")

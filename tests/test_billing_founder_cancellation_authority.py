@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone as dt_timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
@@ -18,7 +18,7 @@ from apps.billing.stripe_schedules import (
 from apps.billing.views import (
     _handle_subscription_schedule_event,
 )
-
+from tests.conftest import grant_paid_test_coverage
 
 pytestmark = pytest.mark.django_db
 User = get_user_model()
@@ -55,11 +55,13 @@ def make_founder(
             2027,
             3,
             10,
-            tzinfo=dt_timezone.utc,
+            tzinfo=UTC,
         ),
         current_price_cents=4900,
     )
 
+    if status in {Subscription.Status.ACTIVE, Subscription.Status.CANCELING}:
+        grant_paid_test_coverage(subscription)
     return user, customer, subscription
 
 
@@ -91,29 +93,21 @@ def test_founder_cancel_uses_active_schedule(
     monkeypatch,
     settings,
 ):
-    settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID = (
-        INTRO_PRICE
-    )
+    settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID = INTRO_PRICE
 
-    settings.STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID = (
-        ONGOING_PRICE
-    )
+    settings.STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID = ONGOING_PRICE
 
-    _user, _customer, subscription = (
-        make_founder(
-            email="schedule-cancel@example.com",
-        )
+    _user, _customer, subscription = make_founder(
+        email="schedule-cancel@example.com",
     )
 
     monkeypatch.setattr(
-        "apps.billing.stripe_schedules."
-        "stripe.Subscription.retrieve",
+        "apps.billing.stripe_schedules.stripe.Subscription.retrieve",
         lambda _id: stripe_subscription(),
     )
 
     monkeypatch.setattr(
-        "apps.billing.stripe_schedules."
-        "stripe.SubscriptionSchedule.retrieve",
+        "apps.billing.stripe_schedules.stripe.SubscriptionSchedule.retrieve",
         lambda _id: {
             "id": "sub_sched_founder",
             "status": "active",
@@ -137,15 +131,12 @@ def test_founder_cancel_uses_active_schedule(
         }
 
     monkeypatch.setattr(
-        "apps.billing.stripe_schedules."
-        "stripe.SubscriptionSchedule.modify",
+        "apps.billing.stripe_schedules.stripe.SubscriptionSchedule.modify",
         fake_modify,
     )
 
-    result = (
-        schedule_founder_cancellation_at_period_end(
-            subscription=subscription,
-        )
+    result = schedule_founder_cancellation_at_period_end(
+        subscription=subscription,
     )
 
     assert result["mode"] == "schedule"
@@ -164,31 +155,21 @@ def test_released_founder_cancel_uses_subscription(
     monkeypatch,
     settings,
 ):
-    settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID = (
-        INTRO_PRICE
-    )
+    settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID = INTRO_PRICE
 
-    settings.STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID = (
-        ONGOING_PRICE
-    )
+    settings.STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID = ONGOING_PRICE
 
-    _user, _customer, subscription = (
-        make_founder(
-            email="released-cancel@example.com",
-        )
+    _user, _customer, subscription = make_founder(
+        email="released-cancel@example.com",
     )
 
     monkeypatch.setattr(
-        "apps.billing.stripe_schedules."
-        "stripe.Subscription.retrieve",
-        lambda _id: stripe_subscription(
-            price_id=ONGOING_PRICE
-        ),
+        "apps.billing.stripe_schedules.stripe.Subscription.retrieve",
+        lambda _id: stripe_subscription(price_id=ONGOING_PRICE),
     )
 
     monkeypatch.setattr(
-        "apps.billing.stripe_schedules."
-        "stripe.SubscriptionSchedule.retrieve",
+        "apps.billing.stripe_schedules.stripe.SubscriptionSchedule.retrieve",
         lambda _id: {
             "id": "sub_sched_founder",
             "status": "released",
@@ -201,9 +182,7 @@ def test_released_founder_cancel_uses_subscription(
         subscription_id,
         **kwargs,
     ):
-        captured["subscription_id"] = (
-            subscription_id
-        )
+        captured["subscription_id"] = subscription_id
         captured.update(kwargs)
 
         return {
@@ -213,46 +192,31 @@ def test_released_founder_cancel_uses_subscription(
         }
 
     monkeypatch.setattr(
-        "apps.billing.stripe_schedules."
-        "stripe.Subscription.modify",
+        "apps.billing.stripe_schedules.stripe.Subscription.modify",
         fake_subscription_modify,
     )
 
-    result = (
-        schedule_founder_cancellation_at_period_end(
-            subscription=subscription,
-        )
+    result = schedule_founder_cancellation_at_period_end(
+        subscription=subscription,
     )
 
     assert result["mode"] == "subscription"
-    assert (
-        captured["subscription_id"]
-        == "sub_founder"
-    )
+    assert captured["subscription_id"] == "sub_founder"
 
-    assert (
-        captured["cancel_at_period_end"]
-        is True
-    )
+    assert captured["cancel_at_period_end"] is True
 
 
 def test_founder_undo_restores_original_intro_boundary(
     monkeypatch,
     settings,
 ):
-    settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID = (
-        INTRO_PRICE
-    )
+    settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID = INTRO_PRICE
 
-    settings.STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID = (
-        ONGOING_PRICE
-    )
+    settings.STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID = ONGOING_PRICE
 
-    _user, _customer, subscription = (
-        make_founder(
-            email="undo-founder@example.com",
-            status=Subscription.Status.CANCELING,
-        )
+    _user, _customer, subscription = make_founder(
+        email="undo-founder@example.com",
+        status=Subscription.Status.CANCELING,
     )
 
     subscription.cancel_at_period_end = True
@@ -265,14 +229,12 @@ def test_founder_undo_restores_original_intro_boundary(
     )
 
     monkeypatch.setattr(
-        "apps.billing.stripe_schedules."
-        "stripe.Subscription.retrieve",
+        "apps.billing.stripe_schedules.stripe.Subscription.retrieve",
         lambda _id: stripe_subscription(),
     )
 
     monkeypatch.setattr(
-        "apps.billing.stripe_schedules."
-        "stripe.SubscriptionSchedule.retrieve",
+        "apps.billing.stripe_schedules.stripe.SubscriptionSchedule.retrieve",
         lambda _id: {
             "id": "sub_sched_founder",
             "status": "active",
@@ -296,8 +258,7 @@ def test_founder_undo_restores_original_intro_boundary(
         }
 
     monkeypatch.setattr(
-        "apps.billing.stripe_schedules."
-        "stripe.SubscriptionSchedule.modify",
+        "apps.billing.stripe_schedules.stripe.SubscriptionSchedule.modify",
         fake_modify,
     )
 
@@ -309,32 +270,18 @@ def test_founder_undo_restores_original_intro_boundary(
     assert captured["end_behavior"] == "release"
     assert len(captured["phases"]) == 2
 
-    expected_intro_end = int(
-        subscription.founder_intro_ends_at
-        .timestamp()
-    )
+    expected_intro_end = int(subscription.founder_intro_ends_at.timestamp())
 
-    assert (
-        captured["phases"][0]["end_date"]
-        == expected_intro_end
-    )
+    assert captured["phases"][0]["end_date"] == expected_intro_end
 
-    assert (
-        captured["phases"][0]["items"][0]["price"]
-        == INTRO_PRICE
-    )
+    assert captured["phases"][0]["items"][0]["price"] == INTRO_PRICE
 
-    assert (
-        captured["phases"][1]["items"][0]["price"]
-        == ONGOING_PRICE
-    )
+    assert captured["phases"][1]["items"][0]["price"] == ONGOING_PRICE
 
 
 def test_schedule_event_normalizes_founder_canceling():
-    _user, _customer, subscription = (
-        make_founder(
-            email="schedule-event@example.com",
-        )
+    _user, _customer, subscription = make_founder(
+        email="schedule-event@example.com",
     )
 
     _handle_subscription_schedule_event(
@@ -347,25 +294,17 @@ def test_schedule_event_normalizes_founder_canceling():
 
     subscription.refresh_from_db()
 
-    assert (
-        subscription.status
-        == Subscription.Status.CANCELING
-    )
+    assert subscription.status == Subscription.Status.CANCELING
 
-    assert (
-        subscription.cancel_at_period_end
-        is True
-    )
+    assert subscription.cancel_at_period_end is True
 
     assert subscription.grants_access is True
 
 
 def test_schedule_release_event_undoes_pending_cancel():
-    _user, _customer, subscription = (
-        make_founder(
-            email="schedule-release@example.com",
-            status=Subscription.Status.CANCELING,
-        )
+    _user, _customer, subscription = make_founder(
+        email="schedule-release@example.com",
+        status=Subscription.Status.CANCELING,
     )
 
     subscription.cancel_at_period_end = True
@@ -387,31 +326,21 @@ def test_schedule_release_event_undoes_pending_cancel():
 
     subscription.refresh_from_db()
 
-    assert (
-        subscription.status
-        == Subscription.Status.ACTIVE
-    )
+    assert subscription.status == Subscription.Status.ACTIVE
 
-    assert (
-        subscription.cancel_at_period_end
-        is False
-    )
+    assert subscription.cancel_at_period_end is False
 
 
 def test_founder_cancel_route_requires_post(
     client,
 ):
-    user, _customer, _subscription = (
-        make_founder(
-            email="cancel-route@example.com",
-        )
+    user, _customer, _subscription = make_founder(
+        email="cancel-route@example.com",
     )
 
     client.force_login(user)
 
-    response = client.get(
-        reverse("billing:founder-cancel")
-    )
+    response = client.get(reverse("billing:founder-cancel"))
 
     assert response.status_code == 405
 
@@ -419,20 +348,14 @@ def test_founder_cancel_route_requires_post(
 def test_founder_undo_route_requires_post(
     client,
 ):
-    user, _customer, _subscription = (
-        make_founder(
-            email="undo-route@example.com",
-            status=Subscription.Status.CANCELING,
-        )
+    user, _customer, _subscription = make_founder(
+        email="undo-route@example.com",
+        status=Subscription.Status.CANCELING,
     )
 
     client.force_login(user)
 
-    response = client.get(
-        reverse(
-            "billing:founder-cancel-undo"
-        )
-    )
+    response = client.get(reverse("billing:founder-cancel-undo"))
 
     assert response.status_code == 405
 
@@ -447,44 +370,30 @@ def test_founder_portal_uses_no_cancel_configuration(
         "sk_test_stewardence_unit_only",
     )
 
-    user, _customer, _subscription = (
-        make_founder(
-            email="founder-portal@example.com",
-        )
+    user, _customer, _subscription = make_founder(
+        email="founder-portal@example.com",
     )
 
-    settings.STRIPE_BILLING_PORTAL_CONFIGURATION_ID = (
-        "bpc_standard"
-    )
+    settings.STRIPE_BILLING_PORTAL_CONFIGURATION_ID = "bpc_standard"
 
-    settings.STRIPE_BILLING_PORTAL_FOUNDER_CONFIGURATION_ID = (
-        "bpc_founder_no_cancel"
-    )
+    settings.STRIPE_BILLING_PORTAL_FOUNDER_CONFIGURATION_ID = "bpc_founder_no_cancel"
 
     captured = {}
 
     def fake_create(**kwargs):
         captured.update(kwargs)
 
-        return SimpleNamespace(
-            url="https://billing.stripe.test/founder"
-        )
+        return SimpleNamespace(url="https://billing.stripe.test/founder")
 
     monkeypatch.setattr(
-        "apps.billing.views."
-        "stripe.billing_portal.Session.create",
+        "apps.billing.views.stripe.billing_portal.Session.create",
         fake_create,
     )
 
     client.force_login(user)
 
-    response = client.get(
-        reverse("billing:portal")
-    )
+    response = client.get(reverse("billing:portal"))
 
     assert response.status_code == 302
 
-    assert (
-        captured["configuration"]
-        == "bpc_founder_no_cancel"
-    )
+    assert captured["configuration"] == "bpc_founder_no_cancel"

@@ -3,6 +3,8 @@ from django.urls import include, path
 
 from .downloads import download_view
 from .health import healthz, readyz
+from apps.jobs.views import operations_dashboard
+from apps.jobs.core_views import core_workspace,pause_core
 
 
 def home_view(request):
@@ -16,6 +18,12 @@ def home_view(request):
 
 
 urlpatterns = [
+    path("reviews/", include("apps.reviews.urls")),
+    path("explore/", include("apps.funnels.urls")),
+    path('core/pause/',pause_core,name='core-pause'),
+    path("core/workflows/", core_workspace, name="core-workspace"),
+    path("core/operations/", operations_dashboard, name="core-operations"),
+    path("integrations/", include("apps.integrations.urls")),
     path(
         "healthz",
         healthz,

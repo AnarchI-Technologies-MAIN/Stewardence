@@ -17,11 +17,26 @@ class TenantContextResolutionMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # This sandbox-only module owns independent authorization transactions.
+        if request.path.startswith(
+            (
+                "/integrations/quickbooks/",
+                "/integrations/microsoft/",
+                "/integrations/xero/",
+            )
+        ):
+            return self.get_response(request)
+
         if request.path in {"/healthz", "/readyz"}:
             return self.get_response(request)
 
         user = request.user
         if not user.is_authenticated:
+            return self.get_response(request)
+
+        # Checkout is owner-bound billing work, not tenant work. Do not wrap
+        # remote creation in a transaction that can roll back its request key.
+        if request.method == "POST" and request.path_info == "/billing/checkout/core/":
             return self.get_response(request)
 
         with identity_transaction(user.id):

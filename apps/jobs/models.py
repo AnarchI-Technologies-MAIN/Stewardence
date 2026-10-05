@@ -29,6 +29,7 @@ class BackgroundJob(models.Model):
     )
     job_type = models.CharField(max_length=32, choices=Type)
     payload = models.JSONField(default=dict)
+    input_sha256 = models.CharField(max_length=64, editable=False)
     status = models.CharField(
         max_length=16,
         choices=Status,
@@ -110,3 +111,42 @@ class BackgroundJob(models.Model):
 
     def __str__(self) -> str:
         return f"{self.job_type} {self.id} ({self.status})"
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            import hashlib
+            import rfc8785
+            self.input_sha256 = hashlib.sha256(rfc8785.dumps(self.payload)).hexdigest()
+        super().save(*args, **kwargs)
+
+
+class RecoveryReceipt(models.Model):
+    """Append-only outcome evidence; never stores transport errors or credentials."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    job = models.ForeignKey(BackgroundJob, on_delete=models.PROTECT)
+    attempt = models.PositiveSmallIntegerField()
+    outcome = models.CharField(max_length=16, choices=[("completed", "Completed"),
+        ("retry", "Retry admitted"), ("review", "Review required")])
+    payload = models.JSONField()
+    sha256 = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "job_recovery_receipts"
+        constraints = [models.UniqueConstraint(fields=("job", "attempt", "outcome"),
+            name="recovery_receipt_attempt_unique")]
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            from django.core.exceptions import ValidationError
+            raise ValidationError("Recovery receipts are immutable")
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        from django.core.exceptions import ValidationError
+        raise ValidationError("Recovery receipts are immutable")
+
+
+from .core_models import KnownEntity, WorkflowSchedule, CoreControl, WorkflowRun, ActionCardRevision  # noqa: E402,F401
+from .core_models import DecisionEvent, DecisionDeskGate  # noqa: E402,F401

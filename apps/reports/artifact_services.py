@@ -33,8 +33,6 @@ def persist_pdf_artifact(
     )
     digest = sha256_hex(pdf_bytes)
 
-    uploaded = False
-
     try:
         with transaction.atomic(using=using):
             # Serialize artifact materialization for exactly one report.
@@ -71,8 +69,6 @@ def persist_pdf_artifact(
                 content=pdf_bytes,
                 content_type=PDF_CONTENT_TYPE,
             )
-            uploaded = True
-
             return ReportArtifact.objects.using(using).create(
                 organization_id=report.organization_id,
                 report_id=report.id,
@@ -84,8 +80,9 @@ def persist_pdf_artifact(
             )
 
     except Exception:
-        if uploaded:
-            storage.delete(key=key)
+        # Object storage cannot participate in the database transaction. Retain
+        # an orphan for reconciliation: deleting after releasing the lock could
+        # destroy an object another successful transaction has adopted.
         raise
 
 

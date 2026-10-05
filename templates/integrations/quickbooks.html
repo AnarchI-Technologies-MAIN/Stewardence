@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}QuickBooks connection · Stewardence{% endblock %}
+{% block content %}
+<h1>QuickBooks Online</h1>
+<p>Owner-only sandbox checks and manual report exports. Production and scheduled collection are not enabled.</p>
+{% if workspace_required %}
+<h2>Select your sandbox workspace</h2>
+<p>This selection authorizes sandbox connection testing only. It does not grant a paid subscription.</p>
+{% if sandbox_workspaces %}
+<form method="post" action="{% url 'integrations:quickbooks-connect' %}">
+{% csrf_token %}
+<input type="hidden" name="action" value="select_workspace">
+<label for="sandbox-workspace">Workspace you own</label>
+<select id="sandbox-workspace" name="workspace_id" required>
+{% for workspace in sandbox_workspaces %}<option value="{{ workspace.organization_id }}">{{ workspace.organization__name }}</option>{% endfor %}
+</select>
+<button type="submit">Use this workspace for sandbox testing</button>
+</form>
+{% else %}<p>No owned workspace is available for this sandbox account.</p>{% endif %}
+{% else %}
+<dl><dt>Environment</dt><dd>Sandbox</dd><dt>Connection</dt><dd>{{ connection_status }}</dd></dl>
+{% if result == 'connected' %}<p role="status">Sandbox connection saved.</p>
+{% elif result == 'disconnected' %}<p role="status">Disconnected. Stored credentials removed.</p>
+{% elif result == 'disconnect_pending' %}<p role="alert">Access is paused. Provider revocation has not been confirmed. Retry disconnect.</p>
+{% elif result == 'connection_failed' %}<p role="alert">Connection could not be completed. Start a new connection attempt.</p>
+{% elif result == 'refresh_failed' %}<p role="alert">Token check failed. Retry later, or disconnect and reconnect if access has expired.</p>
+{% elif result == 'token_checked' %}<p role="status">Token validity checked.</p>
+{% elif result == 'token_still_valid' %}<p role="status">Access token is still within its stored validity period. No renewal was requested.</p>
+{% elif result == 'token_refreshed' %}<p role="status">Access token renewed with Intuit and saved securely.</p>
+{% elif result == 'company_access_verified' %}<p role="status">Sandbox company API access verified. Company details were not retained; financial records were not collected.</p>
+{% elif result == 'company_check_token_required' %}<p role="alert">Check token validity first, then retry the company API check.</p>
+{% elif result == 'company_check_rate_limited' %}<p role="alert">Wait 30 seconds between company API checks.</p>
+{% elif result == 'company_check_failed' %}<p role="alert">Company API access could not be verified. Retry later or check the connection.</p>
+{% elif result %}<p role="alert">Connection setup is unavailable. Check the sandbox configuration.</p>{% endif %}
+{% if sandbox_enabled %}
+<form method="post" action="{% url 'integrations:quickbooks-connect' %}">{% csrf_token %}<button type="submit">Connect sandbox company</button></form>
+<form method="post" action="{% url 'integrations:quickbooks-refresh' %}">{% csrf_token %}<button type="submit">Check token validity</button></form>
+{% if connection_status == 'Connected' %}
+<p>This optional check reads sandbox company information once and records only the check outcome and time.</p>
+<form method="post" action="{% url 'integrations:quickbooks-verify-company' %}">{% csrf_token %}<button type="submit">Verify sandbox company API access</button></form>
+<h2>Export sandbox Profit and Loss evidence</h2>
+<p>Select up to 92 days, inclusive, and an explicit report basis. This reads one report; it does not change QuickBooks records or company settings.</p>
+<p>The JSON download contains the source report, currency, period, and source checksum. It may contain sensitive financial information. Stewardence retains the lifecycle event, not the report body. No ROI or savings are calculated.</p>
+<form method="post" action="{% url 'integrations:quickbooks-export-report' %}">
+{% csrf_token %}
+{{ report_form.as_p }}
+<button type="submit">Read and download sandbox report</button>
+</form>
+{% endif %}
+<form method="post" action="{% url 'integrations:quickbooks-disconnect' %}">{% csrf_token %}<button type="submit">Disconnect / retry disconnect</button></form>
+{% endif %}
+<p>Only the connecting workspace owner can manage this connection. Disconnect before connecting again.</p>
+{% endif %}
+{% endblock %}

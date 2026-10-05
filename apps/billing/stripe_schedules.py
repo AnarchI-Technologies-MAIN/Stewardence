@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone as dt_timezone
+from datetime import UTC, datetime
 
 import stripe
-from django.conf import settings
 
 from .catalog import PORTFOLIOS
+from .pricing import portfolio_price_ids, subscription_price_contract
 
 
 def _object_value(obj, name, default=None):
@@ -25,12 +25,8 @@ def _phase_value(phase, name, default=None):
 def _founder_metadata(*, subscription):
     return {
         "stewardence_founder": "true",
-        "stewardence_founder_sequence": str(
-            subscription.founder_sequence
-        ),
-        "stewardence_billing_customer_id": str(
-            subscription.billing_customer_id
-        ),
+        "stewardence_founder_sequence": str(subscription.founder_sequence),
+        "stewardence_billing_customer_id": str(subscription.billing_customer_id),
     }
 
 
@@ -52,54 +48,38 @@ def ensure_founder_subscription_schedule(
     failure therefore converges on the same external schedule.
     """
     if not subscription.is_founder:
-        raise RuntimeError(
-            "Founder schedule requires founder entitlement."
-        )
+        raise RuntimeError("Founder schedule requires founder entitlement.")
 
     if not subscription.founder_sequence:
-        raise RuntimeError(
-            "Founder schedule requires founder sequence."
-        )
+        raise RuntimeError("Founder schedule requires founder sequence.")
 
     stripe_subscription_id = subscription.stripe_subscription_id
 
     if not stripe_subscription_id:
-        raise RuntimeError(
-            "Founder schedule requires Stripe subscription ID."
-        )
+        raise RuntimeError("Founder schedule requires Stripe subscription ID.")
 
-    founder_intro_price_id = (
-        settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID
-    )
+    founder_intro_price_id = portfolio_price_ids(subscription.portfolio)[
+        "founder_intro"
+    ]
 
-    founder_ongoing_price_id = (
-        settings.STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID
-    )
+    founder_ongoing_price_id = portfolio_price_ids(subscription.portfolio)[
+        "founder_ongoing"
+    ]
 
     if not founder_intro_price_id:
-        raise RuntimeError(
-            "Founder intro Stripe price is not configured."
-        )
+        raise RuntimeError("Founder intro Stripe price is not configured.")
 
     if not founder_ongoing_price_id:
-        raise RuntimeError(
-            "Founder ongoing Stripe price is not configured."
-        )
+        raise RuntimeError("Founder ongoing Stripe price is not configured.")
 
-    create_key = (
-        "stewardence-founder-schedule-create:"
-        f"{stripe_subscription_id}"
-    )
+    create_key = f"stewardence-founder-schedule-create:{stripe_subscription_id}"
 
     configure_key = (
-        "stewardence-founder-schedule-configure-v1:"
-        f"{stripe_subscription_id}"
+        f"stewardence-founder-schedule-configure-v1:{stripe_subscription_id}"
     )
 
     if subscription.stripe_schedule_id:
-        schedule = stripe.SubscriptionSchedule.retrieve(
-            subscription.stripe_schedule_id
-        )
+        schedule = stripe.SubscriptionSchedule.retrieve(subscription.stripe_schedule_id)
     else:
         schedule = stripe.SubscriptionSchedule.create(
             from_subscription=stripe_subscription_id,
@@ -109,9 +89,7 @@ def ensure_founder_subscription_schedule(
     schedule_id = _object_value(schedule, "id")
 
     if not schedule_id:
-        raise RuntimeError(
-            "Stripe did not return a subscription schedule ID."
-        )
+        raise RuntimeError("Stripe did not return a subscription schedule ID.")
 
     current_phase = _object_value(
         schedule,
@@ -138,9 +116,7 @@ def ensure_founder_subscription_schedule(
             )
 
     if current_start is None:
-        raise RuntimeError(
-            "Stripe founder schedule has no current phase start."
-        )
+        raise RuntimeError("Stripe founder schedule has no current phase start.")
 
     metadata = _founder_metadata(
         subscription=subscription,
@@ -161,9 +137,9 @@ def ensure_founder_subscription_schedule(
                 ],
                 "duration": {
                     "interval": "month",
-                    "interval_count": PORTFOLIOS[
-                        "core"
-                    ]["founder_intro_months"],
+                    "interval_count": PORTFOLIOS[subscription.portfolio][
+                        "founder_intro_months"
+                    ],
                 },
                 "proration_behavior": "none",
                 "metadata": {
@@ -195,9 +171,7 @@ def ensure_founder_subscription_schedule(
     )
 
     if len(phases) < 2:
-        raise RuntimeError(
-            "Stripe founder schedule did not return both phases."
-        )
+        raise RuntimeError("Stripe founder schedule did not return both phases.")
 
     intro_end_timestamp = _phase_value(
         phases[0],
@@ -205,20 +179,17 @@ def ensure_founder_subscription_schedule(
     )
 
     if intro_end_timestamp is None:
-        raise RuntimeError(
-            "Stripe founder intro phase has no end date."
-        )
+        raise RuntimeError("Stripe founder intro phase has no end date.")
 
     intro_ends_at = datetime.fromtimestamp(
         intro_end_timestamp,
-        tz=dt_timezone.utc,
+        tz=UTC,
     )
 
     return {
         "schedule_id": schedule_id,
         "intro_ends_at": intro_ends_at,
     }
-
 
 
 def _stripe_subscription_period_end(
@@ -249,10 +220,7 @@ def _stripe_subscription_period_end(
             )
 
     if timestamp is None:
-        raise RuntimeError(
-            "Stripe subscription has no current "
-            "billing-period end."
-        )
+        raise RuntimeError("Stripe subscription has no current billing-period end.")
 
     return int(timestamp)
 
@@ -273,9 +241,7 @@ def _stripe_subscription_price_id(
     )
 
     if not data:
-        raise RuntimeError(
-            "Stripe subscription has no active item."
-        )
+        raise RuntimeError("Stripe subscription has no active item.")
 
     price = _object_value(
         data[0],
@@ -289,9 +255,7 @@ def _stripe_subscription_price_id(
     )
 
     if not price_id:
-        raise RuntimeError(
-            "Stripe subscription item has no price ID."
-        )
+        raise RuntimeError("Stripe subscription item has no price ID.")
 
     return price_id
 
@@ -328,26 +292,18 @@ def _schedule_current_start(
         if first_start is not None:
             return int(first_start)
 
-    raise RuntimeError(
-        "Founder schedule has no current phase start."
-    )
+    raise RuntimeError("Founder schedule has no current phase start.")
 
 
 def _active_founder_schedule(
     subscription,
 ):
-    schedule_id = (
-        subscription.stripe_schedule_id
-    )
+    schedule_id = subscription.stripe_schedule_id
 
     if not schedule_id:
         return None
 
-    schedule = (
-        stripe.SubscriptionSchedule.retrieve(
-            schedule_id
-        )
-    )
+    schedule = stripe.SubscriptionSchedule.retrieve(schedule_id)
 
     status = _object_value(
         schedule,
@@ -364,14 +320,9 @@ def _active_founder_schedule(
         return None
 
     if status == "canceled":
-        raise RuntimeError(
-            "Founder schedule is already canceled."
-        )
+        raise RuntimeError("Founder schedule is already canceled.")
 
-    raise RuntimeError(
-        "Founder schedule has unsupported "
-        f"status: {status!r}"
-    )
+    raise RuntimeError(f"Founder schedule has unsupported status: {status!r}")
 
 
 def schedule_founder_cancellation_at_period_end(
@@ -391,53 +342,30 @@ def schedule_founder_cancellation_at_period_end(
     so ordinary cancel_at_period_end is used.
     """
     if not subscription.is_founder:
-        raise RuntimeError(
-            "Founder cancellation requires "
-            "active founder entitlement."
-        )
+        raise RuntimeError("Founder cancellation requires active founder entitlement.")
 
-    stripe_subscription_id = (
-        subscription.stripe_subscription_id
-    )
+    stripe_subscription_id = subscription.stripe_subscription_id
 
     if not stripe_subscription_id:
-        raise RuntimeError(
-            "Founder cancellation requires "
-            "Stripe subscription ID."
-        )
+        raise RuntimeError("Founder cancellation requires Stripe subscription ID.")
 
-    stripe_subscription = (
-        stripe.Subscription.retrieve(
-            stripe_subscription_id
-        )
-    )
+    stripe_subscription = stripe.Subscription.retrieve(stripe_subscription_id)
 
-    period_end = (
-        _stripe_subscription_period_end(
-            stripe_subscription
-        )
-    )
+    period_end = _stripe_subscription_period_end(stripe_subscription)
 
-    active_price_id = (
-        _stripe_subscription_price_id(
-            stripe_subscription
-        )
-    )
+    active_price_id = _stripe_subscription_price_id(stripe_subscription)
 
     allowed_prices = {
-        settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID,
-        settings.STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID,
+        portfolio_price_ids(subscription.portfolio)["founder_intro"],
+        portfolio_price_ids(subscription.portfolio)["founder_ongoing"],
     }
 
     if active_price_id not in allowed_prices:
         raise RuntimeError(
-            "Founder cancellation found an "
-            "unexpected active Stripe price."
+            "Founder cancellation found an unexpected active Stripe price."
         )
 
-    schedule = _active_founder_schedule(
-        subscription
-    )
+    schedule = _active_founder_schedule(subscription)
 
     if schedule is None:
         stripe.Subscription.modify(
@@ -452,13 +380,11 @@ def schedule_founder_cancellation_at_period_end(
 
         return {
             "mode": "subscription",
-            "current_period_end":
-                datetime.fromtimestamp(
-                    period_end,
-                    tz=dt_timezone.utc,
-                ),
-            "schedule_id":
-                subscription.stripe_schedule_id,
+            "current_period_end": datetime.fromtimestamp(
+                period_end,
+                tz=UTC,
+            ),
+            "schedule_id": subscription.stripe_schedule_id,
         }
 
     schedule_id = _object_value(
@@ -466,47 +392,34 @@ def schedule_founder_cancellation_at_period_end(
         "id",
     )
 
-    current_start = _schedule_current_start(
-        schedule
-    )
+    current_start = _schedule_current_start(schedule)
 
     metadata = _founder_metadata(
         subscription=subscription,
     )
 
-    modified = (
-        stripe.SubscriptionSchedule.modify(
-            schedule_id,
-            end_behavior="cancel",
-            proration_behavior="none",
-            phases=[
-                {
-                    "start_date":
-                        current_start,
-                    "end_date":
-                        period_end,
-                    "items": [
-                        {
-                            "price":
-                                active_price_id,
-                            "quantity": 1,
-                        }
-                    ],
-                    "proration_behavior":
-                        "none",
-                    "metadata": {
-                        **metadata,
-                        "stewardence_founder_cancel_pending":
-                            "true",
-                    },
-                }
-            ],
-            idempotency_key=(
-                "stewardence-founder-cancel-v1:"
-                f"{schedule_id}:"
-                f"{period_end}"
-            ),
-        )
+    modified = stripe.SubscriptionSchedule.modify(
+        schedule_id,
+        end_behavior="cancel",
+        proration_behavior="none",
+        phases=[
+            {
+                "start_date": current_start,
+                "end_date": period_end,
+                "items": [
+                    {
+                        "price": active_price_id,
+                        "quantity": 1,
+                    }
+                ],
+                "proration_behavior": "none",
+                "metadata": {
+                    **metadata,
+                    "stewardence_founder_cancel_pending": "true",
+                },
+            }
+        ],
+        idempotency_key=(f"stewardence-founder-cancel-v1:{schedule_id}:{period_end}"),
     )
 
     if (
@@ -516,18 +429,14 @@ def schedule_founder_cancellation_at_period_end(
         )
         != "cancel"
     ):
-        raise RuntimeError(
-            "Stripe founder schedule did not "
-            "enter cancel end behavior."
-        )
+        raise RuntimeError("Stripe founder schedule did not enter cancel end behavior.")
 
     return {
         "mode": "schedule",
-        "current_period_end":
-            datetime.fromtimestamp(
-                period_end,
-                tz=dt_timezone.utc,
-            ),
+        "current_period_end": datetime.fromtimestamp(
+            period_end,
+            tz=UTC,
+        ),
         "schedule_id": schedule_id,
     }
 
@@ -548,59 +457,35 @@ def undo_founder_cancellation(
     """
     if not subscription.is_founder:
         raise RuntimeError(
-            "Founder cancellation undo requires "
-            "active founder entitlement."
+            "Founder cancellation undo requires active founder entitlement."
         )
 
-    if (
-        subscription.status
-        != subscription.Status.CANCELING
-    ):
-        raise RuntimeError(
-            "Founder cancellation undo requires "
-            "local CANCELING state."
-        )
+    if subscription.status != subscription.Status.CANCELING:
+        raise RuntimeError("Founder cancellation undo requires local CANCELING state.")
 
-    stripe_subscription_id = (
-        subscription.stripe_subscription_id
-    )
+    stripe_subscription_id = subscription.stripe_subscription_id
 
     if not stripe_subscription_id:
-        raise RuntimeError(
-            "Founder cancellation undo requires "
-            "Stripe subscription ID."
-        )
+        raise RuntimeError("Founder cancellation undo requires Stripe subscription ID.")
 
-    stripe_subscription = (
-        stripe.Subscription.retrieve(
-            stripe_subscription_id
-        )
-    )
+    stripe_subscription = stripe.Subscription.retrieve(stripe_subscription_id)
 
-    active_price_id = (
-        _stripe_subscription_price_id(
-            stripe_subscription
-        )
-    )
+    active_price_id = _stripe_subscription_price_id(stripe_subscription)
 
-    schedule = _active_founder_schedule(
-        subscription
-    )
+    schedule = _active_founder_schedule(subscription)
 
     if schedule is None:
         stripe.Subscription.modify(
             stripe_subscription_id,
             cancel_at_period_end=False,
             idempotency_key=(
-                "stewardence-founder-direct-undo-v1:"
-                f"{stripe_subscription_id}"
+                f"stewardence-founder-direct-undo-v1:{stripe_subscription_id}"
             ),
         )
 
         return {
             "mode": "subscription",
-            "schedule_id":
-                subscription.stripe_schedule_id,
+            "schedule_id": subscription.stripe_schedule_id,
         }
 
     schedule_id = _object_value(
@@ -608,38 +493,25 @@ def undo_founder_cancellation(
         "id",
     )
 
-    current_start = _schedule_current_start(
-        schedule
-    )
+    current_start = _schedule_current_start(schedule)
 
     metadata = _founder_metadata(
         subscription=subscription,
     )
 
-    intro_price_id = (
-        settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID
-    )
+    intro_price_id = portfolio_price_ids(subscription.portfolio)["founder_intro"]
 
-    ongoing_price_id = (
-        settings.STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID
-    )
+    ongoing_price_id = portfolio_price_ids(subscription.portfolio)["founder_ongoing"]
 
     phases = []
 
     if active_price_id == intro_price_id:
         if subscription.founder_intro_ends_at is None:
             raise RuntimeError(
-                "Founder intro restoration requires "
-                "the original intro boundary."
+                "Founder intro restoration requires the original intro boundary."
             )
 
-        intro_end = int(
-            subscription.founder_intro_ends_at
-            .astimezone(
-                dt_timezone.utc
-            )
-            .timestamp()
-        )
+        intro_end = int(subscription.founder_intro_ends_at.astimezone(UTC).timestamp())
 
         if intro_end <= current_start:
             raise RuntimeError(
@@ -649,39 +521,31 @@ def undo_founder_cancellation(
 
         phases = [
             {
-                "start_date":
-                    current_start,
-                "end_date":
-                    intro_end,
+                "start_date": current_start,
+                "end_date": intro_end,
                 "items": [
                     {
-                        "price":
-                            intro_price_id,
+                        "price": intro_price_id,
                         "quantity": 1,
                     }
                 ],
-                "proration_behavior":
-                    "none",
+                "proration_behavior": "none",
                 "metadata": {
                     **metadata,
-                    "stewardence_founder_phase":
-                        "intro",
+                    "stewardence_founder_phase": "intro",
                 },
             },
             {
                 "items": [
                     {
-                        "price":
-                            ongoing_price_id,
+                        "price": ongoing_price_id,
                         "quantity": 1,
                     }
                 ],
-                "proration_behavior":
-                    "none",
+                "proration_behavior": "none",
                 "metadata": {
                     **metadata,
-                    "stewardence_founder_phase":
-                        "ongoing",
+                    "stewardence_founder_phase": "ongoing",
                 },
             },
         ]
@@ -689,43 +553,32 @@ def undo_founder_cancellation(
     if active_price_id == ongoing_price_id:
         phases = [
             {
-                "start_date":
-                    current_start,
+                "start_date": current_start,
                 "items": [
                     {
-                        "price":
-                            ongoing_price_id,
+                        "price": ongoing_price_id,
                         "quantity": 1,
                     }
                 ],
-                "proration_behavior":
-                    "none",
+                "proration_behavior": "none",
                 "metadata": {
                     **metadata,
-                    "stewardence_founder_phase":
-                        "ongoing",
+                    "stewardence_founder_phase": "ongoing",
                 },
             }
         ]
 
     if not phases:
         raise RuntimeError(
-            "Founder cancellation undo found an "
-            "unexpected active Stripe price."
+            "Founder cancellation undo found an unexpected active Stripe price."
         )
 
-    restored = (
-        stripe.SubscriptionSchedule.modify(
-            schedule_id,
-            end_behavior="release",
-            proration_behavior="none",
-            phases=phases,
-            idempotency_key=(
-                "stewardence-founder-undo-v1:"
-                f"{schedule_id}:"
-                f"{current_start}"
-            ),
-        )
+    restored = stripe.SubscriptionSchedule.modify(
+        schedule_id,
+        end_behavior="release",
+        proration_behavior="none",
+        phases=phases,
+        idempotency_key=(f"stewardence-founder-undo-v1:{schedule_id}:{current_start}"),
     )
 
     if (
@@ -735,10 +588,7 @@ def undo_founder_cancellation(
         )
         != "release"
     ):
-        raise RuntimeError(
-            "Stripe founder schedule did not "
-            "restore release behavior."
-        )
+        raise RuntimeError("Stripe founder schedule did not restore release behavior.")
 
     return {
         "mode": "schedule",
@@ -750,49 +600,11 @@ def price_cents_from_stripe_subscription(
     stripe_subscription,
 ):
     """
-    Resolve Stewardence's known Core price from Stripe's active
+    Resolve Stewardence's known portfolio price from Stripe's active
     subscription item.
 
     Unknown prices intentionally return None rather than inventing local
     billing truth.
     """
-    items = _object_value(
-        stripe_subscription,
-        "items",
-        {},
-    )
-
-    data = _object_value(
-        items,
-        "data",
-        [],
-    )
-
-    if not data:
-        return None
-
-    first_item = data[0]
-
-    price = _object_value(
-        first_item,
-        "price",
-        {},
-    )
-
-    price_id = _object_value(
-        price,
-        "id",
-    )
-
-    price_map = {
-        settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID:
-            PORTFOLIOS["core"]["founder_intro_cents"],
-
-        settings.STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID:
-            PORTFOLIOS["core"]["founder_ongoing_cents"],
-
-        settings.STRIPE_CORE_STANDARD_PRICE_ID:
-            PORTFOLIOS["core"]["standard_cents"],
-    }
-
-    return price_map.get(price_id)
+    contract = subscription_price_contract(stripe_subscription)
+    return contract.cents if contract is not None else None

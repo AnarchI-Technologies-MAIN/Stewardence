@@ -33,11 +33,16 @@ from apps.policies.risk import (
     calculate_policy_risk,
 )
 from apps.roi.engine import ROI_ENGINE_VERSION, ROIInputs, calculate_roi
+from apps.roi.engine_v2 import ROI_ENGINE_VERSION as ROI_V2, calculate_roi as calculate_roi_v2
 
 from .models import AssessmentSnapshot
 
 SNAPSHOT_SCHEMA_VERSION = 1
 NO_PLATFORM_RULESET = "not_published"
+
+
+class ExplicitInventoryCaptureRequired(ValueError):
+    """Explicit knowledge requires its successor capture contract."""
 
 
 def canonical_bytes(value: Any) -> bytes:
@@ -52,8 +57,8 @@ def _canonical_payload(value: Any) -> dict[str, Any]:
     return json.loads(canonical_bytes(value))
 
 
-def _decimal(value: Decimal | int) -> str:
-    return str(value)
+def _decimal(value: Decimal | int | None) -> str | None:
+    return None if value is None else str(value)
 
 
 def _timestamp(value: datetime) -> str:
@@ -210,7 +215,7 @@ def _risk_result_payload(risk) -> dict[str, Any]:
 
 
 def _roi_result_payload(result) -> dict[str, Any]:
-    return {
+    payload = {
         "provenance": CALCULATED,
         "engine_version": result.engine_version,
         "monthly_labor_value": _decimal(result.monthly_labor_value),
@@ -223,6 +228,10 @@ def _roi_result_payload(result) -> dict[str, Any]:
         ),
         "arithmetic": list(result.arithmetic),
     }
+    if result.engine_version == ROI_V2:
+        payload["unknown_inputs"] = list(result.unknown_inputs)
+        payload["roi_unavailable_reason"] = result.roi_unavailable_reason
+    return payload
 
 
 def verify_snapshot(snapshot: AssessmentSnapshot) -> bool:
@@ -242,7 +251,11 @@ def create_assessment_snapshot(
     captured_at: datetime,
     evidence_references: tuple[dict[str, Any], ...] = (),
     previous_snapshot: AssessmentSnapshot | None = None,
+    roi_engine_version: str = ROI_ENGINE_VERSION,
 ) -> AssessmentSnapshot:
+    engines = {ROI_ENGINE_VERSION: calculate_roi, ROI_V2: calculate_roi_v2}
+    if roi_engine_version not in engines:
+        raise ValueError("Unsupported ROI engine version")
     if previous_snapshot is not None:
         stored_previous = (
             AssessmentSnapshot.objects.select_for_update()
@@ -278,6 +291,11 @@ def create_assessment_snapshot(
         .filter(organization_id=organization_id)
         .order_by("id")
     )
+    if any(getattr(item, "declaration_contract", "") for item in inventory):
+        raise ExplicitInventoryCaptureRequired(
+            "Explicit tool declarations require deliberate evidence capture; "
+            "the legacy benefit snapshot cannot represent their unknown answers."
+        )
     if not any(item.id == assessed_item_id for item in inventory):
         raise ValueError("The ROI item must belong to the snapshotted inventory")
     organization_rule_records = tuple(
@@ -326,7 +344,7 @@ def create_assessment_snapshot(
         "engine_versions": {
             "policy": ENGINE_VERSION,
             "risk": RISK_ENGINE_VERSION,
-            "roi": ROI_ENGINE_VERSION,
+            "roi": roi_engine_version,
         },
     }
 
@@ -353,7 +371,7 @@ def create_assessment_snapshot(
         "snapshot_schema_version": SNAPSHOT_SCHEMA_VERSION,
         "assessment": {"id": str(assessment_id), "version": version},
         "inventory_results": inventory_results,
-        "roi": _roi_result_payload(calculate_roi(roi_inputs)),
+        "roi": _roi_result_payload(engines[roi_engine_version](roi_inputs)),
     }
     input_payload = _canonical_payload(input_payload)
     result_payload = _canonical_payload(result_payload)

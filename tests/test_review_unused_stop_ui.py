@@ -1,0 +1,287 @@
+"""Exact stop POST keeps CSRF/owner RLS and never broadens paid work authority."""
+
+import pytest
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+
+from agentledger.tenancy.context import identity_transaction
+from apps.billing.entitlements import paid_subscription_access
+from apps.billing.models import Subscription
+from apps.jobs.core_workflows import configure_control
+from apps.jobs.models import BackgroundJob
+from apps.organizations.models import Organization, OrganizationMember
+from apps.reports.models import Report, ReportArtifact
+from apps.reviews.models import (
+    ArtifactRequest,
+    CapacityReservation,
+    CycleEvent,
+    PackCompletion,
+    ReservationEvent,
+    ReviewLifecycleGate,
+    UnusedStopGate,
+)
+from apps.reviews.services import request_pack_artifact
+from tests.test_capture_admission import capture_context as capture_context
+from tests.test_capture_decisions import (
+    capture_decision_context as capture_decision_context,
+)
+from tests.test_capture_proposal_ui import owner_client, post
+from tests.test_explicit_inventory import explicit_context as explicit_context
+from tests.test_review_unused_stop import unused_pack as unused_pack
+from tests.test_standard_checkout_route_durability import actual_app_default
+
+__all__ = [
+    "capture_context",
+    "capture_decision_context",
+    "explicit_context",
+    "unused_pack",
+]
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+
+
+def route(context):
+    return reverse("reviews:stop-unused-pack", args=[context[3].id])
+
+
+def page(context):
+    return reverse("reviews:pack-detail", args=[context[3].id])
+
+
+def work_counts():
+    return tuple(
+        model.objects.count()
+        for model in (
+            Report,
+            ReportArtifact,
+            ArtifactRequest,
+            PackCompletion,
+            BackgroundJob,
+            CapacityReservation,
+        )
+    )
+
+
+def prepare_client(context, settings):
+    client = owner_client(context, settings)
+    with actual_app_default():
+        response = client.get(page(context))
+    assert response.status_code == 200, response.content.decode()
+    return client, response
+
+
+def test_stop_receipt_and_replay_one_event_no_job_or_provider_effect(
+    unused_pack, settings, monkeypatch
+):
+    client, pack_page = prepare_client(unused_pack, settings)
+    assert route(unused_pack) in pack_page.content.decode()
+    before = work_counts()
+    cycle_count, reservation_count = (
+        CycleEvent.objects.count(),
+        ReservationEvent.objects.count(),
+    )
+
+    def forbidden_provider(*args, **kwargs):
+        pytest.fail("Unused stop reached Stripe")
+
+    monkeypatch.setattr("apps.billing.views._stripe_client", forbidden_provider)
+    with actual_app_default():
+        response = post(client, route(unused_pack), {"reason": "owner_stopped"})
+        replay = post(client, route(unused_pack), {"reason": "owner_stopped"})
+    assert response.status_code == replay.status_code == 200
+    assert response["Cache-Control"] == replay["Cache-Control"] == "private, no-store"
+    assert "reviews/unused_stop.html" in [
+        template.name for template in response.templates
+    ]
+    assert response.context["event"].id == replay.context["event"].id
+    assert response.context["event"].payload["monthly_allowance_refunded"] is False
+    assert b"Recovery receipt" in response.content
+    assert b"fresh capture" in response.content
+    assert CycleEvent.objects.count() == cycle_count + 1
+    assert ReservationEvent.objects.count() == reservation_count + 1
+    assert work_counts() == before
+
+
+def test_csrf_and_changed_replay_reason_keep_exact_existing_receipt(
+    unused_pack, settings
+):
+    client, _ = prepare_client(unused_pack, settings)
+    before = work_counts()
+    count = CycleEvent.objects.count()
+    with actual_app_default():
+        assert (
+            client.post(route(unused_pack), {"reason": "owner_stopped"}).status_code
+            == 403
+        )
+        assert (
+            post(client, route(unused_pack), {"reason": "owner_stopped"}).status_code
+            == 200
+        )
+        changed = post(client, route(unused_pack), {"reason": "context_too_large"})
+    assert changed.status_code == 409
+    assert CycleEvent.objects.count() == count + 1
+    assert work_counts() == before
+
+
+@pytest.mark.parametrize("gate,status", [("python", 503), ("database", 409)])
+def test_stop_gate_denial_has_no_domain_effect(unused_pack, settings, gate, status):
+    client, _ = prepare_client(unused_pack, settings)
+    if gate == "python":
+        settings.REVIEW_UNUSED_STOP_ENABLED = False
+        with actual_app_default():
+            pack_page = client.get(page(unused_pack))
+        assert pack_page.status_code == 200
+        assert route(unused_pack) not in pack_page.content.decode()
+    if gate == "database":
+        UnusedStopGate.objects.filter(id=1).update(enabled=False)
+    before, count = work_counts(), CycleEvent.objects.count()
+    with actual_app_default():
+        response = post(client, route(unused_pack), {"reason": "owner_stopped"})
+    assert response.status_code == status
+    assert work_counts() == before
+    assert CycleEvent.objects.count() == count
+
+
+@pytest.mark.parametrize("visitor,status", [("viewer", 403), ("foreign_owner", 404)])
+def test_exact_stop_billing_exemption_never_bypasses_owner_or_tenant(
+    unused_pack, settings, visitor, status
+):
+    owner, original_org = unused_pack[:2]
+    if visitor == "viewer":
+        owner = get_user_model().objects.create_user("stop-viewer@example.invalid")
+        org = original_org
+        OrganizationMember.objects.create(organization=org, user=owner, role="viewer")
+    # The paid owner's portfolio deliberately redirects to workspace selection.
+    # Obtain CSRF through the actual owner pack page before adding a second
+    # membership; an unpaid viewer can render the ordinary portfolio instead.
+    cookie_org = original_org
+    client = owner_client((owner, cookie_org), settings)
+    cookie_route = (
+        page(unused_pack)
+        if visitor == "foreign_owner"
+        else reverse("billing:portfolio")
+    )
+    with actual_app_default():
+        assert client.get(cookie_route).status_code == 200
+    assert "csrftoken" in client.cookies
+    if visitor == "foreign_owner":
+        org = Organization.objects.create(name="Foreign stop workspace")
+        OrganizationMember.objects.create(organization=org, user=owner, role="owner")
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+    before, count = work_counts(), CycleEvent.objects.count()
+    with actual_app_default():
+        response = post(client, route(unused_pack), {"reason": "owner_stopped"})
+    assert response.status_code == status
+    # "Recovery receipts" is a common navigation label, not private content.
+    # Denial must withhold this pack's actual identities and immutable pins.
+    hidden = [
+        str(unused_pack[2].id),
+        str(unused_pack[3].id),
+        unused_pack[3].sha256,
+        *[
+            str(value)
+            for value in CycleEvent.objects.filter(
+                cycle_id=unused_pack[3].cycle_id
+            ).values_list("id", flat=True)
+        ],
+    ]
+    assert all(value.encode() not in response.content for value in hidden)
+    assert b"Unused report preparation stopped" not in response.content
+    assert work_counts() == before
+    assert CycleEvent.objects.count() == count
+
+
+def test_paused_owner_without_paid_access_can_stop_but_not_admit_work(
+    unused_pack, settings, monkeypatch
+):
+    owner, org, snapshot, pack = unused_pack
+    client, _ = prepare_client(unused_pack, settings)
+    configure_control(
+        organization_id=org.id,
+        actor_id=owner.id,
+        mode="paused",
+        reason="Owner stop",
+        using="app_runtime",
+    )
+    # Terminal cancellation removes current paid authority while preserving
+    # historical coverage for retained evidence. This is not a clock mock.
+    subscription = Subscription.objects.get(organization=org)
+    Subscription.objects.filter(id=subscription.id).update(status="canceled")
+    settings.REVIEW_PACK_LIFECYCLE_ENABLED = True
+    settings.AUTOMATION_ENABLED = False
+    before = work_counts()
+
+    def forbidden_provider(*args, **kwargs):
+        pytest.fail("Closed paid/Automation routes reached Stripe")
+
+    monkeypatch.setattr("apps.billing.views._stripe_client", forbidden_provider)
+    with actual_app_default():
+        with identity_transaction(owner.id, using="app_runtime"):
+            assert not paid_subscription_access(subscription.id)
+        response = post(client, route(unused_pack), {"reason": "owner_stopped"})
+        assert response.status_code == 200, response.content.decode()
+        assert b"Recovery receipt" in response.content
+        assert (
+            post(client, route(unused_pack), {"reason": "owner_stopped"}).status_code
+            == 200
+        )
+        for ordinary in (
+            reverse("reviews:freeze", args=[snapshot.id]),
+            reverse("reviews:request-artifact", args=[pack.id]),
+        ):
+            blocked = post(
+                client, ordinary, {"cycle_id": "00000000-0000-0000-0000-000000000001"}
+            )
+            assert blocked.status_code == 302
+            assert blocked["Location"] == reverse("billing:portfolio")
+        # GET is deliberately not part of the exact stop-POST exemption.
+        assert client.get(route(unused_pack)).status_code == 302
+        assert client.get(reverse("inventory:list")).status_code == 302
+        assert (
+            post(client, reverse("billing:checkout-automation"), {}).status_code == 503
+        )
+    assert work_counts() == before
+
+
+def test_terminated_pack_retains_evidence_but_no_stop_or_pdf_request_cta(
+    unused_pack, settings
+):
+    settings.REVIEW_PACK_LIFECYCLE_ENABLED = True
+    client, before_page = prepare_client(unused_pack, settings)
+    request_route = reverse("reviews:request-artifact", args=[unused_pack[3].id])
+    assert route(unused_pack) in before_page.content.decode()
+    assert request_route in before_page.content.decode()
+    with actual_app_default():
+        assert (
+            post(client, route(unused_pack), {"reason": "owner_stopped"}).status_code
+            == 200
+        )
+        response = client.get(page(unused_pack))
+    assert response.status_code == 200
+    assert response.context["state"] == "TERMINATED_UNUSED"
+    text = response.content.decode()
+    assert route(unused_pack) not in text
+    assert request_route not in text
+    assert "requires a fresh capture" in text
+
+
+def test_admitted_request_hides_stop_button_and_direct_stop_denies(
+    unused_pack, settings
+):
+    owner, org, _, pack = unused_pack
+    settings.REVIEW_PACK_LIFECYCLE_ENABLED = True
+    ReviewLifecycleGate.objects.update_or_create(id=1, defaults={"enabled": True})
+    request_pack_artifact(
+        pack_id=pack.id, organization_id=org.id, actor_id=owner.id, using="app_runtime"
+    )
+    client, response = prepare_client(unused_pack, settings)
+    assert route(unused_pack) not in response.content.decode()
+    before, count = work_counts(), CycleEvent.objects.count()
+    with actual_app_default():
+        assert (
+            post(client, route(unused_pack), {"reason": "owner_stopped"}).status_code
+            == 409
+        )
+    assert work_counts() == before
+    assert CycleEvent.objects.count() == count

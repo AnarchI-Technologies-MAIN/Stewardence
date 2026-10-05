@@ -1,0 +1,416 @@
+{
+  "type": "object",
+  "properties": {
+    "concept_id": {
+      "type": "string",
+      "maxLength": 80,
+      "pattern": "^[a-z][a-z0-9_.-]{0,79}$"
+    },
+    "concept_version": {
+      "const": 1
+    },
+    "evidence_kind": {
+      "enum": [
+        "declared",
+        "unknown"
+      ]
+    },
+    "value_state": {
+      "enum": [
+        "known",
+        "source_null",
+        "missing",
+        "unknown",
+        "unavailable",
+        "unsupported",
+        "redacted"
+      ]
+    },
+    "value": {
+      "anyOf": [
+        {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "text"
+                },
+                "data": {
+                  "type": "string",
+                  "maxLength": 200
+                }
+              },
+              "required": [
+                "type",
+                "data"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "boolean"
+                },
+                "data": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "type",
+                "data"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "integer"
+                },
+                "data": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "unit": {
+                  "enum": [
+                    "1",
+                    "count"
+                  ]
+                }
+              },
+              "required": [
+                "type",
+                "data",
+                "unit"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "decimal"
+                },
+                "data": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]*[1-9])?$"
+                },
+                "unit": {
+                  "enum": [
+                    "1",
+                    "h"
+                  ]
+                },
+                "source_scale": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 18
+                }
+              },
+              "required": [
+                "type",
+                "data",
+                "unit",
+                "source_scale"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "money"
+                },
+                "data": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]*[1-9])?$"
+                },
+                "currency": {
+                  "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "CAD"
+                  ]
+                },
+                "currency_registry": {
+                  "const": "stewardence.currency-subset.v1"
+                },
+                "source_scale": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 18
+                }
+              },
+              "required": [
+                "type",
+                "data",
+                "currency",
+                "currency_registry",
+                "source_scale"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "maxLength": 80,
+      "pattern": "^[a-z][a-z0-9_.-]{0,79}$"
+    },
+    "source_pointer": {
+      "type": "string",
+      "maxLength": 512,
+      "pattern": "^(/([^~/]|~[01])*)*$(?![\\s\\S])"
+    },
+    "effective_time": {
+      "type": "object",
+      "properties": {
+        "source_text": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 80
+        },
+        "utc": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 27,
+              "format": "date-time",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}Z$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source_text",
+        "utc"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "concept_id",
+    "concept_version",
+    "evidence_kind",
+    "value_state",
+    "source_pointer",
+    "effective_time"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "value_state": {
+            "const": "known"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "value"
+        ],
+        "not": {
+          "required": [
+            "reason"
+          ]
+        },
+        "properties": {
+          "value": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "text"
+                  },
+                  "data": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "type",
+                  "data"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "boolean"
+                  },
+                  "data": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "type",
+                  "data"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "integer"
+                  },
+                  "data": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "unit": {
+                    "enum": [
+                      "1",
+                      "count"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "data",
+                  "unit"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "decimal"
+                  },
+                  "data": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]*[1-9])?$"
+                  },
+                  "unit": {
+                    "enum": [
+                      "1",
+                      "h"
+                    ]
+                  },
+                  "source_scale": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18
+                  }
+                },
+                "required": [
+                  "type",
+                  "data",
+                  "unit",
+                  "source_scale"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "money"
+                  },
+                  "data": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]*[1-9])?$"
+                  },
+                  "currency": {
+                    "enum": [
+                      "USD",
+                      "EUR",
+                      "GBP",
+                      "CAD"
+                    ]
+                  },
+                  "currency_registry": {
+                    "const": "stewardence.currency-subset.v1"
+                  },
+                  "source_scale": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18
+                  }
+                },
+                "required": [
+                  "type",
+                  "data",
+                  "currency",
+                  "currency_registry",
+                  "source_scale"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "value_state": {
+            "const": "source_null"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "value",
+          "reason"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "value_state": {
+            "enum": [
+              "missing",
+              "unknown",
+              "unavailable",
+              "unsupported",
+              "redacted"
+            ]
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "required": [
+            "value"
+          ]
+        },
+        "required": [
+          "reason"
+        ]
+      }
+    }
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stewardence:evidence:assertion:v1"
+}

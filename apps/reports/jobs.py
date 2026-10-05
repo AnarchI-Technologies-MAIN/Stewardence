@@ -53,6 +53,7 @@ def ensure_report_generation_job(
                 status__in=(
                     BackgroundJob.Status.QUEUED,
                     BackgroundJob.Status.RUNNING,
+                    BackgroundJob.Status.FAILED,
                 ),
             )
             .order_by("created_at", "id")

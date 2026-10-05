@@ -1,0 +1,17 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Stewardence semantic read contracts",
+    "version": "1.0.0",
+    "description": "Component contract only. No live normalization API, collection authority or write endpoint is exposed."
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "ReadNormalizationRequest": {"$ref": "./schemas/normalization-request-v1.json"},
+      "ReadEvidencePayload": {"$ref": "./schemas/read-payload-v1.json"},
+      "ReadEvidenceEnvelope": {"$ref": "./schemas/read-envelope-v1.json"},
+      "EvidenceAssertion": {"$ref": "./schemas/assertion-v1.json"}
+    }
+  }
+}

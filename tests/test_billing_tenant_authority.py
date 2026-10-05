@@ -14,8 +14,7 @@ from apps.organizations.models import Organization, OrganizationMember
 from apps.organizations.views import _create_and_bind_owned_workspace
 from apps.policies.models import OrganizationRule
 from apps.reports.services import create_report
-from tests.conftest import _roi_inputs
-
+from tests.conftest import _roi_inputs, grant_paid_test_coverage
 
 pytestmark = pytest.mark.django_db
 
@@ -30,13 +29,15 @@ def make_subscription(
         user=user,
     )
 
-    return Subscription.objects.create(
+    subscription = Subscription.objects.create(
         billing_customer=customer,
         organization=organization,
         portfolio=Subscription.Portfolio.CORE,
         status=status,
         current_price_cents=9900,
     )
+    grant_paid_test_coverage(subscription)
+    return subscription
 
 
 @pytest.fixture
@@ -132,9 +133,7 @@ def authority_context(client):
     client.force_login(user)
 
     session = client.session
-    session["active_organization_id"] = str(
-        organization_a.id
-    )
+    session["active_organization_id"] = str(organization_a.id)
     session.save()
 
     return {
@@ -157,11 +156,7 @@ def test_subscription_for_a_cannot_activate_b_even_with_membership(
 
     response = client.post(
         reverse("organizations:workspace-activate"),
-        {
-            "organization_id": str(
-                organization_b.id
-            )
-        },
+        {"organization_id": str(organization_b.id)},
     )
 
     assert response.status_code == 403
@@ -175,19 +170,13 @@ def test_forged_active_workspace_is_cleared_before_tenant_activation(
     organization_b = authority_context["organization_b"]
 
     session = client.session
-    session["active_organization_id"] = str(
-        organization_b.id
-    )
+    session["active_organization_id"] = str(organization_b.id)
     session.save()
 
-    response = client.get(
-        reverse("inventory:list")
-    )
+    response = client.get(reverse("inventory:list"))
 
     assert response.status_code == 302
-    assert response.url == reverse(
-        "organizations:workspace-selection"
-    )
+    assert response.url == reverse("organizations:workspace-selection")
     assert "active_organization_id" not in client.session
 
 
@@ -195,9 +184,7 @@ def test_workspace_selection_exposes_only_subscription_bound_organization(
     client,
     authority_context,
 ):
-    response = client.get(
-        reverse("organizations:workspace-selection")
-    )
+    response = client.get(reverse("organizations:workspace-selection"))
 
     assert response.status_code == 200
     assert b"Paid Firm A" in response.content
@@ -268,14 +255,10 @@ def test_bound_core_subscription_cannot_create_second_workspace(
 ):
     user = authority_context["user"]
 
-    response = client.get(
-        reverse("organizations:setup")
-    )
+    response = client.get(reverse("organizations:setup"))
 
     assert response.status_code == 302
-    assert response.url == reverse(
-        "organizations:workspace-selection"
-    )
+    assert response.url == reverse("organizations:workspace-selection")
 
     before = Organization.objects.count()
 
@@ -290,9 +273,7 @@ def test_bound_core_subscription_cannot_create_second_workspace(
         )
 
     assert Organization.objects.count() == before
-    assert not Organization.objects.filter(
-        name="Forbidden Second Firm"
-    ).exists()
+    assert not Organization.objects.filter(name="Forbidden Second Firm").exists()
 
 
 def test_paid_unbound_subscription_creates_and_binds_exactly_one_workspace():
@@ -333,9 +314,7 @@ def test_paid_unbound_subscription_creates_and_binds_exactly_one_workspace():
         )
 
     assert Organization.objects.count() == before
-    assert not Organization.objects.filter(
-        name="Second Paid Firm"
-    ).exists()
+    assert not Organization.objects.filter(name="Second Paid Firm").exists()
 
 
 def test_workspace_creation_and_subscription_binding_are_one_transaction(
@@ -352,9 +331,7 @@ def test_workspace_creation_and_subscription_binding_are_one_transaction(
 
     def fail_bound_subscription_save(self, *args, **kwargs):
         if self.organization_id is not None:
-            raise RuntimeError(
-                "injected subscription bind failure"
-            )
+            raise RuntimeError("injected subscription bind failure")
 
         return original_save(
             self,
@@ -386,9 +363,7 @@ def test_workspace_creation_and_subscription_binding_are_one_transaction(
     assert subscription.organization_id is None
     assert Organization.objects.count() == before_organizations
     assert OrganizationMember.objects.count() == before_memberships
-    assert not Organization.objects.filter(
-        name="Must Roll Back"
-    ).exists()
+    assert not Organization.objects.filter(name="Must Roll Back").exists()
 
 
 def test_cancel_at_period_end_retains_only_bound_workspace_access(
@@ -408,19 +383,13 @@ def test_cancel_at_period_end_retains_only_bound_workspace_access(
         ]
     )
 
-    authorized = client.get(
-        reverse("inventory:list")
-    )
+    authorized = client.get(reverse("inventory:list"))
 
     assert authorized.status_code == 200
 
     denied = client.post(
         reverse("organizations:workspace-activate"),
-        {
-            "organization_id": str(
-                organization_b.id
-            )
-        },
+        {"organization_id": str(organization_b.id)},
     )
 
     assert denied.status_code == 403
@@ -437,14 +406,10 @@ def test_authenticated_unpaid_user_cannot_reach_product_routes(
 
     client.force_login(user)
 
-    response = client.get(
-        reverse("inventory:list")
-    )
+    response = client.get(reverse("inventory:list"))
 
     assert response.status_code == 302
-    assert response.url == reverse(
-        "billing:portfolio"
-    )
+    assert response.url == reverse("billing:portfolio")
 
 
 def test_canceled_subscription_cannot_reach_bound_workspace(
@@ -461,11 +426,7 @@ def test_canceled_subscription_cannot_reach_bound_workspace(
         ]
     )
 
-    response = client.get(
-        reverse("inventory:list")
-    )
+    response = client.get(reverse("inventory:list"))
 
     assert response.status_code == 302
-    assert response.url == reverse(
-        "billing:portfolio"
-    )
+    assert response.url == reverse("billing:portfolio")

@@ -173,9 +173,11 @@ def test_report_handler_resolver_registers_report_generation(
 
     handler = resolver(BackgroundJob.Type.REPORT_GENERATION)
 
-    assert isinstance(handler, ReportGenerationHandler)
-    assert handler.renderer is renderer
-    assert handler.storage is storage
+    from apps.reviews.jobs import ReviewReportGenerationHandler
+    assert isinstance(handler, ReviewReportGenerationHandler)
+    assert isinstance(handler.delegate, ReportGenerationHandler)
+    assert handler.delegate.renderer is renderer
+    assert handler.delegate.storage is storage
 
 
 def test_http_renderer_accepts_only_pdf_response():
@@ -184,7 +186,7 @@ def test_http_renderer_accepts_only_pdf_response():
         return httpx.Response(
             200,
             headers={"Content-Type": "application/pdf"},
-            content=b"%PDF-1.7\nrender-client\n%%EOF\n",
+            stream=httpx.ByteStream(b"%PDF-1.7\nrender-client\n%%EOF\n"),
         )
 
     renderer = HTTPReportRenderer(
@@ -221,8 +223,8 @@ class FakeBody:
     def __init__(self, content):
         self.content = content
 
-    def read(self):
-        return self.content
+    def read(self,amount=None):
+        return self.content if amount is None else self.content[:amount]
 
 
 class FakeS3Client:
@@ -248,8 +250,13 @@ class FakeS3Client:
             "Body": FakeBody(self.objects[identity]),
         }
 
-    def put_object(self, *, Bucket, Key, Body, ContentType):
+    def put_object(self, *, Bucket, Key, Body, ContentType, IfNoneMatch,ACL):
         assert ContentType == "application/pdf"
+        assert IfNoneMatch == "*"
+        assert ACL=='private'
+        if (Bucket, Key) in self.objects:
+            raise __import__("botocore.exceptions").exceptions.ClientError(
+                {"Error": {"Code": "PreconditionFailed"}}, "PutObject")
         self.objects[(Bucket, Key)] = Body
 
     def delete_object(self, *, Bucket, Key):

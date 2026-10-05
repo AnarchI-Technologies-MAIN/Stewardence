@@ -23,6 +23,24 @@ if not database_url:
     raise ImproperlyConfigured("DATABASE_URL must be present in production")
 DATABASES = {"default": database_from_url(database_url)}
 
+# A Core worker must never fall back to the web application's database role.
+# The worker command fails closed when this separately provisioned role is absent.
+worker_database_url = os.getenv("WORKER_DATABASE_URL", "")
+if worker_database_url:
+    worker_database = database_from_url(worker_database_url)
+    if worker_database["USER"] != "agentledger_worker":
+        raise ImproperlyConfigured(
+            "WORKER_DATABASE_URL must use the agentledger_worker role"
+        )
+    if any(
+        worker_database[key] != DATABASES["default"][key]
+        for key in ("NAME", "HOST", "PORT")
+    ):
+        raise ImproperlyConfigured(
+            "WORKER_DATABASE_URL must target the application database"
+        )
+    DATABASES["worker_runtime"] = worker_database
+
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS")
 if not ALLOWED_HOSTS:
     raise ImproperlyConfigured("ALLOWED_HOSTS must be explicit in production")

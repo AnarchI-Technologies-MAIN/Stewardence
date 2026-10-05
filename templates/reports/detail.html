@@ -1,12 +1,14 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}{{ report.metadata.report_identifier }} — Stewardence{% endblock %}
 {% block content %}
   <article class="report">
     <header class="report-cover card">
+      <img class="page-emblem report-emblem" src="{% static 'brand/atlas/reports.svg' %}" alt="" width="104" height="104">
       <p class="eyebrow">{{ report.metadata.report_identifier }}</p>
       <h1>{{ report.title }}</h1>
       <p class="report-organization">{{ report.metadata.organization_display_name }}</p>
-      <p><a class="button" href="{% url 'reports:download' report_id %}">Download PDF</a></p>
+      {% if has_pdf %}<p><a class="button" href="{% url 'reports:download' report_id %}">Download PDF</a></p>{% else %}<p role="status">{{ pdf_status }}</p>{% endif %}
       <dl class="report-meta">
         <div><dt>Assessment date</dt><dd>{{ report.assessment_date }}</dd></div>
         <div><dt>Assessment version</dt><dd>{{ report.metadata.assessment_version }}</dd></div>
@@ -24,7 +26,7 @@
       {% if report.executive_summary.highest_individual_risk %}
         <p>The highest individual tool risk is <strong>{{ report.executive_summary.highest_individual_risk.band }}</strong> ({{ report.executive_summary.highest_individual_risk.score }}/100) for {{ report.executive_summary.highest_individual_risk.tool_name }}.</p>
       {% endif %}
-      <p>The selected ROI analysis estimates monthly net value of <strong>${{ report.executive_summary.monthly_net_value }}</strong>.</p>
+      <p>The selected ROI analysis estimates monthly net value of <strong>{% if report.executive_summary.monthly_net_value != None %}${{ report.executive_summary.monthly_net_value }}{% else %}Unknown{% endif %}</strong>.</p>
     </section>
 
     <section class="card report-section" id="inventory">
@@ -106,10 +108,10 @@
       <h2>Return on investment</h2>
       <p class="muted">Results are {{ report.roi.result.provenance }} from the captured assumptions.</p>
       <dl class="detail-grid">
-        <div><dt>Monthly value</dt><dd>${{ report.roi.result.monthly_value }}</dd></div>
-        <div><dt>Monthly total cost</dt><dd>${{ report.roi.result.monthly_total_cost }}</dd></div>
-        <div><dt>Monthly net value</dt><dd>${{ report.roi.result.monthly_net_value }}</dd></div>
-        <div><dt>ROI</dt><dd>{% if report.roi.result.roi_percent != None %}{{ report.roi.result.roi_percent }}%{% else %}Not available because total cost is zero{% endif %}</dd></div>
+        <div><dt>Monthly value</dt><dd>{% if report.roi.result.monthly_value != None %}${{ report.roi.result.monthly_value }}{% else %}Unknown{% endif %}</dd></div>
+        <div><dt>Monthly total cost</dt><dd>{% if report.roi.result.monthly_total_cost != None %}${{ report.roi.result.monthly_total_cost }}{% else %}Unknown{% endif %}</dd></div>
+        <div><dt>Monthly net value</dt><dd>{% if report.roi.result.monthly_net_value != None %}${{ report.roi.result.monthly_net_value }}{% else %}Unknown{% endif %}</dd></div>
+        <div><dt>ROI</dt><dd>{% if report.roi.result.roi_percent != None %}{{ report.roi.result.roi_percent }}%{% else %}Not available: {{ report.roi.result.roi_unavailable_reason|default:"monthly total cost is zero" }}{% endif %}</dd></div>
       </dl>
       <details><summary>Show ROI arithmetic and assumption sources</summary>
         <ul>{% for line in report.roi.result.arithmetic %}<li>{{ line }}</li>{% endfor %}</ul>

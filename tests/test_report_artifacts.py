@@ -134,6 +134,27 @@ def test_artifact_persistence_is_idempotent_for_identical_bytes(
     assert second.id == first.id
 
 
+def test_metadata_failure_preserves_object_and_identical_retry_reconciles(
+    artifact_report_context, tmp_path, monkeypatch
+):
+    from apps.reports.models import ReportArtifact
+    report = artifact_report_context["report"]
+    storage = LocalPrivateReportStorage(tmp_path)
+    pdf = b"%PDF-1.7\nrecoverable original\n%%EOF\n"
+    key = build_pdf_object_key(organization_id=report.organization_id,
+        assessment_snapshot_id=report.assessment_snapshot_id, report_id=report.id)
+    with monkeypatch.context() as patch:
+        def fail_create(*args, **kwargs):
+            raise RuntimeError("simulated metadata write failure")
+        patch.setattr("django.db.models.query.QuerySet.create", fail_create)
+        with pytest.raises(RuntimeError, match="simulated metadata"):
+            persist_pdf_artifact(report=report, pdf_bytes=pdf, storage=storage)
+    assert storage.get(key=key) == pdf
+    assert not ReportArtifact.objects.filter(report_id=report.id).exists()
+    artifact = persist_pdf_artifact(report=report, pdf_bytes=pdf, storage=storage)
+    assert read_verified_pdf_artifact(artifact=artifact, storage=storage) == pdf
+
+
 def test_existing_artifact_rejects_different_bytes(artifact_report_context, tmp_path):
     report = artifact_report_context["report"]
     storage = LocalPrivateReportStorage(tmp_path)
@@ -329,3 +350,5 @@ def test_download_returns_503_when_artifact_bytes_fail_integrity(
     )
 
     assert response.status_code == 503
+    assert response["Cache-Control"] == "private, no-store"
+    assert "Content-Disposition" not in response

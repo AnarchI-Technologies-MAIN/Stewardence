@@ -35,7 +35,7 @@ class Command(BaseCommand):
         if not listener_dsn:
             raise CommandError("DATABASE_URL is required to run the worker.")
 
-        resolver = build_job_handler_resolver(using="default")
+        resolver = build_job_handler_resolver(using="default",worker_id=worker_id)
         listener = EventDrivenJobListener(
             worker_id=worker_id,
             listener_dsn=listener_dsn,

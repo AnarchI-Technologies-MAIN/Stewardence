@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block title %}Unused report stopped — Stewardence{% endblock %}{% block content %}
+<section class="card">
+  <h1>Unused report preparation stopped</h1>
+  <p>The unused pending slot and reserved storage have been released together. The original frozen evidence remains intact. This does not refund the monthly admitted-pack allowance.</p>
+  <p>Create and review a fresh capture before preparing a replacement report. No admitted report work or provider action was cancelled, and no stored object was deleted.</p>
+  <details><summary>Recovery receipt</summary>
+    <p>Receipt {{ event.id }}; recorded {{ event.created_at }}; SHA-256 {{ event.sha256 }}.</p>
+    <p>Pack {{ pack.id }}; manifest SHA-256 {{ pack.sha256 }}.</p>
+    <p>State {{ event.payload.state }}; reservation {{ event.payload.reservation_id }}: {{ event.payload.reservation_state }}.</p>
+    <p>Reason recorded: {{ event.payload.reason }}. Proof scope: {{ event.payload.proof_scope }}.</p>
+  </details>
+  <p><a href="{% url 'reviews:pack-detail' pack.id %}">View retained frozen evidence</a> · <a href="{% url 'reviews:history' %}">Review history</a></p>
+</section>{% endblock %}

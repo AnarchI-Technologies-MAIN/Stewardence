@@ -11,8 +11,9 @@
   </form>
   {% if roi_result %}<section class="card risk-summary" aria-labelledby="roi-heading">
     <p class="eyebrow">Deterministic calculation</p>
-    <h2 id="roi-heading">Monthly net value: ${{ roi_result.monthly_net_value }}</h2>
-    <p><strong>ROI:</strong> {% if roi_result.roi_percent is not None %}{{ roi_result.roi_percent }}%{% else %}Not available because monthly total cost is $0.00{% endif %}</p>
+    <h2 id="roi-heading">Monthly net value: {% if roi_result.monthly_net_value is not None %}${{ roi_result.monthly_net_value }}{% else %}Unknown{% endif %}</h2>
+    <p><strong>ROI:</strong> {% if roi_result.roi_percent is not None %}{{ roi_result.roi_percent }}%{% else %}Not available: {{ roi_result.roi_unavailable_reason }}{% endif %}</p>
+    {% if roi_result.unknown_inputs %}<p>Complete the unknown assumptions before interpreting overall ROI. Known components remain available below.</p>{% endif %}
     <h3>Arithmetic</h3><p>Money is rounded to the nearest cent after each step.</p><ol>{% for line in roi_result.arithmetic %}<li>{{ line }}</li>{% endfor %}</ol>
     <h3>Assumption sources</h3><dl class="detail-grid">
       <div><dt>Monthly subscription cost</dt><dd>{{ roi_result.inputs.monthly_subscription_cost.provenance.value }}</dd></div>

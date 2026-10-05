@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Report history{% endblock %}
+{% block content %}
+<section class="page-heading atlas-heading"><img class="page-emblem" src="{% static 'brand/atlas/reports.svg' %}" alt="" width="104" height="104"><div><p class="eyebrow">Current firm</p><h1>Report history</h1><p>Reports preserve the assessment and assumptions captured when they were created.</p></div></section>
+<section class="card">
+{% if rows %}
+<div class="table-wrap"><table><thead><tr><th scope="col">Report</th><th scope="col">Created</th><th scope="col">Assessment version</th><th scope="col">PDF</th></tr></thead><tbody>
+{% for row in rows %}<tr><td><a href="{% url 'reports:detail' row.id %}">{{ row.identifier }}</a></td><td>{{ row.created_at }}</td><td>{{ row.assessment_version }}</td><td>{% if row.has_pdf %}<a href="{% url 'reports:download' row.id %}">Download stored PDF</a>{% else %}PDF not stored yet{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+<nav aria-label="Report history pages">{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">Previous</a>{% endif %} <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span> {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Next</a>{% endif %}</nav>
+{% else %}<p>No reports yet. Save an assessment, then generate its report to start your history.</p><a href="{% url 'inventory:list' %}">Open inventory</a>{% endif %}
+</section>
+{% endblock %}

@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from .models import AssessmentSnapshot
 from .snapshots import verify_snapshot
@@ -16,6 +16,8 @@ def assessment_snapshot_detail_view(request, snapshot_id):
         id=snapshot_id,
         organization_id=organization_id,
     )
+    if snapshot.input_payload.get("snapshot_schema_version") == 2:
+        return redirect("reviews:snapshot", snapshot_id=snapshot.id)
     return render(
         request,
         "assessments/detail.html",

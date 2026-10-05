@@ -14,6 +14,10 @@ from agentledger import health
 
 def production_environment(**overrides):
     environment = os.environ.copy()
+    # Worker-role wiring is qualified independently; these settings tests use
+    # their own synthetic application database and must not inherit the test
+    # runner's unrelated worker endpoint.
+    environment.pop("WORKER_DATABASE_URL", None)
     environment.update(
         {
             "DJANGO_SETTINGS_MODULE": "agentledger.settings.production",
@@ -260,7 +264,10 @@ def test_production_hsts_is_deliberate_initial_ramp_up():
                 "assert settings.SECURE_CONTENT_TYPE_NOSNIFF is True; "
                 "assert settings.X_FRAME_OPTIONS == 'DENY'; "
                 "assert settings.STATIC_URL == '/static/'; "
-                "assert settings.MIDDLEWARE[1] == "
+                "assert settings.MIDDLEWARE[0] == 'apps.integrations.provider_views.ProviderBoundaryMiddleware'; "
+                "assert settings.MIDDLEWARE[1] == 'apps.integrations.quickbooks_views.QuickBooksBoundaryMiddleware'; "
+                "assert settings.MIDDLEWARE[2] == 'django.middleware.security.SecurityMiddleware'; "
+                "assert settings.MIDDLEWARE[3] == "
                 "'whitenoise.middleware.WhiteNoiseMiddleware'; "
                 "assert settings.STORAGES['staticfiles']['BACKEND'] == "
                 "'whitenoise.storage.CompressedManifestStaticFilesStorage'; "

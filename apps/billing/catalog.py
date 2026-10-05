@@ -5,6 +5,7 @@ FOUNDER_LIMIT = 20
 PORTFOLIOS = {
     "core": {
         "name": "Core",
+        "audience": "Freelancer",
         "standard_cents": 9900,
         "founder_intro_cents": 4900,
         "founder_intro_months": 6,
@@ -18,6 +19,7 @@ PORTFOLIOS = {
     },
     "automation": {
         "name": "Automation",
+        "audience": "Organization",
         "standard_cents": 14900,
         "founder_intro_cents": 7500,
         "founder_intro_months": 6,
@@ -31,9 +33,14 @@ PORTFOLIOS = {
     },
     "enterprise": {
         "name": "Enterprise",
+        "audience": "Corporate",
         "standard_cents": 50000,
-        "intro_cents": 37500,
-        "intro_months": 2,
+        "included_branches": 4,
+        "founder_included_branches": 5,
+        "extra_branch_cents": 2500,
+        "founder_intro_cents": 35000,
+        "founder_intro_months": 6,
+        "founder_ongoing_cents": 40000,
         "available": False,
         "label": "In development",
         "description": (

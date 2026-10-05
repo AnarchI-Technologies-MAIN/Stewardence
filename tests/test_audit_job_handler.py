@@ -195,7 +195,30 @@ def test_persist_rejects_changed_tenant_identity(
 
 def test_worker_claims_audit_job_and_seals_event(
     organization,
+    monkeypatch,
 ):
+    import json
+    from pathlib import Path
+
+    from django.db import connections
+
+    measured = []
+    original_persist = AuditBatchSealHandler.persist
+
+    def checked_persist(handler, job, result):
+        with connections[handler.using].cursor() as cursor:
+            cursor.execute(
+                "SELECT current_user,current_setting('transaction_isolation')"
+            )
+            role, isolation = cursor.fetchone()
+        assert role == "agentledger_worker" and isolation == "read committed"
+        assert connections[handler.using].in_atomic_block
+        measured.append(
+            {"role": role, "transaction_isolation": isolation, "inside_atomic": True}
+        )
+        return original_persist(handler, job, result)
+
+    monkeypatch.setattr(AuditBatchSealHandler, "persist", checked_persist)
     event = append_audit_event(
         organization_id=organization.id,
         event_type="inventory.created",
@@ -247,6 +270,12 @@ def test_worker_claims_audit_job_and_seals_event(
 
     assert job.status == BackgroundJob.Status.COMPLETED
     assert job.attempts == 1
+    assert len(measured) == 1
+    evidence_directory = Path("/qualification-evidence")
+    if evidence_directory.is_dir():
+        (evidence_directory / "audit-persistence-isolation.json").write_text(
+            json.dumps(measured, indent=2), encoding="utf-8"
+        )
 
 
 def test_redundant_seal_job_completes_as_safe_noop(
@@ -313,7 +342,7 @@ def test_redundant_seal_job_completes_as_safe_noop(
     )
 
 
-def test_sealer_failure_uses_existing_worker_retry_semantics(
+def test_unclassified_sealer_failure_stops_for_review(
     organization,
     monkeypatch,
 ):
@@ -354,11 +383,11 @@ def test_sealer_failure_uses_existing_worker_retry_semantics(
         job_type=BackgroundJob.Type.AUDIT_BATCH_SEAL,
     )
 
-    assert job.status == BackgroundJob.Status.QUEUED
+    assert job.status == BackgroundJob.Status.FAILED
     assert job.attempts == 1
-    assert job.error_code == "job_execution_failed"
+    assert job.error_code == "job_requires_review"
     assert job.safe_error_summary == (
-        "The background operation failed and may be retried."
+        "The operation stopped safely and requires review."
     )
     assert job.error_fingerprint
     assert "injected audit sealing failure" not in (job.safe_error_summary or "")

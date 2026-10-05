@@ -55,6 +55,11 @@ def main() -> int:
         passwords["agentledger_worker"],
     )
     environment["AGENTLEDGER_RLS_TESTS"] = "1"
+    environment["BILLING_ADMISSION_DATABASE_URL"] = role_url(
+        admin_database_url,
+        "agentledger_billing_admission",
+        passwords["agentledger_billing_admission"],
+    )
 
     subprocess.run(  # noqa: S603
         [sys.executable, "manage.py", "migrate", "--noinput"],

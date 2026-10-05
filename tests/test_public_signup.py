@@ -8,6 +8,7 @@ from agentledger.tenancy.context import identity_transaction
 from apps.accounts.models import User
 from apps.billing.models import BillingCustomer, Subscription
 from apps.organizations.models import Organization, OrganizationMember
+from tests.conftest import grant_paid_test_coverage
 
 pytestmark = pytest.mark.django_db
 
@@ -121,11 +122,13 @@ def test_guided_setup_creates_owner_membership_and_activates_workspace(client):
 
     client.force_login(user)
     billing_customer = BillingCustomer.objects.create(user=user)
-    Subscription.objects.create(
-        billing_customer=billing_customer,
-        portfolio=Subscription.Portfolio.CORE,
-        status=Subscription.Status.ACTIVE,
-        current_price_cents=9900,
+    grant_paid_test_coverage(
+        Subscription.objects.create(
+            billing_customer=billing_customer,
+            portfolio=Subscription.Portfolio.CORE,
+            status=Subscription.Status.ACTIVE,
+            current_price_cents=9900,
+        )
     )
 
     details_response = client.post(
@@ -175,11 +178,13 @@ def test_guided_setup_import_choice_routes_to_real_import_flow(client):
     )
 
     billing_customer = BillingCustomer.objects.create(user=user)
-    Subscription.objects.create(
-        billing_customer=billing_customer,
-        portfolio=Subscription.Portfolio.CORE,
-        status=Subscription.Status.ACTIVE,
-        current_price_cents=9900,
+    grant_paid_test_coverage(
+        Subscription.objects.create(
+            billing_customer=billing_customer,
+            portfolio=Subscription.Portfolio.CORE,
+            status=Subscription.Status.ACTIVE,
+            current_price_cents=9900,
+        )
     )
 
     client.force_login(user)
@@ -214,11 +219,13 @@ def test_guided_setup_manual_choice_routes_to_real_inventory(client):
     )
 
     billing_customer = BillingCustomer.objects.create(user=user)
-    Subscription.objects.create(
-        billing_customer=billing_customer,
-        portfolio=Subscription.Portfolio.CORE,
-        status=Subscription.Status.ACTIVE,
-        current_price_cents=9900,
+    grant_paid_test_coverage(
+        Subscription.objects.create(
+            billing_customer=billing_customer,
+            portfolio=Subscription.Portfolio.CORE,
+            status=Subscription.Status.ACTIVE,
+            current_price_cents=9900,
+        )
     )
 
     client.force_login(user)

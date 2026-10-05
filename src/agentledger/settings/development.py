@@ -10,6 +10,7 @@ for alias, environment_name in (
     ("owner_runtime", "OWNER_DATABASE_URL"),
     ("app_runtime", "APP_DATABASE_URL"),
     ("worker_runtime", "WORKER_DATABASE_URL"),
+    ("billing_admission", "BILLING_ADMISSION_DATABASE_URL"),
 ):
     database_url = os.getenv(environment_name)
     if database_url:

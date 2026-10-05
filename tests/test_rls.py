@@ -16,7 +16,7 @@ from agentledger.tenancy.context import (
     tenant_transaction,
 )
 from apps.assessments.models import AssessmentSnapshot
-from apps.assessments.snapshots import canonical_sha256
+from apps.assessments.snapshots import create_assessment_snapshot
 from apps.catalog.models import Product, Vendor
 from apps.imports.models import ImportBatch, ImportRow
 from apps.inventory.models import InventoryItem
@@ -91,14 +91,38 @@ def isolation_fixture():
         cursor.execute(
             "TRUNCATE TABLE reports, audit_events, "
             "audit_merkle_blocks, audit_chain_heads, "
-            "assessment_snapshots CASCADE"
+            "assessment_snapshots, billing_admission_receipt, "
+            "billing_paid_coverage CASCADE"
         )
     BackgroundJob.objects.all().delete()
+    from apps.billing.models import Subscription
+
+    Subscription.objects.filter(
+        organization_id__in=[fixture.organization_a_id, fixture.organization_b_id]
+    ).delete()
     OrganizationRule.objects.all().delete()
     InventoryItem.objects.all().delete()
     OrganizationMember.objects.all().delete()
     Organization.objects.all().delete()
     user_model.objects.all().delete()
+
+
+@pytest.fixture
+def legacy_snapshot_factory(isolation_fixture, shared_roi_inputs):
+    """Real schema-1 engine snapshots; fixture ROI assumptions are test inputs."""
+
+    def create(organization_id, user_id, label):
+        item = InventoryItem.objects.get(organization_id=organization_id)
+        return create_assessment_snapshot(
+            organization_id=organization_id,
+            created_by_id=user_id,
+            assessed_item_id=item.id,
+            roi_inputs=shared_roi_inputs(),
+            captured_at=datetime(2026, 9, 4, tzinfo=UTC),
+            evidence_references=({"reference": label, "type": "customer_statement"},),
+        )
+
+    return create
 
 
 def assert_insufficient_privilege(captured) -> None:
@@ -149,13 +173,15 @@ def test_database_roles_have_the_required_privilege_boundary():
             SELECT rolname, rolsuper, rolbypassrls, rolinherit, rolcanlogin
             FROM pg_roles
             WHERE rolname IN (
-                'agentledger_owner', 'agentledger_app', 'agentledger_worker'
+                'agentledger_owner', 'agentledger_app', 'agentledger_worker',
+                'agentledger_billing_admission'
             )
             ORDER BY rolname
             """
         )
         assert cursor.fetchall() == [
             ("agentledger_app", False, False, False, True),
+            ("agentledger_billing_admission", False, False, False, True),
             ("agentledger_owner", False, False, False, True),
             ("agentledger_worker", False, False, False, True),
         ]
@@ -184,22 +210,40 @@ def test_organization_scoped_tables_have_required_column_and_forced_rls():
             ORDER BY c.relname
             """
         )
-        assert cursor.fetchall() == [
-            ("assessment_snapshots", True, True, True),
-            ("audit_chain_heads", True, True, True),
-            ("audit_events", True, True, True),
-            ("audit_merkle_blocks", True, True, True),
-            ("background_jobs", True, True, True),
-            ("detection_evidence", True, True, True),
-            ("discovery_scans", True, True, True),
-            ("inventory_import_batches", True, True, True),
-            ("inventory_import_rows", True, True, True),
-            ("inventory_items", True, True, True),
-            ("organization_rules", True, True, True),
-            ("organizations_organizationmember", True, True, True),
-            ("report_artifacts", True, True, True),
-            ("reports", True, True, True),
-        ]
+        scoped_tables = cursor.fetchall()
+        assert all(row[1:] == (True, True, True) for row in scoped_tables)
+        assert set(
+            [
+                ("assessment_snapshots", True, True, True),
+                ("audit_chain_heads", True, True, True),
+                ("audit_events", True, True, True),
+                ("audit_merkle_blocks", True, True, True),
+                ("background_jobs", True, True, True),
+                ("core_action_card_revisions", True, True, True),
+                ("core_health_controls", True, True, True),
+                ("core_known_entities", True, True, True),
+                ("core_workflow_runs", True, True, True),
+                ("core_workflow_schedules", True, True, True),
+                ("detection_evidence", True, True, True),
+                ("discovery_scans", True, True, True),
+                ("integrations_providerconnection", True, True, True),
+                ("integrations_quickbooksconnection", True, True, True),
+                ("inventory_import_batches", True, True, True),
+                ("inventory_import_rows", True, True, True),
+                ("inventory_items", True, True, True),
+                ("job_recovery_receipts", True, True, True),
+                ("organization_rules", True, True, True),
+                ("organization_workflow_profiles", True, True, True),
+                ("organizations_organizationmember", True, True, True),
+                ("report_artifacts", True, True, True),
+                ("reports", True, True, True),
+                ("review_capacity_reservations", True, True, True),
+                ("review_cycle_events", True, True, True),
+                ("review_cycles", True, True, True),
+                ("review_pack_identities", True, True, True),
+                ("review_reservation_events", True, True, True),
+            ]
+        ) <= set(scoped_tables)
 
         cursor.execute(
             """
@@ -215,7 +259,7 @@ def test_organization_scoped_tables_have_required_column_and_forced_rls():
             """
         )
         assert cursor.fetchall() == [
-            ("billing_subscription", False, False, False),
+            ("billing_subscription", True, True, False),
         ]
         cursor.execute(
             """
@@ -234,27 +278,15 @@ def test_organization_scoped_tables_have_required_column_and_forced_rls():
         )
 
 
-def test_assessment_snapshots_are_tenant_isolated_and_append_only(isolation_fixture):
+def test_assessment_snapshots_are_tenant_isolated_and_append_only(
+    isolation_fixture, legacy_snapshot_factory
+):
     fixture = isolation_fixture
-    payload_a = {"tenant": "A"}
-    payload_b = {"tenant": "B"}
-    snapshot_a = AssessmentSnapshot.objects.create(
-        organization_id=fixture.organization_a_id,
-        created_by_id=fixture.user_a_id,
-        captured_at=datetime(2026, 9, 4, tzinfo=UTC),
-        input_payload=payload_a,
-        result_payload=payload_a,
-        input_sha256=canonical_sha256(payload_a),
-        result_sha256=canonical_sha256(payload_a),
+    snapshot_a = legacy_snapshot_factory(
+        fixture.organization_a_id, fixture.user_a_id, "RLS tenant A"
     )
-    AssessmentSnapshot.objects.create(
-        organization_id=fixture.organization_b_id,
-        created_by_id=fixture.user_b_id,
-        captured_at=datetime(2026, 9, 4, tzinfo=UTC),
-        input_payload=payload_b,
-        result_payload=payload_b,
-        input_sha256=canonical_sha256(payload_b),
-        result_sha256=canonical_sha256(payload_b),
+    snapshot_b = legacy_snapshot_factory(
+        fixture.organization_b_id, fixture.user_b_id, "RLS tenant B"
     )
 
     with tenant_transaction(fixture.organization_a_id, using="app_runtime"):
@@ -277,44 +309,30 @@ def test_assessment_snapshots_are_tenant_isolated_and_append_only(isolation_fixt
             ).delete()
     assert_insufficient_privilege(captured)
 
-    forbidden = {"tenant": "B through A"}
     with pytest.raises(DatabaseError) as captured:
         with tenant_transaction(fixture.organization_a_id, using="app_runtime"):
             AssessmentSnapshot.objects.using("app_runtime").create(
                 organization_id=fixture.organization_b_id,
                 created_by_id=fixture.user_b_id,
                 captured_at=datetime(2026, 9, 4, tzinfo=UTC),
-                input_payload=forbidden,
-                result_payload=forbidden,
-                input_sha256=canonical_sha256(forbidden),
-                result_sha256=canonical_sha256(forbidden),
+                input_payload=snapshot_b.input_payload,
+                result_payload=snapshot_b.result_payload,
+                input_sha256=snapshot_b.input_sha256,
+                result_sha256=snapshot_b.result_sha256,
             )
     assert_insufficient_privilege(captured)
 
 
 def test_reports_are_tenant_isolated_and_runtime_immutable(
     isolation_fixture,
+    legacy_snapshot_factory,
 ):
     fixture = isolation_fixture
-    payload_a = {"tenant": "A"}
-    payload_b = {"tenant": "B"}
-    snapshot_a = AssessmentSnapshot.objects.create(
-        organization_id=fixture.organization_a_id,
-        created_by_id=fixture.user_a_id,
-        captured_at=datetime(2026, 9, 4, tzinfo=UTC),
-        input_payload=payload_a,
-        result_payload=payload_a,
-        input_sha256=canonical_sha256(payload_a),
-        result_sha256=canonical_sha256(payload_a),
+    snapshot_a = legacy_snapshot_factory(
+        fixture.organization_a_id, fixture.user_a_id, "RLS tenant A"
     )
-    snapshot_b = AssessmentSnapshot.objects.create(
-        organization_id=fixture.organization_b_id,
-        created_by_id=fixture.user_b_id,
-        captured_at=datetime(2026, 9, 4, tzinfo=UTC),
-        input_payload=payload_b,
-        result_payload=payload_b,
-        input_sha256=canonical_sha256(payload_b),
-        result_sha256=canonical_sha256(payload_b),
+    snapshot_b = legacy_snapshot_factory(
+        fixture.organization_b_id, fixture.user_b_id, "RLS tenant B"
     )
     report_a = Report.objects.create(
         organization_id=fixture.organization_a_id,
@@ -335,9 +353,18 @@ def test_reports_are_tenant_isolated_and_runtime_immutable(
         created_by_id=fixture.user_b_id,
     )
 
-    with tenant_transaction(
-        fixture.organization_a_id,
-        using="app_runtime",
+    # App report reads now require authenticated identity as well as tenant.
+    # Reproduce the old fixture's missing context as an explicit denial probe.
+    with pytest.raises(
+        DatabaseError, match="Authenticated user context is not set"
+    ) as missing_identity:
+        with tenant_transaction(fixture.organization_a_id, using="app_runtime"):
+            list(Report.objects.using("app_runtime").values_list("id", flat=True))
+    assert_insufficient_privilege(missing_identity)
+
+    with (
+        identity_transaction(fixture.user_a_id, using="app_runtime"),
+        tenant_transaction(fixture.organization_a_id, using="app_runtime"),
     ):
         assert set(
             Report.objects.using("app_runtime").values_list(
@@ -376,17 +403,11 @@ def test_reports_are_tenant_isolated_and_runtime_immutable(
 
 def test_report_service_uses_restricted_app_role(
     isolation_fixture,
+    legacy_snapshot_factory,
 ):
     fixture = isolation_fixture
-    payload = {"tenant": "A"}
-    snapshot = AssessmentSnapshot.objects.create(
-        organization_id=fixture.organization_a_id,
-        created_by_id=fixture.user_a_id,
-        captured_at=datetime(2026, 9, 4, tzinfo=UTC),
-        input_payload=payload,
-        result_payload=payload,
-        input_sha256=canonical_sha256(payload),
-        result_sha256=canonical_sha256(payload),
+    snapshot = legacy_snapshot_factory(
+        fixture.organization_a_id, fixture.user_a_id, "RLS tenant A"
     )
 
     with identity_transaction(
@@ -410,17 +431,11 @@ def test_report_service_uses_restricted_app_role(
 
 def test_app_role_cannot_link_report_to_another_tenants_snapshot(
     isolation_fixture,
+    legacy_snapshot_factory,
 ):
     fixture = isolation_fixture
-    payload = {"tenant": "B"}
-    snapshot_b = AssessmentSnapshot.objects.create(
-        organization_id=fixture.organization_b_id,
-        created_by_id=fixture.user_b_id,
-        captured_at=datetime(2026, 9, 4, tzinfo=UTC),
-        input_payload=payload,
-        result_payload=payload,
-        input_sha256=canonical_sha256(payload),
-        result_sha256=canonical_sha256(payload),
+    snapshot_b = legacy_snapshot_factory(
+        fixture.organization_b_id, fixture.user_b_id, "RLS tenant B"
     )
 
     with pytest.raises(DatabaseError):
@@ -784,6 +799,24 @@ def test_worker_runtime_can_claim_across_tenants_without_tenant_context(
         "worker-rls",
         using="worker_runtime",
     )
+    # Report execution now requires active owner-bound entitlement. Global
+    # queue visibility alone cannot bypass that gate.
+    assert claim_next_job("worker-rls", using="worker_runtime") is None
+    from conftest import grant_core_entitlement
+
+    grant_core_entitlement(
+        get_user_model().objects.get(pk=fixture.user_b_id),
+        Organization.objects.get(pk=fixture.organization_b_id),
+    )
+    with connections["worker_runtime"].cursor() as cursor:
+        cursor.execute(
+            "SELECT app_private.core_work_allowed(%s), status, "
+            "available_at <= clock_timestamp(), locked_by "
+            "FROM public.background_jobs WHERE id=%s",
+            [fixture.organization_b_id, second_job.id],
+        )
+        admission = cursor.fetchone()
+    assert admission == (True, "queued", True, None), admission
     second_claim = claim_next_job(
         "worker-rls",
         using="worker_runtime",
@@ -836,20 +869,11 @@ def test_worker_queue_scope_does_not_unlock_business_table_scope(
 
 def test_report_artifacts_are_tenant_isolated_and_runtime_immutable(
     isolation_fixture,
+    legacy_snapshot_factory,
 ):
     fixture = isolation_fixture
 
-    def make_snapshot(organization_id, user_id, label):
-        payload = {"tenant": label}
-        return AssessmentSnapshot.objects.create(
-            organization_id=organization_id,
-            created_by_id=user_id,
-            captured_at=datetime(2026, 9, 4, tzinfo=UTC),
-            input_payload=payload,
-            result_payload=payload,
-            input_sha256=canonical_sha256(payload),
-            result_sha256=canonical_sha256(payload),
-        )
+    make_snapshot = legacy_snapshot_factory
 
     def make_report(
         organization_id,
@@ -969,9 +993,18 @@ def test_report_artifacts_are_tenant_isolated_and_runtime_immutable(
     # Tenant B remains hidden even with its exact UUID/object key.
     # ------------------------------------------------------------
 
-    with tenant_transaction(
-        fixture.organization_a_id,
-        using="app_runtime",
+    with pytest.raises(
+        DatabaseError, match="Authenticated user context is not set"
+    ) as missing_identity:
+        with tenant_transaction(fixture.organization_a_id, using="app_runtime"):
+            list(
+                ReportArtifact.objects.using("app_runtime").values_list("id", flat=True)
+            )
+    assert_insufficient_privilege(missing_identity)
+
+    with (
+        identity_transaction(fixture.user_a_id, using="app_runtime"),
+        tenant_transaction(fixture.organization_a_id, using="app_runtime"),
     ):
         visible_ids = set(
             ReportArtifact.objects.using("app_runtime").values_list(

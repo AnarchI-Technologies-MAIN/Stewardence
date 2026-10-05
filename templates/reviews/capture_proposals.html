@@ -1,0 +1,16 @@
+<section class="card">
+  <h2>Selected review items and evidence requests</h2>
+  <p>These proposals follow this saved capture. Evidence gaps remain Unknown; recording a step does not verify remediation or authorize a provider action.</p>
+  <p>This version creates proposals for a limited set of review answers. Other Unknown or Concern answers remain visible in the full Exposure Review above; having no proposal does not resolve or verify them.</p>
+  {% if revision %}
+    {% for card in revision.cards %}<article>
+      <h3>{{ card.source.identity }} · {{ card.original_outcome }}</h3>
+      <p>{{ card.proposal_text }}</p>
+      <p>Action: {{ card.action_kind }}. {% if card.source.class == "accounting_fail" %}Qualified accounting rule result · severity {{ card.severity }}.{% else %}Declaration-based review item; no risk score or severity assigned.{% endif %}</p>
+      <a href="{% url 'reviews:decision' revision.id forloop.counter0 %}">Review this exact item and record an owner statement</a>
+    </article>{% empty %}<p>No proposals in the admitted selection. This does not establish security.</p>{% endfor %}
+  {% else %}
+    <p>No issued review items for this capture.</p>
+    {% if proposals_enabled %}<form method="post" action="{% url 'reviews:issue-proposals' snapshot.id %}">{% csrf_token %}<button type="submit">Create review items from this saved capture</button></form>{% else %}<p>Review item admission remains unavailable while its deployment gate is closed.</p>{% endif %}
+  {% endif %}
+</section>

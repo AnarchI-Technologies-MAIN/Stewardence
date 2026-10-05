@@ -39,6 +39,7 @@ RUN groupadd --gid 10001 renderer \
 
 COPY renderer ./renderer
 COPY static/brand/stewardence-helix-orbit-light.png ./static/brand/stewardence-helix-orbit-light.png
+COPY static/brand/atlas/reports.svg ./static/brand/atlas/reports.svg
 
 RUN install -d -o renderer -g renderer -m 0700 /work/output
 USER renderer

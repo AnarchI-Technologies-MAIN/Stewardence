@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Review decision - Stewardence{% endblock %}
+{% block content %}
+<section class="page-heading"><p class="eyebrow">DecisionDesk · owner statement</p><h1>Decide what to do next</h1><p>This is a proposal based on a dated capture. Recording a decision does not change the original review answer.</p></section>
+<p><a href="{% url 'reviews:snapshot' revision.snapshot_id %}">Return to the saved capture</a></p>
+<section class="card">
+  <h2>{{ card.source.identity }} · original {{ card.original_outcome }}</h2>
+  <p>{{ card.proposal_text }}</p>
+  <p>{{ card.action_kind }} · {{ card.source.class }}. {% if card.source.class == "accounting_fail" %}Qualified accounting rule severity: {{ card.severity }}.{% else %}No generic severity or risk score assigned.{% endif %}</p>
+  <p>Verification: not established. Provider actions require separate authorization.</p>
+  <details><summary>Exact proposal identity</summary><p>Proposal {{ card.proposal_id }} · {{ card.sha256 }}</p><p>Capture {{ revision.snapshot_id }} · revision {{ revision.id }} · index {{ card_index }}</p></details>
+</section>
+<section class="card"><h2>Record responsibility and a next step</h2><p>You may record a disposition or a completion/evidence-review statement. Both remain owner statements. Unknown source answers remain Unknown; verified resolution is not claimed. A responsible person's name creates no account, and references are not fetched.</p>
+{% if decisions_enabled %}<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Save this owner statement</button></form>{% else %}<p>Statement admission is unavailable while its deployment gate is closed.</p>{% endif %}</section>
+<section class="card"><h2>Saved statement history</h2>{% for event in events %}<article><h3>{{ event.state }} · {{ event.responsible_label }}</h3><p>{{ event.created_at }} · due {{ event.due_date|default:"not set" }}</p><p>{{ event.notes }}</p><p>Original answer: {{ event.payload.original_outcome }}. Resolution verification: not established.</p><ul>{% for link in event.links %}<li>{{ link }} · reference not fetched or verified</li>{% endfor %}</ul><details><summary>Event identity</summary><p>{{ event.id }} · {{ event.sha256 }}</p></details></article>{% empty %}<p>No statements recorded for this exact proposal.</p>{% endfor %}</section>
+{% endblock %}

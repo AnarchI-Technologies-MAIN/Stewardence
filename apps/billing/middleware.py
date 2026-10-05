@@ -3,7 +3,9 @@ from __future__ import annotations
 from uuid import UUID
 
 from django.shortcuts import redirect
+from django.urls import Resolver404, resolve
 
+from agentledger.tenancy.context import identity_transaction
 from apps.billing.models import Subscription
 
 
@@ -15,6 +17,7 @@ class BillingEntitlementMiddleware:
         "/static/",
         "/healthz",
         "/readyz",
+        "/core/pause/",
     )
 
     WORKSPACE_SELECTION_PATH = "/workspaces/"
@@ -24,26 +27,60 @@ class BillingEntitlementMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # This sandbox-only module owns independent authorization transactions.
+        if request.path.startswith(
+            (
+                "/integrations/quickbooks/",
+                "/integrations/microsoft/",
+                "/integrations/xero/",
+            )
+        ):
+            return self.get_response(request)
+
         user = request.user
 
         if not user.is_authenticated:
             return self.get_response(request)
 
+        # This exact purchase entrypoint commits durable requests before any
+        # provider call. Its view/service owns short owner-bound transactions.
+        if request.method == "POST" and request.path_info == "/billing/checkout/core/":
+            return self.get_response(request)
+
+        with identity_transaction(user.id):
+            return self._authenticated(request, user)
+
+    def _authenticated(self, request, user):
         if request.path.startswith(self.ALLOWED_PREFIXES):
             return self.get_response(request)
 
+        # Stopping proven-unused work retains its own original-owner checks.
+        # This exact POST never grants paid access or admits report creation.
+        if request.method == "POST":
+            try:
+                stop_route = resolve(request.path_info).view_name
+            except Resolver404:
+                stop_route = None
+            if stop_route == "reviews:stop-unused-pack":
+                return self.get_response(request)
+
         subscription = (
-            Subscription.objects
-            .filter(
+            Subscription.objects.filter(
                 billing_customer__user_id=user.id,
             )
             .only(
                 "status",
                 "cancel_at_period_end",
                 "organization_id",
+                "id",
             )
             .first()
         )
+
+        if subscription is not None and self._retained_read_allowed(
+            request, subscription
+        ):
+            return self.get_response(request)
 
         if subscription is None or not subscription.grants_access:
             return redirect("billing:portfolio")
@@ -60,15 +97,11 @@ class BillingEntitlementMiddleware:
 
             return redirect("organizations:workspace-selection")
 
-        raw_organization_id = request.session.get(
-            "active_organization_id"
-        )
+        raw_organization_id = request.session.get("active_organization_id")
 
         if raw_organization_id:
             try:
-                active_organization_id = UUID(
-                    str(raw_organization_id)
-                )
+                active_organization_id = UUID(str(raw_organization_id))
             except (
                 TypeError,
                 ValueError,
@@ -78,17 +111,47 @@ class BillingEntitlementMiddleware:
                     "active_organization_id",
                     None,
                 )
-                return redirect(
-                    "organizations:workspace-selection"
-                )
+                return redirect("organizations:workspace-selection")
 
             if active_organization_id != subscription.organization_id:
                 request.session.pop(
                     "active_organization_id",
                     None,
                 )
-                return redirect(
-                    "organizations:workspace-selection"
-                )
+                return redirect("organizations:workspace-selection")
 
         return self.get_response(request)
+
+    @staticmethod
+    def _retained_read_allowed(request, subscription):
+        """Expiry permits existing private report reads, never new generation."""
+        from apps.billing.entitlements import paid_subscription_export_access
+
+        if request.method not in {"GET", "HEAD"}:
+            return False
+        if subscription.organization_id is None:
+            return False
+        try:
+            active = UUID(str(request.session.get("active_organization_id")))
+        except TypeError, ValueError, AttributeError:
+            return False
+        if active != subscription.organization_id:
+            return False
+        # Exact existing-report reads qualify; no generation route is admitted.
+        from django.urls import Resolver404, resolve
+
+        try:
+            route = resolve(request.path_info)
+        except Resolver404:
+            return False
+        if route.view_name not in {
+            "reports:history",
+            "reports:detail",
+            "reports:download",
+            "reviews:history",
+            "reviews:pack-detail",
+        }:
+            return False
+        return paid_subscription_export_access(
+            subscription.id, using=subscription._state.db or "default"
+        )

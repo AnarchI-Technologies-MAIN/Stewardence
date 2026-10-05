@@ -4,11 +4,13 @@ from .views import (
     generate_report_action,
     report_detail_view,
     report_download_view,
+    report_history_view,
 )
 
 app_name = "reports"
 
 urlpatterns = [
+    path("", report_history_view, name="history"),
     path(
         "from-assessment/<uuid:snapshot_id>/",
         generate_report_action,

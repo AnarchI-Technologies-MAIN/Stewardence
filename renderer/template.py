@@ -8,17 +8,21 @@ from django.template import Context, Engine
 
 TEMPLATE_DIRECTORY = Path(__file__).resolve().parent / "templates"
 BRAND_LOGO_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "static"
-    / "brand"
-    / "stewardence-helix-orbit-light.png"
+    Path(__file__).resolve().parents[1] / "static" / "brand" / "atlas" / "reports.svg"
 )
 _ENGINE = Engine(dirs=(TEMPLATE_DIRECTORY,), autoescape=True, debug=False)
 
 
 def render_report_html(payload: dict[str, Any]) -> str:
-    template = _ENGINE.get_template("report.html")
-    brand_logo_data_url = "data:image/png;base64," + base64.b64encode(
+    template_name = (
+        "capture_pack.html"
+        if payload.get("context_version") == "AL-REVIEW-PACK-CONTEXT-2"
+        else "report.html"
+    )
+    if payload.get("context_version") == "AL-REVIEW-PACK-CONTEXT-3":
+        template_name = "capture_pack_v4.html"
+    template = _ENGINE.get_template(template_name)
+    brand_logo_data_url = "data:image/svg+xml;base64," + base64.b64encode(
         BRAND_LOGO_PATH.read_bytes()
     ).decode("ascii")
     return template.render(

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Private evidence pack delivery - Stewardence{% endblock %}
+{% block content %}
+<section class="page-heading atlas-heading"><div><p class="eyebrow">Private frozen evidence</p><h1>Evidence pack delivery</h1><p>Report {{ identifier }}. This pack records customer declarations and unresolved questions; it does not establish verified controls, a risk rating or modeled savings.</p></div></section>
+<section class="card"><h2>Recorded delivery state</h2><p>Requested job state: {{ job_state }}. Queue state alone does not prove delivery.</p>{% if completion_recorded %}<p>A committed pack completion receipt is recorded. Stored bytes are verified when you download.</p>{% else %}<p>No pack completion receipt is recorded. Delivery has not been established.</p>{% endif %}{% if has_pdf and completion_recorded %}<a class="button" href="{% url 'reports:download' report_id %}">Download private evidence pack PDF</a>{% endif %}</section>
+{% endblock %}

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.accounts.apps.AccountsConfig",
     "apps.billing.apps.BillingConfig",
+    "apps.integrations.apps.IntegrationsConfig",
     "apps.organizations.apps.OrganizationsConfig",
     "apps.inventory.apps.InventoryConfig",
     "apps.catalog.apps.CatalogConfig",
@@ -52,9 +53,13 @@ INSTALLED_APPS = [
     "apps.jobs.apps.JobsConfig",
     "apps.audit.apps.AuditConfig",
     "apps.reports.apps.ReportsConfig",
+    "apps.reviews.apps.ReviewsConfig",
+    "apps.funnels",
 ]
 
 MIDDLEWARE = [
+    "apps.integrations.provider_views.ProviderBoundaryMiddleware",
+    "apps.integrations.quickbooks_views.QuickBooksBoundaryMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -67,8 +72,32 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# Existing Core intake accepts one CSV (1 MB) or collector bundle (2 MB).
+# Bound aggregate file streams before the normal temporary-file handler.
+CORE_MAX_FILE_BYTES = 2_000_000
+CORE_MAX_MULTIPART_BYTES = 3_000_000
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2_500_000
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
+DATA_UPLOAD_MAX_NUMBER_FILES = 1
+FILE_UPLOAD_HANDLERS = [
+    "agentledger.upload_limits.BoundedUploadHandler",
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+]
+
 ROOT_URLCONF = "agentledger.urls"
 WSGI_APPLICATION = "agentledger.wsgi.application"
+
+# Candidate authority ports require separate qualification before activation.
+DECISION_DESK_ENABLED = False
+CORE_REVIEW_WORKSPACE_ENABLED = False
+DELIBERATE_CAPTURE_ENABLED = False
+CORE_PROPOSAL_ADMISSION_ENABLED = False
+CORE_EXPLICIT_INVENTORY_ENABLED = False
+REVIEW_PACK_LIFECYCLE_ENABLED = False
+REVIEW_UNUSED_STOP_ENABLED = False
+STANDARD_CHECKOUT_INTENTS_ENABLED = False
+STANDARD_CHECKOUT_STRIPE_KEY = ""
 
 TEMPLATES = [
     {
@@ -80,6 +109,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "agentledger.context_processors.review_navigation",
             ]
         },
     }
@@ -122,6 +152,15 @@ LOGOUT_REDIRECT_URL = "accounts:login"
 
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+# Draft funnels are closed until their exact claims and delivery are qualified.
+FUNNEL_PREVIEW_ENABLED = False
+FUNNEL_DEVELOPMENT_PREVIEW = False
+FUNNEL_PUBLIC_ENABLED = False
+FUNNEL_QUALIFIED_CAPABILITIES = ()
+FUNNEL_APPROVED_DIGESTS = ()
+# Core launch is standard-only. Existing founder contracts retain lifecycle support.
+FOUNDER_OFFER_ENABLED = os.getenv("FOUNDER_OFFER_ENABLED", "0") == "1"
 STRIPE_BILLING_PORTAL_CONFIGURATION_ID = os.getenv(
     "STRIPE_BILLING_PORTAL_CONFIGURATION_ID",
     "",
@@ -146,3 +185,54 @@ STRIPE_CORE_STANDARD_PRICE_ID = os.getenv(
     "STRIPE_CORE_STANDARD_PRICE_ID",
     "",
 )
+
+# Activation remains explicit until billing and collection qualification pass.
+AUTOMATION_ENABLED = os.getenv("AUTOMATION_ENABLED", "0") == "1"
+STRIPE_AUTOMATION_STANDARD_PRICE_ID = os.getenv("STRIPE_AUTOMATION_STANDARD_PRICE_ID", "")
+STRIPE_AUTOMATION_FOUNDER_INTRO_PRICE_ID = os.getenv("STRIPE_AUTOMATION_FOUNDER_INTRO_PRICE_ID", "")
+STRIPE_AUTOMATION_FOUNDER_ONGOING_PRICE_ID = os.getenv("STRIPE_AUTOMATION_FOUNDER_ONGOING_PRICE_ID", "")
+
+# Disabled by default; allowlisted owners only, sandbox only, no paid entitlement bypass
+# for production data. Credentials and encryption keys are separate private files.
+QUICKBOOKS_SANDBOX_ENABLED = os.getenv("QUICKBOOKS_SANDBOX_ENABLED", "0") == "1"
+QUICKBOOKS_SANDBOX_USER_IDS = env_list("QUICKBOOKS_SANDBOX_USER_IDS")
+QUICKBOOKS_CLIENT_FILE = os.getenv("QUICKBOOKS_CLIENT_FILE", "")
+QUICKBOOKS_KEY_FILE = os.getenv("QUICKBOOKS_KEY_FILE", "")
+QUICKBOOKS_REDIRECT_URI = os.getenv("QUICKBOOKS_REDIRECT_URI", "")
+
+# Never send OAuth callback query strings/locals to Django error mail or console.
+# Reverse-proxy and container access logs require separate deployment checks.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'oauth_privacy': {'()': 'apps.integrations.logging.NoOAuthCallbackDiagnostics'},
+    },
+    'handlers': {
+        'provider_null': {'class': 'logging.NullHandler'},
+        'console': {
+            'class': 'logging.StreamHandler', 'filters': ['oauth_privacy'],
+        },
+        'django.server': {
+            'class': 'logging.StreamHandler', 'filters': ['oauth_privacy'],
+        },
+        'mail_admins': {
+            'class': 'django.utils.log.AdminEmailHandler',
+            'filters': ['oauth_privacy'], 'level': 'ERROR',
+        },
+    },
+    # HTTP transport logs can contain realm IDs in request paths. Provider
+    # outcomes are recorded through bounded application events instead.
+    'loggers': {
+        'httpx': {'handlers': ['provider_null'], 'propagate': False},
+        'httpcore': {'handlers': ['provider_null'], 'propagate': False},
+    },
+}
+
+# Separate owner-only preview; never an entitlement bypass for ordinary users.
+MICROSOFT_PREVIEW_ENABLED = os.environ.get("MICROSOFT_PREVIEW_ENABLED", "0") == "1"
+XERO_PREVIEW_ENABLED = os.environ.get("XERO_PREVIEW_ENABLED", "0") == "1"
+MICROSOFT_CLIENT_FILE = os.environ.get("MICROSOFT_CLIENT_FILE", "")
+XERO_CLIENT_FILE = os.environ.get("XERO_CLIENT_FILE", "")
+PROVIDER_PREVIEW_KEY_FILE = os.environ.get("PROVIDER_PREVIEW_KEY_FILE", "")
+CORE_WORKFLOWS_ENABLED = os.getenv("CORE_WORKFLOWS_ENABLED", "0") == "1"

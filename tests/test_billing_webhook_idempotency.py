@@ -6,7 +6,6 @@ from django.test import RequestFactory
 from apps.billing.models import StripeWebhookEvent
 from apps.billing.views import stripe_webhook
 
-
 pytestmark = pytest.mark.django_db
 
 
@@ -20,6 +19,7 @@ def stripe_event(
         "data": {
             "object": {
                 "id": "stripe-object-id",
+                "client_reference_id": "c7e9e8d2-b8d0-4a5e-912a-842108b43e8f",
             },
         },
     }
@@ -254,3 +254,20 @@ def test_missing_stripe_event_identity_fails_closed(
 
     assert response.status_code == 400
     assert StripeWebhookEvent.objects.count() == 0
+
+
+@pytest.mark.parametrize("reference", [None, "", "invalid-user", "1001"])
+def test_checkout_without_valid_customer_reference_cannot_dispatch(
+    monkeypatch, settings, reference
+):
+    event = stripe_event("evt_invalid_customer")
+    event["data"]["object"]["client_reference_id"] = reference
+    configure_signed_event(monkeypatch, settings, event)
+    calls = []
+    monkeypatch.setattr(
+        "apps.billing.views._handle_checkout_completed",
+        lambda obj: calls.append(obj),
+    )
+    response = stripe_webhook(webhook_request())
+    assert response.status_code == 200
+    assert calls == []
