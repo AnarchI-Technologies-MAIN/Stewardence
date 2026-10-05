@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="8.446" timestamp="2026-10-04T19:25:37.487870+00:00" hostname="010f1524f86f"><testcase classname="tests.test_review_cycle_authority" name="test_capacity_wait_cannot_reuse_pre_revocation_paid_authority" time="7.732"><failure message="AssertionError: assert ['admitted'] == ['denied']&#10;  &#10;  At index 0 diff: 'admitted' != 'denied'&#10;  Use -v to get more diff">review_owner = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: c5c377a3-9eee-4b2d-98c2-417cbe2d8c5f v1&gt;)
+
+    def test_capacity_wait_cannot_reuse_pre_revocation_paid_authority(review_owner):
+        import threading
+        import time
+        user, org, snapshot = review_owner
+        scope = f'review:{org.id}:capacity'
+        outcome = []
+        def attempt():
+            try:
+                opened(review_owner)
+                outcome.append('admitted')
+            except DatabaseError as error:
+                outcome.append('denied' if 'paid owner admission unavailable' in str(error) else type(error).__name__)
+            finally:
+                connections['app_runtime'].close()
+        with connections['default'].cursor() as cursor:
+            cursor.execute('SELECT pg_advisory_lock(hashtextextended(%s,0))',[scope])
+        thread = threading.Thread(target=attempt)
+        try:
+            thread.start()
+            deadline = time.monotonic()+10
+            observed_wait = False
+            while time.monotonic()&lt;deadline:
+                with connections['default'].cursor() as cursor:
+                    cursor.execute("SELECT EXISTS(SELECT 1 FROM pg_stat_activity a JOIN pg_locks l ON l.pid=a.pid WHERE a.usename='agentledger_app' AND position('app_private.open_review_cycle' in a.query)&gt;0 AND l.locktype='advisory' AND NOT l.granted)")
+                    observed_wait = cursor.fetchone()[0]
+                if observed_wait:
+                    break
+                threading.Event().wait(.02)
+            assert observed_wait, 'Actual app login never reached advisory-lock barrier'
+            PaidCoverageAuthority.objects.all().delete()
+        finally:
+            with connections['default'].cursor() as cursor:
+                cursor.execute('SELECT pg_advisory_unlock(hashtextextended(%s,0))',[scope])
+            thread.join(timeout=15)
+        assert not thread.is_alive()
+&gt;       assert outcome == ['denied']
+E       AssertionError: assert ['admitted'] == ['denied']
+E         
+E         At index 0 diff: 'admitted' != 'denied'
+E         Use -v to get more diff
+
+tests/test_review_cycle_authority.py:332: AssertionError</failure></testcase></testsuite></testsuites>

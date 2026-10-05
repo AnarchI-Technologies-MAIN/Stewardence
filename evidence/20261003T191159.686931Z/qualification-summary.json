@@ -1,0 +1,17 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-c5c0d83783",
+  "image_id": "sha256:22e5ed201a251543824da4da899bccc341489d991eb5cda7722bf69885fd9823",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T191159.686931Z",
+  "test_arguments": [
+    "tests/test_lyra_authority_findings.py",
+    "tests/test_core_workflows.py",
+    "tests/test_report_storage_atomic.py",
+    "tests/test_report_generation_job.py",
+    "tests/test_recovery_policy.py",
+    "tests/test_automation_collection_contract.py",
+    "tests/test_worker_process_crash.py"
+  ]
+}

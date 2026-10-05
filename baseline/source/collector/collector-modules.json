@@ -1,0 +1,61 @@
+{
+  "manifest_schema_version": 1,
+  "manifest_version": "1",
+  "modules": [
+    {
+      "available": true,
+      "detector_version": "1",
+      "display_name": "Windows Installed Programs",
+      "id": "windows.installed_programs",
+      "status": "mvp_one_shot"
+    },
+    {
+      "available": false,
+      "display_name": "Microsoft 365 Intelligence",
+      "id": "microsoft365.intelligence",
+      "status": "post_mvp_not_available"
+    },
+    {
+      "available": false,
+      "display_name": "Google Workspace Intelligence",
+      "id": "google_workspace.intelligence",
+      "status": "post_mvp_not_available"
+    },
+    {
+      "available": false,
+      "display_name": "GitHub Intelligence",
+      "id": "github.intelligence",
+      "status": "post_mvp_not_available"
+    },
+    {
+      "available": false,
+      "display_name": "Accounting Intelligence",
+      "id": "accounting.intelligence",
+      "status": "post_mvp_not_available"
+    },
+    {
+      "available": false,
+      "display_name": "Browser Intelligence",
+      "id": "browser.intelligence",
+      "status": "post_mvp_not_available"
+    },
+    {
+      "available": false,
+      "display_name": "Developer Tooling Intelligence",
+      "id": "developer_tooling.intelligence",
+      "status": "post_mvp_not_available"
+    },
+    {
+      "available": false,
+      "display_name": "Continuous Observation",
+      "id": "continuous_observation",
+      "status": "post_mvp_not_available"
+    },
+    {
+      "available": false,
+      "display_name": "Desktop Portal",
+      "id": "desktop_portal",
+      "status": "post_mvp_not_available"
+    }
+  ]
+}

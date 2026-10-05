@@ -1,0 +1,52 @@
+screen,title,status,template,dependencies
+01-overview,Evidence coverage,proposed,,D2; D3; D4; D6
+02-home,Understand your AI adoption.,existing,home.html,D12
+03-pricing,Core and Automation,existing,billing/portfolio.html,D12
+04-visibility-landing,Know which tools are present.,proposed,,D11
+05-roi-landing,Is AI paying off?,proposed,,D11; D5
+06-automation-landing,Repeatable evidence.,proposed,,D11; D4
+07-lead-confirmation,Request receipt,proposed,,D11
+08-login,Log in,existing,registration/login.html,
+09-signup,Create your account,existing,registration/signup.html,
+10-workspace-selection,Choose your workspace,partially implemented,organizations/select_workspace.html,D1
+11-workspace-setup,Create your organization workspace,existing,organizations/setup.html,
+12-inventory-list,Software inventory,partially implemented,inventory/list.html,D2
+13-inventory-detail,Example Desktop Tool,partially implemented,inventory/detail.html,D2
+14-inventory-form,Add or edit software,partially implemented,inventory/form.html,D5
+15-discovery,StewardSensors collection,existing,inventory/discovery.html,
+16-download,Download StewardSensors,existing,downloads/detail.html,D1
+17-import-upload,Upload software inventory CSV,existing,imports/upload.html,
+18-import-review,Check imported software,existing,imports/review.html,
+19-import-final,Approve software import,existing,imports/final.html,
+20-integrations,Integrations and collection,proposed,,D2; D3
+21-quickbooks,QuickBooks sandbox,existing,integrations/quickbooks.html,D1; D3
+22-xero,Xero integration,proposed,,D3
+23-microsoft,Microsoft integration,proposed,,D3
+24-collection-history,Collection history,proposed,,D2; D4
+25-assessments-list,Assessments,proposed,,D9
+26-assessment-detail,Assessment detail,partially implemented,assessments/detail.html,D8
+27-policies-list,Policies and rules,existing,policies/list.html,
+28-policy-detail,Review external transfer,partially implemented,policies/detail.html,D9
+29-policy-editor,Organization rule editor,existing,policies/form.html,
+30-roi-overview,ROI and outcomes,proposed,,D5; D6
+31-roi-calculator,ROI calculator,partially implemented,inventory/roi.html,D5
+32-financial-evidence,Financial evidence,proposed,,D3; D6
+33-expenditure-sinks,Expenditure sinks,proposed,,D6
+34-discrepancies,Discrepancy review,proposed,,D6
+35-actions-list,Action review queue,proposed,,D7
+36-action-detail,Review application grant,proposed,,D7
+37-reports-list,Reports,proposed,,D8; D9
+38-report-detail,Software assessment report,partially implemented,reports/detail.html,D5; D8
+39-evidence-library,Evidence library,proposed,,D9
+40-evidence-detail,Evidence detail,proposed,,D9
+41-audit,Audit history,proposed,,D9
+42-workspace-admin,Workspace administration,proposed,,D10
+43-members-authority,Members and authority,proposed,,D10
+44-billing,Subscription and billing,existing,billing/account.html,D12
+45-checkout-confirmation,Confirming your subscription,existing,billing/success.html,D12
+46-privacy,Privacy,proposed,,D11
+47-terms,Terms,proposed,,D12
+48-contact,Start a conversation,proposed,,D11
+49-states,General operating states,proposed,,D2; D8; D11
+50-authority-states,Authority and connection states,proposed,,D3; D7; D12
+51-lead-review,Lead review,proposed,,D10; D11

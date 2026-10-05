@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ report.metadata.report_identifier }} - {{ report.title }}</title>
+  <style>
+    @page { size: A4; margin: 16mm 14mm 18mm; @bottom-right { content: "Page " counter(page) " of " counter(pages); color: #667085; font-size: 9px; } }
+    * { box-sizing: border-box; }
+    body { color: #17212b; font-family: Arial, sans-serif; font-size: 10.5px; line-height: 1.45; margin: 0; }
+    h1 { color: #153f45; font-size: 27px; line-height: 1.12; margin: 6px 0 8px; }
+    h2 { border-bottom: 2px solid #d8e7e6; color: #153f45; font-size: 17px; margin: 0 0 10px; padding-bottom: 5px; }
+    h3 { color: #234e53; font-size: 12px; margin: 8px 0 4px; }
+    p { margin: 5px 0 8px; }
+    section { break-inside: avoid; margin: 0 0 18px; }
+    .cover { border: 2px solid #2c7477; margin-bottom: 24px; padding: 22px; }
+    .cover-brand { align-items: flex-start; display: flex; gap: 20px; justify-content: space-between; }
+    .brand-logo { display: block; height: auto; width: 104px; }
+    .eyebrow { color: #2c7477; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .organization { font-size: 16px; font-weight: 700; }
+    .disclaimer { background: #f1f6f5; border-left: 3px solid #2c7477; padding: 8px 10px; }
+    .grid { display: grid; gap: 8px; grid-template-columns: repeat(3, 1fr); }
+    .metric { background: #f4f7f8; padding: 8px; }
+    .metric span { color: #667085; display: block; font-size: 8.5px; text-transform: uppercase; }
+    .metric strong { display: block; font-size: 15px; margin-top: 2px; }
+    table { border-collapse: collapse; font-size: 9px; width: 100%; }
+    th, td { border: 1px solid #d7dee2; padding: 5px; text-align: left; vertical-align: top; }
+    th { background: #e9f1f1; color: #153f45; }
+    tr { break-inside: avoid; }
+    .item { border-left: 3px solid #a9cdca; break-inside: avoid; margin: 8px 0; padding: 3px 0 3px 9px; }
+    .muted { color: #667085; }
+    .hash { font-family: monospace; font-size: 8px; overflow-wrap: anywhere; }
+    ul, ol { margin: 5px 0 8px; padding-left: 20px; }
+    li { margin: 2px 0; }
+  </style>
+</head>
+<body>
+  <header class="cover">
+    <div class="cover-brand">
+      <div>
+        <div class="eyebrow">{{ report.metadata.report_identifier }}</div>
+        <h1>{{ report.title }}</h1>
+      </div>
+      <img class="brand-logo" src="{{ brand_logo_data_url }}" alt="Stewardence Helix Orbit">
+    </div>
+    <p class="organization">{{ report.metadata.organization_display_name }}</p>
+    <p>Assessment date: {{ report.assessment_date }} | Assessment version: {{ report.metadata.assessment_version }}</p>
+    <p class="disclaimer">This report presents deterministic assessment findings and does not certify compliance or guarantee security.</p>
+  </header>
+  <section><h2>Executive summary</h2><div class="grid">
+    <div class="metric"><span>Tools assessed</span><strong>{{ report.executive_summary.inventory_count }}</strong></div>
+    <div class="metric"><span>Policy findings</span><strong>{{ report.executive_summary.finding_count }}</strong></div>
+    <div class="metric"><span>Monthly spend</span><strong>{{ report.executive_summary.monthly_spend_display }}</strong></div>
+  </div>{% if report.executive_summary.highest_individual_risk %}<p>Highest individual tool risk: <strong>{{ report.executive_summary.highest_individual_risk.band }}</strong> ({{ report.executive_summary.highest_individual_risk.score }}/100) for {{ report.executive_summary.highest_individual_risk.tool_name }}.</p>{% endif %}<p>Estimated monthly net value: <strong>${{ report.executive_summary.monthly_net_value }}</strong>.</p></section>
+  <section><h2>AI and software inventory</h2><table><thead><tr><th>Tool</th><th>Vendor</th><th>Department</th><th>Status</th><th>Monthly cost</th></tr></thead><tbody>{% for tool in report.inventory %}<tr><td>{{ tool.display_name }} ({{ tool.provenance.display_name }})</td><td>{{ tool.vendor_name }} ({{ tool.provenance.vendor_name }})</td><td>{{ tool.department|default:"Unknown" }} ({{ tool.provenance.department }})</td><td>{{ tool.status|title }} ({{ tool.provenance.status }})</td><td>{{ tool.monthly_cost_display }} ({{ tool.provenance.monthly_cost_cents }})</td></tr>{% endfor %}</tbody></table></section>
+  <section><h2>Overall risk overview</h2><p>Overall risk is summarized by the highest individual tool risk; it is not a compliance certification.</p><div class="grid">{% for band, count in report.risk_overview.counts_by_band.items %}<div class="metric"><span>{{ band }}</span><strong>{{ count }}</strong></div>{% endfor %}</div></section>
+  <section><h2>Individual tool risk</h2>{% for tool in report.inventory %}<article class="item"><h3>{{ tool.display_name }} - {{ tool.risk.band }} ({{ tool.risk.score }}/100, {{ tool.risk.provenance }})</h3><p>Risk engine {{ tool.risk.engine_version }}; configuration {{ tool.risk.configuration_version }}</p><ul>{% for dimension in tool.risk.dimensions %}<li>{{ dimension.dimension|title }}: {{ dimension.raw_points }} raw, {{ dimension.weight_percent }}% weight, {{ dimension.weighted_points }} weighted</li>{% endfor %}</ul></article>{% endfor %}</section>
+  <section><h2>Failed and warning policy findings</h2>{% for finding in report.policy_findings %}<article class="item"><div class="eyebrow">{{ finding.result }} - {{ finding.severity }}</div><h3>{{ finding.tool_name }}</h3><p>{{ finding.explanation }}</p><p><strong>Rule:</strong> {{ finding.rule_id }} version {{ finding.rule_version }}</p><p><strong>Recommended remediation:</strong> {{ finding.recommended_remediation }}</p></article>{% empty %}<p>No failed or warning policies were recorded.</p>{% endfor %}</section>
+  <section><h2>Recommendations</h2><ol>{% for recommendation in report.recommendations %}<li><strong>{{ recommendation.tool_name }}:</strong> {{ recommendation.remediation }} ({{ recommendation.severity }})</li>{% empty %}<li>No remediation recommendations were produced.</li>{% endfor %}</ol></section>
+  <section><h2>AI and software expenditure</h2><p><strong>{{ report.ai_expenditure.monthly_total_display }}</strong> monthly subscription cost</p><ul>{% for item in report.ai_expenditure.items %}<li>{{ item.tool_name }} - {{ item.monthly_cost_display }} ({{ item.provenance }})</li>{% endfor %}</ul></section>
+  <section><h2>Return on investment</h2><p>Results are {{ report.roi.result.provenance }} from the captured assumptions.</p><table><tbody><tr><th>Monthly value</th><td>${{ report.roi.result.monthly_value }}</td><th>Monthly total cost</th><td>${{ report.roi.result.monthly_total_cost }}</td></tr><tr><th>Monthly net value</th><td>${{ report.roi.result.monthly_net_value }}</td><th>ROI</th><td>{% if report.roi.result.roi_percent != None %}{{ report.roi.result.roi_percent }}%{% else %}Not available{% endif %}</td></tr></tbody></table><h3>Arithmetic</h3><ul>{% for line in report.roi.result.arithmetic %}<li>{{ line }}</li>{% endfor %}</ul><h3>Assumption sources</h3><ul>{% for name, assumption in report.roi.assumptions.items %}<li>{{ name|title }}: {{ assumption.value }} - {{ assumption.provenance_class }}{% if assumption.provenance != assumption.provenance_class %} ({{ assumption.provenance }}){% endif %}</li>{% endfor %}</ul></section>
+  <section><h2>Methodology</h2><p>{{ report.methodology.summary }}</p><p>{{ report.methodology.evidence_boundary }}</p><p>Report context {{ report.methodology.report_context_version }}; snapshot schema {{ report.methodology.snapshot_schema_version }}</p><ul>{% for engine, version in report.methodology.engine_versions.items %}<li>{{ engine|title }} engine: {{ version }}</li>{% endfor %}</ul><h3>Provenance labels</h3><ul>{% for label, meaning in report.methodology.provenance_legend.items %}<li><strong>{{ label }}:</strong> {{ meaning }}</li>{% endfor %}</ul></section>
+  <section><h2>Evidence sources</h2><ul>{% for evidence in report.evidence %}<li>{% if evidence.type == "collector_observation" %}<strong>{{ evidence.raw_identifier }}</strong> - {{ evidence.provenance }} by {{ evidence.detector_id }} v{{ evidence.detector_version }} at {{ evidence.observed_at }}; exact catalog reconciliation {{ evidence.reconciliation_provenance }}; evidence SHA-256 {{ evidence.reference }}; scan SHA-256 {{ evidence.scan_hash }}{% else %}{{ evidence.type|title }} - {{ evidence.reference }} ({{ evidence.provenance }}){% endif %}</li>{% empty %}<li>No external evidence references were attached.</li>{% endfor %}</ul></section>
+  <section><h2>Assessment and report metadata</h2><table><tbody><tr><th>Report identifier</th><td>{{ report.metadata.report_identifier }}</td><th>Assessment date</th><td>{{ report.assessment_date }}</td></tr><tr><th>Assessment ID</th><td colspan="3" class="hash">{{ report.metadata.assessment_id }}</td></tr><tr><th>Snapshot ID</th><td colspan="3" class="hash">{{ report.metadata.assessment_snapshot_id }}</td></tr><tr><th>Input SHA-256</th><td colspan="3" class="hash">{{ report.metadata.input_sha256 }}</td></tr><tr><th>Result SHA-256</th><td colspan="3" class="hash">{{ report.metadata.result_sha256 }}</td></tr></tbody></table><h3>Ruleset versions</h3><ul><li>Platform: {{ report.ruleset_versions.platform }}</li><li>Industry: {{ report.ruleset_versions.industry.name }} {{ report.ruleset_versions.industry.version }}</li>{% for rule in report.ruleset_versions.organization %}<li>Organization rule: {{ rule.name }} version {{ rule.version }} - {{ rule.source_type }}{% if rule.source_type == "detector" %}; detector {{ rule.detector_id }} v{{ rule.detector_version }}; mapping {{ rule.mapping_id }} v{{ rule.mapping_version }}; source inventory {{ rule.source_inventory_item_id }}; generation fingerprint {{ rule.generation_fingerprint }}{% endif %}</li>{% empty %}<li>Organization rules: none enabled</li>{% endfor %}</ul></section>
+</body>
+</html>

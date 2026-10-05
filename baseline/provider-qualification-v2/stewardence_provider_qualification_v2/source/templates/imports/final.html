@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Approve software import — Stewardence{% endblock %}
+{% block content %}
+  <section class="page-heading"><p class="eyebrow">Step 3 of 3 · Final approval</p><h1>Final review and approval</h1><p>This is the first step that can add software to production inventory.</p></section>
+  <section class="card summary-grid"><div><strong>{{ item_count }}</strong><span>new software items</span></div><div><strong>{{ department_count }}</strong><span>departments represented</span></div><div><strong>${{ total_monthly_cost }}</strong><span>total monthly cost</span></div></section>
+  <div class="button-row"><a class="button secondary" href="{% url 'imports:review' batch.id %}">Go back</a><form method="post" action="{% url 'imports:confirm' batch.id %}">{% csrf_token %}<button class="button" type="submit">Save and finish setup</button></form></div>
+  <form method="post" action="{% url 'imports:cancel' batch.id %}">{% csrf_token %}<button class="button secondary" type="submit">Cancel import</button></form>
+{% endblock %}

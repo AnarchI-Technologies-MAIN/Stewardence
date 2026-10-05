@@ -1,0 +1,305 @@
+- heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - strong: Both narrow successors are accepted within their submitted scope.
+    - text: I independently measured the uploaded packet at
+    - strong: 44,304 bytes / 993 lines / SHA-256 303b061d8fc6186b6e8c9c448a878e65ebe2a87771663d03246414c29a5b47dc
+    - text: .
+  - paragraph: Production remains unapproved.
+  - heading "EXPOSURE-PROJECTION-VERSION-01 CLOSED" [level=2]
+  - paragraph: Your minimal option C is sufficient for the currently admitted stewardence.review_pack.v2 contract.
+  - paragraph:
+    - text: The historical dispatcher now explicitly refuses unknown pack schemas and resolves v2 packs directly to the permanent exposure_v1 implementation rather than through the mutable public alias.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "That means a future change such as:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: review_record → v2
+  - paragraph: cannot silently alter the exposure semantics of an already frozen v2 PackIdentity.
+  - paragraph:
+    - text: The permanent implementation also hard-codes the historical "Declared" provenance literal rather than importing a future-mutating alias, which matters because otherwise a seemingly innocent provenance rename could reinterpret old snapshots.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Most importantly, the actual render-context path calls:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: historical_review_record(row, manifest["schema"])
+  - paragraph:
+    - text: so the historical dispatch is in the customer artifact path, not merely a helper sitting unused in the repository.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The regression tests directly exercise the intended counterexample:"
+  - list:
+    - listitem: public alias changed to v2;
+    - listitem: current review_record() deliberately replaced;
+    - listitem: historical v2 still reproduces permanent v1 output;
+    - text: actual worker context still produces exact canonical v1 semantics.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That closes the finding.
+  - heading "Scope of closure" [level=3]
+  - paragraph: "This means:"
+  - blockquote:
+    - paragraph: review_pack.v2 permanently means core.exposure.declarations.v1.
+  - paragraph:
+    - text: It does
+    - strong: not
+    - text: authorize changing exposure_v1.py later.
+  - paragraph:
+    - text: Treat that module as historical protocol code. A semantic change needs a new exposure implementation
+    - strong: and new admitted pack schema
+    - text: ", exactly as documented."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is now a good reconstructability invariant.
+  - separator
+  - 'heading "Workflow-profile handoff: ACCEPTED" [level=1]'
+  - paragraph: The first-profile handoff is appropriately modest.
+  - paragraph:
+    - text: The review history page checks whether a profile exists and, when absent, explains why one is needed and links to explicit setup. Merely opening the review page does not choose a profile or start work.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: After the owner records a profile, the setup page offers a static route back into reviews only if review navigation is enabled. If the review workspace flag remains closed, it does
+    - strong: not
+    - text: advertise an unavailable workflow.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The tests establish both supported profile types and verify that the handoff creates neither jobs nor ReviewCycles. They also verify the closed review workspace is not advertised.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "So I accept:"
+  - blockquote:
+    - paragraph:
+      - strong: profile setup handoff is explicit navigation, not implicit review admission.
+  - paragraph:
+    - text: No capture closure follows from this. Correctly, the history page still says snapshot capture is not available in this candidate.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - separator
+  - heading "Focused successor evidence accepted" [level=1]
+  - paragraph:
+    - text: The exact successor reports
+    - strong: 28 / 28 passing
+    - text: "across:"
+  - list:
+    - listitem: historical exposure versioning;
+    - listitem: review-pack projection;
+    - text: profile handoff.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The earlier 86-case predecessor failure was retained and attributed to a test representation mismatch between Python tuple-bearing structures and their JSON-normalized list representation. The successor switched to comparing canonical RFC 8785 bytes rather than weakening the semantic contract. That is an appropriate test repair based on the packet’s account.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: No problem with preserving that predecessor as failed evidence.
+  - separator
+  - 'heading "Clock diagnosis: causal finding strengthened, root cause still OPEN" [level=1]'
+  - paragraph: This is important.
+  - paragraph:
+    - text: The instrumentation has now isolated the intermittent proposal rejection to
+    - strong: one predicate only
+    - text: ":"
+  - paragraph: effective_future = true
+  - paragraph:
+    - text: All other identity predicates were false. The PostgreSQL timestamp round-trip was exact, which argues against conversion/serialization corruption.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: And the three observed failures show both Python and PostgreSQL clocks later reading roughly
+    - strong: 0.73–0.77 seconds earlier
+    - text: than an already captured request/effective timestamp.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That materially changes the diagnosis.
+  - paragraph: The intermittent proposal failure is no longer best described as an unexplained proposal identity mismatch.
+  - paragraph: "The bounded source-supported conclusion is:"
+  - blockquote:
+    - paragraph:
+      - strong: The proposal issuer correctly rejected a request whose effective timestamp appeared to be in the future because the shared wall clock stepped backward after that timestamp had already been captured.
+  - paragraph:
+    - text: That closes the
+    - strong: logical issuer ambiguity
+    - text: .
+  - paragraph:
+    - text: It does
+    - strong: not
+    - text: close the underlying infrastructure defect.
+  - paragraph: "I would rename the open gate:"
+  - heading "HOST-CLOCK-DISCONTINUITY-01 OPEN" [level=3]
+  - paragraph: Do not weaken or subtract from the future-time guard.
+  - paragraph: Do not add an arbitrary ±1 second fudge factor.
+  - paragraph: The authority function is doing the safe thing.
+  - paragraph: "The next question belongs to host/time discipline:"
+  - list:
+    - listitem: Windows time service,
+    - listitem: WSL clock,
+    - listitem: Docker VM clock,
+    - listitem: chrony,
+    - listitem: mail time-sync interaction,
+    - listitem: suspend/resume or virtualization correction.
+  - paragraph:
+    - text: The authorized reversible 64s before/stopped/restored trial is exactly the right direction because it tests causality without touching product authority.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: If disabling AnarchI-Mail time-sync eliminates the backward steps and restoring it causes them to return, that is useful causal evidence. If not, keep drilling downward.
+  - heading "What closes this infrastructure gate" [level=3]
+  - paragraph: "I’d want either:"
+  - list:
+    - listitem: identified time-sync component/configuration causing backward wall-clock steps, repaired, plus repeated stress with no regression;
+  - paragraph: or
+  - list:
+    - listitem: a lower-level VM/host clock explanation and qualified mitigation that ensures timestamps used by the application remain monotonic enough for these authority contracts.
+  - paragraph: Until then, preserve the future veto.
+  - separator
+  - 'heading "Renderer stability: useful, but no timeout closure" [level=1]'
+  - paragraph: "The renderer stability campaign is good bounded evidence:"
+  - list:
+    - listitem: 20 sequential actual Chromium renders;
+    - listitem: 100 records/exposure reviews;
+    - listitem: one maximal-bound decision note;
+    - listitem: ten maximal-bound references;
+    - listitem: 353,472-byte context;
+    - listitem: network none;
+    - listitem: 1 GiB memory;
+    - listitem: 512 PID limit;
+    - listitem: concurrency 1;
+    - listitem: unchanged 60-second render budget;
+    - listitem: 3.055 to 15.628 seconds;
+    - listitem: identical normalized PDF bytes;
+    - listitem: zero zombie Chromium processes;
+    - text: no OOM.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "That is strong evidence against a simple claim like:"
+  - blockquote:
+    - paragraph: “the renderer always needs more than 60 seconds under a moderately large review pack.”
+  - paragraph: It also demonstrates deterministic output for this specimen.
+  - paragraph: "But I agree with the packet:"
+  - paragraph:
+    - strong: the historical full-suite Chromium timeout remains OPEN.
+  - paragraph: "Why? Because this campaign does not reproduce:"
+  - list:
+    - listitem: the full test-suite contention environment;
+    - listitem: whatever test ordering triggered the failure;
+    - listitem: concurrency >1;
+    - listitem: the maximum admitted customer payload;
+    - listitem: a hard-hung Chromium process.
+  - paragraph:
+    - text: The earlier extractor failures are also appropriately retained. Discovering pdftotext dehyphenation/page-footer behavior and then strengthening the semantic checker is a valid harness improvement, not evidence erasure.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - separator
+  - heading "Open release ledger after these closures" [level=1]
+  - heading "CLOSED" [level=2]
+  - list:
+    - listitem: BILLING-REPLAY-01
+    - listitem: frozen Decision Desk selection
+    - listitem: ReviewCycle artifact completion/baseline CAS
+    - listitem: frozen-pack actual projection/delivery
+    - listitem: review-pack owner-only privacy
+    - listitem: EXPOSURE-PROJECTION-VERSION-01
+    - listitem: explicit workflow-profile handoff
+  - heading "CAUSALLY NARROWED, INFRASTRUCTURE OPEN" [level=2]
+  - list:
+    - text: "proposal effective-time intermittent failure:"
+    - list:
+      - listitem: product guard behavior explained,
+      - listitem: shared backward clock step observed,
+      - text: underlying cause still
+      - strong: HOST-CLOCK-DISCONTINUITY-01 OPEN
+  - heading "OPEN" [level=2]
+  - list:
+    - listitem: deliberate unknown-aware snapshot capture
+    - listitem: applicability boundary for accounting vs generic audiences
+    - listitem: admitted baseline comparison
+    - listitem: physical retention
+    - listitem: all-writer capacity enforcement
+    - listitem: fresh-generation resubscription
+    - listitem: real Stripe test-mode lifecycle
+    - listitem: current full-suite green/stability
+    - listitem: historical Chromium timeout root cause
+    - listitem: off-site restore/device-loss recovery
+    - listitem: production credential isolation
+    - listitem: rollback/cutover
+    - listitem: production approval
+  - separator
+  - heading "Next slice remains Core capture" [level=1]
+  - paragraph:
+    - text: I would
+    - strong: not change course
+    - text: because of these two successors.
+  - paragraph: Codex should now build the deliberate capture contract that bridges live editable inventory to a frozen review snapshot.
+  - paragraph: "The target is still:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: editable current records ↓ owner reviews exactly what will be captured ↓ explicit POST ↓ canonical unknown-aware snapshot ↓ immutable snapshot identity ↓ existing ReviewCycle path
+  - heading "The next implementation must answer one semantic question precisely" [level=3]
+  - paragraph: "For every captured field:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: declared value unknown not applicable derived value
+  - paragraph: must remain distinguishable.
+  - paragraph: "Do not convert:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: 0 false "" []
+  - paragraph: into declarations merely because the database column has that value.
+  - paragraph: The capture layer must carry provenance deliberately.
+  - paragraph: And accounting applicability must be established before the accounting pack can claim accounting-specific findings. Generic Core exposure must remain available without inheriting those claims.
+  - paragraph: That is the next customer-value bridge.
+  - heading "What I want in the next packet" [level=2]
+  - list:
+    - listitem: snapshot-capture contract/schema
+    - listitem: current inventory → capture normalization source
+    - listitem: provenance handling
+    - listitem: applicability selector
+    - listitem: preview-before-capture UI
+    - listitem: POST-only admission path
+    - listitem: idempotency/lost-response behavior
+    - listitem: exact actual-role tests
+    - listitem: tests for false/zero/empty/default ambiguity
+    - listitem: generic vs accounting applicability negatives
+    - listitem: one complete journey from manually entered record → snapshot → ReviewCycle freeze
+    - listitem: clock trial result separately, not mixed into product acceptance
+    - listitem: current full-suite status if available
+  - paragraph: No reason to reopen the closed exposure/lifecycle machinery.
+  - paragraph:
+    - strong: "So: both requested successors get a green light."
+    - text: "The epistemic chain is getting pleasantly stubborn now: future code cannot quietly rewrite what an old pack meant, and missing setup cannot quietly choose what a workspace means. That’s exactly the kind of boring rigidity we want in the foundation. 🔩"
+  - paragraph:
+    - strong: Production remains unapproved.
+    - button "View analysis":
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - button "Sources":
+  - generic: ChatGPT can make mistakes. Check important info.
+  - button "Scroll to bottom":
+  - heading "Latest response" [level=4]
+  - status
+  - button "Add files and more":
+  - textbox "Ask ChatGPT":
+    - paragraph: Ask ChatGPT
+  - button "Select ChatGPT model":
+    - generic: Medium
+  - button "Dictate":
+  - button "Start Voice":
+- status
+- status: Response complete
+- status
+- status
+- status
+- status

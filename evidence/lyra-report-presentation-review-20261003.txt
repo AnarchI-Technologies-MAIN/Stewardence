@@ -1,0 +1,656 @@
+Share
+You said:
+Pasted text(20261003-221849).txt
+Document
+Worked for 6m 35s
+Memory updated
+ChatGPT said:
+
+Alexander, qualifications 1, 2, 4, and 5 close for this exact successor, on supplied source and execution evidence. Qualification 3 is partially closed: the shared cleanup helper addresses the first-target exception problem, but its caller can still omit the network after an uncertain creation outcome.
+
+Prior bounded closures remain intact. The remaining finding does not invalidate the successful cleanup recorded in this packet, and it does not establish a production access leak.
+
+Qualification dispositions
+
+The supplied final receipt records six restored objects, with six successful checks in each relevant category, including same-length corruption denial, post-request metadata matching, and anonymous denial. Those are supplied execution results, not an independent restored-data rerun by me. 
+Pasted text
+
+Qualification	Disposition	Basis and boundary
+1. Post-request metadata comparison	Closed for the demonstrated checks	The probe freshly queries each artifact after its request sequence and compares the eight specified fields against the original manifest. This establishes the requested end-state comparison, not a broader claim that no transient or unrelated database mutation could occur. 
+Pasted text
+
+2. Same-length corruption	Closed	The probe flips the last byte of the original content, verifies the original length remains unchanged, and requires 503, non-PDF content type, no Content-Disposition, and private, no-store. This supplies the previously missing same-size, different-content negative case. 
+Pasted text
+
+3. Exhaustive failure-path cleanup	Partially closed	The helper catches individual operation failures, separately attempts absence verification, continues to later targets, and withholds cleanup success when failures accumulate. The remaining defect is in the caller’s network selection, described below. 
+Pasted text
+
+4. Exact anonymous redirect	Closed	The expected location is constructed from accounts:login and the requested download path, then compared exactly. A generic or unrelated 302 no longer satisfies the assertion. 
+Pasted text
+
+5. Image alignment	Closed through same-image requalification	The restored-request receipt and full-suite receipt identify the same image, sha256:95b24d4215bb6cec845a42ee8061504b95d62ba11e4c6f53c7d596c354680946. This closes the mismatch for that image. It does not establish retrospective equivalence to 4b12… or transfer acceptance to a later image. 
+Pasted text
+ 
+Pasted text
+Remaining finding: the caller can omit a known network
+
+The network enters cleanup only after the creation call returns successfully.
+
+The runner initializes network_created=False, calls docker network create, and only then sets the flag to True. Its finally block passes the network name to cleanup_targets only when that flag is true. 
+Pasted text
+ 
+Pasted text
+
+That leaves this failure scenario uncovered:
+
+Creation takes effect, but the create call raises before returning. The network exists, yet the caller passes network=None to cleanup.
+
+Independently reproduced, with mocked I/O
+
+I executed the exact parsed runner main() function in this sandbox, substituting an in-memory Docker driver. The injected create operation added the network to the mock’s state and then raised.
+
+The observed result was:
+
+Observation	Mock result
+Original creation failure propagated	Yes
+Network supplied to cleanup	None
+Network removal or absence verification attempted	No
+Network remained in the mock state	Yes
+Helper returned cleanup_passed=True for the incomplete target inventory	Yes
+Overall passing qualification receipt emitted	No
+
+This is not a false overall qualification PASS. The original exception still propagates, and the runner has not populated result, so it does not emit the successful summary. The defect is narrower: a known network can be excluded from cleanup and its absence remains unverified. The source’s conditional summary-writing behavior is consistent with that result. 
+Pasted text
+
+No real Docker resource was created or left behind by this test. It demonstrates the caller’s behavior under the injected outcome, not an observed daemon failure or leaked customer data.
+
+Minimal repair and closure evidence
+
+Keep the run’s expected network in the cleanup inventory independently of whether creation returned successfully. When creation has an uncertain outcome, reconcile presence and ownership before deletion, then verify absence. Do not turn this into unconditional deletion of anything sharing the name.
+
+Add two caller-level fault cases: creation raises without creating a network, and creation takes effect before raising. Both must attempt network reconciliation, and neither may emit an overall passing qualification receipt. The absent case should not require an unnecessary removal; the created case must attempt removal and verify the result.
+
+This is a cleanup-runner repair. It does not require reopening the frozen semantic or Core authority findings.
+
+What the helper repair successfully establishes
+
+The shared helper’s first-target exception handling is materially repaired. A container operation exception does not prevent that target’s verification, later container handling, or network handling. Operation and verification failures accumulate into a non-passing cleanup result. 
+Pasted text
+
+I independently executed the supplied mock/assertion logic. I also ran seven expanded helper scenarios covering normal success, removal failure before and after its effect, initial inspection failure, absence-verification failure, network-removal failure, and network-verification failure.
+
+In those expanded cases, the second and third containers started present, and their removal calls were checked. That strengthens the supplied injection, whose mock reports only the first container as present. The expanded cases passed their expected assertions. The supplied mock’s original behavior is visible in its fake-driver definition and assertions. 
+Pasted text
+
+Accordingly, I am not reopening the repaired first-target exception finding inside the helper. The residual issue is the caller failing to supply a target.
+
+The successful supplied run also retains its own bounded evidence: it records absence verification for the database, migration, application containers, and internal network. Nothing in the mocked creation-failure counterexample contradicts that successful execution path. 
+Pasted text
+
+Evidence identity and independent-work boundary
+
+I parsed all four supplied Python source sections. I reconstructed the request probe as UTF-8 with LF line endings and one terminal newline; its measured SHA-256 matched the supplied receipt:
+
+f780781b15befc96c67e2a41b48eb19ab862e5f8474d63c9a1e3adb2d96d932d
+
+That binds this textual reconstruction to the reported probe digest. It does not independently establish which bytes ran inside the supplied container execution. The receipt carries that execution claim. 
+Pasted text
+
+My independent work consisted of source parsing, hashing, and standard-library mock tests. I did not run Django, Docker, PostgreSQL, a backup restore, the STEWARDENCE suite, or any operation on your machines. The 1,146 passed / one skip count remains a supplied report; the included full-suite summary provides exit status and image identity, not the raw test-count log. 
+Pasted text
+ 
+Pasted text
+
+Download the source-review reproducer and sandbox results
+
+The archive includes the reconstructed source sections, the mock-only review harness, and its JSON results. It contains no customer PDFs or credentials.
+
+Preserved boundaries
+
+The six initial entitlement denials and six entitlement mutations remain explicit synthetic clone fixtures. The successful authorized downloads do not establish live subscriptions or live entitlement. The receipt correctly retains the in-process-only limitation and disclaims production HTTP or cutover proof. 
+Pasted text
+
+Stage 1 byte-recovery acceptance remains historical and bounded. This packet shows the restored-request runner’s cleanup integration; it does not supply a new Stage 1 execution or that caller’s cleanup integration. I am not transferring new execution acceptance to Stage 1 merely because a shared helper exists. 
+Pasted text
+ 
+Pasted text
+
+Same-host key and ciphertext custody still does not establish independent off-site recovery or device-loss resilience. Final live HTTP/static/UI and overall release requirements remain separate. 
+Pasted text
+
+Final disposition: four qualifications closed; the cleanup qualification remains open only for the caller’s uncertain-network-creation path. Core production remains unapproved. Worker, provider writes, and Automation purchases remain disabled under the existing restrictions. No deployment approval or permission expansion results from this review.
+
+You said:
+Pasted text(20261003-222503).txt
+Document
+Worked for 3m 21s
+Memory updated
+ChatGPT said:
+
+Alexander, the previously demonstrated omitted-network defect is closed. The six-object restored-request rerun is accepted within its demonstrated scope. Cleanup qualification 3 remains partially open, however, because the successor still does not verify run ownership before deleting a network after an uncertain creation outcome.
+
+That ownership check was part of the preceding repair requirement. This does not reopen the repaired caller omission or invalidate the successful cleanup supplied here.
+
+What this successor closes
+
+The runner now unconditionally supplies its expected network name to cleanup in finally. A creation exception can no longer exclude that network merely because network_created was never set. 
+Pasted text
+
+The helper also checks whether the network exists before attempting removal, then separately verifies absence. Consequently, the “creation failed without creating anything” case no longer requires an unnecessary removal call. Operation and verification failures still accumulate rather than stopping later cleanup. 
+Pasted text
+
+Independent mock checks confirm both repairs. I parsed all four current Python source sections, executed the supplied mock/assertion logic, ran ten expanded helper scenarios, and executed the exact supplied runner’s main() with mocked I/O in four caller scenarios:
+
+Injected caller scenario	Independently observed behavior
+Network created, then creation raises before returning	Network included in cleanup, removed, and absence checked. Original exception preserved; no overall passing receipt.
+Creation raises without creating a network	Network presence and absence checked; no removal attempted. Original exception preserved; no overall passing receipt.
+Creation returns successfully, then the next body operation raises	Created network removed and absence checked. Original exception preserved; no overall passing receipt.
+A pre-existing, other-run network has the expected name; creation raises without creating an owned resource	The other-run network is deleted in the mock. Helper reports cleanup success; original exception still propagates and no overall passing receipt is emitted.
+
+These were standard-library, in-memory simulations, not Docker operations. No real network, database, restored PDF, provider, or production resource was accessed.
+
+Remaining finding: presence does not establish ownership
+
+The helper discovers a network by name and, when the result is nonempty, removes it by name. It does not inspect a run-ownership marker or bind deletion to a verified resource ID. 
+Pasted text
+
+The counterexample deliberately supplies this state:
+
+Another run’s network already has the expected name. This run’s creation call raises without establishing ownership. Cleanup finds the matching name and deletes the other run’s network.
+
+The independent caller test reproduced that behavior. It does not demonstrate an actual name collision, actual unrelated-resource deletion, or a production exploit. It demonstrates that the submitted code does not distinguish a run-owned resource from a same-name resource under the injected uncertain outcome.
+
+It is also not a false overall qualification PASS. The body exception remains active, and the caller only writes its successful summary when a result was established. The narrower problem is destructive cleanup without verified ownership. 
+Pasted text
+
+Minimal remaining repair
+
+Bind the network to a full run token during creation. During uncertain-outcome reconciliation, inspect the discovered resource’s ownership marker and exact ID before deletion; remove only the verified ID. Missing, mismatched, ambiguous, or unreadable ownership should leave that resource untouched, record a cleanup failure, and allow the remaining target checks to continue.
+
+Closure needs caller-level checks showing that an owned resource is removed, an absent resource requires no removal, a same-name foreign resource is preserved, and an ownership-inspection failure withholds success without deleting the uncertain resource. This remains a qualification-runner repair, not a reason to alter product authority code.
+
+Supplied execution accepted within its bounds
+
+The final restored-request receipt, verified at October 3, 2026, 22:23:58 UTC, reports six restored objects and six successful checks in each relevant category, including same-length corruption denial, post-request metadata matching, cross-tenant denial, and repaired-copy downloads. It also records six unentitled-clone denials and six explicit synthetic entitlement mutations. 
+Pasted text
+
+Its image remains:
+
+sha256:95b24d4215bb6cec845a42ee8061504b95d62ba11e4c6f53c7d596c354680946
+
+That matches the image in the previously supplied full-suite receipt. The current receipt also retains the prior probe digest and reports 698,217 verified plaintext bytes. I independently reconstructed the previously supplied probe and confirmed that its digest matches the current receipt; that is a source/receipt identity check, not an independent claim about execution inside the container. 
+Pasted text
+ 
+Pasted text
+
+The successful run records verified absence of all three named containers and the internal network. That successful cleanup remains accepted on supplied evidence. 
+Pasted text
+
+The separate disposable-network test also supplies useful evidence: its source creates an actual internal network, raises a simulated acknowledgement-loss exception after creation returns, and checks cleanup. Its receipt reports successful absence verification. This is actual disposable-resource cleanup with simulated acknowledgement loss, not a demonstrated real Docker acknowledgement failure or an ownership-conflict test. 
+Pasted text
+ 
+Pasted text
+
+Updated qualification ledger
+Qualification	Current disposition
+1. Post-request metadata comparison	Prior bounded closure preserved.
+2. Same-length corruption denial	Prior bounded closure preserved.
+3. Exhaustive failure-path cleanup	First-target exception handling and omitted-network caller defects closed. Ownership reconciliation remains open.
+4. Exact anonymous login redirect	Prior bounded closure preserved; current receipt retains the reviewed probe identity.
+5. Full-suite/restored-request image alignment	Closed for the exact 95b24… image, not transferred to another image.
+Stylesheet successor stays separate
+
+The opening statement reports a stylesheet successor identified as 419412…, twelve artifact tests, browser menu/navigation checks, and a source-manifest comparison showing only static/atlas.css changed. Those remain reported claims in this packet. The packet does not include that stylesheet, the comparison manifests, its complete image identity, or the corresponding test/browser evidence for independent review. I therefore grant no new acceptance to that successor and do not relabel it as a new 1,146-test run. 
+Pasted text
+
+Review evidence and authority boundary
+
+Download the mock-only review harness, results, source comparison, and identity checks
+
+The archive distinguishes supplied receipts from my independent results. It records ten helper scenarios and four caller scenarios; reproducing the ownership counterexample is not recorded as passing an ownership-safety gate.
+
+The restored application checks remain in-process checks with explicitly synthetic clone entitlements, not live entitlement, production HTTP, or cutover proof. Same-host custody remains unchanged. 
+Pasted text
+
+Final disposition: the omitted-network repair is accepted; the demonstrated restored-request rerun is accepted; cleanup ownership remains the sole residual finding in qualification 3. Prior bounded closures remain intact. Core production remains unapproved, and the existing worker, provider-write, and Automation-purchase restrictions remain unchanged.
+
+You said:
+Pasted text(20261003-222859).txt
+Document
+Supplemental exact caller-level fault evidence: I executed the imported runner main() with mocked I/O for both creation raises without creating and creation takes effect then raises. Both inspect network presence twice, verify final absence, propagate original failure, and emit no overall qualification summary. The absent case performs no rm; the created case removes. Real disposable internal network test is separate and passed. Source/evidence below.
+
+FILE scripts/qualify_cleanup_caller.py
+"""Exercise exact restored-request runner with two uncertain create outcomes."""
+import json
+import tempfile
+from pathlib import Path
+from types import SimpleNamespace
+import qualify_restored_report_access as runner
+
+original_root = runner.ROOT
+outcomes = []
+for created_before_failure in [False, True]:
+    with tempfile.TemporaryDirectory(prefix='stewardence-cleanup-caller-') as temporary:
+        root = Path(temporary)
+        (root/'scripts').mkdir()
+        (root/'scripts/restored_report_access_probe.py').write_bytes(
+            (original_root/'scripts/restored_report_access_probe.py').read_bytes())
+        runner.ROOT = root
+        fixtures = [('OBJECT_RECEIPT', {'restore_passed':True,'cleanup_passed':True,'postgres_image_id':'sha256:postgres'}),
+                    ('DATABASE_RECEIPT', {'private_key_file':str(root/'unused-key')}),
+                    ('IMAGE_RECEIPT', {'exit_code':0,'image_id':'sha256:candidate'})]
+        for attribute, value in fixtures:
+            path = root/(attribute+'.json')
+            path.write_text(json.dumps(value))
+            setattr(runner, attribute, path)
+        calls, state = [], {'network':None}
+        def fake_docker(*args, **kwargs):
+            calls.append(args)
+            if args[:2] == ('image','inspect'):
+                return SimpleNamespace(stdout=args[-1])
+            if args[:2] == ('network','create'):
+                state['network'] = args[-1] if created_before_failure else None
+                raise RuntimeError('Injected uncertain creation')
+            if args[:2] == ('network','rm'):
+                state['network'] = None
+            if args[:3] == ('network','ls','-q'):
+                return SimpleNamespace(stdout=state['network'] or '')
+            return SimpleNamespace(stdout='')
+        runner.docker = fake_docker
+        try:
+            runner.main()
+            raise AssertionError('Creation failure was swallowed')
+        except RuntimeError as error:
+            assert str(error) == 'Injected uncertain creation'
+        assert sum(call[:3] == ('network','ls','-q') for call in calls) == 2
+        assert sum(call[:2] == ('network','rm') for call in calls) == int(created_before_failure)
+        assert state['network'] is None
+        assert not list(root.rglob('qualification-summary.json'))
+        outcomes.append({'creation_took_effect':created_before_failure,'network_reconciled':True,
+                         'absence_verified':True,'overall_pass_withheld':True})
+receipt = {'qualification_passed':True,'exact_runner_main_executed':True,
+           'io_mocked':True,'real_resources_created':False,'cases':outcomes}
+(original_root/'evidence/cleanup-caller-qualification.json').write_text(json.dumps(receipt,indent=2))
+print(json.dumps(receipt))
+
+FILE evidence/cleanup-caller-qualification.json
+{
+  "qualification_passed": true,
+  "exact_runner_main_executed": true,
+  "io_mocked": true,
+  "real_resources_created": false,
+  "cases": [
+    {
+      "creation_took_effect": false,
+      "network_reconciled": true,
+      "absence_verified": true,
+      "overall_pass_withheld": true
+    },
+    {
+      "creation_took_effect": true,
+      "network_reconciled": true,
+      "absence_verified": true,
+      "overall_pass_withheld": true
+    }
+  ]
+}
+…
+Show more
+Worked for 4m 22s
+Memory updated
+ChatGPT said:
+
+Alexander, the supplemental creation-failure cases are supported, and the attached successor closes the static wrong/missing-ownership-label case. Qualification 3 remains partially open because the previously requested exact-resource-ID binding is still missing.
+
+The earlier four qualification closures and successful restored-request evidence remain intact. This is a remaining cleanup identity issue, not a reopening of the repaired exception handling or product authority findings.
+
+What this successor establishes
+
+The runner now labels its network at creation and unconditionally passes the expected ownership value into cleanup. The helper checks that label before removal. For this caller, a mismatched label prevents deletion and produces a cleanup failure. 
+Pasted text
+ 
+Pasted text
+ 
+Pasted text
+
+I independently executed the attached, label-aware caller test and the supplied cleanup-failure test with mocked dependencies. Both completed their assertions, and their generated receipts matched the supplied receipts.
+
+One version distinction matters: the attachment adds a response for network inspect to its caller mock. That is the version evaluated against this ownership-checking runner, rather than silently treating the older inline mock as the updated test. 
+Pasted text
+
+I also exercised eleven helper scenarios and seven caller scenarios using the supplied main() function with mocked I/O:
+
+Scenario	Independently observed result
+Creation raises without creating a network	Two network-presence checks, no removal, original failure propagated, no overall qualification summary.
+Creation takes effect before raising	Matching ownership checked, network removed, final absence checked, original failure propagated, no overall summary.
+Network has the wrong label, no label, or ownership inspection fails	Network preserved; cleanup success withheld; no overall summary.
+First container removal fails while later containers are present	Later containers and the owned network still receive cleanup and verification attempts; cleanup success remains withheld.
+Network is replaced under the same name after ownership is observed	The replacement is deleted. The helper returns cleanup success. The caller’s original injected failure still propagates, so no overall summary is emitted.
+
+For the ownership-failure cases, the caller raises its cleanup error at the top level; the original creation error remains in the exception context. That differs from the two successful-cleanup creation-failure cases, where the original error propagates unchanged. The caller’s source explicitly raises when cleanup is incomplete. 
+Pasted text
+
+Remaining finding: the checked resource and deleted resource are not bound together
+
+The relevant sequence still resolves the name separately:
+
+Python
+Run
+owner = docker('network', 'inspect', ..., network, ...).stdout.strip()
+# Ownership comparison occurs here.
+docker('network', 'rm', network, ...)
+
+Although the earlier listing returns a resource identifier, the helper uses it only as a presence check. Ownership inspection and removal both use network, the name. 
+Pasted text
+
+Independently reproduced counterexample
+
+The mock starts with owned network A. Its ownership inspection returns the expected label. Immediately after that observation, the mock removes A and introduces foreign network B under the same name. The subsequent removal resolves that name to B.
+
+The observed results were:
+
+B was deleted; cleanup_passed=True; final name absence was recorded.
+
+The same interleaving reproduced through the supplied runner’s main(). Because that caller scenario began with an injected creation failure, the original exception still propagated and no overall passing qualification summary was emitted.
+
+This is a deterministic, injected replacement scenario. It is not evidence that a real Docker network was replaced, that an unrelated resource was actually deleted, or that production was affected. It demonstrates why checking ownership by name does not satisfy the previously requested requirement to delete the resource whose ownership was checked.
+
+Remaining repair
+
+Resolve the expected network to an unambiguous resource ID, inspect ownership on that ID, and remove only that verified ID. Do not fall back to name-based removal when the inspected resource disappears or is replaced.
+
+A same-name replacement must remain untouched. Its presence should prevent a clean result for the expected-name inventory, while cleanup continues for the other targets.
+
+The closing regression should inject replacement after ownership observation and before removal, then assert that the foreign replacement survives and cleanup does not report success. Retain the owned, absent, foreign-label, missing-label, inspection-failure, and first-target-failure checks already established.
+
+The static foreign-label repair is accepted. The unimplemented identity binding is the remaining part of the preceding repair requirement.
+
+Supplied restored-request execution remains accepted within scope
+
+The latest supplied receipt is verified at October 3, 2026, 22:27:58 UTC. It reports six actual restored objects, six successful same-length corruption denials, six post-request metadata matches, and the other six-count request checks. The six entitlement mutations remain explicitly synthetic clone fixtures. 
+Pasted text
+
+Its image remains:
+
+sha256:95b24d4215bb6cec845a42ee8061504b95d62ba11e4c6f53c7d596c354680946
+
+The receipt reports 698,217 verified plaintext bytes, the unchanged probe digest, and verified absence of all three containers and the internal network. The independently reconstructed inherited probe matches that reported digest. This establishes a source/receipt identity match, not independent execution inside the reported container. 
+Pasted text
+
+The separate labeled disposable-network test also remains accepted as supplied execution evidence. Its source creates the network successfully, then deliberately raises a simulated acknowledgement-loss exception and exercises cleanup. That is distinct from observing a genuine daemon acknowledgement failure or testing resource replacement. I did not rerun it against Docker. 
+Pasted text
+ 
+Pasted text
+
+Accordingly, qualifications 1, 2, 4, and 5 remain closed within their existing 95b24… scope. Qualification 3 remains partially closed, with the previously repaired paths preserved and the resource-ID binding still open.
+
+Presentation successor and review evidence
+
+The attachment now supplies the full reported presentation-successor image identity:
+
+dc394bf48f8c42167434f6a5d06800adc1d3241d0e3b9662fb48f9a599b70e11
+
+However, its twelve artifact checks and static/atlas.css-only source difference remain opening-statement reports. This packet does not include the stylesheet, comparison manifests, or corresponding test output. No new presentation-image acceptance or full-suite transfer follows from those reports. 
+Pasted text
+
+Download the mock-only ownership review, reproducer, call traces, source comparisons, and identity records
+
+I parsed all five supplied Python sections and ran the mock checks described above. I did not run Docker, Django, PostgreSQL, a restore, the full suite, browser tests, or anything on your machines. The archive marks the replacement scenarios as reproduced counterexamples, not passing safety gates.
+
+Final disposition: the two creation-failure cases and static ownership-label protection are accepted; exact-ID deletion remains open. Prior bounded closures stand. Core production remains unapproved in this consultation, and the worker, provider-write, and Automation-purchase restrictions remain unchanged.
+
+You said:
+Pasted text(20261003-223618).txt
+Document
+Worked for 4m 25s
+Memory updated
+ChatGPT said:
+
+Alexander, qualification 3 is now CLOSED for this exact restored-request runner and its ownership-enforced network-cleanup path. The remaining exact-ID finding is repaired.
+
+All five restore qualifications are now closed within their established source, image, and evidence boundaries. Prior bounded closures remain intact. This does not close the overall Core production or release gate.
+
+Why the remaining finding closes
+
+The runner now uses the untruncated UUID hexadecimal suffix, labels the network at creation, and unconditionally supplies the expected network and ownership value to cleanup. Creation acknowledgement is no longer a prerequisite for reconciliation. 
+Pasted text
+ 
+Pasted text
+
+The ownership-enforced helper now binds inspection and deletion together: it requests an untruncated identifier, requires exactly one 64-character hexadecimal ID, inspects that ID, checks the returned name, ID, and run label, and sends only the verified ID to removal. It independently checks the expected name afterward, so a same-name replacement prevents a clean result. 
+Pasted text
+
+The resource identifier used for deletion is now the identifier whose ownership record passed the checks. The previous name-resolution gap is closed.
+
+Independent verification
+
+I parsed all five supplied Python sections and independently executed both supplied mock programs. Their generated receipts matched the supplied receipts.
+
+I also ran 27 expanded helper scenarios and 18 exact imported runner main() scenarios, with external execution blocked and Docker behavior replaced by an in-memory driver. These covered identity and ownership mismatches, malformed or ambiguous observations, inspection and removal failures, replacement at several points, continued cleanup after first-target failures, and withholding of overall passing summaries.
+
+Most importantly, I executed the previous and successor helper source against the same replacement simulation:
+
+Identical injected interleaving	Previous helper	Exact-ID successor
+Owned network A is replaced by foreign network B after ownership observation	Deletes B by name.	Attempts removal of A’s verified ID only.
+Foreign replacement	Deleted.	Preserved.
+Helper result	cleanup_passed=True	cleanup_passed=False
+Expected-name absence	Recorded after deleting B.	Correctly rejected because B remains.
+
+That differential check reproduces the predecessor’s defect and confirms that this successor blocks it. It is a mock regression, not an observed real Docker race or production incident.
+
+In the independent caller checks, failure paths emitted no overall passing qualification summary. When cleanup succeeded after an injected creation failure, the original exception propagated unchanged. When cleanup was incomplete, the caller raised its cleanup error while retaining the original failure in the exception context. This matches the supplied caller’s summary-withholding logic. 
+Pasted text
+
+The expanded helper checks also started the second and third containers present in the fake state. They received removal and verification attempts despite an injected first-target failure. The previously accepted exhaustive-cleanup behavior therefore remains intact.
+
+Fresh supplied execution remains accepted within scope
+
+The supplied restored-request receipt for run 20261003T223502.982651Z, verified at October 3, 2026, 22:35:39 UTC, reports six restored objects and six successful checks in each relevant request category, including same-length corruption denial, post-request metadata comparison, cross-tenant denial, and repaired-copy downloads. It also records six unentitled-clone denials and six explicitly synthetic entitlement mutations. 
+Pasted text
+
+The candidate image remains:
+
+sha256:95b24d4215bb6cec845a42ee8061504b95d62ba11e4c6f53c7d596c354680946
+
+That matches the earlier supplied full-suite receipt. The current receipt reports 698,217 verified plaintext bytes and the unchanged probe digest. I independently reconstructed the inherited probe and confirmed the digest match; this establishes source/receipt identity, not independent execution inside the reported container. 
+Pasted text
+ 
+Pasted text
+
+The receipt records verified absence of all three containers and the internal network. That successful cleanup is accepted on supplied execution evidence. 
+Pasted text
+
+The real labeled disposable-network test also remains accepted as supplied execution evidence. Its source deliberately raises simulated acknowledgement loss after successful creation, and its receipt reports successful cleanup. I did not independently execute that real-resource test. 
+Pasted text
+ 
+Pasted text
+
+Updated qualification ledger
+Qualification	Review disposition
+1. Post-request metadata comparison	Prior bounded closure preserved.
+2. Same-length corruption denial	Prior bounded closure preserved.
+3. Exhaustive failure-path cleanup	Closed for this successor, including the repaired network identity-binding path.
+4. Exact anonymous login redirect	Prior bounded closure preserved.
+5. Full-suite/restored-request image alignment	Closure preserved for the exact 95b24… image.
+Acceptance boundaries
+
+The helper still permits name-based removal when network_owner=None. This ownership-safe acceptance does not cover that optional path or unseen callers. The reviewed restored-request runner and disposable-network test both supply ownership. These network tests also do not certify container ownership or container-replacement protection. Those are boundaries on the accepted claim, not additional findings reopening this repaired gate. 
+Pasted text
+ 
+Pasted text
+ 
+Pasted text
+ 
+Pasted text
+
+The cleanup closure binds to the submitted host-side runner and helper source, not merely to the application image. It must not transfer automatically to a changed helper, another caller, or another image.
+
+Synthetic clone subscriptions remain fixtures, not live entitlement facts. The application checks remain in-process checks, not production HTTP or cutover proof; custody remains on one physical host. 
+Pasted text
+ 
+Pasted text
+
+Review record
+
+Download the exact-ID review, mock harness, before/after regression, call traces, source hashes, and disposition
+
+The archive includes the measured source packet and reconstructed sections, keeping supplied execution receipts separate from independent mock results. I did not execute Docker, Django, PostgreSQL, a restore, the full suite, browser tests, provider operations, or anything on your machines.
+
+Final disposition: the five bounded restore qualifications are closed. Historical semantic, Core authority, byte-recovery, and restored-application closures stand. No new presentation-image, live HTTP/static/UI, atlas/PDF, sales-delivery, or overall release approval follows. Core production remains unapproved in this consultation; worker, provider-write, and Automation-purchase restrictions remain unchanged.
+
+You said:
+Pasted text(20261003-224835).txt
+Document
+Worked for 5m 20s
+Memory updated
+ChatGPT said:
+
+Alexander, I accept the source-level presentation direction and the supplied 36-test focused result, but the presentation qualification remains PARTIAL. The packaged probe has a field-specific assertion gap, and its output handling has a conditional stale-receipt risk. Some browser, renderer, and visual claims also remain attached to different evidence identities.
+
+All five restore qualifications remain closed within their existing scope. Nothing in this presentation review reopens the accepted semantic, Core authority, byte-recovery, or restored-application findings.
+
+What this packet supports
+
+The alignment document keeps the right distinction: Atlas supplies presentation, not authority or financial facts. The visible template retains provenance, methodology, immutable identifiers, the non-certification disclaimer, and explicit None comparisons for modeled amounts rather than treating zero as unknown. That is consistent with the documented presentation boundary. It does not independently prove that unseen calculation engines or context-building code remained unchanged. 
+Pasted text
+ 
+Pasted text
+
+The submitted source also supports the intended mechanics: autoescaping is requested, the emblem is marked decorative, and ROI and technical metadata have explicit page-break rules. Browser CSS contains the phone-menu, constrained report grid, table-local scrolling, visible-focus, and reduced-motion rules. These are source observations, not independent visual or accessibility acceptance. 
+Pasted text
+ 
+Pasted text
+ 
+Pasted text
+ 
+Pasted text
+
+The focused execution evidence is stronger than the preceding presentation-only reports: this packet includes a raw log showing 36 passed, four warnings, alongside the qualification summary identifying the selected tests and image. The warnings concern missing /app/staticfiles/; they are not test failures, but they do not close the separate static-serving gate. 
+Pasted text
+ 
+Pasted text
+
+1. Open probe finding: global text does not establish correct ROI fields
+
+The packaged probe checks that the extracted document contains:
+
+Required assumptions are unknown
+
+and:
+
+110.00
+
+while excluding $None. It does not check that the expected monthly-value and monthly-net-value fields remain Unknown, or that 110.00 is the value of the intended cost field. 
+Pasted text
+
+Independently reproduced
+
+I executed the exact supplied probe with controlled render outputs and extracted-page text. Rendering, PDF parsing, filesystem access, UID, and sleep were mocked.
+
+These deliberately incorrect outputs passed its existing assertions:
+
+Deliberately incorrect extracted output	Probe result
+Monthly value $1000.00, monthly net value $890.00, and numerical ROI, with the required unknown-assumptions phrase elsewhere	Accepted
+Monthly total cost $1110.00, which contains the substring 110.00	Accepted
+Monthly total cost Unknown, with an unrelated 110.00 elsewhere	Accepted
+
+This demonstrates insufficient probe assertions, not an actual incorrect product render. I did not establish that the real renderer produces these outputs from an admitted payload, and I am not claiming that your supplied specimen is wrong.
+
+The template’s explicit unknown branches are a positive source observation. The gap is that this packaged qualification would not reliably detect their loss.
+
+Closure: bind assertions to the fixed specimen’s named fields. Require the expected unknown monthly value and net value, exact known cost, and unavailable ROI/reason in their respective locations. Include wrong-field values and decoy amounts as negative cases. Preserve the actual Chromium and repeated-byte checks as separate requirements; identical bytes alone cannot establish correct presentation.
+
+2. Conditional probe finding: a failed rerun can leave an older passing summary
+
+The probe writes packaged-renderer.pdf before its semantic and appendix checks. It writes the passing summary only after those checks, without first invalidating an existing summary. 
+Pasted text
+
+I reproduced the following sequence with two exact-probe executions sharing an in-memory /qa:
+
+Step	Observed state
+First attempt succeeds	PDF and passing summary exist.
+Second attempt produces different bytes, then fails a semantic check	PDF has been replaced; the prior passing summary remains.
+Compare the surviving summary’s digest with the current output	They do not match.
+
+The failed attempt raises and does not emit a new successful summary. This is therefore not evidence of an overall runner PASS, actual stale-receipt promotion, or a corrupted customer artifact.
+
+The qualification launcher is not supplied. A launcher that always provides a fresh, exclusive output directory and enforces the current attempt’s exit status and digest binding may already prevent this condition from escaping the probe.
+
+Closure: establish that boundary with source and a pass-then-fail regression. Otherwise, validate before publishing the specimen and explicitly prevent previous success records from surviving as apparent evidence for a later attempt. This needs evidence-output discipline, not changes to the product’s authority model.
+
+Evidence identities must remain separate
+
+This packet names several different images. Their results should not be combined into a single final-image qualification without the relevant relationship or rerun.
+
+Evidence	Identity and bounded disposition
+Final-layout focused run	89d7868b…, run 20261003T224123.550152Z. Supplied summary and raw log support 36 passes. 
+Pasted text
+ 
+Pasted text
+
+Earlier full run	Run 20261003T223829.697018Z is reported as 1,146 passes and one skip, but explicitly predates the appendix page break. Its full-run receipt and raw log are not included here. No transfer to the appendix successor. 
+Pasted text
+
+Separate packaged renderer	45e9b2c1… is identified in the qualification narrative. The probe receipt reports UID, repeat equality, page count, and hashes, but does not itself record the renderer image identity or runtime isolation configuration. 
+Pasted text
+ 
+Pasted text
+
+Responsive measurements	dc394bf4…, checked at 22:28:40 UTC. The supplied record covers the synthetic report at 390, 768, and 1280 pixels. It is not a browser rerun on 89d7868b…. 
+Pasted text
+
+Mobile menu/navigation	41941249…, checked at 22:23:00 UTC. The supplied record reports menu opening and recovery navigation at 390 pixels on that earlier image. 
+Pasted text
+
+The final full-suite status in the packet is “in progress.” No completion result is supplied, so I am neither treating it as passed nor asserting that it is still running now. 
+Pasted text
+
+For the browser evidence, a source comparison establishing that the relevant browser files are unchanged could preserve those bounded observations. Otherwise, repeat those checks against the selected final successor. This does not require reopening unrelated historical tests.
+
+Renderer hardening and visual inspection: reported, not independently established here
+
+The Dockerfile supports the requested SVG copy and non-root runtime user. It does not, by itself, establish the reported read-only root, no-network execution, capability drops, no-new-privileges setting, or memory/tmpfs/PID bounds. Those belong to launch and runtime evidence, which is not included. 
+Pasted text
+ 
+Pasted text
+
+Likewise, actual_chromium: True is a literal field emitted by the probe. The actual renderer.render implementation is not supplied. I retain the Chromium execution as a supplied execution claim, not something independently established by that Boolean or by my mock tests. 
+Pasted text
+ 
+Pasted text
+
+The supplied receipt reports four pages and PDF SHA-256:
+
+fe606ca0ea3d2e2368228d61ad575f9b53a4587106b40a40a79b382a2f3147a6
+
+But the actual PDF, rendered page images, SVG, and synthetic payload are absent from this packet. Consequently, I have not independently measured that PDF digest, compared it with the inspected specimen, or visually inspected its four pages. The no-clipping/no-broken-glyphs observation remains your supplied inspection report. 
+Pasted text
+ 
+Pasted text
+
+The corrected appendix assertion is appropriately narrow: it removes only the exact expected footer line and then requires the appendix heading first among remaining extracted lines. My control cases confirmed that unrelated leading text is rejected. That is useful, but it is not a whole-document pagination or clipping check. 
+Pasted text
+
+For the next evidence packet, the missing connection is a launch/inspection record binding the immutable renderer image and runtime constraints to the probe, payload, asset, and output identities, accompanied by the actual specimen and page renders.
+
+Independent review record
+
+Download the presentation source review, exact-probe mock harness, counterexample traces, source identities, and disposition
+
+I parsed the two supplied Python modules and four JSON records, reconstructed and hashed all twelve source/evidence sections, and exercised 16 probe scenarios plus the shared-output-directory scenario. The expected harness assertions completed, including reproduction of the three semantic false accepts. Those counterexamples are explicitly labeled as findings, not passing presentation gates.
+
+No real Chromium, PDF parser, Django render, Docker container, database, restore, browser test, full suite, provider operation, or operation on your machines was executed by me.
+
+Final disposition
+
+Source-level presentation direction and the supplied focused test result: accepted within their bounds. Full presentation qualification: PARTIAL, pending field-bound semantic checks, reconciliation of output publication with the actual launcher, and the missing identity/visual evidence.
+
+Long-table, multi-page findings, broader input-layout, accessibility, production HTTP/static serving, renderer/worker delivery, and sales-delivery gates remain open. Core production remains unapproved in this consultation. Worker, provider-write, and Automation-purchase restrictions remain unchanged.
+
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+Pro

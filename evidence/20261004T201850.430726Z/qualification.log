@@ -1,0 +1,533 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+EEEEEE                                                                   [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_hidden_request_cannot_turn_review_pack_into_ordinary_report[viewer] _
+
+pack_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 290c6165-861f-409b-ba1a-02aec7024763 v1>, <PackIdentity: PackIdentity object (40c9e189-5f16-4275-8db1-e3d58ee9a36e)>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_hidden_request_cannot_tur0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+>       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = <Report: AL-2026-000001>, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = <apps.reports.storage.LocalPrivateReportStorage object at 0x771e047930e0>
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -> ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+>                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError
+_ ERROR at setup of test_hidden_request_cannot_turn_review_pack_into_ordinary_report[assessor] _
+
+pack_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 60415c7b-8d5d-4cbf-b878-1475d6405b2b v1>, <PackIdentity: PackIdentity object (2bf1bba4-0807-4ed7-a0f5-898c8cc2a4d3)>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_hidden_request_cannot_tur1')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+>       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = <Report: AL-2026-000002>, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = <apps.reports.storage.LocalPrivateReportStorage object at 0x771e03a50690>
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -> ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+>                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError
+_ ERROR at setup of test_routed_nonowner_reads_hide_pack_before_storage[viewer] _
+
+pack_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: ead18579-45ce-494f-a8fd-09519d3861c3 v1>, <PackIdentity: PackIdentity object (a4022a02-0104-40cc-8f2d-eaf4404f780b)>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_routed_nonowner_reads_hid0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+>       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = <Report: AL-2026-000003>, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = <apps.reports.storage.LocalPrivateReportStorage object at 0x771e03db9450>
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -> ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+>                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError
+_ ERROR at setup of test_routed_nonowner_reads_hide_pack_before_storage[assessor] _
+
+pack_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 9c09c022-1bc3-4c6a-adf1-84bb5080728f v1>, <PackIdentity: PackIdentity object (4442b0f0-d93d-40bc-a0e9-d86d8c9e2bf0)>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_routed_nonowner_reads_hid1')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+>       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = <Report: AL-2026-000004>, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = <apps.reports.storage.LocalPrivateReportStorage object at 0x771e03eb0d60>
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -> ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+>                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError
+_ ERROR at setup of test_owner_reads_pack_and_ordinary_report_with_actual_app_role _
+
+pack_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: deb33342-59f3-459f-8e9b-fbf56316d40f v1>, <PackIdentity: PackIdentity object (8e31a4f5-faf4-4502-b956-ef9f03b29aa5)>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_owner_reads_pack_and_ordi0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+>       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = <Report: AL-2026-000005>, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = <apps.reports.storage.LocalPrivateReportStorage object at 0x771e045a7ce0>
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -> ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+>                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError
+_ ERROR at setup of test_owner_identity_cannot_read_original_pack_in_other_tenant_context _
+
+pack_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 2cf9ba2d-fab6-4d03-8bcc-d11785686b8d v1>, <PackIdentity: PackIdentity object (7c62091b-99d5-4c79-ad81-84700e071d39)>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_owner_identity_cannot_rea0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+>       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = <Report: AL-2026-000006>, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = <apps.reports.storage.LocalPrivateReportStorage object at 0x771e03e22690>
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -> ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+>                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError
+=========================== short test summary info ============================
+ERROR tests/test_review_report_read_authority.py::test_hidden_request_cannot_turn_review_pack_into_ordinary_report[viewer]
+ERROR tests/test_review_report_read_authority.py::test_hidden_request_cannot_turn_review_pack_into_ordinary_report[assessor]
+ERROR tests/test_review_report_read_authority.py::test_routed_nonowner_reads_hide_pack_before_storage[viewer]
+ERROR tests/test_review_report_read_authority.py::test_routed_nonowner_reads_hide_pack_before_storage[assessor]
+ERROR tests/test_review_report_read_authority.py::test_owner_reads_pack_and_ordinary_report_with_actual_app_role
+ERROR tests/test_review_report_read_authority.py::test_owner_identity_cannot_read_original_pack_in_other_tenant_context
+6 errors in 17.86s

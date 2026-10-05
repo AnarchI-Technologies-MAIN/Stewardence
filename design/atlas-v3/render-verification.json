@@ -1,0 +1,6 @@
+{
+  "revision": "atlas-v3",
+  "board_count": 51,
+  "desktop_and_mobile_heading_checks": 51,
+  "capture_method": "Browser board screenshots; fixed viewports with scrolling HTML for long pages"
+}

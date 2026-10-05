@@ -1,0 +1,18 @@
+[
+  {
+    "version": "before",
+    "image": "sha256:70fbdfa6d7a8eb1981f2181216900d95ecfbafe8b94d343ee5d9db74b98c2874",
+    "exit_code": 1,
+    "test_cases": 1,
+    "failed": 1,
+    "production_touched": false
+  },
+  {
+    "version": "after",
+    "image": "sha256:b200417b87b0464bfcfe0e491a63a06b1d9ad85e9f37910d9af67c469b86e91c",
+    "exit_code": 0,
+    "test_cases": 1,
+    "failed": 0,
+    "production_touched": false
+  }
+]

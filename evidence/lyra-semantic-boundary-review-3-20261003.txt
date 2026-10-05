@@ -1,0 +1,18 @@
+STEWARDENCE: cleared to proceed to the next qualification stage for this bounded, offline two-adapter semantic foundation.
+
+The supplied changes close the two blocking source findings:
+
+Graph IDs now use type/format checks without the native parser-exception chain.
+JSON Pointer segments exclude '/', removing the ambiguous slash partitioning.
+
+The new request boundary checks bounded source bytes, source SHA, schema/profile/artifact pins and the exact adapter tuple. I found no additional blocking contradiction in the current QBO sandbox and Microsoft descriptor paths after reviewing all 2,376 lines and the previously supplied unchanged schemas.
+
+Bind the next qualification to the registry’s declared artifact digest:
+9e7b2f3ff7a9760ece734253014780ef0b6d2e23c29cc514bf6e379066443b2c
+This is the supplied identity, not an independently recomputed source-tree seal.
+
+One nonblocking generic-schema cleanup: Python’s '$' anchor can match before a final newline, allowing a pointer consisting only of a newline to match the empty-root alternative. Exact pinned-pointer equality rejects it in the current entity envelopes. Tighten the generic pointer validator and add that vector before exposing it to broader domains; reseal if changed.
+
+Next evidence: finish the exact-source Linux/image run and retain its source/image identities, full results, failure history and skip reason. Keep the earlier 1080-pass/1-fail/1-skip run separate from the repaired run. The 128 local passes and timeout regression remain supplied execution evidence; I did not rerun them.
+
+This clears continued qualification within the existing offline scope. It does not approve live admission, provider writes, deployment or overall Core production readiness.

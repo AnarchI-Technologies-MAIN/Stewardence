@@ -1,0 +1,11 @@
+{
+  "name": "stewardence-visualqa-7e62efb888",
+  "image_id": "sha256:a3b11cb508a0cd4e7671a6edb01b8e6ee8675aee930acce9d4d0dbce008ae51e",
+  "postgres_image_id": "sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722",
+  "url": "http://127.0.0.1:8765/",
+  "scope": "Synthetic visual qualification; isolated localhost, no live provider credentials or customer data",
+  "database": "stewardence-visualqa-7e62efb888-db",
+  "application": "stewardence-visualqa-7e62efb888-app",
+  "network": "stewardence-visualqa-7e62efb888",
+  "preview_network": "stewardence-visualqa-7e62efb888-preview"
+}

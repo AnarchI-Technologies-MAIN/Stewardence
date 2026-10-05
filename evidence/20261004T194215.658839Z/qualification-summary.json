@@ -1,0 +1,23 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-1c84861474",
+  "image_id": "sha256:b50b667b8f2d5cd51cf91b9c49ee0ac1d0eccc039f88c9b81b000f6b2b290c1c",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T194215.658839Z",
+  "test_arguments": [
+    "tests/test_billing_founder_cancellation_authority.py",
+    "tests/test_billing_portal_cancellation.py",
+    "tests/test_billing_tenant_authority.py",
+    "tests/test_public_signup.py",
+    "tests/test_rls.py",
+    "tests/test_automation_pricing.py"
+  ],
+  "test_result_counts": {
+    "cases": 87,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "786d584eba692bcb6b0671f1cb8a0843331ffecbd9dc1e4e2508d8a3a36f8524"
+}

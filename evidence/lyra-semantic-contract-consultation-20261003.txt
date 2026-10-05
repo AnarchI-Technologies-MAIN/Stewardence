@@ -1,0 +1,191 @@
+Recommendation: use one small, versioned read-evidence contract, with provider adapters translating into it. Keep collection authorization, normalization, provenance and admission separate. This is design advice for STEWARDENCE only; writes remain disabled.
+
+Established pieces to reuse:
+
+JSON Schema 2020-12 for structural validation; OpenAPI 3.1.1 for API descriptions referencing the same schemas. Neither readOnly nor schema validity enforces authorization. Explicitly enable/test format validation; defaults must not manufacture missing evidence.
+CloudEvents 1.0.2 only if an event envelope is useful. Its source/id supports event identity, not authenticated origin; event time must not silently become observation time.
+RFC 8785/JCS for deterministic JSON bytes. It does not normalize business meaning, preserve arbitrary decimal precision or authenticate the producer.
+W3C PROV-DM for entity/activity/agent and derivation relationships. A compact JSON mapping is enough; an RDF service is unnecessary.
+An in-process anti-corruption adapter between each provider model and STEWARDENCE’s domain model. Keep policy and orchestration outside the translator.
+Plain text
+PROPOSED MINIMAL CONTRACT — NOT IMPLEMENTED OR ADOPTED
+
+A. Immutable evidence payload
+schema_id + schema_digest
+semantic_profile_id + immutable version
+server-bound tenant_id + evidence_id
+subject: namespace + provider/account/entity identity
+source: provider/API version, immutable raw_artifact_ref,
+        raw_bytes_sha256, original source version if supplied,
+        original timestamp/offset/precision, collected_at
+normalization: adapter_id/version/artifact_digest,
+               mapping/config/schema-dependency digests
+assertions[]: concept_id/version, evidence_kind, value_state,
+              typed value, units/currency/precision,
+              effective time/interval, source pointers,
+              transformation/input references
+coverage: requested scope, actually covered scope,
+          complete/partial/unknown, pagination and known gaps
+provenance: input entity references, normalization activity,
+            responsible service/adapter agent, derivation links
+supersedes: prior evidence reference when applicable
+
+B. Integrity envelope
+algorithm + exact hashed-payload definition + canonical payload digest
+Keep the digest outside the payload it hashes; no self-hash.
+Retain raw-byte and normalized-payload digests separately.
+
+C. Separate admission/execution records
+Issuer, policy/version, subject digest, decision and reason,
+verified source/tenant/account binding, receipt and execution metadata.
+A normalizer cannot admit its own result merely by setting a flag.
+
+VOLATILE METADATA
+Keep retry timestamps, execution duration and attempt IDs outside the
+stable normalization content. Replay must reuse pinned source inputs;
+it must not read current provider state or insert the current clock
+into supposedly deterministic evidence. Separate content identity,
+logical observation identity, transport event ID and attempt ID.
+
+FIELD SEMANTICS
+Use field-level classification because one record can mix:
+- observed: a specified method directly observed the stated phenomenon
+- declared: an attributable party/provider asserted the value
+- inferred: an interpretation with named evidence/method limitations
+- calculated: computation with pinned inputs/formula/rounding
+- unknown: the production basis is not established
+
+Fetching a provider's declaration is an observed collection event;
+it does not turn the declaration's contents into observed truth.
+
+Use a discriminated value-state union:
+- known: requires a correctly typed, non-null value
+- source_null: explicitly records the provider's null
+- missing: property absent; value forbidden
+- unknown / unavailable / unsupported / redacted: value forbidden,
+  with an applicable reason and provenance
+
+Preserve known 0, false and empty string distinctly. Never use Python
+truthiness to determine presence. Unknown basis and missing value are
+separate axes.
+
+NUMBERS / TIME / COVERAGE
+Exact amounts and ratios: Decimal internally, decimal strings at the
+interchange boundary. Pin lexical grammar, source scale/precision,
+normalization and rounding; do not pass financial values through float.
+Use bounded safe JSON integers for control values; represent larger
+integers explicitly as strings. Reject bool where integer is required.
+
+Preserve original timestamp text and offset, plus normalized UTC when
+known. Keep source time, collection time, effective interval and run
+time separate. Do not invent midnight UTC for a source date or guess
+an absent timezone. Define interval boundaries and supported precision.
+
+Use a pinned currency registry and explicit unit identifiers. Currency
+conversion needs rate/source/as-of/rounding evidence. Never silently
+convert between accounting bases, currencies or incompatible units.
+
+An empty page is not proof of zero activity. Complete coverage requires
+scope-specific evidence, including pagination and known permissions.
+
+Use RFC 3339 for timestamp syntax, ISO 4217 for currency codes, and UCUM where its unit vocabulary fits. These identify representations; they do not determine accounting meaning or exchange rates.
+
+Plain text
+PYTHON / DJANGO IMPLEMENTATION SHAPE — RECOMMENDATION
+1. Capture bounded raw response bytes in private storage under the
+   approved retention policy, excluding credentials/auth headers.
+2. Strictly parse before JSONB/dictionary storage: reject duplicate keys,
+   NaN/Infinity, invalid Unicode and resource-limit violations. Preserve
+   exact quantities before any float conversion.
+3. Resolve schemas from a pinned local allowlist, not arbitrary remote
+   $ref URLs. Apply explicit schema and domain-semantic validation.
+4. Run the pinned provider adapter as a deterministic transformation.
+5. Validate the normalized record, derive canonical bytes/digest in the
+   trusted admission path, and atomically bind admitted references.
+6. Keep JSONB as a query representation, not the original-byte archive.
+
+Use tested JCS tooling and golden vectors. Python sorted JSON and
+PostgreSQL jsonb::text are not general JCS implementations. JCS sorts
+keys by UTF-16 code units, preserves array order and does not normalize
+Unicode. Canonicalization cannot restore precision already lost.
+
+SCHEMA / ADAPTER EVOLUTION
+Keep three identities separate:
+- centrally deployed SaaS release
+- exact adapter artifact/mapping/configuration used by a job
+- tenant-selected semantic/capability profile
+
+Tenant opt-in selects meaning or capability, not arbitrary executable
+code or a local software installation. Existing jobs pin their complete
+interpretation tuple; deployments cannot silently reinterpret them.
+New normalization creates a linked revision, preserving old evidence.
+
+Compatible security repairs can be centrally deployed while preserving
+the selected semantics. If an old implementation is unsafe, block the
+affected capability rather than promise indefinite unsafe execution or
+silently migrate the tenant to different meaning. Define that policy
+and notice process explicitly.
+
+“Optional field added” is not automatically semantically compatible.
+Maintain golden input/output and consumer-contract tests. Reject unknown
+core fields; use a versioned, bounded extension area only where intended.
+
+SIGNED UPDATE PACKETS
+Reuse established signing/provenance tooling. Bind payload type,
+release sequence, artifact/mapping/schema/config digests, supported
+semantic profiles, capability changes, signer, expiry and revocation.
+Trusted-key verification, anti-rollback state, tenant acceptance and
+operator release approval are separate checks.
+
+A valid signature proves a statement under a trusted key, not safe
+semantics, trustworthy source data or permission to activate it.
+Rollback should be a new authorized release event identifying an
+approved artifact, not acceptance of stale signed metadata. Verify the
+same bytes that are subsequently loaded; never execute uploaded adapter
+code inside the ordinary application process.
+
+FUTURE WRITE CONTRACT — DISABLED
+Require a separate immutable exact-action proposal and issued grant:
+tenant/principal/provider account/connection; immutable target;
+operation/destination/exact parameters; units/currency/amount bounds;
+adapter and semantic versions; expected provider version/strong ETag;
+approver/issuer/audience/policy; expiry/revocation; stable operation ID,
+request fingerprint, provider idempotency scope and reconciliation rule.
+
+Recheck immediately before execution. Retries retain the SAME logical
+operation identity and exact request; attempt IDs may differ. A timeout
+can mean UNKNOWN, not definitely failed. Query provider operation/state
+and reconcile. If deduplication or outcome is unresolved, stop for
+review. Never obtain a fresh idempotency key just to retry. Compensation
+is another consequential action requiring its own authority.
+
+A digest, installed adapter, connection consent or read grant does not
+authorize a write. Provider-enforced preconditions must actually exist;
+a client-side preflight alone cannot prevent a concurrent change.
+
+REJECT CASES / QUALIFICATION GATES
+- Duplicate/escaped-equivalent keys, malformed dates, unsafe integers,
+  float-rounded decimals, booleans masquerading as numbers.
+- Missing/null/zero/false collapse; invented timezone, units or currency.
+- “Observed” labels backed only by declarations; calculations lacking
+  exact inputs/formula; complete-coverage claims with unresolved gaps.
+- Altered schema under an old ID, mutable latest references, remote schema
+  lookup, substituted tenant/account/source or configuration.
+- Signed but expired/revoked/rolled-back adapter metadata; same release
+  sequence with different bytes; semantic changes hidden as patch updates.
+- Golden Python/JavaScript canonicalization agreement, including Unicode
+  ordering, exact decimal strings and preserved array order.
+- Identical pinned normalization replay, resource exhaustion, version
+  drift during jobs, adapter-disabled behavior and incompatible updates.
+- For future writes only: stale preconditions, nonce/revocation races,
+  duplicate delivery, lost acknowledgment and ambiguous outcomes.
+
+LIMITS
+Schemas validate structure. Canonicalization identifies representation.
+PROV describes lineage. CloudEvents carries events. Signatures bind
+statements to keys. None independently proves domain truth, complete
+coverage, source authenticity, consent, tenant authority or safe effects.
+
+Keep Brain, Vault and infrastructure outside this implementation scope.
+Existing provider authorization/deployment remains unchanged. Complete
+schema, semantic and negative-test review before implementation.

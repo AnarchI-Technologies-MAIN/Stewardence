@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="4" time="17.386" timestamp="2026-10-04T19:23:09.472983+00:00" hostname="e7ad5450d7ff"><testcase classname="tests.test_paid_workflow_boundary" name="test_issued_coverage_is_required_by_actual_workflow_admission" time="11.753" /><testcase classname="tests.test_paid_workflow_boundary" name="test_claim_and_persistence_recheck_current_generation" time="1.121"><failure message="AssertionError: assert 'audit_batch_seal' == 'report_generation'&#10;  &#10;  - report_generation&#10;  + audit_batch_seal">paid_review = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;OrganizationMember: reports@example.com — Report Firm (Owner)&gt;, &lt;InventoryItem: Payroll Assistant&gt;, &lt;AssessmentSnapshot: 4514298a-8687-4b7d-b9d6-76d832a5382b v1&gt;)
+
+    def test_claim_and_persistence_recheck_current_generation(paid_review):
+        from django.db import transaction
+    
+        user, organization, _, _, snapshot = paid_review
+        dispatch(
+            WorkflowRequest(
+                organization.id,
+                Operation.REPORT,
+                (snapshot.id,),
+                timezone.now(),
+                BranchProfile.BUSINESS,
+            ),
+            actor_id=user.id,
+            using="app_runtime",
+        )
+        claim = claim_next_job("paid-boundary", using="worker_runtime")
+        assert claim is not None
+&gt;       assert claim.job_type == "report_generation"
+E       AssertionError: assert 'audit_batch_seal' == 'report_generation'
+E         
+E         - report_generation
+E         + audit_batch_seal
+
+tests/test_paid_workflow_boundary.py:111: AssertionError</failure></testcase><testcase classname="tests.test_paid_workflow_boundary" name="test_expired_customer_can_read_existing_reports_but_not_generate" time="2.150" /><testcase classname="tests.test_paid_workflow_boundary" name="test_expired_read_exception_cannot_select_another_workspace" time="1.362" /></testsuite></testsuites>

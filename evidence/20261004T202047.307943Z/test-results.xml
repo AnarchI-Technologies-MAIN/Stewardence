@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="6" failures="0" skipped="0" tests="6" time="36.035" timestamp="2026-10-04T20:21:56.455881+00:00" hostname="a60eeaf39fab"><testcase classname="tests.test_review_report_read_authority" name="test_hidden_request_cannot_turn_review_pack_into_ordinary_report[viewer]" time="16.424"><error message="failed on setup with &quot;AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: b12cd1d3-b8d4-42f9-8a0e-40a872769eec v1&gt;, &lt;PackIdentity: PackIdentity object (18b3136b-b03a-4d2c-a6fa-7eaceb310996)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_hidden_request_cannot_tur0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary_snapshot = create_assessment_snapshot(
+            organization_id=org.id, created_by_id=owner.id,
+&gt;           assessed_item_id=snapshot.assessed_item_id, roi_inputs=_roi_inputs(),
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+            captured_at=snapshot.captured_at+timedelta(seconds=1), previous_snapshot=snapshot)
+E       AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'
+
+tests/test_review_report_read_authority.py:33: AttributeError</error></testcase><testcase classname="tests.test_review_report_read_authority" name="test_hidden_request_cannot_turn_review_pack_into_ordinary_report[assessor]" time="5.180"><error message="failed on setup with &quot;AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 7ddb4bb4-3227-4c4b-b5ca-a2a87f3bb8fe v1&gt;, &lt;PackIdentity: PackIdentity object (37e5e3d1-1fae-4b8e-95fc-c05757fa551f)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_hidden_request_cannot_tur1')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary_snapshot = create_assessment_snapshot(
+            organization_id=org.id, created_by_id=owner.id,
+&gt;           assessed_item_id=snapshot.assessed_item_id, roi_inputs=_roi_inputs(),
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+            captured_at=snapshot.captured_at+timedelta(seconds=1), previous_snapshot=snapshot)
+E       AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'
+
+tests/test_review_report_read_authority.py:33: AttributeError</error></testcase><testcase classname="tests.test_review_report_read_authority" name="test_routed_nonowner_reads_hide_pack_before_storage[viewer]" time="3.778"><error message="failed on setup with &quot;AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 4851a4c8-ddfb-41d7-b5be-a718cb91fef5 v1&gt;, &lt;PackIdentity: PackIdentity object (70320d42-796d-44be-8244-865f6ce2948c)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_routed_nonowner_reads_hid0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary_snapshot = create_assessment_snapshot(
+            organization_id=org.id, created_by_id=owner.id,
+&gt;           assessed_item_id=snapshot.assessed_item_id, roi_inputs=_roi_inputs(),
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+            captured_at=snapshot.captured_at+timedelta(seconds=1), previous_snapshot=snapshot)
+E       AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'
+
+tests/test_review_report_read_authority.py:33: AttributeError</error></testcase><testcase classname="tests.test_review_report_read_authority" name="test_routed_nonowner_reads_hide_pack_before_storage[assessor]" time="4.123"><error message="failed on setup with &quot;AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 8cd03e3f-91c0-4714-8bd0-19c6616e3ed7 v1&gt;, &lt;PackIdentity: PackIdentity object (87f880ad-6414-45c3-9fc0-04420b31f96f)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_routed_nonowner_reads_hid1')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary_snapshot = create_assessment_snapshot(
+            organization_id=org.id, created_by_id=owner.id,
+&gt;           assessed_item_id=snapshot.assessed_item_id, roi_inputs=_roi_inputs(),
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+            captured_at=snapshot.captured_at+timedelta(seconds=1), previous_snapshot=snapshot)
+E       AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'
+
+tests/test_review_report_read_authority.py:33: AttributeError</error></testcase><testcase classname="tests.test_review_report_read_authority" name="test_owner_reads_pack_and_ordinary_report_with_actual_app_role" time="2.337"><error message="failed on setup with &quot;AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: acd81a10-ab5e-48ed-a482-651a4fd5d14a v1&gt;, &lt;PackIdentity: PackIdentity object (5225966a-a346-457a-9a61-901773f79767)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_owner_reads_pack_and_ordi0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary_snapshot = create_assessment_snapshot(
+            organization_id=org.id, created_by_id=owner.id,
+&gt;           assessed_item_id=snapshot.assessed_item_id, roi_inputs=_roi_inputs(),
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+            captured_at=snapshot.captured_at+timedelta(seconds=1), previous_snapshot=snapshot)
+E       AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'
+
+tests/test_review_report_read_authority.py:33: AttributeError</error></testcase><testcase classname="tests.test_review_report_read_authority" name="test_owner_identity_cannot_read_original_pack_in_other_tenant_context" time="2.735"><error message="failed on setup with &quot;AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: ba5183fe-85c7-4f53-95d3-48e63a07fec3 v1&gt;, &lt;PackIdentity: PackIdentity object (2613c4a8-f85b-4846-9977-042c6c08bd4c)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_owner_identity_cannot_rea0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary_snapshot = create_assessment_snapshot(
+            organization_id=org.id, created_by_id=owner.id,
+&gt;           assessed_item_id=snapshot.assessed_item_id, roi_inputs=_roi_inputs(),
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+            captured_at=snapshot.captured_at+timedelta(seconds=1), previous_snapshot=snapshot)
+E       AttributeError: 'AssessmentSnapshot' object has no attribute 'assessed_item_id'
+
+tests/test_review_report_read_authority.py:33: AttributeError</error></testcase></testsuite></testsuites>

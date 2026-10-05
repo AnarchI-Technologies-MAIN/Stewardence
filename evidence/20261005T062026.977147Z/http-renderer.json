@@ -1,0 +1,13 @@
+{
+  "image": "stewardence-local-qualification:stewardence-local-a55167c1ae-renderer",
+  "image_id": "sha256:51569a4ec21705e575590fd8a61e2b47f068408b3599b8207a97828bc1fe4b62",
+  "dockerfile_sha256": "cf567f9ae374e523495021c67b275e2c5315f24a39b62764f57eadb890209d81",
+  "source_manifest_sha256": "0347e33dd3a2cb78f9f75da305b1da481d434986c8d44d78495a95e5e96f13aa",
+  "deployment_parity": false,
+  "profile": {
+    "memory": "1g",
+    "pids": 512,
+    "init": true,
+    "read_only": false
+  }
+}

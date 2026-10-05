@@ -1,0 +1,59 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.qualification
+#1 transferring dockerfile: 525B 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.14.7-slim
+#2 DONE 0.4s
+
+#3 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.9
+#3 DONE 0.6s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 164B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 DONE 0.0s
+
+#6 [stage-1 1/7] FROM docker.io/library/python:3.14.7-slim@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d
+#6 resolve docker.io/library/python:3.14.7-slim@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d 0.1s done
+#6 DONE 0.1s
+
+#7 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.9@sha256:8b940d3a9d65bed080436972241af2e21c84b5e8c9193f7014ed71479ee795ff
+#7 resolve ghcr.io/astral-sh/uv:0.12.9@sha256:8b940d3a9d65bed080436972241af2e21c84b5e8c9193f7014ed71479ee795ff 0.1s done
+#7 DONE 0.1s
+
+#5 [internal] load build context
+#5 transferring context: 23.24kB 0.0s done
+#5 DONE 0.1s
+
+#8 [stage-1 2/7] COPY --from=uv /uv /bin/uv
+#8 CACHED
+
+#9 [stage-1 6/7] COPY source/ ./
+#9 CACHED
+
+#10 [stage-1 5/7] RUN uv sync --frozen --no-install-project
+#10 CACHED
+
+#11 [stage-1 4/7] COPY source/pyproject.toml source/uv.lock ./
+#11 CACHED
+
+#12 [stage-1 3/7] WORKDIR /app
+#12 CACHED
+
+#13 [stage-1 7/7] RUN groupadd --gid 10001 qualification && useradd --uid 10001 --gid 10001 --no-create-home qualification
+#13 CACHED
+
+#14 exporting to image
+#14 exporting layers done
+#14 exporting manifest sha256:b2f2da2e3ffd4f8986afbd7a23e859458cdfa417977987eca609337ee919f443 done
+#14 exporting config sha256:43aa4a538427473053feacdf52920d8539f13705e4e0984bef0ae84782dae1cb done
+#14 exporting attestation manifest sha256:d0962ee641b1bdbc4f2e7623be55f0ab2319e9b68c3c4293c7e0305fdc39f9e6 0.0s done
+#14 exporting manifest list sha256:6c8e179540472e00e7c61af3efd7096272efafa774d2e757707823a786979596 0.0s done
+#14 naming to docker.io/library/stewardence-local-qualification:current
+#14 naming to docker.io/library/stewardence-local-qualification:current done
+#14 unpacking to docker.io/library/stewardence-local-qualification:current 0.0s done
+#14 DONE 0.2s

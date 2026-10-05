@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="8.235" timestamp="2026-10-05T01:18:00.219768+00:00" hostname="ea35eb5c88e3"><testcase classname="tests.test_capture_proposal_pk_wait_authority" name="test_chosen_revision_pk_wait_rechecks_paid_authority_after_foreign_rollback" time="7.506"><failure message="AssertionError: ({'clock': '2026-10-05T01:18:07.863263+00:00', 'entitled': False, 'work_allowed': False, 'foreign_pk_wait': True}, ('admitted', UUID('c0bac255-1fa0-441e-9acc-91e6aa664802')))&#10;assert 'admitted' == 'denied'&#10;  &#10;  - denied&#10;  + admitted">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+settings = &lt;pytest_django.fixtures.Settings object at 0x7aacf209dfd0&gt;
+
+    def test_chosen_revision_pk_wait_rechecks_paid_authority_after_foreign_rollback(
+        capture_context,
+        settings,
+    ):
+        """No raw counterfeit row: foreign issuer stages a genuine admitted receipt.
+    
+        Caller-selected revision UUIDs are admitted by the public SQL API. Browser
+        service UUID4 allocation does not close this actual app-login boundary.
+        Revocation is an observed committed status change, never clock tolerance.
+        """
+        settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+        CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        target_user, target_org = capture_context
+        target_snapshot = admit(capture_context, preview(capture_context))
+    
+        foreign_user = get_user_model().objects.create_user("pk-wait-owner@example.invalid")
+        foreign_org = Organization.objects.create(name="Foreign PK admission")
+        OrganizationMember.objects.create(
+            organization=foreign_org, user=foreign_user, role="owner"
+        )
+        WorkflowProfile.objects.create(
+            organization=foreign_org,
+            created_by=foreign_user,
+            profile="business.v1",
+            settings={"name": "PK wait fixture"},
+        )
+        grant_core_entitlement(foreign_user, foreign_org)
+        foreign_context = foreign_user, foreign_org
+        issue(foreign_context)
+        foreign_snapshot = admit(foreign_context, preview(foreign_context))
+    
+        revision_id = uuid4()
+        staged = Event()
+        release = Event()
+        target_name = "proposal-pk-target-" + uuid4().hex
+        foreign_pid = []
+        observations = {}
+    
+        def foreign_transaction():
+            connections.close_all()
+            try:
+                with (
+                    identity_transaction(foreign_user.id, using="app_runtime"),
+                    tenant_transaction(foreign_org.id, using="app_runtime"),
+                    connections["app_runtime"].cursor() as cursor,
+                ):
+                    cursor.execute("SELECT pg_backend_pid()")
+                    foreign_pid.append(cursor.fetchone()[0])
+                    cursor.execute(
+                        "SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)",
+                        [revision_id, foreign_org.id, foreign_user.id, foreign_snapshot.id],
+                    )
+                    assert cursor.fetchone()[0] == revision_id
+                    staged.set()
+                    assert release.wait(timeout=30), "Controlled PK blocker never released"
+                    transaction.set_rollback(True, using="app_runtime")
+            finally:
+                connections.close_all()
+    
+        def target_transaction():
+            connections.close_all()
+            try:
+                with (
+                    identity_transaction(target_user.id, using="app_runtime"),
+                    tenant_transaction(target_org.id, using="app_runtime"),
+                    connections["app_runtime"].cursor() as cursor,
+                ):
+                    cursor.execute(
+                        "SELECT set_config('application_name',%s,false)", [target_name]
+                    )
+                    cursor.execute(
+                        "SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)",
+                        [revision_id, target_org.id, target_user.id, target_snapshot.id],
+                    )
+                    return "admitted", cursor.fetchone()[0]
+            except DatabaseError as error:
+                return "denied", str(error)
+            finally:
+                connections.close_all()
+    
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            blocker = pool.submit(foreign_transaction)
+            target = None
+            try:
+                assert staged.wait(timeout=15), "Foreign genuine issuer never staged"
+                target = pool.submit(target_transaction)
+                deadline = monotonic() + 15
+                confirmed_wait = False
+                while monotonic() &lt; deadline:
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute("SELECT pg_stat_clear_snapshot()")
+                        cursor.execute(
+                            "SELECT EXISTS(SELECT 1 FROM pg_stat_activity a WHERE "
+                            "a.application_name=%s AND a.usename='agentledger_app' "
+                            "AND a.wait_event_type='Lock' "
+                            "AND %s=ANY(pg_blocking_pids(a.pid)))",
+                            [target_name, foreign_pid[0]],
+                        )
+                        confirmed_wait = cursor.fetchone()[0]
+                    if confirmed_wait:
+                        break
+                    if target.done():
+                        pytest.fail(
+                            f"Target exited before unique-PK wait: {target.result()}"
+                        )
+                    release.wait(timeout=0.025)
+                assert confirmed_wait, "Target never waited on foreign admitted revision PK"
+                Subscription.objects.filter(organization=target_org).update(
+                    status="canceled"
+                )
+                with connections["default"].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT clock_timestamp(),app_private.core_owner_entitled(%s,%s),"
+                        "app_private.core_work_allowed(%s)",
+                        [target_org.id, target_user.id, target_org.id],
+                    )
+                    clock, entitled, work_allowed = cursor.fetchone()
+                observations.update(
+                    clock=clock.isoformat(),
+                    entitled=entitled,
+                    work_allowed=work_allowed,
+                    foreign_pk_wait=True,
+                )
+                assert entitled is False and work_allowed is False
+            finally:
+                release.set()
+            blocker.result(timeout=15)
+            assert target is not None
+            outcome = target.result(timeout=15)
+&gt;       assert outcome[0] == "denied", (observations, outcome)
+E       AssertionError: ({'clock': '2026-10-05T01:18:07.863263+00:00', 'entitled': False, 'work_allowed': False, 'foreign_pk_wait': True}, ('admitted', UUID('c0bac255-1fa0-441e-9acc-91e6aa664802')))
+E       assert 'admitted' == 'denied'
+E         
+E         - denied
+E         + admitted
+
+tests/test_capture_proposal_pk_wait_authority.py:159: AssertionError</failure></testcase></testsuite></testsuites>

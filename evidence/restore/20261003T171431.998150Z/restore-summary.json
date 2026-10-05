@@ -1,0 +1,18 @@
+{
+  "verified_at": "2026-10-03T17:14:37.728347+00:00",
+  "restore_passed": true,
+  "live_export_read_only": true,
+  "production_writes": false,
+  "isolated_target": true,
+  "plaintext_dump_file_created": false,
+  "source_database_bytes": 11900607,
+  "backup_sha256": "37c1d6da52eee990f33b60de4f64e125309d5b77c90b1bc099b267f5a81357d0",
+  "encrypted_backup": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\restore\\20261003T171431.998150Z\\live-database.dump.age",
+  "private_key_file": "C:\\Users\\alexg\\.stewardence-recovery\\backup.agekey",
+  "restored_metadata": {
+    "migrations": 49,
+    "forced_rls_tables": 25,
+    "database_bytes": 11892415
+  },
+  "limits": "Schema restore proof only; no customer row contents printed, provider health or runtime role ownership qualification claimed. Offsite custody and report object recovery remain open."
+}

@@ -1,0 +1,229 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reviews.0004_capture_pack_projection... OK
+  Applying jobs.0015_legacy_action_card_schema_fence... OK
+  Applying reviews.0005_capture_proposal_admission... OK
+  Applying jobs.0016_capture_decisions... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0005_review_pack_read_authority... OK
+  Applying reports.0006_capture_owner_read... OK
+  Applying reviews.0006_capture_proposal_packs... OK
+  Applying reviews.0007_unused_stop... OK
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_chosen_revision_pk_wait_rechecks_paid_authority_after_foreign_rollback __
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+settings = <pytest_django.fixtures.Settings object at 0x7aacf209dfd0>
+
+    def test_chosen_revision_pk_wait_rechecks_paid_authority_after_foreign_rollback(
+        capture_context,
+        settings,
+    ):
+        """No raw counterfeit row: foreign issuer stages a genuine admitted receipt.
+    
+        Caller-selected revision UUIDs are admitted by the public SQL API. Browser
+        service UUID4 allocation does not close this actual app-login boundary.
+        Revocation is an observed committed status change, never clock tolerance.
+        """
+        settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+        CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        target_user, target_org = capture_context
+        target_snapshot = admit(capture_context, preview(capture_context))
+    
+        foreign_user = get_user_model().objects.create_user("pk-wait-owner@example.invalid")
+        foreign_org = Organization.objects.create(name="Foreign PK admission")
+        OrganizationMember.objects.create(
+            organization=foreign_org, user=foreign_user, role="owner"
+        )
+        WorkflowProfile.objects.create(
+            organization=foreign_org,
+            created_by=foreign_user,
+            profile="business.v1",
+            settings={"name": "PK wait fixture"},
+        )
+        grant_core_entitlement(foreign_user, foreign_org)
+        foreign_context = foreign_user, foreign_org
+        issue(foreign_context)
+        foreign_snapshot = admit(foreign_context, preview(foreign_context))
+    
+        revision_id = uuid4()
+        staged = Event()
+        release = Event()
+        target_name = "proposal-pk-target-" + uuid4().hex
+        foreign_pid = []
+        observations = {}
+    
+        def foreign_transaction():
+            connections.close_all()
+            try:
+                with (
+                    identity_transaction(foreign_user.id, using="app_runtime"),
+                    tenant_transaction(foreign_org.id, using="app_runtime"),
+                    connections["app_runtime"].cursor() as cursor,
+                ):
+                    cursor.execute("SELECT pg_backend_pid()")
+                    foreign_pid.append(cursor.fetchone()[0])
+                    cursor.execute(
+                        "SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)",
+                        [revision_id, foreign_org.id, foreign_user.id, foreign_snapshot.id],
+                    )
+                    assert cursor.fetchone()[0] == revision_id
+                    staged.set()
+                    assert release.wait(timeout=30), "Controlled PK blocker never released"
+                    transaction.set_rollback(True, using="app_runtime")
+            finally:
+                connections.close_all()
+    
+        def target_transaction():
+            connections.close_all()
+            try:
+                with (
+                    identity_transaction(target_user.id, using="app_runtime"),
+                    tenant_transaction(target_org.id, using="app_runtime"),
+                    connections["app_runtime"].cursor() as cursor,
+                ):
+                    cursor.execute(
+                        "SELECT set_config('application_name',%s,false)", [target_name]
+                    )
+                    cursor.execute(
+                        "SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)",
+                        [revision_id, target_org.id, target_user.id, target_snapshot.id],
+                    )
+                    return "admitted", cursor.fetchone()[0]
+            except DatabaseError as error:
+                return "denied", str(error)
+            finally:
+                connections.close_all()
+    
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            blocker = pool.submit(foreign_transaction)
+            target = None
+            try:
+                assert staged.wait(timeout=15), "Foreign genuine issuer never staged"
+                target = pool.submit(target_transaction)
+                deadline = monotonic() + 15
+                confirmed_wait = False
+                while monotonic() < deadline:
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute("SELECT pg_stat_clear_snapshot()")
+                        cursor.execute(
+                            "SELECT EXISTS(SELECT 1 FROM pg_stat_activity a WHERE "
+                            "a.application_name=%s AND a.usename='agentledger_app' "
+                            "AND a.wait_event_type='Lock' "
+                            "AND %s=ANY(pg_blocking_pids(a.pid)))",
+                            [target_name, foreign_pid[0]],
+                        )
+                        confirmed_wait = cursor.fetchone()[0]
+                    if confirmed_wait:
+                        break
+                    if target.done():
+                        pytest.fail(
+                            f"Target exited before unique-PK wait: {target.result()}"
+                        )
+                    release.wait(timeout=0.025)
+                assert confirmed_wait, "Target never waited on foreign admitted revision PK"
+                Subscription.objects.filter(organization=target_org).update(
+                    status="canceled"
+                )
+                with connections["default"].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT clock_timestamp(),app_private.core_owner_entitled(%s,%s),"
+                        "app_private.core_work_allowed(%s)",
+                        [target_org.id, target_user.id, target_org.id],
+                    )
+                    clock, entitled, work_allowed = cursor.fetchone()
+                observations.update(
+                    clock=clock.isoformat(),
+                    entitled=entitled,
+                    work_allowed=work_allowed,
+                    foreign_pk_wait=True,
+                )
+                assert entitled is False and work_allowed is False
+            finally:
+                release.set()
+            blocker.result(timeout=15)
+            assert target is not None
+            outcome = target.result(timeout=15)
+>       assert outcome[0] == "denied", (observations, outcome)
+E       AssertionError: ({'clock': '2026-10-05T01:18:07.863263+00:00', 'entitled': False, 'work_allowed': False, 'foreign_pk_wait': True}, ('admitted', UUID('c0bac255-1fa0-441e-9acc-91e6aa664802')))
+E       assert 'admitted' == 'denied'
+E         
+E         - denied
+E         + admitted
+
+tests/test_capture_proposal_pk_wait_authority.py:159: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_capture_proposal_pk_wait_authority.py::test_chosen_revision_pk_wait_rechecks_paid_authority_after_foreign_rollback
+1 failed in 8.24s

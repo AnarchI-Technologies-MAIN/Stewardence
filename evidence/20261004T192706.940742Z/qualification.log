@@ -1,0 +1,1296 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+..........................F...F....................FF.....FFFFFFFFFF.... [  4%]
+........................................................................ [  9%]
+........................................................................ [ 14%]
+.FFF.................................................................... [ 19%]
+........................................................................ [ 24%]
+........................................................................ [ 29%]
+........................................................................ [ 34%]
+................................s....................................... [ 39%]
+........................................................................ [ 44%]
+......................................................F................. [ 49%]
+.....E.................................................................. [ 53%]
+........FFFFFF.......................................................... [ 58%]
+........................................................................ [ 63%]
+........................................................................ [ 68%]
+........................................................................ [ 73%]
+........................................................................ [ 78%]
+........................................................................ [ 83%]
+........................................................................ [ 88%]
+........................................................................ [ 93%]
+........................................................................ [ 97%]
+..............................                                           [100%]
+==================================== ERRORS ====================================
+_ ERROR at teardown of test_worker_runtime_can_claim_across_tenants_without_tenant_context _
+
+    @pytest.fixture
+    def isolation_fixture():
+        user_model = get_user_model()
+        user_a = user_model.objects.create_user("rls-a@example.com")
+        user_b = user_model.objects.create_user("rls-b@example.com")
+        organization_a = Organization.objects.create(name="RLS Firm A")
+        organization_b = Organization.objects.create(name="RLS Firm B")
+        OrganizationMember.objects.create(
+            user=user_a,
+            organization=organization_a,
+            role=OrganizationMember.Role.OWNER,
+        )
+        OrganizationMember.objects.create(
+            user=user_b,
+            organization=organization_b,
+            role=OrganizationMember.Role.OWNER,
+        )
+        item_a = InventoryItem.objects.create(
+            organization=organization_a,
+            display_name="Inventory A",
+            vendor_name="Vendor A",
+        )
+        item_b = InventoryItem.objects.create(
+            organization=organization_b,
+            display_name="Inventory B",
+            vendor_name="Vendor B",
+        )
+        fixture = IsolationFixture(
+            user_a.id,
+            user_b.id,
+            organization_a.id,
+            organization_b.id,
+            item_a.id,
+            item_b.id,
+        )
+        yield fixture
+        with connections["default"].cursor() as cursor:
+            cursor.execute(
+                "TRUNCATE TABLE reports, audit_events, "
+                "audit_merkle_blocks, audit_chain_heads, "
+                "assessment_snapshots CASCADE"
+            )
+        BackgroundJob.objects.all().delete()
+        from apps.billing.models import Subscription
+    
+        Subscription.objects.filter(
+            organization_id__in=[fixture.organization_a_id, fixture.organization_b_id]
+>       ).delete()
+          ^^^^^^^^
+
+tests/test_rls.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1200: in delete
+    collector.collect(del_query)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.models.deletion.Collector object at 0x7251261b59d0>
+objs = <QuerySet [<Subscription: Subscription object (61c81f86-7ff4-4615-b77a-a5159b2d9b11)>]>
+source = None, nullable = False, collect_related = True, source_attr = None
+reverse_dependency = False, keep_parents = False, fail_on_restricted = True
+
+    def collect(
+        self,
+        objs,
+        source=None,
+        nullable=False,
+        collect_related=True,
+        source_attr=None,
+        reverse_dependency=False,
+        keep_parents=False,
+        fail_on_restricted=True,
+    ):
+        """
+        Add 'objs' to the collection of objects to be deleted as well as all
+        parent instances.  'objs' must be a homogeneous iterable collection of
+        model instances (e.g. a QuerySet).  If 'collect_related' is True,
+        related objects will be handled by their respective on_delete handler.
+    
+        If the call is the result of a cascade, 'source' should be the model
+        that caused it and 'nullable' should be set to True, if the relation
+        can be null.
+    
+        If 'reverse_dependency' is True, 'source' will be deleted before the
+        current model, rather than after. (Needed for cascading to parent
+        models, the one case in which the cascade follows the forwards
+        direction of an FK rather than the reverse direction.)
+    
+        If 'keep_parents' is True, data of parent model's will be not deleted.
+    
+        If 'fail_on_restricted' is False, error won't be raised even if it's
+        prohibited to delete such objects due to RESTRICT, that defers
+        restricted object checking in recursive calls where the top-level call
+        may need to collect more objects to determine whether restricted ones
+        can be deleted.
+        """
+        if self.can_fast_delete(objs):
+            self.fast_deletes.append(objs)
+            return
+        new_objs = self.add(
+            objs, source, nullable, reverse_dependency=reverse_dependency
+        )
+        if not new_objs:
+            return
+    
+        model = new_objs[0].__class__
+    
+        if not keep_parents:
+            # Recursively collect concrete model's parent models, but not their
+            # related objects. These will be found by meta.get_fields()
+            concrete_model = model._meta.concrete_model
+            for ptr in concrete_model._meta.parents.values():
+                if ptr:
+                    parent_objs = [getattr(obj, ptr.name) for obj in new_objs]
+                    self.collect(
+                        parent_objs,
+                        source=model,
+                        source_attr=ptr.remote_field.related_name,
+                        collect_related=False,
+                        reverse_dependency=True,
+                        fail_on_restricted=False,
+                    )
+        if not collect_related:
+            return
+    
+        model_fast_deletes = defaultdict(list)
+        protected_objects = defaultdict(list)
+        for related in get_candidate_relations_to_delete(model._meta):
+            # Preserve parent reverse relationships if keep_parents=True.
+            if keep_parents and related.model in model._meta.all_parents:
+                continue
+            field = related.field
+            on_delete = field.remote_field.on_delete
+            if on_delete == DO_NOTHING:
+                continue
+            related_model = related.related_model
+            if self.can_fast_delete(related_model, from_field=field):
+                model_fast_deletes[related_model].append(field)
+                continue
+            batches = self.get_del_batches(new_objs, [field])
+            for batch in batches:
+                sub_objs = self.related_objects(related_model, [field], batch)
+                # Non-referenced fields can be deferred if no signal receivers
+                # are connected for the related model as they'll never be
+                # exposed to the user. Skip field deferring when some
+                # relationships are select_related as interactions between both
+                # features are hard to get right. This should only happen in
+                # the rare cases where .related_objects is overridden anyway.
+                if not (
+                    sub_objs.query.select_related
+                    or self._has_signal_listeners(related_model)
+                ):
+                    referenced_fields = set(
+                        chain.from_iterable(
+                            (rf.attname for rf in rel.field.foreign_related_fields)
+                            for rel in get_candidate_relations_to_delete(
+                                related_model._meta
+                            )
+                        )
+                    )
+                    sub_objs = sub_objs.only(*tuple(referenced_fields))
+                if getattr(on_delete, "lazy_sub_objs", False) or sub_objs:
+                    try:
+                        on_delete(self, field, sub_objs, self.using)
+                    except ProtectedError as error:
+                        key = "'%s.%s'" % (field.model.__name__, field.name)
+                        protected_objects[key] += error.protected_objects
+        if protected_objects:
+>           raise ProtectedError(
+                "Cannot delete some instances of model %r because they are "
+                "referenced through protected foreign keys: %s."
+                % (
+                    model.__name__,
+                    ", ".join(protected_objects),
+                ),
+                set(chain.from_iterable(protected_objects.values())),
+            )
+E           django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Subscription' because they are referenced through protected foreign keys: 'PaidCoverage.subscription'.", {<PaidCoverage: PaidCoverage object (4f4aca6e-e654-459e-a98b-2839501699cf)>})
+
+.venv/lib/python3.14/site-packages/django/db/models/deletion.py:350: ProtectedError
+=================================== FAILURES ===================================
+_______________ test_schedule_event_normalizes_founder_canceling _______________
+
+    def test_schedule_event_normalizes_founder_canceling():
+        _user, _customer, subscription = (
+            make_founder(
+                email="schedule-event@example.com",
+            )
+        )
+    
+        _handle_subscription_schedule_event(
+            {
+                "id": "sub_sched_founder",
+                "status": "active",
+                "end_behavior": "cancel",
+            }
+        )
+    
+        subscription.refresh_from_db()
+    
+        assert (
+            subscription.status
+            == Subscription.Status.CANCELING
+        )
+    
+        assert (
+            subscription.cancel_at_period_end
+            is True
+        )
+    
+>       assert subscription.grants_access is True
+E       assert False is True
+E        +  where False = <Subscription: Subscription object (44f86fd4-401e-4d51-abb0-58e1956ed306)>.grants_access
+
+tests/test_billing_founder_cancellation_authority.py:360: AssertionError
+_______________ test_founder_portal_uses_no_cancel_configuration _______________
+
+client = <django.test.client.Client object at 0x7251253a8cd0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72512539aba0>
+settings = <pytest_django.fixtures.Settings object at 0x7251252dfce0>
+
+    def test_founder_portal_uses_no_cancel_configuration(
+        client,
+        monkeypatch,
+        settings,
+    ):
+        monkeypatch.setattr(
+            "apps.billing.views.settings.STRIPE_SECRET_KEY",
+            "sk_test_stewardence_unit_only",
+        )
+    
+        user, _customer, _subscription = (
+            make_founder(
+                email="founder-portal@example.com",
+            )
+        )
+    
+        settings.STRIPE_BILLING_PORTAL_CONFIGURATION_ID = (
+            "bpc_standard"
+        )
+    
+        settings.STRIPE_BILLING_PORTAL_FOUNDER_CONFIGURATION_ID = (
+            "bpc_founder_no_cancel"
+        )
+    
+        captured = {}
+    
+        def fake_create(**kwargs):
+            captured.update(kwargs)
+    
+            return SimpleNamespace(
+                url="https://billing.stripe.test/founder"
+            )
+    
+        monkeypatch.setattr(
+            "apps.billing.views."
+            "stripe.billing_portal.Session.create",
+            fake_create,
+        )
+    
+        client.force_login(user)
+    
+        response = client.get(
+            reverse("billing:portal")
+        )
+    
+        assert response.status_code == 302
+    
+>       assert (
+            captured["configuration"]
+            == "bpc_founder_no_cancel"
+        )
+E       AssertionError: assert 'bpc_standard' == 'bpc_founder_no_cancel'
+E         
+E         - bpc_founder_no_cancel
+E         + bpc_standard
+
+tests/test_billing_founder_cancellation_authority.py:487: AssertionError
+_____________ test_pending_cancellation_retains_access_and_founder _____________
+
+    def test_pending_cancellation_retains_access_and_founder():
+        _user, _customer, subscription = (
+            make_subscription(
+                email="canceling@example.com",
+            )
+        )
+    
+        _handle_subscription_updated(
+            stripe_subscription(
+                cancel_at_period_end=True,
+            )
+        )
+    
+        subscription.refresh_from_db()
+    
+        assert (
+            subscription.status
+            == Subscription.Status.CANCELING
+        )
+    
+        assert (
+            subscription.cancel_at_period_end
+            is True
+        )
+    
+>       assert subscription.grants_access is True
+E       assert False is True
+E        +  where False = <Subscription: Subscription object (57530c61-dfd6-4735-b523-488b27c08a95)>.grants_access
+
+tests/test_billing_portal_cancellation.py:210: AssertionError
+______ test_subscription_update_cannot_undo_schedule_owned_founder_cancel ______
+
+    def test_subscription_update_cannot_undo_schedule_owned_founder_cancel():
+        _user, _customer, subscription = (
+            make_subscription(
+                email="schedule-owned-cancel@example.com",
+                status=Subscription.Status.CANCELING,
+            )
+        )
+    
+        subscription.cancel_at_period_end = True
+    
+        subscription.save(
+            update_fields=[
+                "cancel_at_period_end",
+                "updated_at",
+            ]
+        )
+    
+        # Real Stripe evidence established that a founder subscription
+        # managed by an active SubscriptionSchedule reports
+        # cancel_at_period_end=False on the underlying Subscription even
+        # while the schedule itself is configured to cancel at the paid
+        # period boundary.
+        #
+        # Therefore a customer.subscription.updated event is not allowed
+        # to clear Stewardence's normalized CANCELING state. Only the
+        # authoritative schedule restoration event may do that.
+        _handle_subscription_updated(
+            stripe_subscription(
+                cancel_at_period_end=False,
+            )
+        )
+    
+        subscription.refresh_from_db()
+    
+        assert (
+            subscription.status
+            == Subscription.Status.CANCELING
+        )
+    
+        assert (
+            subscription.cancel_at_period_end
+            is True
+        )
+    
+>       assert subscription.grants_access is True
+E       assert False is True
+E        +  where False = <Subscription: Subscription object (bf3c729b-dacd-4d61-9350-19aa195dd295)>.grants_access
+
+tests/test_billing_portal_cancellation.py:271: AssertionError
+________ test_subscription_for_a_cannot_activate_b_even_with_membership ________
+
+client = <django.test.client.Client object at 0x72512bfb0cd0>
+authority_context = {'user': <User: billing-authority@example.com>, 'organization_a': <Organization: Paid Firm A>, 'organization_b': <Organization: Member Firm B>, 'subscription': <Subscription: Subscription object (37901a81-b177-4b8a-9501-c3e522e194b9)>, ...}
+
+    def test_subscription_for_a_cannot_activate_b_even_with_membership(
+        client,
+        authority_context,
+    ):
+        organization_b = authority_context["organization_b"]
+    
+        response = client.post(
+            reverse("organizations:workspace-activate"),
+            {
+                "organization_id": str(
+                    organization_b.id
+                )
+            },
+        )
+    
+>       assert response.status_code == 403
+E       assert 302 == 403
+E        +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+
+tests/test_billing_tenant_authority.py:167: AssertionError
+_______ test_forged_active_workspace_is_cleared_before_tenant_activation _______
+
+client = <django.test.client.Client object at 0x72512bfb3a70>
+authority_context = {'user': <User: billing-authority@example.com>, 'organization_a': <Organization: Paid Firm A>, 'organization_b': <Organization: Member Firm B>, 'subscription': <Subscription: Subscription object (9f11b8bb-4ea2-4785-85ae-10d7b7443e0b)>, ...}
+
+    def test_forged_active_workspace_is_cleared_before_tenant_activation(
+        client,
+        authority_context,
+    ):
+        organization_b = authority_context["organization_b"]
+    
+        session = client.session
+        session["active_organization_id"] = str(
+            organization_b.id
+        )
+        session.save()
+    
+        response = client.get(
+            reverse("inventory:list")
+        )
+    
+        assert response.status_code == 302
+>       assert response.url == reverse(
+            "organizations:workspace-selection"
+        )
+E       AssertionError: assert '/billing/portfolio/' == '/workspaces/'
+E         
+E         - /workspaces/
+E         + /billing/portfolio/
+
+tests/test_billing_tenant_authority.py:188: AssertionError
+____ test_workspace_selection_exposes_only_subscription_bound_organization _____
+
+client = <django.test.client.Client object at 0x72512bfb3cf0>
+authority_context = {'user': <User: billing-authority@example.com>, 'organization_a': <Organization: Paid Firm A>, 'organization_b': <Organization: Member Firm B>, 'subscription': <Subscription: Subscription object (f3c3069c-e545-4cef-af3c-d182e63dff32)>, ...}
+
+    def test_workspace_selection_exposes_only_subscription_bound_organization(
+        client,
+        authority_context,
+    ):
+        response = client.get(
+            reverse("organizations:workspace-selection")
+        )
+    
+>       assert response.status_code == 200
+E       assert 302 == 200
+E        +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+
+tests/test_billing_tenant_authority.py:202: AssertionError
+______ test_foreign_inventory_uuid_is_not_authorized_by_membership_alone _______
+
+client = <django.test.client.Client object at 0x72512bfb16d0>
+authority_context = {'user': <User: billing-authority@example.com>, 'organization_a': <Organization: Paid Firm A>, 'organization_b': <Organization: Member Firm B>, 'subscription': <Subscription: Subscription object (eca2806c-3018-4f33-ae79-c496d3ff8d17)>, ...}
+
+    def test_foreign_inventory_uuid_is_not_authorized_by_membership_alone(
+        client,
+        authority_context,
+    ):
+        item_b = authority_context["item_b"]
+    
+        response = client.get(
+            reverse(
+                "inventory:detail",
+                args=(item_b.id,),
+            )
+        )
+    
+>       assert response.status_code == 404
+E       assert 302 == 404
+E        +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+
+tests/test_billing_tenant_authority.py:220: AssertionError
+_________ test_foreign_rule_uuid_is_not_authorized_by_membership_alone _________
+
+client = <django.test.client.Client object at 0x72512bf647d0>
+authority_context = {'user': <User: billing-authority@example.com>, 'organization_a': <Organization: Paid Firm A>, 'organization_b': <Organization: Member Firm B>, 'subscription': <Subscription: Subscription object (9b44bc06-e1b2-4a94-b86a-124a58dfba6d)>, ...}
+
+    def test_foreign_rule_uuid_is_not_authorized_by_membership_alone(
+        client,
+        authority_context,
+    ):
+        rule_b = authority_context["rule_b"]
+    
+        response = client.get(
+            reverse(
+                "policies:detail",
+                args=(rule_b.id,),
+            )
+        )
+    
+>       assert response.status_code == 404
+E       assert 302 == 404
+E        +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+
+tests/test_billing_tenant_authority.py:236: AssertionError
+________ test_foreign_report_uuid_is_not_authorized_by_membership_alone ________
+
+client = <django.test.client.Client object at 0x72512bf64d70>
+authority_context = {'user': <User: billing-authority@example.com>, 'organization_a': <Organization: Paid Firm A>, 'organization_b': <Organization: Member Firm B>, 'subscription': <Subscription: Subscription object (9fc4a2dd-82d3-4e28-9ced-e7e7486a6b00)>, ...}
+
+    def test_foreign_report_uuid_is_not_authorized_by_membership_alone(
+        client,
+        authority_context,
+    ):
+        report_b = authority_context["report_b"]
+    
+        detail = client.get(
+            reverse(
+                "reports:detail",
+                args=(report_b.id,),
+            )
+        )
+    
+        download = client.get(
+            reverse(
+                "reports:download",
+                kwargs={
+                    "report_id": report_b.id,
+                },
+            )
+        )
+    
+>       assert detail.status_code == 404
+E       assert 302 == 404
+E        +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+
+tests/test_billing_tenant_authority.py:261: AssertionError
+_________ test_bound_core_subscription_cannot_create_second_workspace __________
+
+client = <django.test.client.Client object at 0x72512bf644b0>
+authority_context = {'user': <User: billing-authority@example.com>, 'organization_a': <Organization: Paid Firm A>, 'organization_b': <Organization: Member Firm B>, 'subscription': <Subscription: Subscription object (96b82b9a-fcce-48fb-a378-9023d5475d2c)>, ...}
+
+    def test_bound_core_subscription_cannot_create_second_workspace(
+        client,
+        authority_context,
+    ):
+        user = authority_context["user"]
+    
+        response = client.get(
+            reverse("organizations:setup")
+        )
+    
+        assert response.status_code == 302
+>       assert response.url == reverse(
+            "organizations:workspace-selection"
+        )
+E       AssertionError: assert '/billing/portfolio/' == '/workspaces/'
+E         
+E         - /workspaces/
+E         + /billing/portfolio/
+
+tests/test_billing_tenant_authority.py:276: AssertionError
+____ test_paid_unbound_subscription_creates_and_binds_exactly_one_workspace ____
+
+    def test_paid_unbound_subscription_creates_and_binds_exactly_one_workspace():
+        user = get_user_model().objects.create_user(
+            "unbound-paid@example.com",
+            "Strong!UnboundPaid98",
+        )
+    
+        subscription = make_subscription(user)
+    
+>       organization_id = _create_and_bind_owned_workspace(
+            user=user,
+            name="First Paid Firm",
+            industry=Organization.Industry.ACCOUNTING_BOOKKEEPING,
+        )
+
+tests/test_billing_tenant_authority.py:306: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = <User: unbound-paid@example.com>, name = 'First Paid Firm'
+industry = Organization.Industry.ACCOUNTING_BOOKKEEPING
+
+    def _create_and_bind_owned_workspace(*, user, name, industry):
+        """Create the paid workspace and bind its subscription atomically."""
+        with transaction.atomic():
+            subscription = (
+                Subscription.objects
+                .select_for_update()
+                .filter(billing_customer__user=user)
+                .first()
+            )
+    
+            if subscription is None or not subscription.grants_access:
+>               raise PermissionDenied(
+                    "An active Stewardence subscription is required."
+                )
+E               django.core.exceptions.PermissionDenied: An active Stewardence subscription is required.
+
+apps/organizations/views.py:89: PermissionDenied
+_____ test_workspace_creation_and_subscription_binding_are_one_transaction _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72512bf05940>
+
+    def test_workspace_creation_and_subscription_binding_are_one_transaction(
+        monkeypatch,
+    ):
+        user = get_user_model().objects.create_user(
+            "rollback-paid@example.com",
+            "Strong!RollbackPaid98",
+        )
+    
+        subscription = make_subscription(user)
+    
+        original_save = Subscription.save
+    
+        def fail_bound_subscription_save(self, *args, **kwargs):
+            if self.organization_id is not None:
+                raise RuntimeError(
+                    "injected subscription bind failure"
+                )
+    
+            return original_save(
+                self,
+                *args,
+                **kwargs,
+            )
+    
+        monkeypatch.setattr(
+            Subscription,
+            "save",
+            fail_bound_subscription_save,
+        )
+    
+        before_organizations = Organization.objects.count()
+        before_memberships = OrganizationMember.objects.count()
+    
+        with pytest.raises(
+            RuntimeError,
+            match="injected subscription bind failure",
+        ):
+>           _create_and_bind_owned_workspace(
+                user=user,
+                name="Must Roll Back",
+                industry=Organization.Industry.OTHER,
+            )
+
+tests/test_billing_tenant_authority.py:378: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = <User: rollback-paid@example.com>, name = 'Must Roll Back'
+industry = Organization.Industry.OTHER
+
+    def _create_and_bind_owned_workspace(*, user, name, industry):
+        """Create the paid workspace and bind its subscription atomically."""
+        with transaction.atomic():
+            subscription = (
+                Subscription.objects
+                .select_for_update()
+                .filter(billing_customer__user=user)
+                .first()
+            )
+    
+            if subscription is None or not subscription.grants_access:
+>               raise PermissionDenied(
+                    "An active Stewardence subscription is required."
+                )
+E               django.core.exceptions.PermissionDenied: An active Stewardence subscription is required.
+
+apps/organizations/views.py:89: PermissionDenied
+________ test_cancel_at_period_end_retains_only_bound_workspace_access _________
+
+client = <django.test.client.Client object at 0x72512bf65770>
+authority_context = {'user': <User: billing-authority@example.com>, 'organization_a': <Organization: Paid Firm A>, 'organization_b': <Organization: Member Firm B>, 'subscription': <Subscription: Subscription object (2ac1ca7f-3468-46be-9498-103b6de54fbd)>, ...}
+
+    def test_cancel_at_period_end_retains_only_bound_workspace_access(
+        client,
+        authority_context,
+    ):
+        subscription = authority_context["subscription"]
+        organization_b = authority_context["organization_b"]
+    
+        subscription.status = Subscription.Status.CANCELING
+        subscription.cancel_at_period_end = True
+        subscription.save(
+            update_fields=[
+                "status",
+                "cancel_at_period_end",
+                "updated_at",
+            ]
+        )
+    
+        authorized = client.get(
+            reverse("inventory:list")
+        )
+    
+>       assert authorized.status_code == 200
+E       assert 302 == 200
+E        +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+
+tests/test_billing_tenant_authority.py:415: AssertionError
+______ test_guided_setup_creates_owner_membership_and_activates_workspace ______
+
+client = <django.test.client.Client object at 0x725125e24550>
+
+    def test_guided_setup_creates_owner_membership_and_activates_workspace(client):
+        user = User.objects.create_user(
+            email="owner@example.com",
+            password="Owner!Credential7",
+        )
+    
+        client.force_login(user)
+        billing_customer = BillingCustomer.objects.create(user=user)
+        Subscription.objects.create(
+            billing_customer=billing_customer,
+            portfolio=Subscription.Portfolio.CORE,
+            status=Subscription.Status.ACTIVE,
+            current_price_cents=9900,
+        )
+    
+        details_response = client.post(
+            reverse("organizations:setup"),
+            {
+                "name": "Northstar Advisory",
+                "industry": Organization.Industry.ACCOUNTING_BOOKKEEPING,
+            },
+        )
+    
+        assert details_response.status_code == 302
+>       assert details_response.url == reverse("organizations:setup-start")
+E       AssertionError: assert '/billing/portfolio/' == '/workspaces/new/start/'
+E         
+E         - /workspaces/new/start/
+E         + /billing/portfolio/
+
+tests/test_public_signup.py:140: AssertionError
+__________ test_guided_setup_import_choice_routes_to_real_import_flow __________
+
+client = <django.test.client.Client object at 0x725125e26710>
+
+    def test_guided_setup_import_choice_routes_to_real_import_flow(client):
+        user = User.objects.create_user(
+            email="importer@example.com",
+            password="Importer!Credential7",
+        )
+    
+        billing_customer = BillingCustomer.objects.create(user=user)
+        Subscription.objects.create(
+            billing_customer=billing_customer,
+            portfolio=Subscription.Portfolio.CORE,
+            status=Subscription.Status.ACTIVE,
+            current_price_cents=9900,
+        )
+    
+        client.force_login(user)
+    
+        client.post(
+            reverse("organizations:setup"),
+            {
+                "name": "Import Test Firm",
+                "industry": Organization.Industry.OTHER,
+            },
+        )
+    
+        client.post(
+            reverse("organizations:setup-start"),
+            {
+                "start_choice": "import_csv",
+            },
+        )
+    
+        response = client.post(
+            reverse("organizations:setup-review"),
+        )
+    
+        assert response.status_code == 302
+>       assert response.url == reverse("imports:upload")
+E       AssertionError: assert '/billing/portfolio/' == '/imports/new/'
+E         
+E         - /imports/new/
+E         + /billing/portfolio/
+
+tests/test_public_signup.py:207: AssertionError
+___________ test_guided_setup_manual_choice_routes_to_real_inventory ___________
+
+client = <django.test.client.Client object at 0x725125c97f70>
+
+    def test_guided_setup_manual_choice_routes_to_real_inventory(client):
+        user = User.objects.create_user(
+            email="manual@example.com",
+            password="Manual!Credential7",
+        )
+    
+        billing_customer = BillingCustomer.objects.create(user=user)
+        Subscription.objects.create(
+            billing_customer=billing_customer,
+            portfolio=Subscription.Portfolio.CORE,
+            status=Subscription.Status.ACTIVE,
+            current_price_cents=9900,
+        )
+    
+        client.force_login(user)
+    
+        client.post(
+            reverse("organizations:setup"),
+            {
+                "name": "Manual Test Firm",
+                "industry": Organization.Industry.OTHER,
+            },
+        )
+    
+        client.post(
+            reverse("organizations:setup-start"),
+            {
+                "start_choice": "manual",
+            },
+        )
+    
+        response = client.post(
+            reverse("organizations:setup-review"),
+        )
+    
+        assert response.status_code == 302
+>       assert response.url == reverse("inventory:list")
+E       AssertionError: assert '/billing/portfolio/' == '/inventory/'
+E         
+E         - /inventory/
+E         + /billing/portfolio/
+
+tests/test_public_signup.py:246: AssertionError
+_____ test_organization_scoped_tables_have_required_column_and_forced_rls ______
+
+    def test_organization_scoped_tables_have_required_column_and_forced_rls():
+        with connections["app_runtime"].cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT c.relname, c.relrowsecurity, c.relforcerowsecurity, a.attnotnull
+                FROM pg_class AS c
+                JOIN pg_attribute AS a ON a.attrelid = c.oid
+                JOIN pg_namespace AS n ON n.oid = c.relnamespace
+                WHERE n.nspname = 'public'
+                  AND c.relkind = 'r'
+                  AND a.attname = 'organization_id'
+                  AND a.attnotnull
+                ORDER BY c.relname
+                """
+            )
+>           assert cursor.fetchall() == [
+                ("assessment_snapshots", True, True, True),
+                ("audit_chain_heads", True, True, True),
+                ("audit_events", True, True, True),
+                ("audit_merkle_blocks", True, True, True),
+                ("background_jobs", True, True, True),
+                ("core_action_card_revisions", True, True, True),
+                ("core_health_controls", True, True, True),
+                ("core_known_entities", True, True, True),
+                ("core_workflow_runs", True, True, True),
+                ("core_workflow_schedules", True, True, True),
+                ("detection_evidence", True, True, True),
+                ("discovery_scans", True, True, True),
+                ("integrations_providerconnection", True, True, True),
+                ("integrations_quickbooksconnection", True, True, True),
+                ("inventory_import_batches", True, True, True),
+                ("inventory_import_rows", True, True, True),
+                ("inventory_items", True, True, True),
+                ("job_recovery_receipts", True, True, True),
+                ("organization_rules", True, True, True),
+                ("organization_workflow_profiles", True, True, True),
+                ("organizations_organizationmember", True, True, True),
+                ("report_artifacts", True, True, True),
+                ("reports", True, True, True),
+            ]
+E           AssertionError: assert [('assessment...e, True), ...] == [('assessment...e, True), ...]
+E             
+E             Left contains 5 more items, first extra item: ('review_capacity_reservations', True, True, True)
+E             Use -v to get more diff
+
+tests/test_rls.py:194: AssertionError
+____ test_automation_entitlement_respects_subscription_status[active-True] _____
+
+status = 'active', expected = True
+
+    @pytest.mark.parametrize(
+        "status,expected",
+        [
+            ("active", True),
+            ("canceling", True),
+            ("past_due", False),
+            ("pending", False),
+            ("canceled", False),
+        ],
+    )
+    def test_automation_entitlement_respects_subscription_status(status, expected):
+        subscription = Subscription(
+            portfolio="automation",
+            status=status,
+            current_period_end=timezone.now() + timedelta(days=1),
+        )
+>       assert subscription.grants_automation is expected
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_automation_pricing.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/billing/models.py:124: in grants_automation
+    and self.grants_access
+        ^^^^^^^^^^^^^^^^^^
+apps/billing/models.py:118: in grants_access
+    return paid_subscription_access(self.pk, using=self._state.db or "default")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/billing/entitlements.py:28: in paid_subscription_access
+    with connections[using].cursor() as cursor:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:26: in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:320: in cursor
+    return self._cursor()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <DatabaseWrapper vendor='postgresql' alias='default'>, name = None
+
+    def _cursor(self, name=None):
+        self.close_if_health_check_failed()
+>       self.ensure_connection()
+E       RuntimeError: Database access not allowed, use the "django_db" mark, or the "db" or "transactional_db" fixtures to enable it.
+
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:296: RuntimeError
+___ test_automation_entitlement_respects_subscription_status[canceling-True] ___
+
+status = 'canceling', expected = True
+
+    @pytest.mark.parametrize(
+        "status,expected",
+        [
+            ("active", True),
+            ("canceling", True),
+            ("past_due", False),
+            ("pending", False),
+            ("canceled", False),
+        ],
+    )
+    def test_automation_entitlement_respects_subscription_status(status, expected):
+        subscription = Subscription(
+            portfolio="automation",
+            status=status,
+            current_period_end=timezone.now() + timedelta(days=1),
+        )
+>       assert subscription.grants_automation is expected
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_automation_pricing.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/billing/models.py:124: in grants_automation
+    and self.grants_access
+        ^^^^^^^^^^^^^^^^^^
+apps/billing/models.py:118: in grants_access
+    return paid_subscription_access(self.pk, using=self._state.db or "default")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/billing/entitlements.py:28: in paid_subscription_access
+    with connections[using].cursor() as cursor:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:26: in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:320: in cursor
+    return self._cursor()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <DatabaseWrapper vendor='postgresql' alias='default'>, name = None
+
+    def _cursor(self, name=None):
+        self.close_if_health_check_failed()
+>       self.ensure_connection()
+E       RuntimeError: Database access not allowed, use the "django_db" mark, or the "db" or "transactional_db" fixtures to enable it.
+
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:296: RuntimeError
+___ test_automation_entitlement_respects_subscription_status[past_due-False] ___
+
+status = 'past_due', expected = False
+
+    @pytest.mark.parametrize(
+        "status,expected",
+        [
+            ("active", True),
+            ("canceling", True),
+            ("past_due", False),
+            ("pending", False),
+            ("canceled", False),
+        ],
+    )
+    def test_automation_entitlement_respects_subscription_status(status, expected):
+        subscription = Subscription(
+            portfolio="automation",
+            status=status,
+            current_period_end=timezone.now() + timedelta(days=1),
+        )
+>       assert subscription.grants_automation is expected
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_automation_pricing.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/billing/models.py:124: in grants_automation
+    and self.grants_access
+        ^^^^^^^^^^^^^^^^^^
+apps/billing/models.py:118: in grants_access
+    return paid_subscription_access(self.pk, using=self._state.db or "default")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/billing/entitlements.py:28: in paid_subscription_access
+    with connections[using].cursor() as cursor:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:26: in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:320: in cursor
+    return self._cursor()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <DatabaseWrapper vendor='postgresql' alias='default'>, name = None
+
+    def _cursor(self, name=None):
+        self.close_if_health_check_failed()
+>       self.ensure_connection()
+E       RuntimeError: Database access not allowed, use the "django_db" mark, or the "db" or "transactional_db" fixtures to enable it.
+
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:296: RuntimeError
+___ test_automation_entitlement_respects_subscription_status[pending-False] ____
+
+status = 'pending', expected = False
+
+    @pytest.mark.parametrize(
+        "status,expected",
+        [
+            ("active", True),
+            ("canceling", True),
+            ("past_due", False),
+            ("pending", False),
+            ("canceled", False),
+        ],
+    )
+    def test_automation_entitlement_respects_subscription_status(status, expected):
+        subscription = Subscription(
+            portfolio="automation",
+            status=status,
+            current_period_end=timezone.now() + timedelta(days=1),
+        )
+>       assert subscription.grants_automation is expected
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_automation_pricing.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/billing/models.py:124: in grants_automation
+    and self.grants_access
+        ^^^^^^^^^^^^^^^^^^
+apps/billing/models.py:118: in grants_access
+    return paid_subscription_access(self.pk, using=self._state.db or "default")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/billing/entitlements.py:28: in paid_subscription_access
+    with connections[using].cursor() as cursor:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:26: in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:320: in cursor
+    return self._cursor()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <DatabaseWrapper vendor='postgresql' alias='default'>, name = None
+
+    def _cursor(self, name=None):
+        self.close_if_health_check_failed()
+>       self.ensure_connection()
+E       RuntimeError: Database access not allowed, use the "django_db" mark, or the "db" or "transactional_db" fixtures to enable it.
+
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:296: RuntimeError
+___ test_automation_entitlement_respects_subscription_status[canceled-False] ___
+
+status = 'canceled', expected = False
+
+    @pytest.mark.parametrize(
+        "status,expected",
+        [
+            ("active", True),
+            ("canceling", True),
+            ("past_due", False),
+            ("pending", False),
+            ("canceled", False),
+        ],
+    )
+    def test_automation_entitlement_respects_subscription_status(status, expected):
+        subscription = Subscription(
+            portfolio="automation",
+            status=status,
+            current_period_end=timezone.now() + timedelta(days=1),
+        )
+>       assert subscription.grants_automation is expected
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_automation_pricing.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/billing/models.py:124: in grants_automation
+    and self.grants_access
+        ^^^^^^^^^^^^^^^^^^
+apps/billing/models.py:118: in grants_access
+    return paid_subscription_access(self.pk, using=self._state.db or "default")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/billing/entitlements.py:28: in paid_subscription_access
+    with connections[using].cursor() as cursor:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:26: in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:320: in cursor
+    return self._cursor()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <DatabaseWrapper vendor='postgresql' alias='default'>, name = None
+
+    def _cursor(self, name=None):
+        self.close_if_health_check_failed()
+>       self.ensure_connection()
+E       RuntimeError: Database access not allowed, use the "django_db" mark, or the "db" or "transactional_db" fixtures to enable it.
+
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:296: RuntimeError
+____________ test_core_and_expired_automation_cannot_run_automation ____________
+
+    def test_core_and_expired_automation_cannot_run_automation():
+        assert not Subscription(portfolio="core", status="active").grants_automation
+        assert not Subscription(
+            portfolio="automation",
+            status="active",
+            current_period_end=timezone.now() - timedelta(seconds=1),
+>       ).grants_automation
+          ^^^^^^^^^^^^^^^^^
+
+tests/test_automation_pricing.py:180: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/billing/models.py:124: in grants_automation
+    and self.grants_access
+        ^^^^^^^^^^^^^^^^^^
+apps/billing/models.py:118: in grants_access
+    return paid_subscription_access(self.pk, using=self._state.db or "default")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/billing/entitlements.py:28: in paid_subscription_access
+    with connections[using].cursor() as cursor:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:26: in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:320: in cursor
+    return self._cursor()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <DatabaseWrapper vendor='postgresql' alias='default'>, name = None
+
+    def _cursor(self, name=None):
+        self.close_if_health_check_failed()
+>       self.ensure_connection()
+E       RuntimeError: Database access not allowed, use the "django_db" mark, or the "db" or "transactional_db" fixtures to enable it.
+
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:296: RuntimeError
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py: 2 warnings
+tests/test_billing_founder_cancellation_authority.py: 3 warnings
+tests/test_billing_founder_checkout_authority.py: 2 warnings
+tests/test_billing_portal_cancellation.py: 2 warnings
+tests/test_billing_standard_launch.py: 3 warnings
+tests/test_billing_tenant_authority.py: 10 warnings
+tests/test_core_checkout_admission.py: 21 warnings
+tests/test_csv_import.py: 10 warnings
+tests/test_discovery.py: 2 warnings
+tests/test_discovery_reconciliation.py: 2 warnings
+tests/test_inventory.py: 10 warnings
+tests/test_organization_rules.py: 9 warnings
+tests/test_payflow_deployment_gates.py: 6 warnings
+tests/test_production_security.py: 3 warnings
+tests/test_public_signup.py: 11 warnings
+tests/test_report_history.py: 3 warnings
+tests/test_reports.py: 3 warnings
+tests/test_roi_engine_v2.py: 1 warning
+tests/test_workspaces.py: 9 warnings
+tests/test_core_workflows.py: 1 warning
+tests/test_lyra_authority_findings.py: 1 warning
+tests/test_operations_dashboard.py: 2 warnings
+tests/test_paid_workflow_boundary.py: 2 warnings
+tests/test_provider_lifecycle.py: 2 warnings
+tests/test_quickbooks_lifecycle.py: 13 warnings
+tests/test_quickbooks_reports.py: 6 warnings
+tests/test_report_artifacts.py: 4 warnings
+tests/test_report_recovery_states.py: 1 warning
+tests/test_workflow_profile_setup.py: 3 warnings
+tests/test_baseline.py: 4 warnings
+tests/test_download.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_billing_founder_cancellation_authority.py::test_schedule_event_normalizes_founder_canceling
+FAILED tests/test_billing_founder_cancellation_authority.py::test_founder_portal_uses_no_cancel_configuration
+FAILED tests/test_billing_portal_cancellation.py::test_pending_cancellation_retains_access_and_founder
+FAILED tests/test_billing_portal_cancellation.py::test_subscription_update_cannot_undo_schedule_owned_founder_cancel
+FAILED tests/test_billing_tenant_authority.py::test_subscription_for_a_cannot_activate_b_even_with_membership
+FAILED tests/test_billing_tenant_authority.py::test_forged_active_workspace_is_cleared_before_tenant_activation
+FAILED tests/test_billing_tenant_authority.py::test_workspace_selection_exposes_only_subscription_bound_organization
+FAILED tests/test_billing_tenant_authority.py::test_foreign_inventory_uuid_is_not_authorized_by_membership_alone
+FAILED tests/test_billing_tenant_authority.py::test_foreign_rule_uuid_is_not_authorized_by_membership_alone
+FAILED tests/test_billing_tenant_authority.py::test_foreign_report_uuid_is_not_authorized_by_membership_alone
+FAILED tests/test_billing_tenant_authority.py::test_bound_core_subscription_cannot_create_second_workspace
+FAILED tests/test_billing_tenant_authority.py::test_paid_unbound_subscription_creates_and_binds_exactly_one_workspace
+FAILED tests/test_billing_tenant_authority.py::test_workspace_creation_and_subscription_binding_are_one_transaction
+FAILED tests/test_billing_tenant_authority.py::test_cancel_at_period_end_retains_only_bound_workspace_access
+FAILED tests/test_public_signup.py::test_guided_setup_creates_owner_membership_and_activates_workspace
+FAILED tests/test_public_signup.py::test_guided_setup_import_choice_routes_to_real_import_flow
+FAILED tests/test_public_signup.py::test_guided_setup_manual_choice_routes_to_real_inventory
+FAILED tests/test_rls.py::test_organization_scoped_tables_have_required_column_and_forced_rls
+FAILED tests/test_automation_pricing.py::test_automation_entitlement_respects_subscription_status[active-True]
+FAILED tests/test_automation_pricing.py::test_automation_entitlement_respects_subscription_status[canceling-True]
+FAILED tests/test_automation_pricing.py::test_automation_entitlement_respects_subscription_status[past_due-False]
+FAILED tests/test_automation_pricing.py::test_automation_entitlement_respects_subscription_status[pending-False]
+FAILED tests/test_automation_pricing.py::test_automation_entitlement_respects_subscription_status[canceled-False]
+FAILED tests/test_automation_pricing.py::test_core_and_expired_automation_cannot_run_automation
+ERROR tests/test_rls.py::test_worker_runtime_can_claim_across_tenants_without_tenant_context
+24 failed, 1444 passed, 1 skipped, 152 warnings, 1 error in 349.74s (0:05:49)

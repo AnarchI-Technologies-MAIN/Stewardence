@@ -1,0 +1,50 @@
+{
+  "verified_at": "2026-10-03T21:04:19.792469+00:00",
+  "restore_passed": true,
+  "objects_restored": 6,
+  "total_plaintext_bytes_verified": 698217,
+  "archived_live_metadata_exact_match": true,
+  "source_backup_sha256": "0b20cd7ede2d1218e210af325f3ee19fa98a6d2cacff895728468c58981e1dbc",
+  "host_plaintext_files_created": false,
+  "production_writes": false,
+  "credentials_printed": false,
+  "wsl_ciphertext_custody": {
+    "directory": "/home/alexg-anarchi/stewardence-backups/report-objects/20261003T210354.119522Z",
+    "files": [
+      {
+        "file": "0.pdf.age",
+        "sha256": "492791c896217976943a5259a411f647a7b5afbe024afb5c68aa33c57c2dcfc6"
+      },
+      {
+        "file": "1.pdf.age",
+        "sha256": "206d2ec541008ea87eb7aa477309efddaef8626049d75ea9c1a0cc4f1577720b"
+      },
+      {
+        "file": "2.pdf.age",
+        "sha256": "9d4195c979b4f676e97be53b27b19f5974018ac9cdc5e631fea06a3ca1681747"
+      },
+      {
+        "file": "3.pdf.age",
+        "sha256": "f2192dd4dfa68c00dee8d288f58d42ab8eafc9ca143c247c531bddd5c3e7e7cb"
+      },
+      {
+        "file": "4.pdf.age",
+        "sha256": "5d69d45ff97b61ee52c33eb30bef58f0105e31063397541bdc38b9f504b82be1"
+      },
+      {
+        "file": "5.pdf.age",
+        "sha256": "4edb2a7fddb83cfe55a1af8ccf01c2965453cdd2fc54aa6ee2631401341d71b5"
+      },
+      {
+        "file": "manifest.json.age",
+        "sha256": "01070a673b406b31861a3b77da5843b65894ebda19bb9fa612e96545fd592e9d"
+      }
+    ],
+    "key_copied": false
+  },
+  "source_manifest_sha256": "098243a700ec0951d03ad0c3fb0e8385e552b0ce1995fbbc75ad63517fe82a68",
+  "private_key_copied": false,
+  "isolated_network": "none",
+  "target_storage": "private600 tmpfs",
+  "limits": "Existing report objects matched archived ownership/report/snapshot metadata and immutable SHA/size. Does not prove web authorization, full-system tenant replay or device-loss survival; WSL and Windows key share one physical host."
+}

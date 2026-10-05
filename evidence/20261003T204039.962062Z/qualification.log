@@ -1,0 +1,255 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+........................................................................ [  6%]
+........................................................................ [ 12%]
+........................................................................ [ 18%]
+................FF...................................................... [ 25%]
+........................................................................ [ 31%]
+....................................s................................... [ 37%]
+........................................................................ [ 44%]
+........................................................................ [ 50%]
+........................................................................ [ 56%]
+........................................................................ [ 63%]
+........................................................................ [ 69%]
+........................................................................ [ 75%]
+........................................................................ [ 82%]
+........................................................................ [ 88%]
+........................................................................ [ 94%]
+...........................................................              [100%]
+=================================== FAILURES ===================================
+_________________ test_worker_claims_audit_job_and_seals_event _________________
+
+organization = <Organization: Audit Worker Firm>
+
+    def test_worker_claims_audit_job_and_seals_event(
+        organization,
+    ):
+        event = append_audit_event(
+            organization_id=organization.id,
+            event_type="inventory.created",
+            entity_type="inventory_item",
+            entity_id=uuid.uuid4(),
+            data={
+                "monthly_cost": "49.00",
+            },
+            using="app_runtime",
+        )
+    
+        resolver = build_job_handler_resolver(
+            using="worker_runtime",
+        )
+    
+        processed = drain_queue(
+            "audit-worker-1",
+            resolver,
+            using="worker_runtime",
+            max_jobs=1,
+        )
+    
+        assert processed == 1
+    
+        with tenant_transaction(
+            organization.id,
+            using="app_runtime",
+        ):
+            event.refresh_from_db(
+                using="app_runtime",
+            )
+    
+>           block = AuditMerkleBlock.objects.using("app_runtime").get(
+                organization=organization,
+            )
+
+tests/test_audit_job_handler.py:231: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <[ProgrammingError('AgentLedger tenant context is not set\nCONTEXT:  PL/pgSQL function app_private.current_organization_id() line 7 at RAISE') raised in repr()] QuerySet object at 0x762b28dd6390>
+args = (), kwargs = {'organization': <Organization: Audit Worker Firm>}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           apps.audit.models.AuditMerkleBlock.DoesNotExist: AuditMerkleBlock matching query does not exist.
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:635: DoesNotExist
+________________ test_redundant_seal_job_completes_as_safe_noop ________________
+
+organization = <Organization: Audit Worker Firm>
+
+    def test_redundant_seal_job_completes_as_safe_noop(
+        organization,
+    ):
+        event = append_audit_event(
+            organization_id=organization.id,
+            event_type="inventory.created",
+            entity_type="inventory_item",
+            data={},
+            using="app_runtime",
+        )
+    
+        with tenant_transaction(
+            organization.id,
+            using="app_runtime",
+        ):
+            enqueue_job(
+                organization_id=organization.id,
+                job_type=BackgroundJob.Type.AUDIT_BATCH_SEAL,
+                payload={},
+                using="app_runtime",
+            )
+    
+        resolver = build_job_handler_resolver(
+            using="worker_runtime",
+        )
+    
+        processed = drain_queue(
+            "audit-worker-2",
+            resolver,
+            using="worker_runtime",
+            max_jobs=2,
+        )
+    
+        assert processed == 2
+    
+        with tenant_transaction(
+            organization.id,
+            using="app_runtime",
+        ):
+            event.refresh_from_db(
+                using="app_runtime",
+            )
+    
+            block_count = (
+                AuditMerkleBlock.objects.using("app_runtime")
+                .filter(
+                    organization=organization,
+                )
+                .count()
+            )
+    
+>       assert event.node_hash is not None
+E       assert None is not None
+E        +  where None = <AuditEvent: inventory.created dd4bc09e-8734-4f93-b12b-051a7379981b>.node_hash
+
+tests/test_audit_job_handler.py:303: AssertionError
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py: 2 warnings
+tests/test_billing_founder_cancellation_authority.py: 3 warnings
+tests/test_billing_founder_checkout_authority.py: 2 warnings
+tests/test_billing_portal_cancellation.py: 2 warnings
+tests/test_billing_tenant_authority.py: 10 warnings
+tests/test_csv_import.py: 10 warnings
+tests/test_discovery.py: 2 warnings
+tests/test_discovery_reconciliation.py: 2 warnings
+tests/test_inventory.py: 10 warnings
+tests/test_organization_rules.py: 9 warnings
+tests/test_production_security.py: 3 warnings
+tests/test_public_signup.py: 11 warnings
+tests/test_report_history.py: 3 warnings
+tests/test_reports.py: 3 warnings
+tests/test_roi_engine_v2.py: 1 warning
+tests/test_workspaces.py: 9 warnings
+tests/test_core_workflows.py: 1 warning
+tests/test_lyra_authority_findings.py: 1 warning
+tests/test_operations_dashboard.py: 2 warnings
+tests/test_provider_lifecycle.py: 2 warnings
+tests/test_quickbooks_lifecycle.py: 13 warnings
+tests/test_quickbooks_reports.py: 6 warnings
+tests/test_report_artifacts.py: 4 warnings
+tests/test_report_recovery_states.py: 1 warning
+tests/test_workflow_profile_setup.py: 3 warnings
+tests/test_baseline.py: 4 warnings
+tests/test_download.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_audit_job_handler.py::test_worker_claims_audit_job_and_seals_event
+FAILED tests/test_audit_job_handler.py::test_redundant_seal_job_completes_as_safe_noop
+2 failed, 1136 passed, 1 skipped, 120 warnings in 200.16s (0:03:20)

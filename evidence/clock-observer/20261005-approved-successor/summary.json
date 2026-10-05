@@ -1,0 +1,168 @@
+{
+  "schema": "anarchi.clock.observer.v1",
+  "global_before_sha256": "b3ea1a1d24c606067961649abba79255cf78845d6b3c6f6c223a293e1e5d6559",
+  "timex_modes_verified": true,
+  "duration_raw_seconds": 90.03659385000356,
+  "events": 97,
+  "bytes": 12185,
+  "clock_samples": 644,
+  "capped": false,
+  "loss_counters": [
+    {
+      "cpu": "cpu0",
+      "counter": "overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu0",
+      "counter": "commit overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu0",
+      "counter": "dropped events",
+      "value": 0
+    },
+    {
+      "cpu": "cpu1",
+      "counter": "overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu1",
+      "counter": "commit overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu1",
+      "counter": "dropped events",
+      "value": 0
+    },
+    {
+      "cpu": "cpu2",
+      "counter": "overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu2",
+      "counter": "commit overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu2",
+      "counter": "dropped events",
+      "value": 0
+    },
+    {
+      "cpu": "cpu3",
+      "counter": "overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu3",
+      "counter": "commit overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu3",
+      "counter": "dropped events",
+      "value": 0
+    },
+    {
+      "cpu": "cpu4",
+      "counter": "overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu4",
+      "counter": "commit overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu4",
+      "counter": "dropped events",
+      "value": 0
+    },
+    {
+      "cpu": "cpu5",
+      "counter": "overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu5",
+      "counter": "commit overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu5",
+      "counter": "dropped events",
+      "value": 0
+    },
+    {
+      "cpu": "cpu6",
+      "counter": "overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu6",
+      "counter": "commit overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu6",
+      "counter": "dropped events",
+      "value": 0
+    },
+    {
+      "cpu": "cpu7",
+      "counter": "overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu7",
+      "counter": "commit overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu7",
+      "counter": "dropped events",
+      "value": 0
+    },
+    {
+      "cpu": "cpu8",
+      "counter": "overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu8",
+      "counter": "commit overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu8",
+      "counter": "dropped events",
+      "value": 0
+    },
+    {
+      "cpu": "cpu9",
+      "counter": "overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu9",
+      "counter": "commit overrun",
+      "value": 0
+    },
+    {
+      "cpu": "cpu9",
+      "counter": "dropped events",
+      "value": 0
+    }
+  ],
+  "cleanup_errors": [],
+  "private_instance_absent": true,
+  "owned_probe_event_absent": true,
+  "owned_probe_descriptor_absent": true,
+  "global_after_sha256": "b3ea1a1d24c606067961649abba79255cf78845d6b3c6f6c223a293e1e5d6559",
+  "global_state_unchanged": true
+}

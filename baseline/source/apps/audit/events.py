@@ -1,0 +1,28 @@
+from __future__ import annotations
+
+EVENT_INVENTORY_CREATED = "inventory.created"
+EVENT_INVENTORY_CHANGED = "inventory.changed"
+EVENT_DISCOVERY_COMPLETED = "discovery.completed"
+EVENT_RECONCILIATION_ACCEPTED = "reconciliation.accepted"
+EVENT_RULE_CREATED = "rule.created"
+EVENT_RULE_CHANGED = "rule.changed"
+EVENT_ASSESSMENT_COMPLETED = "assessment.completed"
+EVENT_REPORT_GENERATED = "report.generated"
+EVENT_CONNECTOR_CONNECTED = "connector.connected"
+EVENT_CONNECTOR_DISCONNECTED = "connector.disconnected"
+
+
+AUDIT_EVENT_TYPES = frozenset(
+    {
+        EVENT_INVENTORY_CREATED,
+        EVENT_INVENTORY_CHANGED,
+        EVENT_DISCOVERY_COMPLETED,
+        EVENT_RECONCILIATION_ACCEPTED,
+        EVENT_RULE_CREATED,
+        EVENT_RULE_CHANGED,
+        EVENT_ASSESSMENT_COMPLETED,
+        EVENT_REPORT_GENERATED,
+        EVENT_CONNECTOR_CONNECTED,
+        EVENT_CONNECTOR_DISCONNECTED,
+    }
+)

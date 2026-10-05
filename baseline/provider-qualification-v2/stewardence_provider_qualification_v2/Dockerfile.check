@@ -1,0 +1,7 @@
+FROM stewardence-app:4deac945-qbo5-reports
+USER root
+RUN /usr/local/bin/python -m pip install --no-cache-dir --target /opt/testdeps pytest==9.1.1 pytest-django==4.14.0
+COPY --chown=agentledger:agentledger source/ /app/
+ENV PYTHONPATH=/opt/testdeps:/app/src:/app
+USER agentledger
+CMD ["/app/.venv/bin/python", "manage.py", "check"]

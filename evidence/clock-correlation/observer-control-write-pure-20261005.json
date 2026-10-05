@@ -1,0 +1,19 @@
+{
+  "schema": "anarchi.clock.observer.control.qualification.v1",
+  "scope": "synthetic stdlib unittest with mocked OS descriptors; no kernel actions",
+  "passed": 11,
+  "failed": 0,
+  "new_helper_cases": 4,
+  "claims": [
+    "O_WRONLY only, no O_TRUNC or O_APPEND",
+    "one exact bounded command write and no seek",
+    "partial write closes descriptor without retry",
+    "failed write closes descriptor",
+    "multicommand payload rejected before open"
+  ],
+  "prior_actual_failure": "013428 run reported EINVAL before trace start; retain its original receipt",
+  "limitations": [
+    "mocked helper success does not prove installed tracefs command execution",
+    "no observer rerun performed by this lane"
+  ]
+}

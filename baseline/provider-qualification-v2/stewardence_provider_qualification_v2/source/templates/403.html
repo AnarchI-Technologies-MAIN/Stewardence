@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Workspace unavailable — Stewardence{% endblock %}
+
+{% block content %}
+  <section class="card narrow-card">
+    <p class="eyebrow">Access not granted</p>
+    <h1>This workspace is unavailable</h1>
+    <p>{{ exception|default:"You do not have permission to use the selected company workspace." }}</p>
+    <a class="button" href="{% url 'organizations:workspace-selection' %}">Return to your companies</a>
+  </section>
+{% endblock %}

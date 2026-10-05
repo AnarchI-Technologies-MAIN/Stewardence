@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="43.616" timestamp="2026-10-05T06:27:31.952270+00:00" hostname="cd76a8ae3611"><testcase classname="tests.test_run_core_worker_command" name="test_core_worker_command_delivers_report_through_http_renderer" time="42.133"><failure message="apps.reports.models.ReportArtifact.DoesNotExist: ReportArtifact matching query does not exist.">report_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;OrganizationMember: reports@example.com — Report Firm (Owner)&gt;, &lt;InventoryItem: Payroll Assistant&gt;, &lt;AssessmentSnapshot: 2916510b-b18c-4a34-aee8-c2b16a627548 v1&gt;)
+settings = &lt;pytest_django.fixtures.Settings object at 0x7ef333499940&gt;
+
+    @pytest.mark.django_db(transaction=True, databases="__all__")
+    def test_core_worker_command_delivers_report_through_http_renderer(
+        report_context, settings
+    ):
+        import os
+    
+        from django.db import connections
+    
+        from agentledger.tenancy.context import tenant_transaction
+        from apps.jobs.models import BackgroundJob, RecoveryReceipt
+        from apps.jobs.receipts import verify_recovery_receipt
+        from apps.reports.jobs import ensure_report_generation_job
+        from apps.reports.models import ReportArtifact
+        from apps.reports.services import create_report
+        from apps.reports.storage import build_pdf_object_key, build_private_report_storage
+    
+        renderer_url = os.environ.get("STEWARDENCE_HTTP_RENDER_QUALIFICATION_URL")
+        if not renderer_url:
+            pytest.skip("separate HTTP renderer is only enabled by isolated qualification")
+    
+        user, organization, _, _, snapshot = report_context
+        settings.CORE_WORKFLOWS_ENABLED = True
+        settings.REPORT_RENDERER_URL = renderer_url
+        settings.REPORTS_STORAGE_BACKEND = "local"
+        settings.DATABASES["worker_runtime"] = connections.databases[
+            "worker_runtime"
+        ].copy()
+        report = create_report(
+            organization_id=organization.id,
+            assessment_snapshot_id=snapshot.id,
+            created_by_id=user.id,
+        )
+        queued = ensure_report_generation_job(report=report)
+        BackgroundJob.objects.filter(pk=queued.id).update(priority=-100)
+    
+        call_command(
+            "run_core_worker",
+            worker_id="isolated-core-worker",
+            max_jobs=1,
+        )
+    
+        with tenant_transaction(organization.id, using="worker_runtime"):
+            completed = BackgroundJob.objects.using("worker_runtime").get(pk=queued.id)
+            receipts = list(
+                RecoveryReceipt.objects.using("worker_runtime").filter(job=completed)
+            )
+        with tenant_transaction(organization.id, using="owner_runtime"):
+&gt;           artifact = ReportArtifact.objects.using("owner_runtime").get(
+                report_id=report.id
+            )
+
+tests/test_run_core_worker_command.py:121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;QuerySet []&gt;, args = ()
+kwargs = {'report_id': UUID('599d55d6-744d-497c-87eb-c298299c050b')}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+&gt;           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           apps.reports.models.ReportArtifact.DoesNotExist: ReportArtifact matching query does not exist.
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:635: DoesNotExist</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,94 @@
+
+<section class="page-heading download-heading">
+  <p class="eyebrow">StewardSensors for Windows</p>
+  <h1>See what is installed. Decide what it means.</h1>
+  <p>
+    Download one Windows setup executable, run a bounded one-shot observation,
+    review the resulting evidence, then upload it to your Stewardence workspace.
+  </p>
+  <div class="hero-actions">
+    <a class="button button-large" href="{{ release.asset_url }}">
+      Download StewardSensors
+    </a>
+    {% if request.user.is_authenticated and request.organization_id %}
+      <a class="text-link" href="{% url 'inventory:discovery' %}">
+        Upload collected evidence
+      </a>
+    {% endif %}
+  </div>
+</section>
+
+<section class="download-grid">
+  <article class="card">
+    <p class="eyebrow">Available now</p>
+    <h2>{{ release.available_module }}</h2>
+    <p>
+      Reads installed-program name, version, publisher, and standard Windows
+      uninstall-registry location. It does not read documents or secrets,
+      change installed software, or remain running.
+    </p>
+  </article>
+
+  <article class="card">
+    <p class="eyebrow">Evidence boundary</p>
+    <h2>Installation is only an observation</h2>
+    <p>
+      An installed program is not proof of use, a paid subscription, granted
+      permissions, data access, or product capabilities. Stewardence keeps
+      those facts Unknown until specific evidence or a person establishes them.
+    </p>
+  </article>
+</section>
+
+<section class="card release-card">
+  <p class="eyebrow">Versioned release</p>
+  <h2>StewardSensors {{ release.version }}</h2>
+
+  <p>
+    StewardSensors is delivered as a single Windows executable. Its embedded
+    installation profile is cryptographically signed, and the setup process
+    verifies the sensor executable and module manifest before collection runs.
+    No PowerShell script or execution-policy change is required.
+  </p>
+
+  <dl class="release-facts">
+    <div>
+      <dt>Download</dt>
+      <dd>{{ release.asset_name }}</dd>
+    </div>
+    <div>
+      <dt>Setup SHA-256</dt>
+      <dd><code>{{ release.sha256 }}</code></dd>
+    </div>
+    <div>
+      <dt>Embedded sensor SHA-256</dt>
+      <dd><code>{{ release.executable_sha256 }}</code></dd>
+    </div>
+    <div>
+      <dt>Profile SHA-256</dt>
+      <dd><code>{{ release.profile_sha256 }}</code></dd>
+    </div>
+    <div>
+      <dt>Signing key SHA-256</dt>
+      <dd><code>{{ release.public_key_sha256 }}</code></dd>
+    </div>
+  </dl>
+
+  <p class="muted">
+    The installation profile is signed for integrity, but this release does
+    not yet carry a commercial Windows Authenticode publisher certificate.
+    Windows may therefore show an unknown-publisher warning.
+  </p>
+</section>
+
+<section class="card">
+  <p class="eyebrow">Not available in this MVP</p>
+  <h2>Reserved module architecture</h2>
+  <p>
+    The signed manifest reserves these module identities for later versions;
+    this release does not present them as functioning controls.
+  </p>
+  <ul class="module-list">
+    {% for module in post_mvp_modules %}<li>{{ module }}</li>{% endfor %}
+  </ul>
+</section>

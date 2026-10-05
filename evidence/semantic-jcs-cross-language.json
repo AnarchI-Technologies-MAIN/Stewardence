@@ -1,0 +1,15 @@
+{
+  "verified_at": "2026-10-03T20:02:32.828069+00:00",
+  "python": "3.14.7",
+  "node": "v26.7.0",
+  "vectors": 4,
+  "matched": true,
+  "domain": "v1 safe integers/strings/booleans/null/arrays/objects; no float claim",
+  "vector_digests": [
+    "15f8670659a52d624b6365244610bbecdcff165e71b72be0a69ab6d458491901",
+    "2171028ffe625a581552da4bfe7c52ee2e4b8a575ce8b8f898b17085c8fca05d",
+    "4936fb4cf69bd995f67088b70a60584127b1eb8ab8a112afd5c30d2f7b412512",
+    "4f3b39c93cd6194bd730e5fe665dbe87461d1eebbf221dc3a0518517a37dde97"
+  ],
+  "script_sha256": "c63eeef1abba4378577296f0b94fee919a3607c3f4e475b70ee71a6f2060f114"
+}

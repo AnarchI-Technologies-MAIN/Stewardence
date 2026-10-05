@@ -1,0 +1,20 @@
+VISUAL REVIEW: actual factory-resolved Chromium worker delivery PDF.
+Synthetic qualification fixture; actual local storage/readback and completion.
+All six rasterized pages inspected on 2026-10-04. Input PDF remains unchanged.
+
+Pages 1-4: readable legacy assessment presentation; no clipped text, overlap,
+missing glyphs or broken tables observed. Legacy AgentLedger wording and sparse
+metadata page remain unchanged and are outside this scoped pagination repair.
+Page 5: exact frozen pack identity and readable exposure table. The heading is
+'Exposure review of frozen inputs'; text explicitly names the versioned
+core.exposure.declarations.v1 render-time contract, states these questions were
+not selected at freeze, and limits PASS to bounded customer declarations.
+Page 6: 'Frozen owner decisions' heading, introductory evidence boundary and
+first selected card now appear together. Prior heading/card split is repaired
+for this fixture. Original selected statement is readable; unsafe HTML appears
+literally; reference remains unverified. Actual PDF text tests exclude the
+genuinely admitted later event.
+
+No new clipping/overlap/orphan-section issue observed in this six-page fixture.
+This does not close multi-inventory pagination, atlas alignment, live storage,
+worker services, production billing or whole-source release qualification.

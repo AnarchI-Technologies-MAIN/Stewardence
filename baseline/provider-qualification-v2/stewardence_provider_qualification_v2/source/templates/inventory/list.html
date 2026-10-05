@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Software inventory — Stewardence{% endblock %}
+{% block content %}
+  <section class="page-heading heading-row">
+    <div><p class="eyebrow">Software inventory</p><h1>What AI and software does this firm use?</h1><p>Review the tools, who is responsible for them, and what they can access.</p></div>
+    {% if can_write %}<a class="button" href="{% url 'inventory:create' %}">Add software</a>{% endif %}
+  </section>
+  <form class="filter-bar" method="get">
+    <label>Search <input type="search" name="q" value="{{ query }}" placeholder="Name, vendor, owner, or team"></label>
+    <label>Status <select name="status"><option value="">All current statuses</option>{% for value, label in status_choices %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+    <button class="button secondary" type="submit">Apply</button>
+  </form>
+  {% if items %}
+    <div class="inventory-grid">{% for item in items %}<article class="card"><p class="eyebrow">{{ item.get_status_display }}</p><h2><a href="{% url 'inventory:detail' item.id %}">{{ item.display_name }}</a></h2><p>{{ item.vendor_name }}</p><p class="muted">{{ item.department|default:"No team recorded" }} · {{ item.user_count }} user{{ item.user_count|pluralize }}</p><p>{{ item.get_autonomy_level_display }}</p></article>{% endfor %}</div>
+  {% else %}
+    <section class="card narrow-card"><h2>No matching software</h2><p>Add the first item or change the search and status filters.</p></section>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,1 @@
+"""Immutable deterministic assessment snapshots."""

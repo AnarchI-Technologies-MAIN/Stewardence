@@ -1,0 +1,23 @@
+{
+  "synthetic_objects_only": true,
+  "customer_objects_modified": false,
+  "credential_material_printed": false,
+  "production_source_services_modified": false,
+  "cleanup_confirmed": true,
+  "existing_conditional_rejected": true,
+  "original_content_preserved": true,
+  "anonymous_object_status": 403,
+  "concurrent_publish_results": [
+    {
+      "accepted": false,
+      "status": 412
+    },
+    {
+      "accepted": true,
+      "digest": "59e2e1e95db00213c29a6f3e1640d9c604d7355d0bfcb6f0a7fc778c03f2f2df"
+    }
+  ],
+  "single_winner_verified": true,
+  "conditional_storage_qualified": true,
+  "verified_at": "2026-10-03T19:08:47.648859+00:00"
+}

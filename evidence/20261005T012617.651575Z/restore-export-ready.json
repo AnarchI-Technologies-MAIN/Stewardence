@@ -1,0 +1,11 @@
+{
+  "schema": "qualification.local_restore_export_ready.v1",
+  "ram_directory": "/dev/shm/stewardence-restore-export-92d89e32ef2b45d080ef602f0feddf63",
+  "objects": 2,
+  "total_bytes": 189270,
+  "private_manifest_sha256": "0f39afd26d17fd1a0e53b601e57bf028115a0b4e8e9344b6327807ced61cb655",
+  "four_roles_no_bypass": true,
+  "database_issuance": "actual_isolated_synthetic",
+  "production_touched": false,
+  "restore_qualified": false
+}

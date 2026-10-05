@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Set up your organization — Stewardence{% endblock %}
+
+{% block content %}
+  <section class="setup-shell">
+    <header class="setup-header">
+      <div>
+        <p class="eyebrow">Guided setup</p>
+        <h1>Create your organization workspace</h1>
+        <p>
+          We'll get the foundation in place, then Stewardence can
+          take you directly to the part you want to work on first.
+        </p>
+      </div>
+
+      <div class="setup-progress" aria-label="Setup progress">
+        <div class="{% if step >= 1 %}complete{% endif %}">
+          <span>1</span>
+          <small>Organization</small>
+        </div>
+        <div class="{% if step >= 2 %}complete{% endif %}">
+          <span>2</span>
+          <small>Starting point</small>
+        </div>
+        <div class="{% if step >= 3 %}complete{% endif %}">
+          <span>3</span>
+          <small>Review</small>
+        </div>
+      </div>
+    </header>
+
+    <section class="card setup-card">
+      {% if step == 1 %}
+        <p class="card-kicker">Step 1 of 3</p>
+        <h2>Tell us who this workspace belongs to.</h2>
+        <p class="muted">
+          You will become the owner of this organization workspace.
+        </p>
+
+        <form method="post" class="stack-form">
+          {% csrf_token %}
+
+          <div class="field">
+            <label for="{{ form.name.id_for_label }}">Organization name</label>
+            {{ form.name }}
+            {{ form.name.errors }}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.industry.id_for_label }}">Industry</label>
+            {{ form.industry }}
+            {{ form.industry.errors }}
+          </div>
+
+          <div class="setup-actions">
+            <button class="button" type="submit">
+              Continue
+            </button>
+          </div>
+        </form>
+      {% endif %}
+
+      {% if step == 2 %}
+        <p class="card-kicker">Step 2 of 3</p>
+        <h2>How do you want to begin?</h2>
+        <p class="muted">
+          {{ organization_name }} can start with existing inventory
+          or build it gradually.
+        </p>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="choice-grid">
+            {% for radio in form.start_choice %}
+              <label class="choice-card" for="{{ radio.id_for_label }}">
+                {{ radio.tag }}
+
+                <span>
+                  <strong>{{ radio.choice_label }}</strong>
+
+                  {% if radio.choice_value == "import_csv" %}
+                    <small>
+                      Best when you already have a spreadsheet or system list.
+                    </small>
+                  {% endif %}
+
+                  {% if radio.choice_value == "manual" %}
+                    <small>
+                      Add systems, workflows, and automations one at a time, including AI-enabled tools.
+                    </small>
+                  {% endif %}
+
+                  {% if radio.choice_value == "explore" %}
+                    <small>
+                      Enter the workspace first and decide from there.
+                    </small>
+                  {% endif %}
+                </span>
+              </label>
+            {% endfor %}
+          </div>
+
+          {{ form.start_choice.errors }}
+
+          <div class="setup-actions split-actions">
+            <a class="button button-outline" href="{% url 'organizations:setup' %}">
+              Back
+            </a>
+            <button class="button" type="submit">
+              Review setup
+            </button>
+          </div>
+        </form>
+      {% endif %}
+
+      {% if step == 3 %}
+        <p class="card-kicker">Step 3 of 3</p>
+        <h2>Everything look right?</h2>
+
+        <div class="review-panel">
+          <div>
+            <span>Organization</span>
+            <strong>{{ organization_name }}</strong>
+          </div>
+
+          <div>
+            <span>Industry</span>
+            <strong>{{ industry_label }}</strong>
+          </div>
+
+          <div>
+            <span>Starting point</span>
+            <strong>{{ start_label }}</strong>
+          </div>
+
+          <div>
+            <span>Your role</span>
+            <strong>Owner</strong>
+          </div>
+        </div>
+
+        <div class="security-callout">
+          <strong>Your workspace boundary starts here.</strong>
+          <p>
+            Your membership determines access. Knowing another
+            organization's identifiers does not grant access to its workspace.
+          </p>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="setup-actions split-actions">
+            <a class="button button-outline" href="{% url 'organizations:setup-start' %}">
+              Back
+            </a>
+
+            <button class="button" type="submit">
+              Create workspace
+            </button>
+          </div>
+        </form>
+      {% endif %}
+    </section>
+  </section>
+{% endblock %}

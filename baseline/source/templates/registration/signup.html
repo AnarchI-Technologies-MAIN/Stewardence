@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Create account — Stewardence{% endblock %}
+
+{% block public_content %}
+  <section class="auth-layout">
+    <div class="auth-story">
+      <p class="eyebrow eyebrow-light">Start with clarity</p>
+      <h1>Your AI inventory should tell you something useful.</h1>
+      <p>
+        Create an account, set up your organization, and choose how
+        you want to begin. No invitation required.
+      </p>
+
+      <ol class="journey-list">
+        <li>
+          <span>1</span>
+          <div>
+            <strong>Create your account</strong>
+            <small>Your login credentials remain yours.</small>
+          </div>
+        </li>
+        <li>
+          <span>2</span>
+          <div>
+            <strong>Set up your organization</strong>
+            <small>You become the workspace owner.</small>
+          </div>
+        </li>
+        <li>
+          <span>3</span>
+          <div>
+            <strong>Choose where to start</strong>
+            <small>Import, add manually, or explore.</small>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <section class="auth-card auth-card-wide">
+      <div class="auth-card-heading">
+        <p class="eyebrow">Create account</p>
+        <h2>Build your Stewardence workspace</h2>
+        <p>This takes about a minute.</p>
+      </div>
+
+      <form method="post" class="stack-form">
+        {% csrf_token %}
+        {{ form.website }}
+
+        {% if form.non_field_errors %}
+          <div class="error-panel" role="alert">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="form-grid-two">
+          <div class="field">
+            <label for="{{ form.first_name.id_for_label }}">First name</label>
+            {{ form.first_name }}
+            {{ form.first_name.errors }}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.last_name.id_for_label }}">Last name</label>
+            {{ form.last_name }}
+            {{ form.last_name.errors }}
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="{{ form.email.id_for_label }}">Work email</label>
+          {{ form.email }}
+          {{ form.email.errors }}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.password1.id_for_label }}">Password</label>
+          {{ form.password1 }}
+          {{ form.password1.errors }}
+
+          {% if form.password1.help_text %}
+            <div class="password-help">
+              {{ form.password1.help_text|safe }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+          {{ form.password2 }}
+          {{ form.password2.errors }}
+        </div>
+
+        <button class="button button-full" type="submit">
+          Continue to organization setup
+        </button>
+      </form>
+
+      <p class="auth-footer-text">
+        Already have an account?
+        <a href="{% url 'accounts:login' %}">Log in</a>
+      </p>
+    </section>
+  </section>
+{% endblock %}

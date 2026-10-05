@@ -1,0 +1,20 @@
+{
+  "exit_code": 1,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-e158382c96",
+  "image_id": "sha256:67b3191c51492823d840ea37b7593c747900cb721aa1ec95a061f1e61fcdee84",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T191253.018614Z",
+  "test_arguments": [
+    "tests/test_paid_workflow_boundary.py",
+    "tests/test_core_workflows.py",
+    "tests/test_core_authority_successor.py"
+  ],
+  "test_result_counts": {
+    "cases": 59,
+    "failed": 0,
+    "errors": 59,
+    "skipped": 0
+  },
+  "test_results_sha256": "c569c71535de8a721e193cd31924a6db87617c29483f2a201d9ddb23eb056014"
+}

@@ -1,0 +1,21 @@
+{
+  "count": 20,
+  "elapsed_min": 3.054979867010843,
+  "elapsed_max": 15.627885749039706,
+  "elapsed_total": 156.72129682608647,
+  "pdf_bytes": [
+    361131
+  ],
+  "pdf_hashes": [
+    "3e6226926ffdf623c6bb7a81b639ba7d8b802de6a9c9931b8cf864e01f2e715d"
+  ],
+  "all_full_note_refs": true,
+  "zero_zombies": true,
+  "peak_memory_bytes": 367906816,
+  "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "payload_bytes": 353472,
+  "payload_sha256": "dbe2babf6b1c868ba1b02c73b612c1113766994348e73c2bda28693dabac88e7",
+  "image": "sha256:afd7c85b5339b47489a927c86dd036f893bc54d2e9c602dffcf1bc3edc292f1a",
+  "renderer_only": true,
+  "concurrency": 1
+}

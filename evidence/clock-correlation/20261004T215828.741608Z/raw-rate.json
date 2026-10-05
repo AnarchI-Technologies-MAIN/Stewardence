@@ -1,0 +1,6 @@
+{
+  "image": "sha256:afd7c85b5339b47489a927c86dd036f893bc54d2e9c602dffcf1bc3edc292f1a",
+  "exit_code": 0,
+  "stdout": "{\"samples\": 1176, \"backsteps\": [{\"wall_before_ns\": 1791151147946606237, \"wall_after_ns\": 1791151147397517326, \"monotonic_delta_ns\": 52435373, \"raw_delta_ns\": 49793598, \"residual_ns\": -601524284}, {\"wall_before_ns\": 1791151148130660728, \"wall_after_ns\": 1791151147186300873, \"monotonic_delta_ns\": 84539777, \"raw_delta_ns\": 80282063, \"residual_ns\": -1028899632}, {\"wall_before_ns\": 1791151176570537480, \"wall_after_ns\": 1791151176231087201, \"monotonic_delta_ns\": 152364925, \"raw_delta_ns\": 144383684, \"residual_ns\": -491815204}, {\"wall_before_ns\": 1791151176490302575, \"wall_after_ns\": 1791151175567038031, \"monotonic_delta_ns\": 74779179, \"raw_delta_ns\": 70860619, \"residual_ns\": -998043723}], \"monotonic_raw_rate_ratio\": 1.0550526407334118, \"realtime_raw_rate_ratio_without_steps\": 1.055072352263396, \"elapsed_monotonic_seconds\": 64.01712452701759}\n",
+  "stderr": ""
+}

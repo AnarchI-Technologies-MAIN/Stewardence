@@ -1,0 +1,874 @@
+{
+  "context_version": "AL-REVIEW-PACK-CONTEXT-1",
+  "title": "Frozen AI Evidence Review Pack",
+  "metadata": {
+    "report_identifier": "AL-2026-000024",
+    "organization_display_name": "Report Firm",
+    "assessment_date": "2026-09-03T12:00:00Z",
+    "assessment_id": "961be9eb-ca25-47f2-98f0-a4d580b335ea",
+    "assessment_version": 1,
+    "assessment_snapshot_id": "d539e296-750d-487c-a2b3-fb9adda148ef",
+    "input_sha256": "6e988e81b3f89de2ccda97ad70df8be9a9950abbc063920ff43f5d560028b289",
+    "result_sha256": "b18003445ec1b107d5d0c3866aefb0d166c51dd5f380f1d6004b53e83be3ef03"
+  },
+  "executive_summary": {
+    "inventory_count": 1,
+    "highest_individual_risk": {
+      "score": 75,
+      "band": "Critical",
+      "tool_name": "Payroll Assistant"
+    },
+    "monthly_spend": "100.00",
+    "monthly_spend_display": "$100.00 known",
+    "unknown_monthly_cost_count": 0,
+    "monthly_net_value": "600.00",
+    "finding_count": 5
+  },
+  "inventory": [
+    {
+      "id": "5d6ee0e9-e024-4dd9-953e-4baceef50409",
+      "status": "reviewing",
+      "department": "Bookkeeping",
+      "product_id": null,
+      "provenance": {
+        "status": "Declared",
+        "department": "Declared",
+        "product_id": "Unknown",
+        "seat_count": "Declared",
+        "user_count": "Declared",
+        "permissions": "Declared",
+        "source_type": "Declared",
+        "vendor_name": "Declared",
+        "capabilities": "Declared",
+        "display_name": "Declared",
+        "autonomy_level": "Declared",
+        "business_owner": "Declared",
+        "human_approval": "Declared",
+        "data_categories": "Declared",
+        "business_purpose": "Declared",
+        "connected_systems": "Declared",
+        "monthly_cost_cents": "Declared"
+      },
+      "seat_count": 0,
+      "user_count": 0,
+      "archived_at": null,
+      "permissions": [],
+      "source_type": "manual",
+      "vendor_name": "Example Vendor",
+      "capabilities": [
+        "external_transfer"
+      ],
+      "display_name": "Payroll Assistant",
+      "autonomy_level": 0,
+      "business_owner": "",
+      "human_approval": false,
+      "data_categories": [
+        "payroll"
+      ],
+      "business_purpose": "",
+      "connected_systems": [],
+      "monthly_cost_cents": 10000,
+      "monthly_cost": "100.00",
+      "monthly_cost_display": "$100.00",
+      "risk": {
+        "band": "Critical",
+        "score": 75,
+        "dimensions": [
+          {
+            "score": 25,
+            "dimension": "data_sensitivity",
+            "raw_points": 25,
+            "weight_percent": 20,
+            "weighted_points": "5"
+          },
+          {
+            "score": 0,
+            "dimension": "system_privilege",
+            "raw_points": 0,
+            "weight_percent": 20,
+            "weighted_points": "0"
+          },
+          {
+            "score": 0,
+            "dimension": "autonomy",
+            "raw_points": 0,
+            "weight_percent": 15,
+            "weighted_points": "0"
+          },
+          {
+            "score": 0,
+            "dimension": "external_connectivity",
+            "raw_points": 0,
+            "weight_percent": 15,
+            "weighted_points": "0"
+          },
+          {
+            "score": 0,
+            "dimension": "human_oversight",
+            "raw_points": 0,
+            "weight_percent": 10,
+            "weighted_points": "0"
+          },
+          {
+            "score": 0,
+            "dimension": "financial_impact",
+            "raw_points": 0,
+            "weight_percent": 10,
+            "weighted_points": "0"
+          },
+          {
+            "score": 10,
+            "dimension": "regulatory_relevance",
+            "raw_points": 10,
+            "weight_percent": 5,
+            "weighted_points": "0.5"
+          },
+          {
+            "score": 25,
+            "dimension": "vendor_risk",
+            "raw_points": 25,
+            "weight_percent": 5,
+            "weighted_points": "1.25"
+          }
+        ],
+        "provenance": "Calculated",
+        "contributions": [
+          {
+            "points": 25,
+            "reason": "This software can access payroll information and send information outside the firm.",
+            "rule_id": "ACC-PAYROLL-EXT",
+            "dimension": "data_sensitivity",
+            "rule_version": "1.1.0"
+          },
+          {
+            "points": 10,
+            "reason": "The firm has not recorded how long this software keeps its data.",
+            "rule_id": "ACC-RETENTION-UNKNOWN",
+            "dimension": "regulatory_relevance",
+            "rule_version": "1.1.0"
+          },
+          {
+            "points": 10,
+            "reason": "The firm has not recorded whether the vendor uses customer data to train models.",
+            "rule_id": "ACC-TRAINING-BEHAVIOR-UNKNOWN",
+            "dimension": "vendor_risk",
+            "rule_version": "1.1.0"
+          },
+          {
+            "points": 15,
+            "reason": "The vendor review is incomplete, so the firm's review of this software is not yet documented.",
+            "rule_id": "ACC-VENDOR-REVIEW-INCOMPLETE",
+            "dimension": "vendor_risk",
+            "rule_version": "1.1.0"
+          }
+        ],
+        "engine_version": "AL-RISK-1",
+        "severity_floor": "Critical",
+        "raw_weighted_score": "6.75",
+        "configuration_version": "AL-RISK-1"
+      }
+    }
+  ],
+  "risk_overview": {
+    "highest_individual_risk": {
+      "score": 75,
+      "band": "Critical",
+      "tool_name": "Payroll Assistant"
+    },
+    "counts_by_band": {
+      "Low": 0,
+      "Moderate": 0,
+      "High": 0,
+      "Critical": 1
+    }
+  },
+  "individual_risk_findings": [
+    {
+      "inventory_item_id": "5d6ee0e9-e024-4dd9-953e-4baceef50409",
+      "band": "Critical",
+      "score": 75,
+      "dimensions": [
+        {
+          "score": 25,
+          "dimension": "data_sensitivity",
+          "raw_points": 25,
+          "weight_percent": 20,
+          "weighted_points": "5"
+        },
+        {
+          "score": 0,
+          "dimension": "system_privilege",
+          "raw_points": 0,
+          "weight_percent": 20,
+          "weighted_points": "0"
+        },
+        {
+          "score": 0,
+          "dimension": "autonomy",
+          "raw_points": 0,
+          "weight_percent": 15,
+          "weighted_points": "0"
+        },
+        {
+          "score": 0,
+          "dimension": "external_connectivity",
+          "raw_points": 0,
+          "weight_percent": 15,
+          "weighted_points": "0"
+        },
+        {
+          "score": 0,
+          "dimension": "human_oversight",
+          "raw_points": 0,
+          "weight_percent": 10,
+          "weighted_points": "0"
+        },
+        {
+          "score": 0,
+          "dimension": "financial_impact",
+          "raw_points": 0,
+          "weight_percent": 10,
+          "weighted_points": "0"
+        },
+        {
+          "score": 10,
+          "dimension": "regulatory_relevance",
+          "raw_points": 10,
+          "weight_percent": 5,
+          "weighted_points": "0.5"
+        },
+        {
+          "score": 25,
+          "dimension": "vendor_risk",
+          "raw_points": 25,
+          "weight_percent": 5,
+          "weighted_points": "1.25"
+        }
+      ],
+      "provenance": "Calculated",
+      "contributions": [
+        {
+          "points": 25,
+          "reason": "This software can access payroll information and send information outside the firm.",
+          "rule_id": "ACC-PAYROLL-EXT",
+          "dimension": "data_sensitivity",
+          "rule_version": "1.1.0"
+        },
+        {
+          "points": 10,
+          "reason": "The firm has not recorded how long this software keeps its data.",
+          "rule_id": "ACC-RETENTION-UNKNOWN",
+          "dimension": "regulatory_relevance",
+          "rule_version": "1.1.0"
+        },
+        {
+          "points": 10,
+          "reason": "The firm has not recorded whether the vendor uses customer data to train models.",
+          "rule_id": "ACC-TRAINING-BEHAVIOR-UNKNOWN",
+          "dimension": "vendor_risk",
+          "rule_version": "1.1.0"
+        },
+        {
+          "points": 15,
+          "reason": "The vendor review is incomplete, so the firm's review of this software is not yet documented.",
+          "rule_id": "ACC-VENDOR-REVIEW-INCOMPLETE",
+          "dimension": "vendor_risk",
+          "rule_version": "1.1.0"
+        }
+      ],
+      "engine_version": "AL-RISK-1",
+      "severity_floor": "Critical",
+      "raw_weighted_score": "6.75",
+      "configuration_version": "AL-RISK-1"
+    }
+  ],
+  "policy_findings": [
+    {
+      "result": "FAIL",
+      "effects": [
+        {
+          "type": "risk_points",
+          "value": 25,
+          "control": null,
+          "message": null,
+          "dimension": "data_sensitivity"
+        },
+        {
+          "type": "require_control",
+          "value": null,
+          "control": "human_approval",
+          "message": null,
+          "dimension": null
+        },
+        {
+          "type": "severity_floor",
+          "value": "HIGH",
+          "control": null,
+          "message": null,
+          "dimension": null
+        }
+      ],
+      "rule_id": "ACC-PAYROLL-EXT",
+      "evidence": [
+        {
+          "field": "data_categories",
+          "value": [
+            "payroll"
+          ]
+        },
+        {
+          "field": "capabilities",
+          "value": [
+            "external_transfer"
+          ]
+        }
+      ],
+      "severity": "HIGH",
+      "explanation": "This software can access payroll information and send information outside the firm.",
+      "rule_version": "1.1.0",
+      "recommended_remediation": "Document and configure a human approval step in the source system or business process before payroll information is sent.",
+      "inventory_item_id": "5d6ee0e9-e024-4dd9-953e-4baceef50409",
+      "tool_name": "Payroll Assistant"
+    },
+    {
+      "result": "FAIL",
+      "effects": [
+        {
+          "type": "severity_floor",
+          "value": "CRITICAL",
+          "control": null,
+          "message": null,
+          "dimension": null
+        }
+      ],
+      "rule_id": "ACC-PAYROLL-EXT-NO-APPROVAL",
+      "evidence": [
+        {
+          "field": "data_categories",
+          "value": [
+            "payroll"
+          ]
+        },
+        {
+          "field": "capabilities",
+          "value": [
+            "external_transfer"
+          ]
+        },
+        {
+          "field": "human_approval",
+          "value": false
+        }
+      ],
+      "severity": "CRITICAL",
+      "explanation": "Payroll information can leave the firm without a recorded human approval step.",
+      "rule_version": "1.1.0",
+      "recommended_remediation": "Add an approval step in the source application or operating procedure, then record that step in AgentLedger.",
+      "inventory_item_id": "5d6ee0e9-e024-4dd9-953e-4baceef50409",
+      "tool_name": "Payroll Assistant"
+    },
+    {
+      "result": "WARNING",
+      "effects": [
+        {
+          "type": "risk_points",
+          "value": 10,
+          "control": null,
+          "message": null,
+          "dimension": "regulatory_relevance"
+        },
+        {
+          "type": "recommend_review",
+          "value": null,
+          "control": null,
+          "message": "Confirm the retention terms.",
+          "dimension": null
+        }
+      ],
+      "rule_id": "ACC-RETENTION-UNKNOWN",
+      "evidence": [
+        {
+          "field": "retention_status",
+          "value": "unknown"
+        }
+      ],
+      "severity": "MODERATE",
+      "explanation": "The firm has not recorded how long this software keeps its data.",
+      "rule_version": "1.1.0",
+      "recommended_remediation": "Confirm the vendor's retention and deletion terms and record the review.",
+      "inventory_item_id": "5d6ee0e9-e024-4dd9-953e-4baceef50409",
+      "tool_name": "Payroll Assistant"
+    },
+    {
+      "result": "WARNING",
+      "effects": [
+        {
+          "type": "risk_points",
+          "value": 10,
+          "control": null,
+          "message": null,
+          "dimension": "vendor_risk"
+        },
+        {
+          "type": "recommend_review",
+          "value": null,
+          "control": null,
+          "message": "Confirm whether customer data is used for training.",
+          "dimension": null
+        }
+      ],
+      "rule_id": "ACC-TRAINING-BEHAVIOR-UNKNOWN",
+      "evidence": [
+        {
+          "field": "training_behavior",
+          "value": "unknown"
+        }
+      ],
+      "severity": "MODERATE",
+      "explanation": "The firm has not recorded whether the vendor uses customer data to train models.",
+      "rule_version": "1.1.0",
+      "recommended_remediation": "Confirm the vendor's model-training terms and record whether firm or client data is used.",
+      "inventory_item_id": "5d6ee0e9-e024-4dd9-953e-4baceef50409",
+      "tool_name": "Payroll Assistant"
+    },
+    {
+      "result": "WARNING",
+      "effects": [
+        {
+          "type": "risk_points",
+          "value": 15,
+          "control": null,
+          "message": null,
+          "dimension": "vendor_risk"
+        },
+        {
+          "type": "recommend_review",
+          "value": null,
+          "control": null,
+          "message": "Complete the vendor review.",
+          "dimension": null
+        }
+      ],
+      "rule_id": "ACC-VENDOR-REVIEW-INCOMPLETE",
+      "evidence": [
+        {
+          "field": "vendor_review_status",
+          "value": "incomplete"
+        }
+      ],
+      "severity": "MODERATE",
+      "explanation": "The vendor review is incomplete, so the firm's review of this software is not yet documented.",
+      "rule_version": "1.1.0",
+      "recommended_remediation": "Complete and record the vendor review, including data handling, security, and contract terms.",
+      "inventory_item_id": "5d6ee0e9-e024-4dd9-953e-4baceef50409",
+      "tool_name": "Payroll Assistant"
+    }
+  ],
+  "recommendations": [
+    {
+      "tool_name": "Payroll Assistant",
+      "remediation": "Document and configure a human approval step in the source system or business process before payroll information is sent.",
+      "severity": "HIGH"
+    },
+    {
+      "tool_name": "Payroll Assistant",
+      "remediation": "Add an approval step in the source application or operating procedure, then record that step in AgentLedger.",
+      "severity": "CRITICAL"
+    },
+    {
+      "tool_name": "Payroll Assistant",
+      "remediation": "Confirm the vendor's retention and deletion terms and record the review.",
+      "severity": "MODERATE"
+    },
+    {
+      "tool_name": "Payroll Assistant",
+      "remediation": "Confirm the vendor's model-training terms and record whether firm or client data is used.",
+      "severity": "MODERATE"
+    },
+    {
+      "tool_name": "Payroll Assistant",
+      "remediation": "Complete and record the vendor review, including data handling, security, and contract terms.",
+      "severity": "MODERATE"
+    }
+  ],
+  "ai_expenditure": {
+    "monthly_total": "100.00",
+    "monthly_total_display": "$100.00 known",
+    "unknown_monthly_cost_count": 0,
+    "items": [
+      {
+        "tool_name": "Payroll Assistant",
+        "monthly_cost": "100.00",
+        "monthly_cost_display": "$100.00",
+        "provenance": "Declared"
+      }
+    ]
+  },
+  "roi": {
+    "assessed_item_id": "5d6ee0e9-e024-4dd9-953e-4baceef50409",
+    "assumptions": {
+      "loaded_hourly_rate": {
+        "value": "50.00",
+        "provenance": "Customer supplied",
+        "provenance_class": "Declared"
+      },
+      "implementation_cost": {
+        "value": "1200.00",
+        "provenance": "Customer supplied",
+        "provenance_class": "Declared"
+      },
+      "attributable_revenue": {
+        "value": "200.00",
+        "provenance": "Estimated",
+        "provenance_class": "Declared"
+      },
+      "avoided_monthly_cost": {
+        "value": "100.00",
+        "provenance": "Measured",
+        "provenance_class": "Declared"
+      },
+      "hours_saved_per_month": {
+        "value": "10.00",
+        "provenance": "Measured",
+        "provenance_class": "Declared"
+      },
+      "monthly_subscription_cost": {
+        "value": "100.00",
+        "provenance": "Customer supplied",
+        "provenance_class": "Declared"
+      },
+      "implementation_amortization_months": {
+        "value": "12",
+        "provenance": "Estimated",
+        "provenance_class": "Declared"
+      }
+    },
+    "result": {
+      "arithmetic": [
+        "Monthly labor value: 10.00 hours \u00d7 $50.00 = $500.00",
+        "Monthly value: $500.00 labor + $200.00 revenue + $100.00 avoided cost = $800.00",
+        "Monthly implementation cost: $1200.00 \u00f7 12 months = $100.00",
+        "Monthly total cost: $100.00 subscription + $100.00 implementation = $200.00",
+        "Monthly net value: $800.00 value - $200.00 cost = $600.00",
+        "ROI: $600.00 \u00f7 $200.00 \u00d7 100 = 300.00%"
+      ],
+      "provenance": "Calculated",
+      "roi_percent": "300.00",
+      "monthly_value": "800.00",
+      "engine_version": "AL-ROI-1",
+      "monthly_net_value": "600.00",
+      "monthly_total_cost": "200.00",
+      "monthly_labor_value": "500.00",
+      "amortized_implementation_cost": "100.00"
+    }
+  },
+  "methodology": {
+    "summary": "Deterministic policy, risk, and ROI engines evaluated the immutable assessment snapshot. No language model determined assessment results.",
+    "snapshot_schema_version": 1,
+    "report_context_version": "AL-REPORT-CONTEXT-2",
+    "engine_versions": {
+      "roi": "AL-ROI-1",
+      "risk": "AL-RISK-1",
+      "policy": "AL-POLICY-1"
+    },
+    "risk_configuration": {
+      "version": "AL-RISK-1",
+      "weights": [
+        {
+          "percent": 20,
+          "dimension": "data_sensitivity"
+        },
+        {
+          "percent": 20,
+          "dimension": "system_privilege"
+        },
+        {
+          "percent": 15,
+          "dimension": "autonomy"
+        },
+        {
+          "percent": 15,
+          "dimension": "external_connectivity"
+        },
+        {
+          "percent": 10,
+          "dimension": "human_oversight"
+        },
+        {
+          "percent": 10,
+          "dimension": "financial_impact"
+        },
+        {
+          "percent": 5,
+          "dimension": "regulatory_relevance"
+        },
+        {
+          "percent": 5,
+          "dimension": "vendor_risk"
+        }
+      ]
+    },
+    "provenance_legend": {
+      "Observed": "Reported directly by bounded Collector evidence.",
+      "Declared": "Provided or confirmed by a person or imported file.",
+      "Catalog-derived": "Exact result from versioned catalog metadata.",
+      "Calculated": "Produced by deterministic Stewardence engines.",
+      "Unknown": "Not established by the captured evidence."
+    },
+    "evidence_boundary": "Installed software does not establish business use, a paid subscription, granted permissions, data access, or capabilities. Catalog capabilities are not treated as observed permissions."
+  },
+  "evidence": [
+    {
+      "type": "customer_statement",
+      "reference": "EVIDENCE-1",
+      "provenance": "Declared"
+    }
+  ],
+  "assessment_date": "2026-09-03T12:00:00Z",
+  "ruleset_versions": {
+    "industry": {
+      "name": "accounting_and_bookkeeping",
+      "version": "1.1.0"
+    },
+    "platform": "not_published",
+    "organization": []
+  },
+  "review_pack": {
+    "schema": "stewardence.review_pack_render.v1",
+    "pack_id": "28721786-890b-4cf9-a4e0-dd7f3cd48535",
+    "manifest_sha256": "fbc0453a6af97526c2305dcadcf9bb0b865f766e52aa36e2bc24e354742ffb17",
+    "manifest": {
+      "schema": "stewardence.review_pack.v2",
+      "cycle_id": "d92b298f-c29b-47ff-ad92-a416977f7b25",
+      "snapshot": {
+        "captured_at": "2026-09-03T12:00:00Z",
+        "snapshot_id": "d539e296-750d-487c-a2b3-fb9adda148ef",
+        "input_sha256": "6e988e81b3f89de2ccda97ad70df8be9a9950abbc063920ff43f5d560028b289",
+        "rules_sha256": "4f062ba2498cf1a9234d3d110e8a07baa92bb2c03859156fed795ee7102a4683",
+        "assessment_id": "961be9eb-ca25-47f2-98f0-a4d580b335ea",
+        "result_sha256": "b18003445ec1b107d5d0c3866aefb0d166c51dd5f380f1d6004b53e83be3ef03",
+        "engine_versions": {
+          "roi": "AL-ROI-1",
+          "risk": "AL-RISK-1",
+          "policy": "AL-POLICY-1"
+        },
+        "snapshot_schema": 1,
+        "workflow_profile": "business.v1",
+        "assessment_version": 1,
+        "workflow_profile_id": "700052b9-1475-4129-ac1a-c97324bb5a61",
+        "configuration_sha256": "6e754b28c21ac2863ea0c8d7cfb38f5bbeb7dd36d8b7dcda4954e852ef3e40ab",
+        "workflow_settings_sha256": "793bbc0570cf07b6ec36b807f6c5e49b33bbb1681d458fa068080b351996c164"
+      },
+      "artifact_state": "not_created",
+      "organization_id": "a3c5ae3f-c79a-4783-bf94-169ba3c719bd",
+      "selection_scope": "owner_statement_events",
+      "baseline_pack_id": null,
+      "baseline_promotion": "blocked",
+      "selected_decisions": [
+        {
+          "state": "act",
+          "event_id": "389339f1-3539-4ff1-8054-2fbb67ac36f0",
+          "card_index": 0,
+          "event_kind": "disposition",
+          "card_sha256": "c892eb07ded62420b0173434605286c52a08c0e42de7adcd3adb89fc6e9f63e1",
+          "revision_id": "ca7849ed-6250-44b1-87d1-540116827524",
+          "snapshot_id": "d539e296-750d-487c-a2b3-fb9adda148ef",
+          "event_sha256": "195705770e6ab483698b8b56380202b5dc73ba9d96d7990835f3260536ef86c3",
+          "revision_sha256": "331890e6b20201ae92db12b5e543a93bb66d487ac848ac3271fefb500a373538",
+          "resolution_verified": false,
+          "owner_statement_only": true,
+          "snapshot_result_sha256": "b18003445ec1b107d5d0c3866aefb0d166c51dd5f380f1d6004b53e83be3ef03"
+        }
+      ]
+    },
+    "selected_decisions": [
+      {
+        "payload": {
+          "id": "389339f1-3539-4ff1-8054-2fbb67ac36f0",
+          "links": [
+            "https://example.invalid/never-fetch"
+          ],
+          "notes": "<script>UNSAFE_MARKER</script>",
+          "state": "act",
+          "schema": "stewardence.core_decision_event.v1",
+          "due_date": null,
+          "sequence": 1,
+          "card_index": 0,
+          "created_at": "2026-10-04T22:12:31.580163+00:00",
+          "event_kind": "disposition",
+          "card_sha256": "c892eb07ded62420b0173434605286c52a08c0e42de7adcd3adb89fc6e9f63e1",
+          "revision_id": "ca7849ed-6250-44b1-87d1-540116827524",
+          "snapshot_id": "d539e296-750d-487c-a2b3-fb9adda148ef",
+          "created_by_id": "27edb91c-48b3-47af-a6b1-56ea886e6fa4",
+          "organization_id": "a3c5ae3f-c79a-4783-bf94-169ba3c719bd",
+          "revision_sha256": "331890e6b20201ae92db12b5e543a93bb66d487ac848ac3271fefb500a373538",
+          "previous_event_id": null,
+          "responsible_label": "Named owner",
+          "resolution_verified": false,
+          "owner_statement_only": true,
+          "snapshot_result_sha256": "b18003445ec1b107d5d0c3866aefb0d166c51dd5f380f1d6004b53e83be3ef03"
+        },
+        "proposal": {
+          "rule_id": "ACC-PAYROLL-EXT",
+          "proposal": "Document and configure a human approval step in the source system or business process before payroll information is sent.",
+          "severity": "HIGH",
+          "authority": "proposal_only",
+          "rule_version": "1.1.0",
+          "inventory_item_id": "5d6ee0e9-e024-4dd9-953e-4baceef50409"
+        },
+        "selection": {
+          "state": "act",
+          "event_id": "389339f1-3539-4ff1-8054-2fbb67ac36f0",
+          "card_index": 0,
+          "event_kind": "disposition",
+          "card_sha256": "c892eb07ded62420b0173434605286c52a08c0e42de7adcd3adb89fc6e9f63e1",
+          "revision_id": "ca7849ed-6250-44b1-87d1-540116827524",
+          "snapshot_id": "d539e296-750d-487c-a2b3-fb9adda148ef",
+          "event_sha256": "195705770e6ab483698b8b56380202b5dc73ba9d96d7990835f3260536ef86c3",
+          "revision_sha256": "331890e6b20201ae92db12b5e543a93bb66d487ac848ac3271fefb500a373538",
+          "resolution_verified": false,
+          "owner_statement_only": true,
+          "snapshot_result_sha256": "b18003445ec1b107d5d0c3866aefb0d166c51dd5f380f1d6004b53e83be3ef03"
+        },
+        "event_sha256": "195705770e6ab483698b8b56380202b5dc73ba9d96d7990835f3260536ef86c3"
+      }
+    ],
+    "exposure_reviews": [
+      {
+        "source_record": {
+          "id": "5d6ee0e9-e024-4dd9-953e-4baceef50409",
+          "status": "reviewing",
+          "department": "Bookkeeping",
+          "product_id": null,
+          "provenance": {
+            "status": "Declared",
+            "department": "Declared",
+            "product_id": "Unknown",
+            "seat_count": "Declared",
+            "user_count": "Declared",
+            "permissions": "Declared",
+            "source_type": "Declared",
+            "vendor_name": "Declared",
+            "capabilities": "Declared",
+            "display_name": "Declared",
+            "autonomy_level": "Declared",
+            "business_owner": "Declared",
+            "human_approval": "Declared",
+            "data_categories": "Declared",
+            "business_purpose": "Declared",
+            "connected_systems": "Declared",
+            "monthly_cost_cents": "Declared"
+          },
+          "seat_count": 0,
+          "user_count": 0,
+          "archived_at": null,
+          "permissions": [],
+          "source_type": "manual",
+          "vendor_name": "Example Vendor",
+          "capabilities": [
+            "external_transfer"
+          ],
+          "display_name": "Payroll Assistant",
+          "autonomy_level": 0,
+          "business_owner": "",
+          "human_approval": false,
+          "data_categories": [
+            "payroll"
+          ],
+          "business_purpose": "",
+          "connected_systems": [],
+          "monthly_cost_cents": 10000
+        },
+        "review": {
+          "schema": "core.exposure.declarations.v1",
+          "inventory_item_id": "5d6ee0e9-e024-4dd9-953e-4baceef50409",
+          "record_sha256": "a173d5a1f432ba26c943e521c3c8866f7fc7f4152bd94fa1554908993b62bf4b",
+          "questions": [
+            {
+              "question_id": "business_owner",
+              "outcome": "CONCERN",
+              "explanation": "Responsible person is blank in the declaration.",
+              "source_fields": [
+                "business_owner"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "business_purpose",
+              "outcome": "CONCERN",
+              "explanation": "Business purpose is blank in the declaration.",
+              "source_fields": [
+                "business_purpose"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "data_categories",
+              "outcome": "PASS",
+              "explanation": "Information categories are recorded as declarations, including any stated empty list.",
+              "source_fields": [
+                "data_categories"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "permissions",
+              "outcome": "PASS",
+              "explanation": "Permissions are recorded as declarations, including any stated empty list.",
+              "source_fields": [
+                "permissions"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "capabilities",
+              "outcome": "PASS",
+              "explanation": "Actions are recorded as declarations, including any stated empty list.",
+              "source_fields": [
+                "capabilities"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "approval",
+              "outcome": "CONCERN",
+              "explanation": "Actions or permissions are declared without a human approval requirement; review the intended boundary.",
+              "source_fields": [
+                "human_approval",
+                "autonomy_level",
+                "capabilities",
+                "permissions"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "account_identity",
+              "outcome": "UNKNOWN",
+              "explanation": "This captured inventory schema does not identify the executing account or principal.",
+              "source_fields": [],
+              "basis": "unknown",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "access_removal",
+              "outcome": "UNKNOWN",
+              "explanation": "This captured inventory schema does not record an access-removal procedure.",
+              "source_fields": [],
+              "basis": "unknown",
+              "verification": "not_established"
+            }
+          ],
+          "authority": "proposal_only",
+          "verification": "not_established",
+          "sha256": "f2f0bde7f541def52ecbe35857f5805fde49d3fc51ebd317bc4d3f380ad6f362"
+        }
+      }
+    ]
+  }
+}

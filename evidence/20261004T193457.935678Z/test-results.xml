@@ -1,0 +1,565 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="12" skipped="0" tests="34" time="24.836" timestamp="2026-10-04T19:35:32.371453+00:00" hostname="3eee3871461e"><testcase classname="tests.test_funnel_contracts" name="test_registry_has_four_distinct_immutable_draft_families" time="0.002" /><testcase classname="tests.test_funnel_contracts" name="test_publication_requires_exact_approval_and_every_qualified_capability" time="0.002" /><testcase classname="tests.test_funnel_contracts" name="test_translation_and_offer_changes_require_separate_contracts" time="0.002" /><testcase classname="tests.test_funnel_contracts" name="test_visitor_context_wins_without_becoming_authority" time="0.001" /><testcase classname="tests.test_funnel_contracts" name="test_closed_engagement_schema_rejects_answers_payment_and_unknown_events" time="0.003" /><testcase classname="tests.test_funnel_contracts" name="test_downstream_outcomes_cannot_be_forged_as_browser_engagement[checkout_started]" time="0.001" /><testcase classname="tests.test_funnel_contracts" name="test_downstream_outcomes_cannot_be_forged_as_browser_engagement[signup_completed]" time="0.001" /><testcase classname="tests.test_funnel_contracts" name="test_downstream_outcomes_cannot_be_forged_as_browser_engagement[payment_completed]" time="0.001" /><testcase classname="tests.test_funnel_contracts" name="test_downstream_outcomes_cannot_be_forged_as_browser_engagement[report_delivered]" time="0.002" /><testcase classname="tests.test_funnel_contracts" name="test_downstream_outcomes_cannot_be_forged_as_browser_engagement[renewal_paid]" time="0.001" /><testcase classname="tests.test_funnel_contracts" name="test_four_distinct_samples_and_three_audiences_bound_to_digest" time="0.001" /><testcase classname="tests.test_funnel_contracts" name="test_only_consented_minimal_engagement_vocabulary[page_view]" time="0.001" /><testcase classname="tests.test_funnel_contracts" name="test_only_consented_minimal_engagement_vocabulary[scenario_started]" time="0.001" /><testcase classname="tests.test_funnel_contracts" name="test_only_consented_minimal_engagement_vocabulary[scenario_completed]" time="0.002" /><testcase classname="tests.test_funnel_routes" name="test_preview_closed_by_default_even_for_operator" time="0.007" /><testcase classname="tests.test_funnel_routes" name="test_preview_does_not_admit_ordinary_or_partial_operator[False-False-False]" time="0.002" /><testcase classname="tests.test_funnel_routes" name="test_preview_does_not_admit_ordinary_or_partial_operator[True-False-True]" time="0.002" /><testcase classname="tests.test_funnel_routes" name="test_preview_does_not_admit_ordinary_or_partial_operator[False-True-True]" time="0.001" /><testcase classname="tests.test_funnel_routes" name="test_operator_preview_explicit_proposed_no_store_and_no_price" time="0.326" /><testcase classname="tests.test_funnel_routes" name="test_draft_public_access_remains_closed_regardless_preview_flag" time="0.001" /><testcase classname="tests.test_funnel_routes" name="test_no_post_collection_endpoint" time="0.002" /><testcase classname="tests.test_funnel_routes" name="test_actual_urlconf_resolves_only_get_views" time="0.002" /><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[390-tool-exposure]" time="6.116"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e38e6690&gt;
+scenario = 'tool-exposure', width = 390
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[390-decision-owner]" time="1.748"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e2523b50&gt;
+scenario = 'decision-owner', width = 390
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[390-offboarding-evidence]" time="1.644"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e1a90950&gt;
+scenario = 'offboarding-evidence', width = 390
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[390-review-changes]" time="1.625"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e09187d0&gt;
+scenario = 'review-changes', width = 390
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[768-tool-exposure]" time="1.509"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e25632f0&gt;
+scenario = 'tool-exposure', width = 768
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[768-decision-owner]" time="1.508"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e3f5dc50&gt;
+scenario = 'decision-owner', width = 768
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[768-offboarding-evidence]" time="1.564"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e3f5e0b0&gt;
+scenario = 'offboarding-evidence', width = 768
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[768-review-changes]" time="1.574"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e1bdadd0&gt;
+scenario = 'review-changes', width = 768
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[1280-tool-exposure]" time="1.530"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e0906a50&gt;
+scenario = 'tool-exposure', width = 1280
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[1280-decision-owner]" time="1.507"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e0848650&gt;
+scenario = 'decision-owner', width = 1280
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[1280-offboarding-evidence]" time="1.542"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e083f750&gt;
+scenario = 'offboarding-evidence', width = 1280
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase><testcase classname="tests.test_funnel_browser" name="test_candidate_preview_keyboard_privacy_and_mobile[1280-review-changes]" time="1.514"><failure message="assert not [&quot;Cannot read properties of null (reading 'addEventListener')&quot;]">settings = &lt;pytest_django.fixtures.Settings object at 0x73a1e1c150d0&gt;
+scenario = 'review-changes', width = 1280
+
+    @pytest.mark.skipif(os.getenv("STEWARDENCE_REAL_PDF_QUALIFICATION") != "1", reason="Actual Chromium qualification image required")
+    @pytest.mark.parametrize("scenario", ["tool-exposure","decision-owner","offboarding-evidence","review-changes"])
+    @pytest.mark.parametrize("width", [390,768,1280])
+    def test_candidate_preview_keyboard_privacy_and_mobile(settings,scenario,width):
+        settings.FUNNEL_PREVIEW_ENABLED=True
+        settings.DEBUG=False
+        request=RequestFactory().get("/explore/preview/"+scenario+"/?audience=freelancer&amp;campaign_audience=accounting")
+        request.user=SimpleNamespace(is_authenticated=True,is_staff=True,is_superuser=True)
+        response=experience(request,scenario,preview=True)
+        static=Path(__file__).resolve().parents[1]/"static"
+        assets={"/":(response.content,"text/html; charset=utf-8"),
+            "/static/funnels.css":((static/"funnels.css").read_bytes(),"text/css"),
+            "/static/funnels.js":((static/"funnels.js").read_bytes(),"application/javascript")}
+    
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path not in assets:
+                    self.send_error(404);return
+                body,content_type=assets[self.path]
+                self.send_response(200)
+                self.send_header("Content-Type",content_type)
+                self.send_header("Content-Length",str(len(body)))
+                if self.path=="/":
+                    for name,value in response.items():
+                        if name.lower()!="content-type":self.send_header(name,value)
+                self.end_headers();self.wfile.write(body)
+            def log_message(self,*args):
+                pass
+    
+        server=ThreadingHTTPServer(("127.0.0.1",0),Handler)
+        thread=Thread(target=server.serve_forever,daemon=True);thread.start()
+        origin=f"http://127.0.0.1:{server.server_port}"
+        try:
+            with sync_playwright() as playwright:
+                browser=playwright.chromium.launch(headless=True,args=["--no-sandbox"])
+                try:
+                    context=browser.new_context(viewport={"width":width,"height":900},reduced_motion="reduce",service_workers="block")
+                    page=context.new_page();requests=[];errors=[]
+                    page.on("request",lambda req:requests.append((req.method,req.url)))
+                    page.on("pageerror",lambda error:errors.append(str(error)))
+                    page.goto(origin+"/",wait_until="networkidle")
+&gt;                   assert not errors
+E                   assert not ["Cannot read properties of null (reading 'addEventListener')"]
+
+tests/test_funnel_browser.py:59: AssertionError</failure></testcase></testsuite></testsuites>

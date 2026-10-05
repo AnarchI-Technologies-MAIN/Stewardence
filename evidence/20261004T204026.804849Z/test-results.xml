@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="31" time="66.648" timestamp="2026-10-04T20:41:29.727448+00:00" hostname="c20247bc2654"><testcase classname="tests.test_review_workspace_views" name="test_default_workspace_gate_unavailable_without_effects" time="9.755" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[history]" time="0.985" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[snapshot]" time="1.244" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[decision]" time="1.247" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[comparison]" time="1.059" /><testcase classname="tests.test_review_workspace_views" name="test_snapshot_get_is_dated_read_only_and_shows_unestablished_accounts" time="0.979" /><testcase classname="tests.test_review_workspace_views" name="test_decision_post_appends_exact_binding_and_stale_retry_is_conflict" time="1.060" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes0]" time="0.780" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes1]" time="0.634" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes2]" time="0.735" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes3]" time="0.918" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes4]" time="1.012" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes5]" time="0.825" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes6]" time="0.742" /><testcase classname="tests.test_review_workspace_views" name="test_missing_decision_feature_is_explicitly_unavailable" time="0.924" /><testcase classname="tests.test_review_workspace_views" name="test_foreign_snapshot_revision_and_pack_are_not_found" time="0.818" /><testcase classname="tests.test_review_workspace_views" name="test_freeze_projects_exact_old_statement_without_requesting_pdf" time="1.157" /><testcase classname="tests.test_review_workspace_views" name="test_explicit_artifact_request_queues_without_promoting_baseline_or_starting_worker" time="0.850" /><testcase classname="tests.test_review_workspace_views" name="test_database_denial_rolls_back_open_cycle_before_safe_response" time="0.645"><error message="failed on setup with &quot;AssertionError: [('ProgrammingError', 'Workflow request identity invalid')]&#10;assert 409 == 302&#10; +  where 409 = &lt;HttpResponse status_code=409, &quot;text/html; charset=utf-8&quot;&gt;.status_code&quot;">report_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;OrganizationMember: reports@example.com — Report Firm (Owner)&gt;, &lt;InventoryItem: Payroll Assistant&gt;, &lt;AssessmentSnapshot: 2346e171-1629-4306-b162-5688020300db v1&gt;)
+settings = &lt;pytest_django.fixtures.Settings object at 0x7fcaf071d2e0&gt;
+client = &lt;django.test.client.Client object at 0x7fcaf0784b90&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fcaf06f23d0&gt;
+
+    @pytest.fixture
+    def workspace(report_context, settings, client, monkeypatch):
+        user, org, _, _, snapshot = report_context
+        WorkflowProfile.objects.get_or_create(
+            organization=org,
+            defaults={
+                "created_by": user,
+                "profile": "business.v1",
+                "settings": {"name": "Owner journey"},
+            },
+        )
+        settings.CORE_REVIEW_WORKSPACE_ENABLED = True
+        settings.CORE_WORKFLOWS_ENABLED = True
+        settings.DECISION_DESK_ENABLED = True
+        settings.REVIEW_PACK_LIFECYCLE_ENABLED = False
+        DecisionDeskGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        from apps.reviews import views
+    
+        original = views.dispatch
+        failures = []
+    
+        def diagnosed(*args, **kwargs):
+            try:
+                return original(*args, **kwargs)
+            except Exception as error:
+                failures.append((type(error).__name__, str(error).splitlines()[0]))
+                raise
+    
+        monkeypatch.setattr(views, "dispatch", diagnosed)
+        result = client.post(reverse("reviews:issue-proposals", args=[snapshot.id]))
+&gt;       assert result.status_code == 302, failures
+E       AssertionError: [('ProgrammingError', 'Workflow request identity invalid')]
+E       assert 409 == 302
+E        +  where 409 = &lt;HttpResponse status_code=409, "text/html; charset=utf-8"&gt;.status_code
+
+tests/test_review_workspace_views.py:58: AssertionError</error></testcase><testcase classname="tests.test_review_workspace_views" name="test_corrupt_snapshot_is_withheld_before_any_admission[get-snapshot]" time="0.534" /><testcase classname="tests.test_review_workspace_views" name="test_corrupt_snapshot_is_withheld_before_any_admission[post-freeze]" time="0.425" /><testcase classname="tests.test_review_workspace_views" name="test_corrupt_snapshot_is_withheld_before_any_admission[post-issue-proposals]" time="0.431" /><testcase classname="tests.test_review_workspace_views" name="test_freeze_lost_redirect_replay_uses_one_cycle_pack_and_reservation" time="0.587" /><testcase classname="tests.test_review_workspace_views" name="test_simultaneous_same_freeze_form_has_one_effect" time="0.613" /><testcase classname="tests.test_review_workspace_views" name="test_reusing_freeze_identity_for_another_snapshot_is_denied" time="0.662" /><testcase classname="tests.test_review_workspace_views" name="test_freeze_identity_is_required_and_never_becomes_authority" time="0.702" /><testcase classname="tests.test_review_workspace_views" name="test_foreign_admitted_cycle_identity_cannot_be_replayed_into_this_workspace" time="1.127" /><testcase classname="tests.test_review_workspace_views" name="test_csrf_and_http_methods_preserve_no_effects" time="1.083" /><testcase classname="tests.test_review_workspace_views" name="test_user_selected_comparison_is_read_only_and_never_admits_a_baseline" time="1.589" /><testcase classname="tests.test_review_workspace_views" name="test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[390]" time="25.415" /><testcase classname="tests.test_review_workspace_views" name="test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[1280]" time="6.286" /></testsuite></testsuites>

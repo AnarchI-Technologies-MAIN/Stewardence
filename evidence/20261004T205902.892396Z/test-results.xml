@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="8" time="95.397" timestamp="2026-10-04T21:00:25.433417+00:00" hostname="da1ff2bc484a"><testcase classname="tests.test_review_workspace_views" name="test_instrumented_repeated_proposal_identity_inputs[0]" time="17.603"><failure message="AssertionError: {'index': 25, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', ...1:00:42.973624+00:00', ...}, 'bound_org': '316e9e74-3449-4182-aa1c-3654d958f76e', 'isolation': 'read committed', ...}]}&#10;assert 409 == 302&#10; +  where 409 = &lt;HttpResponse status_code=409, &quot;text/html; charset=utf-8&quot;&gt;.status_code">workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: b5c61c7c-f0ac-4859-a73a-913fe9710cb4 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (c9e5656a-d913-46b0-b065-a84c036ea44e)&gt;)
+client = &lt;django.test.client.Client object at 0x7444d8ecd450&gt;
+diagnostic_repeat = 0
+
+    @pytest.mark.parametrize("diagnostic_repeat", range(8))
+    def test_instrumented_repeated_proposal_identity_inputs(workspace, client, diagnostic_repeat):
+&gt;       test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+            workspace, client
+        )
+
+tests/test_review_workspace_views.py:625: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: b5c61c7c-f0ac-4859-a73a-913fe9710cb4 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (c9e5656a-d913-46b0-b065-a84c036ea44e)&gt;)
+client = &lt;django.test.client.Client object at 0x7444d8ecd450&gt;
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        for index in range(128):
+            observed = []
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+&gt;           assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+E           AssertionError: {'index': 25, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', ...1:00:42.973624+00:00', ...}, 'bound_org': '316e9e74-3449-4182-aa1c-3654d958f76e', 'isolation': 'read committed', ...}]}
+E           assert 409 == 302
+E            +  where 409 = &lt;HttpResponse status_code=409, "text/html; charset=utf-8"&gt;.status_code
+
+tests/test_review_workspace_views.py:606: AssertionError</failure></testcase><testcase classname="tests.test_review_workspace_views" name="test_instrumented_repeated_proposal_identity_inputs[1]" time="13.634" /><testcase classname="tests.test_review_workspace_views" name="test_instrumented_repeated_proposal_identity_inputs[2]" time="13.835" /><testcase classname="tests.test_review_workspace_views" name="test_instrumented_repeated_proposal_identity_inputs[3]" time="2.153"><failure message="AssertionError: {'index': 3, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', '...1:01:11.134953+00:00', ...}, 'bound_org': 'cbe862e6-81c0-4529-bfd0-e556aae41bbd', 'isolation': 'read committed', ...}]}&#10;assert 409 == 302&#10; +  where 409 = &lt;HttpResponse status_code=409, &quot;text/html; charset=utf-8&quot;&gt;.status_code">workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 54e4a2f9-8e93-4812-9840-d815559dbe43 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (c7ec6ad4-2cd4-4705-8539-d65e69c8abb1)&gt;)
+client = &lt;django.test.client.Client object at 0x7444d86acc00&gt;
+diagnostic_repeat = 3
+
+    @pytest.mark.parametrize("diagnostic_repeat", range(8))
+    def test_instrumented_repeated_proposal_identity_inputs(workspace, client, diagnostic_repeat):
+&gt;       test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+            workspace, client
+        )
+
+tests/test_review_workspace_views.py:625: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 54e4a2f9-8e93-4812-9840-d815559dbe43 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (c7ec6ad4-2cd4-4705-8539-d65e69c8abb1)&gt;)
+client = &lt;django.test.client.Client object at 0x7444d86acc00&gt;
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        for index in range(128):
+            observed = []
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+&gt;           assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+E           AssertionError: {'index': 3, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', '...1:01:11.134953+00:00', ...}, 'bound_org': 'cbe862e6-81c0-4529-bfd0-e556aae41bbd', 'isolation': 'read committed', ...}]}
+E           assert 409 == 302
+E            +  where 409 = &lt;HttpResponse status_code=409, "text/html; charset=utf-8"&gt;.status_code
+
+tests/test_review_workspace_views.py:606: AssertionError</failure></testcase><testcase classname="tests.test_review_workspace_views" name="test_instrumented_repeated_proposal_identity_inputs[4]" time="12.055" /><testcase classname="tests.test_review_workspace_views" name="test_instrumented_repeated_proposal_identity_inputs[5]" time="10.936" /><testcase classname="tests.test_review_workspace_views" name="test_instrumented_repeated_proposal_identity_inputs[6]" time="6.461"><failure message="AssertionError: {'index': 57, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', ...1:01:39.257620+00:00', ...}, 'bound_org': '20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee', 'isolation': 'read committed', ...}]}&#10;assert 409 == 302&#10; +  where 409 = &lt;HttpResponse status_code=409, &quot;text/html; charset=utf-8&quot;&gt;.status_code">workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 3e887675-0260-4d6b-82d5-0fd5f10d9e67 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (4b435f51-fba2-4ba5-8e17-9b42cedff7d1)&gt;)
+client = &lt;django.test.client.Client object at 0x7444d864aa50&gt;
+diagnostic_repeat = 6
+
+    @pytest.mark.parametrize("diagnostic_repeat", range(8))
+    def test_instrumented_repeated_proposal_identity_inputs(workspace, client, diagnostic_repeat):
+&gt;       test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+            workspace, client
+        )
+
+tests/test_review_workspace_views.py:625: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 3e887675-0260-4d6b-82d5-0fd5f10d9e67 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (4b435f51-fba2-4ba5-8e17-9b42cedff7d1)&gt;)
+client = &lt;django.test.client.Client object at 0x7444d864aa50&gt;
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        for index in range(128):
+            observed = []
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+&gt;           assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+E           AssertionError: {'index': 57, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', ...1:01:39.257620+00:00', ...}, 'bound_org': '20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee', 'isolation': 'read committed', ...}]}
+E           assert 409 == 302
+E            +  where 409 = &lt;HttpResponse status_code=409, "text/html; charset=utf-8"&gt;.status_code
+
+tests/test_review_workspace_views.py:606: AssertionError</failure></testcase><testcase classname="tests.test_review_workspace_views" name="test_instrumented_repeated_proposal_identity_inputs[7]" time="16.872" /></testsuite></testsuites>

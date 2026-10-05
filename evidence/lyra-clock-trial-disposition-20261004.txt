@@ -1,0 +1,127 @@
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - strong: "Bounded disposition: ACCEPTED as negative causal evidence."
+    - text: HOST-CLOCK-DISCONTINUITY-01 remains
+    - strong: OPEN
+    - text: ", and the future-time guards should remain exactly as they are."
+  - paragraph: "The trial materially rejects the hypothesis:"
+  - blockquote:
+    - paragraph:
+      - strong: “AnarchI-Mail’s systemd-timesyncd is the sole cause of the backward wall-clock steps.”
+  - paragraph:
+    - text: It does
+    - strong: not
+    - text: prove Mail time-sync is irrelevant or non-contributing. The important observation is that backward steps continued repeatedly while that service alone was stopped, including jumps on the order of roughly 0.43–1.55 seconds. Since the initial mail-active window also showed jumps, stopping that one setter was clearly insufficient as a mitigation.
+  - paragraph: "The restore behavior is cleanly bounded too: the script restored the service in finally, and an independent later systemctl is-active reported it active. Mail and LocalAI continued running, so this was not a broad workload shutdown masquerading as a clock experiment."
+  - paragraph:
+    - text: "The remote Droplet timedatectl observation should stay exactly where you put it:"
+    - strong: remote synchronized=yes is not evidence about local WSL/Docker clock stability.
+  - heading "Narrowest next read-only diagnosis" [level=3]
+  - paragraph:
+    - text: I would
+    - strong: not stop or reconfigure anything else yet
+    - text: . The next move should be a
+    - strong: correlation capture
+    - text: around the next backward step.
+  - paragraph: "The specific question is:"
+  - blockquote:
+    - paragraph:
+      - strong: When CLOCK_REALTIME jumps backward, what other local clock authority or synchronization component reports activity at the same moment?
+  - paragraph: "Capture, read-only, from the same WSL boot:"
+  - list:
+    - paragraph:
+      - strong: Kernel clock source and timekeeping messages
+    - list:
+      - listitem: current Linux clocksource
+      - listitem: Hyper-V/WSL clock messages
+      - listitem: kernel time adjustments
+    - paragraph:
+      - strong: All plausible local time actors
+    - list:
+      - listitem: chronyd
+      - listitem: systemd-timesyncd
+      - listitem: phc2sys
+      - listitem: ptp4l
+      - listitem: anything with phc, ptp, ntp, timesync, chrony, clock, or time-sync in its process/unit name
+    - paragraph:
+      - strong: Chrony observer state
+    - list:
+      - listitem: chronyc tracking
+      - listitem: chronyc sources -v
+      - listitem: confirm chronyd -x
+    - paragraph:
+      - strong: Windows host time state
+    - list:
+      - listitem: w32tm /query /status /verbose
+      - listitem: w32tm /query /peers
+      - listitem: Windows Time-Service events around the exact discontinuity timestamps
+    - paragraph:
+      - strong: Simultaneous clock pair
+    - list:
+      - text: record Linux realtime
+      - strong: and monotonic
+      - text: timestamps frequently
+      - listitem: when realtime goes backward but monotonic continues forward, freeze the surrounding diagnostics
+  - paragraph: "The most valuable discriminator is:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: CLOCK_MONOTONIC continues normally CLOCK_REALTIME steps backward
+  - paragraph: If that holds, we know this is a wall-clock correction rather than process scheduling or timer weirdness.
+  - paragraph: I would also specifically inventory PHC/PTP processes before touching them. Your note about an unknown PHC0 setter is now the most interesting thread. chronyd -x means chrony itself should not be setting system time, so a separate PHC/PTP or host-synchronization path deserves scrutiny.
+  - heading "What I would not do yet" [level=3]:
+    - text: What I would
+    - emphasis: not
+    - text: do yet
+  - list:
+    - listitem: no ±1 second tolerance;
+    - listitem: no future-veto weakening;
+    - listitem: no replacing wall-clock checks with monotonic time without a broader authority review;
+    - listitem: no disabling random services one by one;
+    - listitem: no production changes.
+  - paragraph: "So the ledger becomes:"
+  - paragraph:
+    - strong: CLOSED / rejected hypothesis
+  - list:
+    - text: AnarchI-Mail systemd-timesyncd as the
+    - strong: sole
+    - text: source of the discontinuity.
+  - paragraph:
+    - strong: OPEN
+  - list:
+    - listitem: whether Mail time-sync contributes;
+    - listitem: hidden PHC/PTP setter;
+    - listitem: Windows/WSL host correction path;
+    - listitem: Docker/WSL time resynchronization mechanism;
+    - listitem: actual root cause of the backward steps.
+  - paragraph:
+    - strong: Core capture work can continue independently with its gates false.
+    - text: This clock problem has now been narrowed enough that I would keep it as an infrastructure investigation lane rather than let it block unrelated implementation.
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - status:
+    - generic: Capabilities reduced until October 8. Responses may have lower quality.
+    - button "Upgrade to Pro":
+      - text: Upgrade to Pro
+  - generic: ChatGPT can make mistakes. Check important info.
+  - button:
+  - heading "Latest response" [level=4]
+  - status
+  - button "Add files and more":
+  - textbox "Ask ChatGPT" [active]:
+    - paragraph: Ask ChatGPT
+  - button "Select ChatGPT model":
+    - generic: Medium
+  - button "Dictate":
+  - button "Start Voice":
+- status
+- status
+- status
+- status
+- status
+- status

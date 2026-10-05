@@ -1,0 +1,183 @@
+You said:
+Pasted text(20261004-002630).txt
+Document
+Worked for 8m 51s
+Memory updated
+ChatGPT said:
+
+Alexander, CORE-ADMISSION-01 is CLOSED for the submitted initial-checkout payment-to-service-period predicate. The old-paid/current-unpaid counterexample is rejected, and the new invoice, subscription, item, price, and service-period bindings materially address that finding.
+
+One newly demonstrated finding remains OPEN: CORE-COVERAGE-SHAPE-01. The boundary still accepts certain unsupported identity types and explicit contradictions in invoice-line identity. That limits the broader claim that unsupported read shapes always fail closed.
+
+The three harness closures and all prior bounded Core authority, restore, and presentation closures remain intact. Core production remains unapproved.
+
+1. Why CORE-ADMISSION-01 closes
+
+The successor now requests expansion of latest_invoice and evaluates its coverage before subscription creation. It requires agreement among the Checkout invoice reference, expanded invoice identity, stored customer, subscription, subscription item, registered price, and service-period boundaries. 
+Pasted text
+
+The coverage predicate separately requires a provider-observed paid invoice, integer monetary values, amount_due = amount_paid ≥ contract.cents, zero remaining balance, complete one-line pagination, a non-prorated USD line at the contract amount and quantity, and a bounded current service interval. Payment time and Checkout creation time are checked against that interval and the server clock. 
+Pasted text
+
+That closes the preceding gap: a historically paid Checkout Session plus a future subscription-period timestamp is no longer sufficient by itself.
+
+Independent differential and admission checks
+
+I executed the exact supplied thirteen-case test body with substituted framework dependencies, then compared the preceding supplied completion source with this successor under the same controlled inputs.
+
+Independent check	Result
+Preceding source, thirteen named coverage counterexamples	All thirteen admitted a modeled subscription.
+Successor source, those same counterexamples	All thirteen rejected before subscription creation.
+Expanded admission matrix	137 cases: ten expected accepts and 127 expected rejections.
+Subscription creation in the 127 rejecting cases	Not attempted.
+
+The 137-case matrix includes the original thirteen; these are not additive counts of distinct cases.
+
+Positive controls covered the healthy fixture, agreeing root/item periods, the supported root-only period fallback, payment at the test clock, and bounded 28–32-day intervals. Rejections covered incorrect identifiers, price and status, partial or missing payment evidence, incomplete pagination, proration, invalid numeric types, malformed nested mappings, mismatched coverage, future payment, expired coverage, and conflicting period aliases.
+
+I also confirmed that an unrelated invoice-level billing-summary period does not replace the line’s service coverage. This agrees with the distinction in the supplied contract. Public Stripe documentation likewise describes the invoice line’s period as its coverage period. 
+Pasted text(20261004-002630)
+ 
+Stripe Docs
+
+Acceptance remains at the declared provider-observed invoice-state level. It is not bank-settlement finality, a durable issued-entitlement ledger, or ongoing renewal authorization.
+
+2. New finding: CORE-COVERAGE-SHAPE-01
+Unsupported identity types and explicit contradictions can still reach completion
+
+The item-identity comparison checks truthiness and equality, but does not require nonempty strings. The duplicate root period-start check compares values without checking that alias’s type. The coverage function also does not reconcile a supplied invoice-line invoice reference or object-kind discriminator. 
+Pasted text
+
+I independently exercised these cases through both the completion body and the webhook body:
+
+Injected observation	Result in the reviewer’s SQLite-backed adapter
+Subscription item ID is boolean True; line’s item reference is integer 1	Accepted.
+Item ID and line reference are matching dictionaries	Accepted.
+Root current_period_start is a float equal in value to the item’s integer timestamp	Accepted.
+Line’s non-null invoice points to a different invoice	Accepted.
+Line explicitly declares the wrong object kind	Accepted.
+
+For each, the exact webhook body returned 200, and the adapter committed one subscription and one event receipt. The modeled subscription was active, priced at 9900 cents, and carried the fixture’s future period end.
+
+A healthy control with explicit, consistent line identity also passed.
+
+These are local source-contract counterexamples. The provider gateway, event construction, identity context, and ORM were substituted. I did not obtain a malformed Stripe-origin response, bypass SDK signature verification, create a target-database entitlement, or demonstrate customer access or a production exploit.
+
+The invoice-reference case is not based on an invented field: Stripe’s public line-item reference defines a non-null invoice as the ID of the containing invoice. A different supplied value is therefore a contradiction that this boundary currently ignores. 
+Stripe Docs
+
+Minimal closure requirement
+
+Require nonempty string types for the item ID and its line reference before equality comparison, without coercing malformed values through str(). Validate both supplied period aliases’ types before comparing their values.
+
+For the declared versioned read shape, reconcile a supplied non-null line invoice with the admitted invoice, and a supplied object discriminator with the supported line kind. Missing or nullable projections need an explicit rule; this review does not invent a mandatory-field requirement where the current fixture omits that field.
+
+Retain the healthy control and add these cases at the completion/webhook boundary, asserting no subscription issuance and no committed success receipt after rejection.
+
+This is a new shape-contract finding. It does not reopen the repaired old-paid/current-unpaid predicate.
+
+3. Completion and rollback boundaries
+
+The submitted webhook places event-receipt creation and completion handling inside its transaction block. Coverage validation occurs before the handler reaches subscription get_or_create. 
+Pasted text
+ 
+Pasted text
+
+I exercised the exact parsed function bodies with real local SQLite transactions behind replacement ORM/transaction adapters. Seven failure/recovery cycles covered coverage rejection, retrieval failure, identity failure, and injected save failures both before and after an adapter write.
+
+Independent adapter observation	Result
+Failed attempt after receipt insertion	No committed subscription or event remained.
+Injected failure after subscription write	Both modeled records rolled back.
+Corrected evidence retried under the same event ID	One subscription and one event committed.
+Subsequent successful duplicate	Counts remained one each; no additional gateway retrieval.
+Different checkout attempting to replace an existing active subscription	Rejected; the existing stored row remained unchanged.
+
+I added three recovery controls with byte-identical serialized event payloads. Only the mocked authoritative subscription observation changed: an open invoice became paid, a wrong latest-invoice identity was corrected, or mismatched line coverage was corrected. Each rejected first, then recovered once without changing the event bytes.
+
+What that proves, and what it does not
+
+These checks support exception propagation, validation-before-creation ordering, and the submitted function bodies’ behavior when transactional dependencies act as modeled. They do not independently prove Django transaction behavior, PostgreSQL constraints, row-level security, or concurrent receipt handling.
+
+Django and Stripe were not installed in this sandbox, and I did not download them. Framework decorators were omitted from the extracted functions; SDK event construction and identity authorization were explicit stubs.
+
+The supplied three real-SDK, locally signed rollback/recovery tests remain a separate evidence category. Their source asserts that rejected coverage leaves neither a subscription nor an event receipt, followed by successful recovery under the same event ID. I inspected that source and its manifest binding, but did not independently execute it under Django or SDK 16.0.0. 
+Pasted text
+
+4. Full-suite and source reconciliation
+
+The raw final log now supports the detailed count directly:
+
+1,187 passed, one skipped, 132 warnings, 230.56 seconds.
+
+I independently reconciled the terminal result with 1,187 passing progress symbols, one skip symbol, and warning subtotals summing to 132. The shown warnings concern /app/staticfiles/ in the qualification environment. 
+Pasted text(20261004-002630)
+
+The full-suite summary identifies:
+
+sha256:312ee8355369df19731d430ec722cfeb1d1e216b27c54fcb5266e4cf9c756850
+
+and records exit zero with test_arguments = ["tests"]. 
+Pasted text(20261004-002630)
+
+The driver visibly enables the actual-PDF qualification flag, and the delivered crash-test source contains the five SIGKILL stages. Those support the supplied execution account. The quiet log does not individually name every passing test or identify the skipped node, so the specific Xero skip designation remains supplied context rather than something recoverable from that log alone. 
+Pasted text(20261004-002630)
+ 
+Pasted text(20261004-002630)
+ 
+Pasted text
+
+Independently measured source relationships
+
+I reconstructed 21 sections, parsed nine Python modules and seven JSON records, and verified:
+
+All eight delivered source/test files match their entries in the full-source manifest.
+The full manifest contains 428 entries.
+Its selected host-build subset contains 282 entries.
+The 281-entry packaged manifest exactly equals the derived application subset, with build-only Dockerfile excluded.
+
+The full-manifest digest matches the receipt using its CRLF/no-terminal-newline reconstruction; the packaged-manifest digest matches using its LF/no-terminal-newline reconstruction. Those byte details are recorded in the archive.
+
+This is source and receipt reconciliation. I did not independently inspect either container filesystem or verify all 428 files’ contents, most of which are represented here by manifest entries rather than delivered bytes.
+
+The predecessor’s thirteen failures remain failures. Its supplied log records the expected-exception assertions failing before the repair; the successor does not rewrite that history. 
+Pasted text(20261004-002630)
+
+5. HTTP and restored-access evidence use distinct image relationships
+
+One distinction should remain explicit: the restored-access receipt names the full-suite image, not the separately packaged web image.
+
+Supplied evidence	Image and disposition
+Final full suite	312ee835…. Raw count and summary reconciled as above.
+Fresh restored-access run	312ee835…, verified October 4, 2026, 00:24:46 UTC. Supplied receipt reports six objects, the named six-count authorization/corruption/metadata checks, and cleanup.
+Fresh local HTTP package	2eef9721…, verified October 4, 2026, 00:24:27 UTC. Supplied receipt references full-tested source image 312ee835… and reports 281 packaged-file matches, 282 host inputs, local HTTP/security/static/readiness checks, and cleanup.
+
+The restored receipt reports 698,217 verified bytes, the inherited probe digest, the actual restricted application role, and explicitly synthetic clone entitlement changes. It remains an in-process restored-request qualification, not live payment or production HTTP proof. 
+Pasted text(20261004-002630)
+
+The local HTTP receipt identifies both images and the source-manifest relationships, while retaining its simulated-proxy and non-production limitations. Matching application-source inputs connect these results; they do not make the two images identical. 
+Pasted text(20261004-002630)
+
+I also confirmed that the current HTTP and restored-request probe digests match the corresponding previously supplied probe source. The fresh HTTP, database, restore, and cleanup executions remain supplied execution evidence, not reruns performed by me.
+
+6. Boundaries retained
+
+This review does not close the durable invoice-evidence catalog or issued paid-through ledger, ongoing Core entitlement expiry, SQL entitlement expiry, subscription-update fail-closed behavior, checkout concurrency/idempotency, event ordering, or the historical worker intermittence. Its root cause remains unknown; later successful runs do not establish a repair. The packet explicitly leaves these gates open. 
+Pasted text
+
+I did not classify a fully paid invoice total above the base contract amount as a failure: the submitted predicate explicitly permits that amount relation. Credits, taxes, refunds, other adjustments, and versioned decimal-quantity semantics still need their separately declared contracts. The proposed entitlement plan remains proposed, not implemented, and grants no migration or backfill authority. 
+Pasted text
+ 
+Pasted text(20261004-002630)
+ 
+Pasted text(20261004-002630)
+
+Review record
+
+Download the coverage review, exact-source harness, rollback traces, counterexamples, source identities, and disposition ledger
+
+The archive separates supplied logs and receipts from independent results. It also labels the unsupported-shape commits as counterexamples, not passing safety gates.
+
+Independent work consisted of source parsing and hashing, log/manifest reconciliation, controlled function-body execution, and local SQLite-adapter transactions. Public Stripe documentation was consulted separately. No provider/account API, real Stripe SDK, Django application, PostgreSQL database, Docker container, Chromium render, restore, full suite, user-machine operation, or production operation was executed by me.
+
+Final disposition: CORE-ADMISSION-01 is closed within its narrow payment-coverage scope; CORE-COVERAGE-SHAPE-01 is open. Prior bounded closures stand. Core production remains unapproved, live Stripe remains deferred, and worker, provider-write, and Automation-purchase restrictions remain unchanged.
+

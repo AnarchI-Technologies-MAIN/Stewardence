@@ -1,0 +1,86 @@
+The added fence changes the assessment: I don’t see a demonstrated stale-worker database-persistence defect in that sequence. The clearest blockers are weaker receipt admission than verification, wrapped-error retry classification, missing lease-recovery receipts, and the attempt-five message."
+      - generic: Plain text
+      - button "Enable word wrap":
+      - button "Copy":
+      - code:
+        - text: "STEWARDENCE — ADVERSARIAL SELECTED-CODE REVIEW Scope: supplied excerpts and follow-up SQL only. No candidate checkout inspected, tests executed, deployment approved or changes made. The reported 895 passed/1 skipped is qualification evidence for its tested snapshot, not release approval."
+        - text: "P1 — RECEIPT ADMISSION DOES NOT ENFORCE THE VERIFIER CONTRACT Demonstrated in the shown trigger: - sha256 and input_sha256 are checked for hexadecimal shape, not correct values. - payload attempt uses ->>, allowing JSON string \"1\" to match integer attempt 1. - Exact keys, reason_code, failure_fingerprint and outcome-specific semantics are not enforced. - Matching current job state does not bind insertion to the worker/claim token that performed the transition."
+        - text: A compromised worker with direct INSERT can bypass the Python recorder. The described verifier should reject malformed receipts later; this is NOT a demonstrated silent verifier bypass. However, durable malformed rows plus integrity-failure→503 can poison the affected read path. Other unseen constraints may prevent individual attacks; dashboard blast radius is unknown.
+        - text: "TEST: With the real worker role, create a completed-job fixture at attempt 1. In separate fixtures insert otherwise-valid receipts with: incorrect 64-hex digest; incorrect input hash; string attempt; extra key; missing reason/fingerprint; nonempty completed reason/fingerprint. Recompute canonical SHA for schema mutations to isolate each defect. Require INSERT rejection. If accepted, test verifier/dashboard behavior and the subsequent legitimate recorder for the same identity."
+        - text: "FIX: Enforce the complete versioned schema, types, job-input binding and outcome semantics at admission. Prefer a narrowly privileged, fenced transition-and-receipt interface over unrestricted worker INSERT. Preserve read-time verification. Do not replace RFC8785 with jsonb::text hashing without proving equivalent canonicalization."
+        - text: "BOUNDARY: A compromised worker may still fabricate a structurally valid assertion about work it never performed. Hash validity establishes consistency, not execution truth. Review whether it can independently change job state and then manufacture a matching receipt; restrict both paths accordingly."
+        - text: P1 — WRAPPED PERMANENT ERRORS CAN BECOME RETRYABLE The permanent-error veto applies only to the outermost error. Traversal then returns True upon any allowed transient cause, without checking nested veto classes.
+        - text: "TEST MATRIX, outermost → cause: - ValueError → TimeoutException: False today. - RuntimeError → ValueError → TimeoutException: True today; violates a permanent-error-veto policy. - RetryableOperationError → PermissionDenied: True today because traversal returns immediately. - RuntimeError → TimeoutException: True today, despite a blanket claim that unknown errors stop for review. - Wrapper with timeout only in __context__: not traversed; normally False. This is conservative, not a retry bypass."
+        - text: "FIX: Define one explicit precedence policy. Never let an allowed transient marker hide a permanent/authority failure in the supported chain. Allow only deliberate wrappers; normalize transport errors at the operation boundary and include operation/phase replay safety. Transient transport failure alone does not prove repeating an operation is safe."
+        - text: Also remove or explicitly justify fail_job_with_fence(retryable=True) as a legacy default. Prefer a required retry decision and audit every direct caller; unknown legacy failures must not silently receive retry permission.
+        - text: P1 WHEN WORKER RELIABILITY IS CLAIMED — EXPIRY RECOVERY LACKS RECEIPTS recover_expired_jobs changes state without a recovery receipt. The recovery history is therefore incomplete even though caught-failure transitions are atomic with their receipts.
+        - text: "TEST: Terminate a worker after claiming, during external execution, after external success, during persistence, and immediately before/after commit. Recover using an independent process. Check job state, attempt count, committed DB effects, external objects and exactly one applicable recovery event. Race two recoverers against each other and against heartbeat/completion."
+        - text: "FIX: Couple each recovered transition with an append-only receipt in the same transaction, preserving the expired attempt identity before another claim increments attempts. Distinguish lease expiry from retry exhaustion. Where external outcome is unknown, require operation-specific reconciliation or safe replay; expiry alone does not establish that nothing happened."
+        - text: P2 — ATTEMPT-FIVE MESSAGE IS FALSE At attempts>=5, SQL produces failed/review, while the supplied summary promises retry.
+        - text: "TEST: Explicitly retryable failures at attempts 1–4 must queue with 1min/5min/30min/2h delays. Attempt 5 must fail, create a review receipt, schedule no retry and display “Retry limit reached; review required.” Permanent failures must stop immediately. Assert stored summary, receipt outcome and dashboard text together."
+        - text: "FIX: Derive message/reason/outcome from the actual committed transition, not just the transient classification. Returning the resulting status and retry time from the transition avoids parallel, drifting decision logic."
+        - text: STALE-WORKER FENCE — NO DEMONSTRATED DB DEFECT The transaction requirement, FOR UPDATE row lock, identity/token/expiry predicate and separately fenced completion are a credible DB-persistence design. If expiry occurs during persist, completion should fail and roll back all writes on that same connection/transaction. A competing recovery transition must wait for the row lock.
+        - text: "TEST: Worker A pauses after external execution; expire/reclaim as B; resume A and require LostJobLease with zero committed A persistence. Separately pause A after its persistence lock, let time expire, attempt recovery as B, then finish A: require rollback when completion fails. Inject an error during receipt creation and verify persistence/completion also roll back. Use separate connections/processes and the configured isolation levels."
+        - text: "LIMIT: This does not roll back filesystem/S3 writes, fence an already-executed provider call, or establish exactly-once execution. Need handler.persist/execute_external and storage code to assess these. Conditional object creation prevents a class of overwrites; it does not by itself reconcile orphan objects, lost acknowledgements or DB/object-store divergence."
+        - text: PRIVILEGE / RESTORE GATE — STILL UNVERIFIED The isolated restore and role tests are valuable. --no-owner/--no-acl does not reproduce deployed privilege relationships.
+        - text: Test actual app/worker login roles and reachable SET ROLE identities for cross-tenant reads/writes, receipt insertion, arbitrary job transitions, UPDATE/DELETE/TRUNCATE, trigger disabling and privileged-function access. If tenant identity comes from a writable session setting, test whether a compromised worker can select another tenant. Inspect owner/BYPASSRLS, inherited/PUBLIC grants, trigger installation, constraints and uniqueness. NULL digest rejection also needs explicit NOT NULL or null-safe validation.
+        - text: ADDITIONAL SOURCE NEEDED Full job/receipt DDL and CREATE TRIGGER statements; effective grants/memberships/RLS policies; tenant_transaction and claim/heartbeat/recovery functions; full failure/completion handlers; verifier/dashboard paths; handlers and storage publication code. Also the exact final candidate manifest and test-to-source binding. No secrets or customer records needed.
+        - text: CORE COMMERCIAL-RELEASE SEQUENCE 1. Freeze/reconcile the actual candidate source and run final tests against that exact snapshot. 2. Close admission/retry/recovery defects on every enabled Core execution path; otherwise keep those paths inaccessible and out of release claims. 3. Qualify real runtime privileges, tenant isolation, concurrent stale-worker races and process-crash/object recovery. Verify live DO storage behavior separately. 4. Align accepted atlas/report schemas, unknown-aware ROI, private history/PDF access and truthful operational messages; preserve the existing presentation pause until explicitly released. 5. Run an owner-assisted end-to-end Core acceptance flow with bounded read-only integrations and an explicit customer-facing feature boundary. 6. Seek separate release/cutover authorization. Scheduling, reassessment, autonomous writes and Enterprise monitoring do not become approved through this review.
+        - text: "VERDICT: Selected-source defects warrant repair and qualification before relying on the affected worker/recovery controls. The supplied stale-worker DB fence is a strength, not a demonstrated defect. Neither selected-code review nor passing local tests establishes commercial-release readiness."
+      - paragraph:
+        - text: Semantics checked against official
+        - link "PostgreSQL locking":
+          - /url: https://www.postgresql.org/docs/current/explicit-locking.html
+          - generic: PostgreSQL locking
+        - text: ","
+        - link "RLS":
+          - /url: https://www.postgresql.org/docs/current/ddl-rowsecurity.html
+          - generic: RLS
+        - text: ","
+        - link "NULL conditionals":
+          - /url: https://www.postgresql.org/docs/current/plpgsql-control-structures.html
+          - generic: NULL conditionals
+        - text: ","
+        - link "Django transactions":
+          - /url: https://docs.djangoproject.com/en/5.2/topics/db/transactions/
+          - generic: Django transactions
+        - text: ", and"
+        - link "Python exception chaining":
+          - /url: https://docs.python.org/3/library/exceptions.html#exception-context
+          - generic: Python exception chaining
+        - text: .
+      - generic "Message actions":
+        - button "Choose a reaction":
+        - button "Reply":
+    - article:
+      - generic: Plain text
+      - button "Enable word wrap":
+      - button "Copy":
+      - code:
+        - text: "REVIEW ADDENDUM — EXECUTED COUNTEREXAMPLE Evidence: Alexander reports executing the current qualified candidate image locally with network disabled."
+        - text: "Exception chain: RuntimeError → __cause__ PermissionDenied → __cause__ httpx.ReadTimeout Observed: permits_retry returned True."
+        - text: "Classification: confirmed narrow retry-classification defect, supported by the supplied source and user-reported execution. A nested authority denial does not veto the later transient cause."
+        - text: "Required regression: this exact chain must return False, alongside tests for both nesting orders, direct denials, permitted wrappers and causal cycles. Apply the authority-failure veto before admitting retry."
+        - text: "Boundary: this demonstrates incorrect retry admission only. It does not establish that a job was requeued, a provider write occurred, or production was affected. No production changes reported."
+      - generic "Message actions":
+        - button "Choose a reaction":
+        - button "Reply":
+    - status
+    - button:
+    - button "Add files and more":
+    - textbox "Message" [active]:
+      - paragraph: Send a message
+    - button "Dictate":
+    - button "Send" [disabled]:
+- status
+- button "Open Lyra’s profile"
+- iframe
+- generic: Lyra
+- status:
+  - generic: Working
+- status
+- status
+- status
+- status
+- status
+- status: New reply from dot

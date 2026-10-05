@@ -1,0 +1,21 @@
+...............................................................F........ [ 76%]
+......................                                                   [100%]
+================================== FAILURES ===================================
+________ test_phase_requires_canonical_registered_identifier[standard] ________
+
+phase = 'standard'
+
+    @pytest.mark.parametrize("phase", [
+        None, True, 1, "", "STANDARD", "standard ", "standard\x00",
+        "founder", "founder_forever", [], {}, ("standard",),
+        StringAlias("standard"),
+    ])
+    def test_phase_requires_canonical_registered_identifier(phase):
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests\test_offer_contracts_adversarial.py:66: Failed
+=========================== short test summary info ===========================
+FAILED tests/test_offer_contracts_adversarial.py::test_phase_requires_canonical_registered_identifier[standard]
+1 failed, 93 passed in 1.12s

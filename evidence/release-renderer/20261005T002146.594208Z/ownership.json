@@ -1,0 +1,13 @@
+{
+  "network": "stewardence-release-733bf2a72aa9",
+  "containers": [
+    "stewardence-release-733bf2a72aa9-renderer",
+    "stewardence-release-733bf2a72aa9-app"
+  ],
+  "images": [
+    "stewardence-release-733bf2a72aa9:app",
+    "stewardence-release-733bf2a72aa9:renderer"
+  ],
+  "production_touched": false,
+  "scope": "synthetic_no_database_issuance"
+}

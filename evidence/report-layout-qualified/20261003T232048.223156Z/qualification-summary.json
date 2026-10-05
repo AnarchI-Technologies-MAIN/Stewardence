@@ -1,0 +1,69 @@
+{
+  "qualification_passed": true,
+  "geometry": {
+    "viewport": 688,
+    "document_width": 688,
+    "table_columns": [
+      137.390625,
+      137.390625,
+      137.390625,
+      137.390625,
+      137.4375
+    ]
+  },
+  "content_checks": {
+    "long-input": {
+      "pages": 5,
+      "nonempty_pages": true
+    },
+    "multi-tool": {
+      "pages": 9,
+      "nonempty_pages": true
+    },
+    "long-table": {
+      "pages": 27,
+      "nonempty_pages": true
+    }
+  },
+  "scope": "Synthetic renderer layout only; not source-derived assessment, international glyph coverage or production service proof.",
+  "renderer_image_id": "sha256:d4c73ead4d1c6bf16c77089a6837e039a0ab84c4a9a48d8b4f60852809e57a27",
+  "repeat_bytes_equal": true,
+  "artifacts": [
+    {
+      "specimen": "long-input",
+      "pdf_sha256": "3d0fb8bc7af40635d7897ff2e04f56da258cd13d2f8a700e2ffb22d851d5f20a",
+      "bytes": 115424,
+      "input_sha256": "9c39efb81890d4fd230f106fdcd9cda32067b158008814a4c7573baf095680d7"
+    },
+    {
+      "specimen": "multi-tool",
+      "pdf_sha256": "f024564297342566780a35123f9835d511b2e1edcd8df1c59638f239a0a04c5f",
+      "bytes": 132802,
+      "input_sha256": "96eef285c28d2ed66f318ae7e60e3b6ed03f24dc31aefeb7733baf9407283fd2"
+    },
+    {
+      "specimen": "long-table",
+      "pdf_sha256": "90819109ff6001c0bf2a1123a82ac7da1d4113ed645730bdbc9feb472757f373",
+      "bytes": 266183,
+      "input_sha256": "0f09a0d8c1497310e34572eacf66f2a57a556972c831145506ccf93562513013"
+    }
+  ],
+  "verified_at": "2026-10-03T23:20:58.513055+00:00",
+  "runtime_constraints": {
+    "NetworkMode": "none",
+    "ReadonlyRootfs": true,
+    "CapDrop": [
+      "ALL"
+    ],
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "Memory": 536870912,
+    "PidsLimit": 256,
+    "Tmpfs": {
+      "/tmp": "rw,size=128m",
+      "/work/output": "rw,size=32m,mode=0700,uid=10001,gid=10001"
+    }
+  },
+  "cleanup_verified": true
+}

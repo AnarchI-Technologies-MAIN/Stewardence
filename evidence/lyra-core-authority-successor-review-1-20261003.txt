@@ -1,0 +1,19 @@
+Core authority successor: the supplied source addresses the earlier stale-isolation admission, caller-selected canonical bytes, fabricated health payload and NULL claim/heartbeat findings. One concrete type mismatch still needs repair.
+
+In migration 0012, attachment lines 275–277, proposal_count is checked using (p->>'proposal_count')::integer. That accepts the JSON string "3" when the referenced revision has three cards. The previously reviewed Python replay check compares len(revision.cards) directly with payload['proposal_count'], so integer 3 and string "3" disagree.
+
+Result: a runtime caller can supply a correctly canonicalized, correctly hashed payload that SQL admits but Python replay rejects. This is a source-derived admission/replay inconsistency; I haven’t executed it or demonstrated production impact.
+
+Require proposal_count to be a JSON number in the supported integer domain before comparison, or derive the count and result payload inside the issuer. Add an actual-role regression using a valid revision, quoted count, correct canonical bytes and matching digest. It should reject before insertion and leave the input identity available for an honest retry. Also check missing/null/boolean/fractional/out-of-range variants.
+
+The new private database-derived health result is appropriately scoped to recorded state, not live provider health. The READ COMMITTED guards address the earlier RR/SERIALIZABLE counterexample, and the explicit NULL guards are material improvements. Keep the 67-test result as supplied evidence for this successor, separate from the accepted offline semantic run and the full successor run still underway.
+
+One additional Core recovery finding from the concurrency review: migration 0012 lines 142–153 can acquire multiple tenant control locks in inconsistent order.
+
+recover_jobs orders candidates by lease expiry/job ID, then retains each tenant’s transaction-level advisory lock until commit. Overlapping recovery calls can see different candidate sets. A stale candidate can make one call acquire A before waiting for B, while another holds B before requesting A. FOR UPDATE SKIP LOCKED only skips job-row locks; it does not skip the preceding advisory-lock wait.
+
+This is a source-derived deadlock scenario, not an executed failure or tenant-data escape. PostgreSQL’s deadlock handling may abort one transaction, but recovery liveness and safe retry still need qualification.
+
+Use a consistent global order for the complete selected tenant-lock set, or make recovery transactions tenant-bounded. Preserve control-before-job ordering across the other operations. Add a controlled multi-connection regression with expired jobs ordered A1, B1, A2, including a candidate recovered by another transaction before its lock is acquired. Check rollback, retry and receipt uniqueness.
+
+Along with the proposal_count mismatch, this remains an open successor finding. Neither changes the earlier offline semantic acceptance.

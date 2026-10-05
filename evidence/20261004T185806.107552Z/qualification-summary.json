@@ -1,0 +1,20 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-9bf4731757",
+  "image_id": "sha256:6999e54b4cb3df3db88893d79d2274b885f046e90b7c988333448217e229c772",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T185806.107552Z",
+  "test_arguments": [
+    "tests/test_roi_engine_v2.py::test_actual_chromium_pdf_preserves_unknowns_and_known_cost",
+    "-p",
+    "tests.renderer_qualification_diagnostics"
+  ],
+  "test_result_counts": {
+    "cases": 1,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "7ad550e3af60c816ce0c49020445efa5621a40c4a917715321184c2fb282f6c4"
+}

@@ -1,0 +1,12 @@
+{
+  "qualification_passed": true,
+  "negative_cases": [
+    "invented_value_net_and_roi",
+    "cost_substring_decoy",
+    "unrelated_cost_decoy",
+    "zero_value_instead_of_unknown",
+    "zero_net_instead_of_unknown"
+  ],
+  "pass_then_fail_receipts_removed": true,
+  "scope": "Mock-only exact probe execution; no real Chromium/PDF/Docker/provider/production execution."
+}

@@ -1,0 +1,35 @@
+PROPOSAL IDENTITY DIAGNOSIS — EXECUTED DISPOSABLE DB EVIDENCE
+Mode: fixture-only instrumented issuer; canonical product SQL unchanged.
+Qualification: 8 independent rounds; 3 failed, 5 passed; 128 requested POSTs per round, stop at first denial.
+Image: sha256:06b07a0ef8da02fc033469973625a7ca46e0deefc44aa53728bc4020977f193b
+
+All three executed identity guards rejected effective_future=True. Every other
+identity predicate was False; PostgreSQL request/bound timestamp roundtrip delta
+was 0 microseconds. Effective RC role inside issuer was agentledger_owner,
+session_user postgres; exact synthetic organization/actor/profile pins matched.
+
+1. Effective 21:00:42.973624; transaction 21:00:42.943220;
+   later Python 21:00:42.200944; issuer PG clock 21:00:42.204559;
+   effective-minus-PG 769065 microseconds.
+2. Effective 21:01:11.134953; transaction 21:01:11.091171;
+   later Python 21:01:10.398012; issuer PG clock 21:01:10.405173;
+   effective-minus-PG 729780 microseconds.
+3. Effective 21:01:39.257620; transaction 21:01:39.223806;
+   later Python 21:01:38.499589; issuer PG clock 21:01:38.503878;
+   effective-minus-PG 753742 microseconds.
+All timestamps UTC on 2026-10-04.
+
+These are backward wall-clock steps: later Python and PostgreSQL observations
+both precede the already captured request and transaction times. This proves
+an observed shared discontinuity, not its underlying host/WSL clock discipline
+cause. No clock subtraction, future-veto weakening or authority change follows.
+
+Instrumentation captured its clock immediately before the original identity IF;
+it retained every predicate and original effective-future comparison semantics,
+using that captured clock to prevent diagnostic-query delay masking the veto.
+ACL, owner, SECURITY DEFINER and original definition were checked and restored
+on teardown. The fixture also computes canonical and instrumented definition SHA pins;
+those pins are emitted on setup failure, not asserted as captured for these calls.
+Canonical predecessor failures and passing canonical runs remain separate.
+Full exact observations: identity-causal-observations.json and qualification.log.
+Production, providers, migrations and service gates were not changed.

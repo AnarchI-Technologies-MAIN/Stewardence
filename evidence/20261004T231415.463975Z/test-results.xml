@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="152" time="61.716" timestamp="2026-10-04T23:15:06.178499+00:00" hostname="a914e0041456"><testcase classname="tests.test_capture_archived_reads" name="test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[30-True]" time="8.271" /><testcase classname="tests.test_capture_archived_reads" name="test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[91-False]" time="1.035" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_direct_app_sql_cannot_issue_legacy_cards_for_admitted_capture2" time="0.467" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_direct_app_sql_unresolved_snapshot_cannot_bypass_schema_dispatch" time="0.497" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_schema1_issuance_and_exact_replay_keep_legacy_meaning" time="0.473" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[app_runtime]" time="0.427" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[worker_runtime]" time="0.344" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_worker_cannot_execute_public_legacy_issuer" time="0.775" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_schema1_delegate_body_and_searchpath_are_preserved" time="0.357" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_wrong_app_context_is_rejected_before_definer_snapshot_lookup[existing_capture]" time="0.586" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_wrong_app_context_is_rejected_before_definer_snapshot_lookup[unresolved]" time="0.473" /><testcase classname="tests.test_legacy_issuer_dependency_boundary" name="test_legacy_helper_exact_acl_and_all_provisioned_login_authority" time="0.530" /><testcase classname="tests.test_legacy_issuer_dependency_boundary" name="test_no_stored_dependency_or_procedure_body_bypasses_legacy_fence" time="0.578" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[unknown]" time="0.487" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[approval]" time="0.529" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[accounting_fail]" time="0.571"><failure message="assert False&#10; +  where False = any(&lt;generator object test_sql_issuance_matches_complete_permanent_python_contract.&lt;locals&gt;.&lt;genexpr&gt; at 0x7b72ddedf920&gt;)">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None, case = 'accounting_fail'
+
+    @pytest.mark.parametrize(
+        "case",
+        [
+            "unknown",
+            "approval",
+            "accounting_fail",
+            "non_accounting",
+            "known_no_actions",
+            "external_transfer",
+        ],
+    )
+    def test_sql_issuance_matches_complete_permanent_python_contract(
+        capture_context, enabled, case
+    ):
+        user, org = capture_context
+        if case == "non_accounting":
+            org.industry = "legal"
+            org.save(update_fields=["industry"])
+        if case in {
+            "approval",
+            "accounting_fail",
+            "known_no_actions",
+            "non_accounting",
+            "external_transfer",
+        }:
+            known_item = issue(
+                capture_context,
+                form(
+                    display_name="Explicit proposal specimen",
+                    business_owner="Responsible owner",
+                    business_purpose="Review declared workflow",
+                    human_approval="no",
+                    autonomy_level="3" if case != "known_no_actions" else "0",
+                    permissions=["write"] if case != "known_no_actions" else [NONE],
+                    capabilities={
+                        "approval": ["communication"],
+                        "accounting_fail": ["financial_transaction", "record_modification"],
+                        "non_accounting": ["financial_transaction", "record_modification"],
+                        "known_no_actions": [NONE],
+                        "external_transfer": ["external_transfer"],
+                    }[case],
+                    connected_systems=["banking"],
+                    data_categories=["payroll", "tax_records"],
+                ),
+            )
+        snapshot = admit(capture_context, preview(capture_context))
+        revision = issue_proposals(capture_context, snapshot)
+        assert revision.cards == build_review_proposals(
+            snapshot_id=snapshot.id, capture_envelope=envelope(snapshot)
+        )
+        assert issue_proposals(capture_context, snapshot).id == revision.id
+        receipt = CaptureProposalAdmissionReceipt.objects.get(revision=revision)
+        assert receipt.snapshot_id == snapshot.id
+        assert receipt.input_sha256 == snapshot.input_sha256
+        assert receipt.result_sha256 == snapshot.result_sha256
+        assert receipt.revision_sha256 == revision.sha256
+        assert all(
+            card["resolution_effect"] == "none" and card["resolution_verified"] is False
+            for card in revision.cards
+        )
+        generic = [
+            card for card in revision.cards if card["source"]["class"] != "accounting_fail"
+        ]
+        assert all("severity" not in card and "risk_score" not in card for card in generic)
+        if case == "known_no_actions":
+            normalized = next(
+                record
+                for record in snapshot.input_payload["inventory"]
+                if record["id"] == str(known_item.id)
+            )
+            assert normalized["permissions"] == []
+            assert normalized["capabilities"] == []
+            assert normalized["provenance"]["permissions"] == "Declared"
+            assert normalized["provenance"]["capabilities"] == "Declared"
+            assert normalized["human_approval"] is False
+            assert normalized["autonomy_level"] == 0
+            assert not any(
+                card["inventory_item_id"] == str(known_item.id)
+                and card["source"]["identity"] == "approval"
+                for card in revision.cards
+            )
+        if case in {"accounting_fail", "external_transfer"}:
+&gt;           assert any(
+                card["source"]["class"] == "accounting_fail" for card in revision.cards
+            )
+E           assert False
+E            +  where False = any(&lt;generator object test_sql_issuance_matches_complete_permanent_python_contract.&lt;locals&gt;.&lt;genexpr&gt; at 0x7b72ddedf920&gt;)
+
+tests/test_capture_proposal_admission.py:136: AssertionError</failure></testcase><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[non_accounting]" time="0.596" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[known_no_actions]" time="0.671" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[external_transfer]" time="0.743"><failure message="assert False&#10; +  where False = any(&lt;generator object test_sql_issuance_matches_complete_permanent_python_contract.&lt;locals&gt;.&lt;genexpr&gt; at 0x7b72dde4cad0&gt;)">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None, case = 'external_transfer'
+
+    @pytest.mark.parametrize(
+        "case",
+        [
+            "unknown",
+            "approval",
+            "accounting_fail",
+            "non_accounting",
+            "known_no_actions",
+            "external_transfer",
+        ],
+    )
+    def test_sql_issuance_matches_complete_permanent_python_contract(
+        capture_context, enabled, case
+    ):
+        user, org = capture_context
+        if case == "non_accounting":
+            org.industry = "legal"
+            org.save(update_fields=["industry"])
+        if case in {
+            "approval",
+            "accounting_fail",
+            "known_no_actions",
+            "non_accounting",
+            "external_transfer",
+        }:
+            known_item = issue(
+                capture_context,
+                form(
+                    display_name="Explicit proposal specimen",
+                    business_owner="Responsible owner",
+                    business_purpose="Review declared workflow",
+                    human_approval="no",
+                    autonomy_level="3" if case != "known_no_actions" else "0",
+                    permissions=["write"] if case != "known_no_actions" else [NONE],
+                    capabilities={
+                        "approval": ["communication"],
+                        "accounting_fail": ["financial_transaction", "record_modification"],
+                        "non_accounting": ["financial_transaction", "record_modification"],
+                        "known_no_actions": [NONE],
+                        "external_transfer": ["external_transfer"],
+                    }[case],
+                    connected_systems=["banking"],
+                    data_categories=["payroll", "tax_records"],
+                ),
+            )
+        snapshot = admit(capture_context, preview(capture_context))
+        revision = issue_proposals(capture_context, snapshot)
+        assert revision.cards == build_review_proposals(
+            snapshot_id=snapshot.id, capture_envelope=envelope(snapshot)
+        )
+        assert issue_proposals(capture_context, snapshot).id == revision.id
+        receipt = CaptureProposalAdmissionReceipt.objects.get(revision=revision)
+        assert receipt.snapshot_id == snapshot.id
+        assert receipt.input_sha256 == snapshot.input_sha256
+        assert receipt.result_sha256 == snapshot.result_sha256
+        assert receipt.revision_sha256 == revision.sha256
+        assert all(
+            card["resolution_effect"] == "none" and card["resolution_verified"] is False
+            for card in revision.cards
+        )
+        generic = [
+            card for card in revision.cards if card["source"]["class"] != "accounting_fail"
+        ]
+        assert all("severity" not in card and "risk_score" not in card for card in generic)
+        if case == "known_no_actions":
+            normalized = next(
+                record
+                for record in snapshot.input_payload["inventory"]
+                if record["id"] == str(known_item.id)
+            )
+            assert normalized["permissions"] == []
+            assert normalized["capabilities"] == []
+            assert normalized["provenance"]["permissions"] == "Declared"
+            assert normalized["provenance"]["capabilities"] == "Declared"
+            assert normalized["human_approval"] is False
+            assert normalized["autonomy_level"] == 0
+            assert not any(
+                card["inventory_item_id"] == str(known_item.id)
+                and card["source"]["identity"] == "approval"
+                for card in revision.cards
+            )
+        if case in {"accounting_fail", "external_transfer"}:
+&gt;           assert any(
+                card["source"]["class"] == "accounting_fail" for card in revision.cards
+            )
+E           assert False
+E            +  where False = any(&lt;generator object test_sql_issuance_matches_complete_permanent_python_contract.&lt;locals&gt;.&lt;genexpr&gt; at 0x7b72dde4cad0&gt;)
+
+tests/test_capture_proposal_admission.py:136: AssertionError</failure></testcase><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[python]" time="0.730" /><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[database]" time="0.962" /><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[paid]" time="0.767" /><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[profile]" time="0.935" /><testcase classname="tests.test_capture_proposal_admission" name="test_raw_proposal_receipt_and_revision_insertion_are_denied[app_runtime]" time="0.458" /><testcase classname="tests.test_capture_proposal_admission" name="test_raw_proposal_receipt_and_revision_insertion_are_denied[worker_runtime]" time="0.502" /><testcase classname="tests.test_capture_proposal_admission" name="test_worker_cannot_issue_or_read_proposal_receipts" time="0.728" /><testcase classname="tests.test_capture_proposal_admission" name="test_private_recompute_and_uuid_extension_members_are_owner_only" time="0.318" /><testcase classname="tests.test_capture_proposal_admission" name="test_two_actual_app_connections_issue_one_revision_and_receipt" time="0.946" /><testcase classname="tests.test_capture_proposal_admission" name="test_wrong_context_denied_before_snapshot_lookup" time="0.686" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[actor]" time="0.651" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[organization]" time="0.827" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[snapshot]" time="0.675" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[capture_receipt]" time="0.608" /><testcase classname="tests.test_capture_proposal_admission" name="test_receipt_owner_read_and_immutable_replay" time="0.609" /><testcase classname="tests.test_capture_decisions" name="test_exact_proposal_statement_does_not_promote_frozen_unknown[completion_recorded]" time="0.537"><failure message="django.db.utils.ProgrammingError: AgentLedger tenant context is not set&#10;CONTEXT:  PL/pgSQL function app_private.current_organization_id() line 7 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x7b72dd20bdd0&gt;
+sql = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('f093144c-14d4-4599-aeea-bcae9af0864e'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='app_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x7b72dd20bdd0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7b72ddc7a890&gt;
+query = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('f093144c-14d4-4599-aeea-bcae9af0864e'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: AgentLedger tenant context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_organization_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+capture_decision_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 36595e25-8e56-45bc-8620-383b3a41c14d v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (f093144c-14d4-4599-aeea-bcae9af0864e)&gt;)
+state = 'completion_recorded'
+
+    @pytest.mark.parametrize("state", ["completion_recorded", "evidence_reviewed"])
+    def test_exact_proposal_statement_does_not_promote_frozen_unknown(
+        capture_decision_context, state
+    ):
+        context = capture_decision_context
+        before_cards = context[3].cards
+        before_result = context[2].result_payload
+        event = DecisionEvent.objects.get(id=decide(context, state=state))
+        assert event.payload["schema"] == "stewardence.core_decision_event.v2"
+        assert event.payload["proposal_id"] == before_cards[0]["proposal_id"]
+        assert event.payload["proposal_sha256"] == before_cards[0]["sha256"]
+        assert event.payload["original_outcome"] == "UNKNOWN"
+        assert event.payload["resolution_effect"] == "none"
+        assert event.payload["source_state_immutable"] is True
+        assert event.payload["owner_statement_only"] is True
+        assert event.payload["resolution_verified"] is False
+&gt;       context[3].refresh_from_db()
+
+tests/test_capture_decisions.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/base.py:737: in refresh_from_db
+    db_instance = db_instance_qs.get()
+                  ^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7b72ddc7a890&gt;
+query = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('f093144c-14d4-4599-aeea-bcae9af0864e'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: AgentLedger tenant context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_organization_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_capture_decisions" name="test_exact_proposal_statement_does_not_promote_frozen_unknown[evidence_reviewed]" time="0.396"><failure message="django.db.utils.ProgrammingError: AgentLedger tenant context is not set&#10;CONTEXT:  PL/pgSQL function app_private.current_organization_id() line 7 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x7b72dcd53110&gt;
+sql = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('7e37a0ef-c2a1-42cb-bbbc-cfc3f521144e'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='app_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x7b72dcd53110&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7b72dddbb4d0&gt;
+query = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('7e37a0ef-c2a1-42cb-bbbc-cfc3f521144e'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: AgentLedger tenant context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_organization_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+capture_decision_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: c690343d-7e24-425b-852a-75d10d50e27e v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (7e37a0ef-c2a1-42cb-bbbc-cfc3f521144e)&gt;)
+state = 'evidence_reviewed'
+
+    @pytest.mark.parametrize("state", ["completion_recorded", "evidence_reviewed"])
+    def test_exact_proposal_statement_does_not_promote_frozen_unknown(
+        capture_decision_context, state
+    ):
+        context = capture_decision_context
+        before_cards = context[3].cards
+        before_result = context[2].result_payload
+        event = DecisionEvent.objects.get(id=decide(context, state=state))
+        assert event.payload["schema"] == "stewardence.core_decision_event.v2"
+        assert event.payload["proposal_id"] == before_cards[0]["proposal_id"]
+        assert event.payload["proposal_sha256"] == before_cards[0]["sha256"]
+        assert event.payload["original_outcome"] == "UNKNOWN"
+        assert event.payload["resolution_effect"] == "none"
+        assert event.payload["source_state_immutable"] is True
+        assert event.payload["owner_statement_only"] is True
+        assert event.payload["resolution_verified"] is False
+&gt;       context[3].refresh_from_db()
+
+tests/test_capture_decisions.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/base.py:737: in refresh_from_db
+    db_instance = db_instance_qs.get()
+                  ^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7b72dddbb4d0&gt;
+query = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('7e37a0ef-c2a1-42cb-bbbc-cfc3f521144e'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: AgentLedger tenant context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_organization_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[proposal_id-3b7722ec-7b39-4612-963a-70a649866270]" time="0.435" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[proposal_sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]" time="0.387" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[card_index-1]" time="0.412" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[card_index-True]" time="0.347" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[proposal_sha256-None]" time="0.357" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[original_outcome-PASS]" time="0.389" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[resolution_verified-True]" time="0.441" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[notes-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]" time="0.616" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[responsible_label-]" time="0.439" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[links-value9]" time="0.624" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[links-value10]" time="0.417" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[links-None]" time="0.667" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[state-verified]" time="0.535" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[due_date-tomorrow]" time="0.468" /><testcase classname="tests.test_capture_decisions" name="test_old_issuer_and_private_helper_cannot_admit_capture" time="0.361" /><testcase classname="tests.test_capture_decisions" name="test_other_login_roles_have_no_decision_issuer[worker_runtime]" time="0.428" /><testcase classname="tests.test_capture_decisions" name="test_other_login_roles_have_no_decision_issuer[billing_admission]" time="0.439" /><testcase classname="tests.test_capture_decisions" name="test_context_identity_and_foreign_revision_denied" time="0.409" /><testcase classname="tests.test_capture_decisions" name="test_current_admission_gates[python]" time="0.369" /><testcase classname="tests.test_capture_decisions" name="test_current_admission_gates[decision]" time="0.469" /><testcase classname="tests.test_capture_decisions" name="test_current_admission_gates[proposal]" time="0.544" /><testcase classname="tests.test_capture_decisions" name="test_current_admission_gates[pause]" time="0.451" /><testcase classname="tests.test_capture_decisions" name="test_current_admission_gates[profile]" time="0.437"><failure message="django.db.utils.ProgrammingError: Workflow profile is immutable&#10;CONTEXT:  PL/pgSQL function app_private.protect_workflow_profile() line 3 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x7b72dd375790&gt;
+sql = 'DELETE FROM "organization_workflow_profiles" WHERE "organization_workflow_profiles"."organization_id" = %s'
+params = (UUID('ec74feda-26ba-4ce4-9bfe-acb14881b1af'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x7b72dd375790&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7b72dddbbd90&gt;
+query = 'DELETE FROM "organization_workflow_profiles" WHERE "organization_workflow_profiles"."organization_id" = %s'
+params = (UUID('ec74feda-26ba-4ce4-9bfe-acb14881b1af'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Workflow profile is immutable
+E           CONTEXT:  PL/pgSQL function app_private.protect_workflow_profile() line 3 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+capture_decision_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: f247619c-f4c9-4794-9a79-a2e6183c4527 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (5c3e2c21-5ee1-4801-a004-b22d3cba8724)&gt;)
+settings = &lt;pytest_django.fixtures.Settings object at 0x7b72dd3941e0&gt;
+gate = 'profile'
+
+    @pytest.mark.parametrize("gate", ["python", "decision", "proposal", "pause", "profile"])
+    def test_current_admission_gates(capture_decision_context, settings, gate):
+        context = capture_decision_context
+        if gate == "python":
+            settings.DECISION_DESK_ENABLED = False
+            with pytest.raises(PermissionDenied):
+                decide(context)
+        else:
+            if gate == "decision":
+                DecisionDeskGate.objects.filter(id=1).update(enabled=False)
+            if gate == "proposal":
+                CoreProposalAdmissionGate.objects.filter(id=1).update(enabled=False)
+            if gate == "pause":
+                configure_control(
+                    organization_id=context[1].id,
+                    actor_id=context[0].id,
+                    mode="paused",
+                    reason="Owner stop",
+                    using="app_runtime",
+                )
+            if gate == "profile":
+&gt;               WorkflowProfile.objects.filter(organization=context[1]).delete()
+
+tests/test_capture_decisions.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1201: in delete
+    num_deleted, num_deleted_per_model = collector.delete()
+                                         ^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/deletion.py:467: in delete
+    count = qs._raw_delete(using=self.using)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1223: in _raw_delete
+    return query.get_compiler(using).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7b72dddbbd90&gt;
+query = 'DELETE FROM "organization_workflow_profiles" WHERE "organization_workflow_profiles"."organization_id" = %s'
+params = (UUID('ec74feda-26ba-4ce4-9bfe-acb14881b1af'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Workflow profile is immutable
+E           CONTEXT:  PL/pgSQL function app_private.protect_workflow_profile() line 3 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_capture_decisions" name="test_exact_history_cas_and_concurrent_first_statement" time="0.528" /><testcase classname="tests.test_capture_decisions" name="test_actor_fk_wait_rechecks_owner_after_wait" time="0.369" /><testcase classname="tests.test_capture_decisions" name="test_same_tenant_viewer_cannot_issue_or_read_owner_statement" time="0.408" /><testcase classname="tests.test_capture_decisions" name="test_app_has_no_raw_statement_write_authority" time="0.478" /><testcase classname="tests.test_capture_decisions" name="test_current_issued_coverage_uses_central_paid_policy[past_due-True]" time="0.520" /><testcase classname="tests.test_capture_decisions" name="test_current_issued_coverage_uses_central_paid_policy[canceled-False]" time="0.838" /><testcase classname="tests.test_capture_decisions" name="test_missing_issuance_receipt_cannot_be_replaced_by_self_consistent_cards" time="0.855" /><testcase classname="tests.test_core_decisions" name="test_exact_binding_append_only_statement_and_selection" time="0.618" /><testcase classname="tests.test_core_decisions" name="test_feature_and_operator_gates_fail_closed" time="0.720" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes0]" time="0.434" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes1]" time="0.505" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes2]" time="0.336" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes3]" time="0.392" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes4]" time="0.399" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes5]" time="0.360" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes6]" time="0.443" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes7]" time="0.360" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes8]" time="0.383" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes9]" time="0.425" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes10]" time="0.524" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes11]" time="0.469" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes12]" time="0.349" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes13]" time="0.400" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes14]" time="0.349" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes15]" time="0.323" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes16]" time="0.414" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes17]" time="0.334" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes18]" time="0.286" /><testcase classname="tests.test_core_decisions" name="test_raw_runtime_writes_and_owner_only_selection_denied" time="0.342" /><testcase classname="tests.test_core_decisions" name="test_stale_cas_and_cross_tenant_never_append" time="0.340" /><testcase classname="tests.test_core_decisions" name="test_pause_denies_new_decisions" time="0.367" /><testcase classname="tests.test_core_decisions" name="test_past_due_subscription_retains_current_issued_coverage_authority" time="0.351" /><testcase classname="tests.test_core_decisions" name="test_same_tenant_viewer_cannot_read_or_issue_owner_decisions" time="0.382" /><testcase classname="tests.test_core_decisions" name="test_two_simultaneous_first_events_have_one_cas_winner" time="0.326" /><testcase classname="tests.test_core_decisions" name="test_no_carry_forward_to_other_snapshot_or_tenant" time="0.317" /><testcase classname="tests.test_core_decisions" name="test_frozen_pack_replay_retains_selected_event_when_current_decision_changes" time="0.451" /><testcase classname="tests.test_capture_comparison_ui" name="test_owner_comparison_changes_and_chronology_are_read_only[False]" time="0.772" /><testcase classname="tests.test_capture_comparison_ui" name="test_owner_comparison_changes_and_chronology_are_read_only[True]" time="0.724" /><testcase classname="tests.test_capture_context_history" name="test_cold_historical_context_keeps_meaning_after_current_alias_drift[other]" time="0.026" /><testcase classname="tests.test_capture_context_history" name="test_cold_historical_context_keeps_meaning_after_current_alias_drift[accounting_bookkeeping]" time="0.078" /><testcase classname="tests.test_capture_context_history" name="test_cold_standalone_renderer_never_imports_application_semantics" time="0.020" /><testcase classname="tests.test_capture_context_history" name="test_alias_drift_does_not_open_v3_decision_selection" time="0.007" /><testcase classname="tests.test_capture_historical_semantics" name="test_permanent_capture_ignores_current_semantic_aliases[other-dac2763c822baaf708fbb22c46f09ea14917b35991504d89d94a56f6bce54fd8-89370962075734b9dab03348d7aa4d5bf40515f6e58e788b7e33741cbba581c1]" time="0.008" /><testcase classname="tests.test_capture_historical_semantics" name="test_permanent_capture_ignores_current_semantic_aliases[accounting_bookkeeping-fc510a466bb56099dcfa42e86882ef2bb7ffd18b591a439b5a6a3f10e7389eca-77de47e4506d81b034f9faac31d1c446d1acde7902f9dc0b0ded382915281365]" time="0.025" /><testcase classname="tests.test_capture_proposals_contract" name="test_finite_unknown_allowlist_and_exact_source_pins" time="0.008" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[False-1-CONCERN]" time="0.007" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[True-1-PASS]" time="0.007" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[False-0-NOT_APPLICABLE]" time="0.006" /><testcase classname="tests.test_capture_proposals_contract" name="test_accounting_fail_requires_exact_frozen_qualification" time="0.029" /><testcase classname="tests.test_capture_proposals_contract" name="test_unknown_premise_does_not_emit_accounting_failure" time="0.022" /><testcase classname="tests.test_capture_proposals_contract" name="test_deterministic_order_identity_digest_and_no_aliases" time="0.031" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[question]" time="0.038" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[digest]" time="0.037" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[record]" time="0.033" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[result]" time="0.031" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[definition]" time="0.034" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[applicability]" time="0.031" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[extra]" time="0.046" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[None]" time="0.003" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[True]" time="0.003" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[malformed2]" time="0.004" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[2_0]" time="0.005" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[2_1]" time="0.003" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_snapshot_uuid_and_boolean_admission_shape_denied" time="0.005" /><testcase classname="tests.test_capture_proposals_contract" name="test_independent_later_capture_changes_without_rewriting_unknown" time="0.014" /><testcase classname="tests.test_capture_proposals_contract" name="test_fixed_v1_uuid_and_complete_payload_digest_goldens" time="0.006" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[contract_version-True]" time="0.011" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[digest-None]" time="0.012" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[digest-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]" time="0.012" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[source_fields-None]" time="0.013" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[source_fields-value4]" time="0.014" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[definition_sha256-0]" time="0.012" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[class-accounting_fail]" time="0.012" /><testcase classname="tests.test_capture_proposals_contract" name="test_missing_extra_reordered_and_null_proposals_deny" time="0.025" /><testcase classname="tests.test_capture_proposals_contract" name="test_bare_default_values_never_become_known_accounting_premises" time="0.001" /><testcase classname="tests.test_capture_comparison_v2" name="test_unknown_to_declaration_has_exact_values_and_no_resolution" time="0.014" /><testcase classname="tests.test_capture_comparison_v2" name="test_identical_capture_has_no_changed_items" time="0.007" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[foreign_org]" time="0.005" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[reversed]" time="0.007" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[same_id]" time="0.007" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[rehashed_result]" time="0.009" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[schema]" time="0.008" /><testcase classname="tests.test_review_comparison" name="test_unchanged_inputs_ignore_new_snapshot_identity_and_date" time="0.002" /><testcase classname="tests.test_review_comparison" name="test_declarations_and_rule_changes_are_separate_not_causal" time="0.005" /><testcase classname="tests.test_review_comparison" name="test_missing_field_and_explicit_null_are_distinct_changes" time="0.003" /><testcase classname="tests.test_review_comparison" name="test_added_and_removed_items_have_explicit_identity_and_digests" time="0.004" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[tenant]" time="0.003" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[tamper]" time="0.002" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[duplicate]" time="0.002" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[reverse]" time="0.003" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[bool]" time="0.002" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[id_type]" time="0.003" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[tree]" time="0.348" /></testsuite></testsuites>

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Import software — Stewardence{% endblock %}
+{% block content %}
+  <section class="page-heading"><p class="eyebrow">Step 1 of 3 · Select</p><h1>Select your software list spreadsheet</h1><p>Upload a CSV containing your firm's software tools. Nothing is added to inventory yet.</p></section>
+  <form class="card form-card" method="post" enctype="multipart/form-data">
+    {% csrf_token %}{{ form.as_p }}
+    <div class="button-row"><button class="button" type="submit">Check spreadsheet</button><a class="button secondary" href="{% url 'inventory:list' %}">Cancel</a></div>
+  </form>
+{% endblock %}

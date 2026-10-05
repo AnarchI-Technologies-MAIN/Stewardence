@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="56" time="189.076" timestamp="2026-10-04T23:48:49.898470+00:00" hostname="467877f70404"><testcase classname="tests.test_capture_v4_reads" name="test_owner_reads_all_proposals_and_exact_frozen_events_after_later_history" time="34.713" /><testcase classname="tests.test_capture_v4_reads" name="test_viewer_and_foreign_owner_cannot_read_frozen_capture_content[viewer]" time="3.622" /><testcase classname="tests.test_capture_v4_reads" name="test_viewer_and_foreign_owner_cannot_read_frozen_capture_content[assessor]" time="6.565" /><testcase classname="tests.test_capture_v4_reads" name="test_viewer_and_foreign_owner_cannot_read_frozen_capture_content[foreign_owner]" time="4.610" /><testcase classname="tests.test_capture_v4_reads" name="test_real_missing_issuance_rows_withhold_frozen_pack[proposal_receipt]" time="2.310" /><testcase classname="tests.test_capture_v4_reads" name="test_real_missing_issuance_rows_withhold_frozen_pack[events]" time="3.065" /><testcase classname="tests.test_capture_v4_reads" name="test_self_consistent_manifest_metadata_does_not_replace_actual_issuance[proposal_receipt_id]" time="2.407" /><testcase classname="tests.test_capture_v4_reads" name="test_self_consistent_manifest_metadata_does_not_replace_actual_issuance[revision_id]" time="3.124" /><testcase classname="tests.test_capture_v4_reads" name="test_self_consistent_manifest_metadata_does_not_replace_actual_issuance[qualification_sha256]" time="2.714" /><testcase classname="tests.test_capture_v4_reads" name="test_real_row_selection_checks_are_actual_app_owner_role" time="2.415" /><testcase classname="tests.test_capture_v4_reads" name="test_malformed_persisted_event_index_is_bounded_before_card_access[-1]" time="4.167" /><testcase classname="tests.test_capture_v4_reads" name="test_malformed_persisted_event_index_is_bounded_before_card_access[9999]" time="3.040" /><testcase classname="tests.test_capture_v4_reads" name="test_malformed_persisted_event_index_is_bounded_before_card_access[True]" time="3.525" /><testcase classname="tests.test_capture_v4_reads" name="test_malformed_persisted_event_index_is_bounded_before_card_access[None]" time="3.924" /><testcase classname="tests.test_capture_v4_reads" name="test_event_row_digest_pins_cannot_disagree_with_frozen_payload[revision_sha256]" time="3.132" /><testcase classname="tests.test_capture_v4_reads" name="test_event_row_digest_pins_cannot_disagree_with_frozen_payload[snapshot_result_sha256]" time="3.456" /><testcase classname="tests.test_capture_v4_reads" name="test_event_row_digest_pins_cannot_disagree_with_frozen_payload[card_sha256]" time="4.552" /><testcase classname="tests.test_capture_v4_packs" name="test_v4_freezes_all_issued_proposals_without_claiming_statements" time="2.428" /><testcase classname="tests.test_capture_v4_packs" name="test_disposition_and_execution_freeze_independently_and_replay_old_history" time="2.293" /><testcase classname="tests.test_capture_v4_packs" name="test_v3_replay_never_changes_when_proposals_are_issued_later" time="2.284" /><testcase classname="tests.test_capture_v4_packs" name="test_exact_preflight_matches_permanent_context_and_actual_worker_projection" time="2.494"><failure message="django.db.utils.ProgrammingError: Capture decision authority unavailable after waits&#10;CONTEXT:  PL/pgSQL function app_private.issue_core_capture_decision(uuid,uuid,jsonb) line 82 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x72fa2efd0530&gt;
+sql = 'SELECT app_private.issue_core_capture_decision(%s,%s,%s::jsonb)'
+params = [UUID('3d63748c-e062-4482-9d0a-2c3ded1881f5'), UUID('762609da-5bf0-4d3a-a6ed-f6747bb839e8'), '{"schema": "stewardence...."due_date": null, "notes": "Owner statement &lt;script&gt;literal&lt;/script&gt;", "links": ["https://example.invalid/evidence"]}']
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='app_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x72fa2efd0530&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x72fa31fcb230&gt;
+query = 'SELECT app_private.issue_core_capture_decision(%s,%s,%s::jsonb)'
+params = [UUID('3d63748c-e062-4482-9d0a-2c3ded1881f5'), UUID('762609da-5bf0-4d3a-a6ed-f6747bb839e8'), '{"schema": "stewardence...."due_date": null, "notes": "Owner statement &lt;script&gt;literal&lt;/script&gt;", "links": ["https://example.invalid/evidence"]}']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Capture decision authority unavailable after waits
+E           CONTEXT:  PL/pgSQL function app_private.issue_core_capture_decision(uuid,uuid,jsonb) line 82 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+capture_decision_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 453e8f6c-d907-4d30-a9f1-7072b95c7633 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (58796efb-3eb5-4060-a8bf-126c0efb46ef)&gt;)
+lifecycle = None
+
+    def test_exact_preflight_matches_permanent_context_and_actual_worker_projection(
+        capture_decision_context, lifecycle
+    ):
+&gt;       decide(capture_decision_context, notes="Owner statement &lt;script&gt;literal&lt;/script&gt;")
+
+tests/test_capture_v4_packs.py:134: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_capture_decisions.py:84: in decide
+    return record_capture_decision(
+apps/jobs/core_decisions_v2.py:79: in record_capture_decision
+    cursor.execute(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x72fa31fcb230&gt;
+query = 'SELECT app_private.issue_core_capture_decision(%s,%s,%s::jsonb)'
+params = [UUID('3d63748c-e062-4482-9d0a-2c3ded1881f5'), UUID('762609da-5bf0-4d3a-a6ed-f6747bb839e8'), '{"schema": "stewardence...."due_date": null, "notes": "Owner statement &lt;script&gt;literal&lt;/script&gt;", "links": ["https://example.invalid/evidence"]}']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Capture decision authority unavailable after waits
+E           CONTEXT:  PL/pgSQL function app_private.issue_core_capture_decision(uuid,uuid,jsonb) line 82 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_capture_v4_packs" name="test_private_v4_issuers_and_preflight_are_not_role_authority[app_runtime]" time="1.407" /><testcase classname="tests.test_capture_v4_packs" name="test_private_v4_issuers_and_preflight_are_not_role_authority[worker_runtime]" time="1.432" /><testcase classname="tests.test_capture_v4_packs" name="test_v4_request_cannot_authorize_baseline" time="3.413" /><testcase classname="tests.test_capture_v4_worker" name="test_capture_v4_actual_worker_chromium_private_owner_delivery[other]" time="46.257"><failure message="assert 503 == 200&#10; +  where 503 = &lt;HttpResponse status_code=503, &quot;text/html; charset=utf-8&quot;&gt;.status_code">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_capture_v4_actual_worker_0')
+industry = 'other'
+client = &lt;django.test.client.Client object at 0x72fa2eaa1c70&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0x72fa2ec0d750&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x72fa2ec1cb40&gt;
+
+    @pytest.mark.parametrize("industry", ["other", "accounting_bookkeeping"])
+    def test_capture_v4_actual_worker_chromium_private_owner_delivery(
+        capture_context, enabled, tmp_path, industry, client, settings, monkeypatch
+    ):
+        user, org = capture_context
+        org.industry = industry
+        org.save(update_fields=["industry"])
+        settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+        settings.DECISION_DESK_ENABLED = True
+        CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        DecisionDeskGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        snapshot = admit(capture_context, preview(capture_context))
+        revision = issue_capture_proposals(
+            organization_id=org.id,
+            actor_id=user.id,
+            snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        prior = None
+        event_ids = []
+        for kind, state in (("disposition", "act"), ("execution", "completion_recorded")):
+            prior = record_capture_decision(
+                organization_id=org.id,
+                actor_id=user.id,
+                revision_id=revision.id,
+                proposal_id=UUID(revision.cards[0]["proposal_id"]),
+                proposal_sha256=revision.cards[0]["sha256"],
+                card_index=0,
+                event_kind=kind,
+                state=state,
+                responsible_label="Named responsible owner",
+                expected_previous_event=prior,
+                notes="Owner statement is not verified resolution.",
+                links=["https://example.invalid/reference"],
+                using="app_runtime",
+            )
+            event_ids.append(prior)
+        cycle = open_cycle(
+            organization_id=org.id,
+            actor_id=user.id,
+            input_snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        pack = freeze_cycle(
+            cycle_id=cycle.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            expected_revision=1,
+            using="app_runtime",
+        )
+        assert pack.manifest["schema"] == "stewardence.review_pack.v4"
+        assert len(pack.manifest["selected_proposals"]) == len(revision.cards)
+        assert {item["event_id"] for item in pack.manifest["selected_decisions"]} == {
+            str(value) for value in event_ids
+        }
+        assert all(
+            DecisionEvent.objects.get(id=value).payload["resolution_verified"] is False
+            for value in event_ids
+        )
+        staged = request_pack_artifact(
+            pack_id=pack.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            promote_baseline=False,
+            using="app_runtime",
+        )
+        BackgroundJob.objects.filter(id=staged.job_id).update(priority=-100)
+        with transaction.atomic(using="worker_runtime"):
+            job = claim_next_job("capture-review-qualification", using="worker_runtime")
+        assert job is not None and job.id == staged.job_id
+        with (
+            tenant_transaction(org.id, using="worker_runtime"),
+            connections["worker_runtime"].cursor() as cursor,
+        ):
+            cursor.execute("SELECT current_user,current_setting('transaction_isolation')")
+            assert cursor.fetchone() == ("agentledger_worker", "read committed")
+        renderer = ActualRenderer(tmp_path / "render")
+        delegate = ReportGenerationHandler(
+            renderer=renderer,
+            storage=LocalPrivateReportStorage(tmp_path / "private"),
+            using="worker_runtime",
+        )
+        handler = ReviewReportGenerationHandler(
+            delegate, worker_id="capture-review-qualification"
+        )
+        execute_claimed_job(
+            JobExecution(job=job, worker_id="capture-review-qualification"),
+            handler,
+            using="worker_runtime",
+        )
+        assert renderer.context["context_version"] == "AL-REVIEW-PACK-CONTEXT-3"
+        assert renderer.context["projection"]["manifest_sha256"] == pack.sha256
+        text = " ".join(
+            " ".join(
+                page.extract_text() or "" for page in PdfReader(BytesIO(renderer.pdf)).pages
+            ).split()
+        )
+        assert "Risk: not assessed" in text and "Benefit model: not supplied" in text
+        assert "Generic exposure review" in text and "Low" not in text
+        assert "disposition: act" in text and "execution: completion_recorded" in text
+        assert "Original outcome: UNKNOWN" in text
+        completion = PackCompletion.objects.get(request=staged)
+        assert completion.payload["verification"] == "trusted_handler_storage_readback"
+        assert completion.payload["baseline_outcome"] == "not_requested"
+        assert completion.payload["manifest_sha256"] == pack.sha256
+        assert completion.artifact.sha256 == completion.payload["artifact_sha256"]
+        assert not BaselineHead.objects.filter(organization=org).exists()
+        assert ReviewCycle.objects.get(id=cycle.id).state == "COMPLETED"
+        assert BackgroundJob.objects.get(id=job.id).status == "completed"
+        settings.ALLOWED_HOSTS = ["testserver"]
+        client.force_login(user)
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+    
+        def forbidden_legacy_context(report):
+            pytest.fail("Capture delivery invoked the legacy risk/ROI builder")
+    
+        monkeypatch.setattr(
+            "apps.reports.views.build_report_context", forbidden_legacy_context
+        )
+        monkeypatch.setattr("apps.reports.views._report_storage", lambda: delegate.storage)
+        with actual_app_default():
+            pack_page = client.get(
+                reverse("reviews:pack-detail", kwargs={"pack_id": pack.id})
+            )
+&gt;           assert pack_page.status_code == 200
+E           assert 503 == 200
+E            +  where 503 = &lt;HttpResponse status_code=503, "text/html; charset=utf-8"&gt;.status_code
+
+tests/test_capture_v4_worker.py:180: AssertionError</failure></testcase><testcase classname="tests.test_capture_v4_worker" name="test_capture_v4_actual_worker_chromium_private_owner_delivery[accounting_bookkeeping]" time="6.972"><failure message="django.db.utils.ProgrammingError: Capture admission unavailable after waits&#10;CONTEXT:  PL/pgSQL function app_private.issue_deliberate_capture(uuid,uuid,jsonb,jsonb) line 76 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x72fa2fdbadb0&gt;
+sql = 'SELECT app_private.issue_deliberate_capture(%s,%s,%s::jsonb,%s::jsonb)'
+params = [UUID('bbc3c6f3-eac3-4d08-b9bd-fe3bdf51ea5a'), UUID('7ec39512-fd0a-450e-9345-972cec566f89'), '{"schema": "core.capture...259416b16bc87ab1b49a5188f4c83d", "result_sha256": "b8ee4161fd9ff5566bb86d2a1e7f15f5ee27f9286a06260904e3eac3a1862514"}']
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='app_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x72fa2fdbadb0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x72fa2fd45470&gt;
+query = 'SELECT app_private.issue_deliberate_capture(%s,%s,%s::jsonb,%s::jsonb)'
+params = [UUID('bbc3c6f3-eac3-4d08-b9bd-fe3bdf51ea5a'), UUID('7ec39512-fd0a-450e-9345-972cec566f89'), '{"schema": "core.capture...259416b16bc87ab1b49a5188f4c83d", "result_sha256": "b8ee4161fd9ff5566bb86d2a1e7f15f5ee27f9286a06260904e3eac3a1862514"}']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Capture admission unavailable after waits
+E           CONTEXT:  PL/pgSQL function app_private.issue_deliberate_capture(uuid,uuid,jsonb,jsonb) line 76 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_capture_v4_actual_worker_1')
+industry = 'accounting_bookkeeping'
+client = &lt;django.test.client.Client object at 0x72fa2fdd58b0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0x72fa2fb0a9d0&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x72fa2fd8d0f0&gt;
+
+    @pytest.mark.parametrize("industry", ["other", "accounting_bookkeeping"])
+    def test_capture_v4_actual_worker_chromium_private_owner_delivery(
+        capture_context, enabled, tmp_path, industry, client, settings, monkeypatch
+    ):
+        user, org = capture_context
+        org.industry = industry
+        org.save(update_fields=["industry"])
+        settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+        settings.DECISION_DESK_ENABLED = True
+        CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        DecisionDeskGate.objects.update_or_create(id=1, defaults={"enabled": True})
+&gt;       snapshot = admit(capture_context, preview(capture_context))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_v4_worker.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_capture_admission.py:48: in admit
+    return issue_deliberate_capture(
+apps/assessments/capture_admission.py:92: in issue_deliberate_capture
+    cursor.execute(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x72fa2fd45470&gt;
+query = 'SELECT app_private.issue_deliberate_capture(%s,%s,%s::jsonb,%s::jsonb)'
+params = [UUID('bbc3c6f3-eac3-4d08-b9bd-fe3bdf51ea5a'), UUID('7ec39512-fd0a-450e-9345-972cec566f89'), '{"schema": "core.capture...259416b16bc87ab1b49a5188f4c83d", "result_sha256": "b8ee4161fd9ff5566bb86d2a1e7f15f5ee27f9286a06260904e3eac3a1862514"}']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Capture admission unavailable after waits
+E           CONTEXT:  PL/pgSQL function app_private.issue_deliberate_capture(uuid,uuid,jsonb,jsonb) line 76 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_capture_v4_renderer" name="test_v4_exact_semantics_disposition_and_execution[other]" time="0.142" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_exact_semantics_disposition_and_execution[accounting_bookkeeping]" time="0.415" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[source]" time="0.072" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[text]" time="0.042" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[digest]" time="0.064" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[index_bool]" time="0.070" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[duplicate]" time="0.059" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[resolution]" time="0.097" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[event_source]" time="0.097" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[event_bool]" time="0.101" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[event_kind]" time="0.072" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[baseline]" time="0.037" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[extra]" time="0.082" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[missing_proposal]" time="0.068" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[proposal_contract]" time="0.087" /><testcase classname="tests.test_capture_v4_renderer" name="test_standalone_cold_import_without_apps" time="0.351" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[assessments/policy_engine_v1-policy_engine]" time="0.058" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[assessments/accounting_pack_v1-accounting_pack]" time="0.034" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[assessments/workflow_profile_v1-workflow_profile]" time="0.020" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[assessments/capture_v1-capture]" time="0.057" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[reviews/exposure_v1-exposure]" time="0.024" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[reviews/proposals_v1-proposals]" time="0.040" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_oversized_context_denied_without_truncation" time="0.244" /><testcase classname="tests.test_capture_v4_renderer" name="test_app_and_standalone_closed_validator_bodies_equal" time="0.093" /><testcase classname="tests.test_capture_v4_renderer" name="test_pre_request_selection_validation_without_fabricated_request_metadata[None]" time="0.062" /><testcase classname="tests.test_capture_v4_renderer" name="test_pre_request_selection_validation_without_fabricated_request_metadata[unknown_resolved]" time="0.072" /><testcase classname="tests.test_capture_v4_renderer" name="test_pre_request_selection_validation_without_fabricated_request_metadata[proposal_rewrite]" time="0.065" /><testcase classname="tests.test_capture_v4_renderer" name="test_pre_request_selection_validation_without_fabricated_request_metadata[snapshot_pin]" time="0.037" /><testcase classname="tests.test_capture_v4_renderer" name="test_standalone_qualified_accounting_failure_recomputed[False]" time="0.433" /><testcase classname="tests.test_capture_v4_renderer" name="test_standalone_qualified_accounting_failure_recomputed[True]" time="2.040" /></testsuite></testsuites>

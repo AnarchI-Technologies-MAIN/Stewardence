@@ -1,0 +1,228 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+......................................F................................. [ 80%]
+..................                                                       [100%]
+=================================== FAILURES ===================================
+______ test_sql_preview_never_truncates_or_invents_explicit_records[101] _______
+
+self = <django.db.backends.utils.CursorWrapper object at 0x73627e25fad0>
+sql = 'INSERT INTO "inventory_items" ("id", "organization_id", "product_id", "display_name", "vendor_name", "business_owner"...], (%s)::date[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[])'
+params = ([UUID('46e4abdc-ea55-4bb9-bd7e-00adb9da30c8'), UUID('ef5682d1-e337-4467-bfd4-489e5d7188e4'), UUID('f950ed65-abf0-42eb...ol 1', 'Tool 2', 'Tool 3', 'Tool 4', 'Tool 5', ...], ['', '', '', '', '', '', ...], ['', '', '', '', '', '', ...], ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x73627e25fad0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x73627e3add30>
+query = 'INSERT INTO "inventory_items" ("id", "organization_id", "product_id", "display_name", "vendor_name", "business_owner"...], (%s)::date[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[])'
+params = ([UUID('46e4abdc-ea55-4bb9-bd7e-00adb9da30c8'), UUID('ef5682d1-e337-4467-bfd4-489e5d7188e4'), UUID('f950ed65-abf0-42eb...ol 1', 'Tool 2', 'Tool 3', 'Tool 4', 'Tool 5', ...], ['', '', '', '', '', '', ...], ['', '', '', '', '', '', ...], ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Explicit inventory requires narrow owner issuance
+E           CONTEXT:  PL/pgSQL function app_private.protect_explicit_inventory() line 18 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+explicit_context = (<User: reports@example.com>, <Organization: Report Firm>)
+settings = <pytest_django.fixtures.Settings object at 0x73627e43bf70>
+eligible_count = 101
+
+    @pytest.mark.parametrize("eligible_count", [0, 101])
+    def test_sql_preview_never_truncates_or_invents_explicit_records(
+        explicit_context, settings, eligible_count
+    ):
+        from datetime import date
+    
+        from apps.inventory.models import InventoryItem
+    
+        settings.DELIBERATE_CAPTURE_ENABLED = True
+        CaptureAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        _, org = explicit_context
+        if eligible_count:
+>           InventoryItem.objects.bulk_create(
+                [
+                    InventoryItem(
+                        organization=org,
+                        display_name=f"Tool {index}",
+                        vendor_name="",
+                        declaration_contract="core.inventory.declarations.v1",
+                        declaration_as_of=date(2026, 1, 1),
+                        declared_fields=["display_name"],
+                    )
+                    for index in range(eligible_count)
+                ]
+            )
+
+tests/test_capture_admission.py:431: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:808: in bulk_create
+    returned_columns = self._batched_insert(
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1901: in _batched_insert
+    self._insert(
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x73627e3add30>
+query = 'INSERT INTO "inventory_items" ("id", "organization_id", "product_id", "display_name", "vendor_name", "business_owner"...], (%s)::date[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[])'
+params = ([UUID('46e4abdc-ea55-4bb9-bd7e-00adb9da30c8'), UUID('ef5682d1-e337-4467-bfd4-489e5d7188e4'), UUID('f950ed65-abf0-42eb...ol 1', 'Tool 2', 'Tool 3', 'Tool 4', 'Tool 5', ...], ['', '', '', '', '', '', ...], ['', '', '', '', '', '', ...], ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Explicit inventory requires narrow owner issuance
+E           CONTEXT:  PL/pgSQL function app_private.protect_explicit_inventory() line 18 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py::test_roi_workflow_can_save_and_open_tenant_scoped_snapshot
+tests/test_assessment_snapshots.py::test_viewer_cannot_save_snapshot
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_capture_admission.py::test_sql_preview_never_truncates_or_invents_explicit_records[101]
+1 failed, 89 passed, 2 warnings in 155.50s (0:02:35)

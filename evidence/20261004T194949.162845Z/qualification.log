@@ -1,0 +1,138 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+...........FFF..................................................         [100%]
+=================================== FAILURES ===================================
+____ test_baseline_advancement_preserves_snapshot_order[-1-older_snapshot] _____
+
+pack_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: fcb13677-ebd9-40a3-affa-a95b4f7086b7 v1>, <PackIdentity: PackIdentity object (e47be162-fbd9-456d-848f-88984363fd31)>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_baseline_advancement_pres0')
+offset = -1, expected = 'older_snapshot'
+
+    @pytest.mark.parametrize('offset,expected',[(-1,'older_snapshot'),(0,'promoted'),(1,'promoted')])
+    def test_baseline_advancement_preserves_snapshot_order(pack_context,enabled,tmp_path,offset,expected):
+        user,org,snapshot,firstpack=pack_context
+        request(pack_context,promote_baseline=True)
+        firstjob=claimed(pack_context)
+        execute_claimed_job(JobExecution(job=firstjob,worker_id='review-qualification'),handler(tmp_path),using='worker_runtime')
+        next_snapshot=create_assessment_snapshot(organization_id=org.id,created_by_id=user.id,
+>           assessed_item_id=UUID(snapshot.input_payload['assessed_item_id']),roi_inputs=_roi_inputs(),
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            captured_at=snapshot.captured_at+timedelta(days=offset),previous_snapshot=snapshot)
+E       KeyError: 'assessed_item_id'
+
+tests/test_review_pack_lifecycle.py:189: KeyError
+________ test_baseline_advancement_preserves_snapshot_order[0-promoted] ________
+
+pack_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: bae07488-38d7-45d5-aab2-1169f043733b v1>, <PackIdentity: PackIdentity object (c3e6faa3-4298-455f-aab1-5cf109ee6485)>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_baseline_advancement_pres1')
+offset = 0, expected = 'promoted'
+
+    @pytest.mark.parametrize('offset,expected',[(-1,'older_snapshot'),(0,'promoted'),(1,'promoted')])
+    def test_baseline_advancement_preserves_snapshot_order(pack_context,enabled,tmp_path,offset,expected):
+        user,org,snapshot,firstpack=pack_context
+        request(pack_context,promote_baseline=True)
+        firstjob=claimed(pack_context)
+        execute_claimed_job(JobExecution(job=firstjob,worker_id='review-qualification'),handler(tmp_path),using='worker_runtime')
+        next_snapshot=create_assessment_snapshot(organization_id=org.id,created_by_id=user.id,
+>           assessed_item_id=UUID(snapshot.input_payload['assessed_item_id']),roi_inputs=_roi_inputs(),
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            captured_at=snapshot.captured_at+timedelta(days=offset),previous_snapshot=snapshot)
+E       KeyError: 'assessed_item_id'
+
+tests/test_review_pack_lifecycle.py:189: KeyError
+________ test_baseline_advancement_preserves_snapshot_order[1-promoted] ________
+
+pack_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 4f877cca-7a8d-4f34-9ed1-6808438e2a96 v1>, <PackIdentity: PackIdentity object (787a85b6-63d6-4202-9338-56eff7d8028d)>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_baseline_advancement_pres2')
+offset = 1, expected = 'promoted'
+
+    @pytest.mark.parametrize('offset,expected',[(-1,'older_snapshot'),(0,'promoted'),(1,'promoted')])
+    def test_baseline_advancement_preserves_snapshot_order(pack_context,enabled,tmp_path,offset,expected):
+        user,org,snapshot,firstpack=pack_context
+        request(pack_context,promote_baseline=True)
+        firstjob=claimed(pack_context)
+        execute_claimed_job(JobExecution(job=firstjob,worker_id='review-qualification'),handler(tmp_path),using='worker_runtime')
+        next_snapshot=create_assessment_snapshot(organization_id=org.id,created_by_id=user.id,
+>           assessed_item_id=UUID(snapshot.input_payload['assessed_item_id']),roi_inputs=_roi_inputs(),
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            captured_at=snapshot.captured_at+timedelta(days=offset),previous_snapshot=snapshot)
+E       KeyError: 'assessed_item_id'
+
+tests/test_review_pack_lifecycle.py:189: KeyError
+=========================== short test summary info ============================
+FAILED tests/test_review_pack_lifecycle.py::test_baseline_advancement_preserves_snapshot_order[-1-older_snapshot]
+FAILED tests/test_review_pack_lifecycle.py::test_baseline_advancement_preserves_snapshot_order[0-promoted]
+FAILED tests/test_review_pack_lifecycle.py::test_baseline_advancement_preserves_snapshot_order[1-promoted]
+3 failed, 61 passed in 35.50s

@@ -1,0 +1,479 @@
+{
+  "revision": "atlas-v3-2026-10-03",
+  "screens": 51,
+  "status_counts": {
+    "proposed": 28,
+    "existing": 15,
+    "partially implemented": 8
+  },
+  "approved_brand": "transparent purple continuity emblem family",
+  "changed_mockups": [
+    {
+      "screen": "01-overview",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "9fefea8dd6345e3dc3975dcfaf013be249b961ec31ac6e6b721b3b0f1d9aefe3",
+      "brand_variant": "overview"
+    },
+    {
+      "screen": "02-home",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "cf0ba48d80243d3a9e7df9e120e8319f8e15351bb0a09bbfb30446e61f5b71e2",
+      "brand_variant": "overview"
+    },
+    {
+      "screen": "03-pricing",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "68c498ac946d6530c1f6da2f493bdbbdf81919f928ae83111f7f22c1822f4acd",
+      "brand_variant": "pricing"
+    },
+    {
+      "screen": "04-visibility-landing",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "267cc8915996431f3b5e4b1dbeffc069af16425468bb1cb82a4b63dc2dc9b75f",
+      "brand_variant": "funnels"
+    },
+    {
+      "screen": "05-roi-landing",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "c815396168adf348ac462466dd78fbf0a6d40bc5c0185b84923f5edf4a01070f",
+      "brand_variant": "funnels"
+    },
+    {
+      "screen": "06-automation-landing",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "4f54357baf7cd9075bdc0dc65f7f5b4ec3bad223f0474efcbaf570a8294c5181",
+      "brand_variant": "funnels"
+    },
+    {
+      "screen": "07-lead-confirmation",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "df1ade920e7ce5036a368d49b737aa7a581c075ede4430e8fb2d8e1201cc0396",
+      "brand_variant": "funnels"
+    },
+    {
+      "screen": "08-login",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "4cc244e5575ce5eacb31243dbad58416c8c010487df746c3d2547ad1192a1dce",
+      "brand_variant": "login"
+    },
+    {
+      "screen": "09-signup",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "a53926fce999227593925a8579e88f01288715e977c6e47db79d4cc9c30760ee",
+      "brand_variant": "signup"
+    },
+    {
+      "screen": "10-workspace-selection",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "f557500ef5fc2cee035df1faa469c3ad321ab61b3bf944f7f7fa50f0f06ce70d",
+      "brand_variant": "admin"
+    },
+    {
+      "screen": "11-workspace-setup",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "e477f378949687aaee63988fe61108b9fb8e1feadf7d8d29bfe6172e585101f7",
+      "brand_variant": "admin"
+    },
+    {
+      "screen": "12-inventory-list",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "b26216ca7afc215694d2ad1a8c167dcfa798024143aa91ea7dad41c6ae55a729",
+      "brand_variant": "inventory"
+    },
+    {
+      "screen": "13-inventory-detail",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "1e4b3672690d477fd3bae5270b3d83d2a3c99e0688a9569a15d018dc864a34f9",
+      "brand_variant": "inventory"
+    },
+    {
+      "screen": "14-inventory-form",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "2077036e296a2228e37e09eb2e075ecd3a718e29e60543aaa38fdd64475339cc",
+      "brand_variant": "inventory"
+    },
+    {
+      "screen": "15-discovery",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "f34737bc13c06099c1b62f9edf948e4691f4b2e7bdcdde3d58fe20e6662250b4",
+      "brand_variant": "inventory"
+    },
+    {
+      "screen": "16-download",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "f79759c17a6557aa15fbbf81871fa2e41755e639ce48e7ca033cba0ab63be9bf",
+      "brand_variant": "inventory"
+    },
+    {
+      "screen": "17-import-upload",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "f9041af567d1409ef1fa7770fdd95e90d2f6964061774d01f9afbf65486fd366",
+      "brand_variant": "inventory"
+    },
+    {
+      "screen": "18-import-review",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "606d4846845eef07cc5e6e93a266ca434865a07e434c587e4364382fd0b488ba",
+      "brand_variant": "inventory"
+    },
+    {
+      "screen": "19-import-final",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "8bfdf7d7457f48a15d6fb3cb887563fe83580d435a5aec40da69cb0940a923cc",
+      "brand_variant": "inventory"
+    },
+    {
+      "screen": "20-integrations",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "c8187f6de9af08ec92cc0d9bbfaf57e253af677a6907e7d977b02556e79e58ec",
+      "brand_variant": "evidence-library"
+    },
+    {
+      "screen": "21-quickbooks",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "a3d3e1b9d71580db620606781742ced64bc32ea4b2700ab11d0ec30e6ca2c7a3",
+      "brand_variant": "evidence-library"
+    },
+    {
+      "screen": "22-xero",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "eff55a5ffeee682507f0665a1fc8cee49c404029b0b28648465addb7b6dc3620",
+      "brand_variant": "evidence-library"
+    },
+    {
+      "screen": "23-microsoft",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "ecf3c0de8aa8e3eaf93f68d079c861eec8d7d4b86c70c53bb51bedaab2363a4e",
+      "brand_variant": "evidence-library"
+    },
+    {
+      "screen": "24-collection-history",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "bc0a35d366b2d1ee8012fd5bb631c05ce24029f7488745c3d28abacfe908b924",
+      "brand_variant": "evidence-library"
+    },
+    {
+      "screen": "25-assessments-list",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "abdd79320f1fd71891b93b7c9d35883ba18dd0c960757045a881703691133237",
+      "brand_variant": "policies"
+    },
+    {
+      "screen": "26-assessment-detail",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "3f705ff698d025d8409e53f7d12683114978716bda92239b33ef926e92d1fa04",
+      "brand_variant": "policies"
+    },
+    {
+      "screen": "27-policies-list",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "4082eae2c2652c15ae1602ce9fd816c90268511c7c9ff0ac5096b47198aa79af",
+      "brand_variant": "policies"
+    },
+    {
+      "screen": "28-policy-detail",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "18ac1b331e3ec292d4249ceb46ece449ea84d8c7d6ff4477ec782c23163328dd",
+      "brand_variant": "policies"
+    },
+    {
+      "screen": "29-policy-editor",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "a6ddff1cf5968b6d631d0ad1018d63c4909717b20ce1019d32b1005e3b3284b7",
+      "brand_variant": "policies"
+    },
+    {
+      "screen": "30-roi-overview",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "d25ae9dc6f6e149601117177cb27f9397192be632779de5481392572e1670b47",
+      "brand_variant": "roi"
+    },
+    {
+      "screen": "31-roi-calculator",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "36542873a3c9c5fa8eda5894c563a4804ced02c3eba5bf39f38ce414585109d4",
+      "brand_variant": "roi"
+    },
+    {
+      "screen": "32-financial-evidence",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "212457b5a83c78e5082a30ac60c5e6ed56d532b63e4fcea302726820046f62a0",
+      "brand_variant": "roi"
+    },
+    {
+      "screen": "33-expenditure-sinks",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "46d311b4682e737d1dffd40d4679a259cfef1cadfe6d8bdf1ac3b27eae01fbad",
+      "brand_variant": "roi"
+    },
+    {
+      "screen": "34-discrepancies",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "377ba9837628afa5079815c81733a68707a55cc39067b9078adf001cb45d01da",
+      "brand_variant": "roi"
+    },
+    {
+      "screen": "35-actions-list",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "873d1c36f7746ee74a16ba4f1e70119bea27e2b1c354417b7149d0d303a878c1",
+      "brand_variant": "policies"
+    },
+    {
+      "screen": "36-action-detail",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "d0511b681eb389893e860d0dd5a32470e675401d02187228250a6c887563a797",
+      "brand_variant": "policies"
+    },
+    {
+      "screen": "37-reports-list",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "e084b79245a5a91342c62cb62425826bacc1756a7deb91a744a2f936d5376396",
+      "brand_variant": "reports"
+    },
+    {
+      "screen": "38-report-detail",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "41c9f5d46479a006f589e4a4408e9303b1147173c20bf87baeda8c1e96809e84",
+      "brand_variant": "reports"
+    },
+    {
+      "screen": "39-evidence-library",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "0e209db498adcce3a959049192ee85828d59d0e2a460a9bbc12d0f3710225615",
+      "brand_variant": "evidence-library"
+    },
+    {
+      "screen": "40-evidence-detail",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "8a6a3ef31fb0b31b20fd109a35f7fa80541dbb30930c9e9858d41c198a4de51f",
+      "brand_variant": "evidence-library"
+    },
+    {
+      "screen": "41-audit",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "9b0b76afd3239545a8a826838c480a9793e9e83a112c6c2852eabbffa02fc296",
+      "brand_variant": "evidence-library"
+    },
+    {
+      "screen": "42-workspace-admin",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "e3941206cffbdbf53ecc9f4c192d038d2a83087a89c95bf193ea042cdd48102c",
+      "brand_variant": "admin"
+    },
+    {
+      "screen": "43-members-authority",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "fcaf269f64cd10c388e5c5e358a5d4aea97bec516c51d59208ab796ea7882af5",
+      "brand_variant": "admin"
+    },
+    {
+      "screen": "44-billing",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "810ea70740263997c3fe509bab4a628627fbd7c3929609b9a2340fd4226a3620",
+      "brand_variant": "billing"
+    },
+    {
+      "screen": "45-checkout-confirmation",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "00350ea13adf67e65268daaacc0add904aa42a1ddb8a1c7274f7c6d6733b219b",
+      "brand_variant": "billing"
+    },
+    {
+      "screen": "46-privacy",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "9a75ffa429054610ef0a55f62a3e939f8a6684f4298b0a288aaaa609c85078c8",
+      "brand_variant": "policies"
+    },
+    {
+      "screen": "47-terms",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "708f187ad4c2638529cce8502df1c02dcfdf18a93f70c95d6e7e02be664792f6",
+      "brand_variant": "policies"
+    },
+    {
+      "screen": "48-contact",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "eb67a93c80ede92f8af98c5e7fd9ab6fe6f5695a6841bc1977fc8a85e8899a08",
+      "brand_variant": "contact"
+    },
+    {
+      "screen": "49-states",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "ce5bada8810fbf0a2b9cc6f6eb518f2baa48f4251949d1c865dbd1f6d9d9cd93",
+      "brand_variant": "overview"
+    },
+    {
+      "screen": "50-authority-states",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "6adf8ac5825956d749b8c8e0dd9be14dc085e8ccfb813e7ea77d901b18f23508",
+      "brand_variant": "admin"
+    },
+    {
+      "screen": "51-lead-review",
+      "png_dimensions": [
+        1873,
+        1155
+      ],
+      "sha256": "02e1721a459265d381ec5bacefe51a0b91c476c5acc17d35235123ea5bbf33a9",
+      "brand_variant": "funnels"
+    }
+  ],
+  "missing_screen_asset_links": [],
+  "production_changes": false,
+  "limits": [
+    "Static references; no live application implementation or deployment.",
+    "No claim of accessibility compliance or backend workflow qualification.",
+    "Decorative signatures do not represent measured evidence completeness."
+  ],
+  "source_provenance": "Preserved source-evidence.json from qualification-package inspection; base commit alone does not reproduce deployed candidate."
+}

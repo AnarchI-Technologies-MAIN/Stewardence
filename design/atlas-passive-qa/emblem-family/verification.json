@@ -1,0 +1,829 @@
+{
+  "revision": "transparent-purple-v2",
+  "svg_assets": 39,
+  "color_pngs": [
+    {
+      "file": "overview-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "overview-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "overview-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "overview-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "overview-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "overview-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "overview-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "inventory-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "inventory-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "inventory-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "inventory-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "inventory-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "inventory-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "inventory-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "roi-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "roi-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "roi-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "roi-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "roi-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "roi-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "roi-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "policies-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "policies-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "policies-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "policies-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "policies-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "policies-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "policies-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "reports-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "reports-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "reports-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "reports-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "reports-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "reports-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "reports-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "evidence-library-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "evidence-library-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "evidence-library-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "evidence-library-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "evidence-library-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "evidence-library-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "evidence-library-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "billing-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "billing-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "billing-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "billing-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "billing-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "billing-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "billing-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "admin-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "admin-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "admin-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "admin-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "admin-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "admin-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "admin-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "funnels-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "funnels-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "funnels-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "funnels-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "funnels-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "funnels-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "funnels-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "contact-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "contact-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "contact-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "contact-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "contact-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "contact-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "contact-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "pricing-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "pricing-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "pricing-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "pricing-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "pricing-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "pricing-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "pricing-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "login-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "login-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "login-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "login-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "login-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "login-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "login-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "signup-16.png",
+      "size": 16,
+      "alpha_range": [
+        0,
+        229
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "signup-24.png",
+      "size": 24,
+      "alpha_range": [
+        0,
+        245
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "signup-32.png",
+      "size": 32,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "signup-64.png",
+      "size": 64,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "signup-128.png",
+      "size": 128,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "signup-256.png",
+      "size": 256,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    },
+    {
+      "file": "signup-512.png",
+      "size": 512,
+      "alpha_range": [
+        0,
+        255
+      ],
+      "transparent_corner": true
+    }
+  ],
+  "monochrome_pngs": 13,
+  "production_assets_changed": false,
+  "motion_component_retained": true,
+  "limits": "Decorative tick signatures; not live evidence measurements. Tiny-size lineage details are not fully legible."
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="26" time="29.061" timestamp="2026-10-04T19:49:00.442814+00:00" hostname="89e941e639d1"><testcase classname="tests.test_core_decisions" name="test_exact_binding_append_only_statement_and_selection" time="7.800"><failure message="TypeError: string indices must be integers, not 'str'">decision_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 0f7f3d9f-d740-4000-8f17-2662a5c3eac7 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (5b1b4844-9da8-4600-a3af-5424d2398bfd)&gt;)
+
+    def test_exact_binding_append_only_statement_and_selection(decision_context):
+        first=decide(decision_context,due_date=date(2026,12,1))
+        row=DecisionEvent.objects.get(pk=first)
+        revision=decision_context[3]
+        assert row.card_sha256==canonical_sha256(revision.cards[0])
+        assert row.revision_sha256==revision.sha256
+        assert row.snapshot_result_sha256==decision_context[2].result_sha256
+        assert row.sha256==canonical_sha256(row.payload)
+        assert row.payload['owner_statement_only'] is True
+        assert row.payload['resolution_verified'] is False
+        second=decide(decision_context,expected_previous_event=first,event_kind='execution',state='completion_recorded')
+        assert DecisionEvent.objects.get(pk=second).previous_event_id==first
+&gt;       assert selected(decision_context)[0]['event_id']==str(second)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_core_decisions.py:79: TypeError</failure></testcase><testcase classname="tests.test_core_decisions" name="test_feature_and_operator_gates_fail_closed" time="0.944"><failure message="AssertionError: assert '[]' == []&#10; +  where '[]' = selected((&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: a892fb5e-bb66-4ae4-ad8f-79a83d06eb4c v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (41e487f1-aa4e-4810-aca3-10be61a59b02)&gt;))">decision_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: a892fb5e-bb66-4ae4-ad8f-79a83d06eb4c v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (41e487f1-aa4e-4810-aca3-10be61a59b02)&gt;)
+settings = &lt;pytest_django.fixtures.Settings object at 0x7d513d84e490&gt;
+
+    def test_feature_and_operator_gates_fail_closed(decision_context,settings):
+        settings.CORE_DECISIONS_ENABLED=False
+        with pytest.raises(PermissionDenied):decide(decision_context)
+        settings.CORE_DECISIONS_ENABLED=True
+        DecisionDeskGate.objects.filter(pk=1).update(enabled=False)
+        with pytest.raises(DatabaseError):decide(decision_context)
+&gt;       assert selected(decision_context)==[]
+E       AssertionError: assert '[]' == []
+E        +  where '[]' = selected((&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: a892fb5e-bb66-4ae4-ad8f-79a83d06eb4c v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (41e487f1-aa4e-4810-aca3-10be61a59b02)&gt;))
+
+tests/test_core_decisions.py:94: AssertionError</failure></testcase><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes0]" time="1.228" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes1]" time="1.237" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes2]" time="1.255" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes3]" time="1.279" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes4]" time="0.964" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes5]" time="0.709" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes6]" time="0.568" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes7]" time="0.660" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes8]" time="0.472" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes9]" time="0.526" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes10]" time="0.551" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes11]" time="0.492" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes12]" time="0.957" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes13]" time="1.601" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes14]" time="1.458" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes15]" time="0.487" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes16]" time="0.635" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes17]" time="0.451" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes18]" time="0.448" /><testcase classname="tests.test_core_decisions" name="test_raw_runtime_writes_and_owner_only_selection_denied" time="0.445" /><testcase classname="tests.test_core_decisions" name="test_stale_cas_and_cross_tenant_never_append" time="0.812"><failure message="TypeError: string indices must be integers, not 'str'">decision_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: a986448e-e207-47ec-918b-0a25fa58ec0c v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (acebc542-15aa-4318-803c-fc5bc9d91104)&gt;)
+
+    def test_stale_cas_and_cross_tenant_never_append(decision_context):
+        first=decide(decision_context)
+        with pytest.raises(DatabaseError):decide(decision_context,state='decline')
+        with pytest.raises(DatabaseError):decide(decision_context,organization_id=Organization.objects.create(name='Other tenant').id)
+        assert DecisionEvent.objects.count()==1
+&gt;       assert selected(decision_context)[0]['event_id']==str(first)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_core_decisions.py:132: TypeError</failure></testcase><testcase classname="tests.test_core_decisions" name="test_pause_and_lapsed_coverage_deny_new_decisions" time="0.724" /><testcase classname="tests.test_core_decisions" name="test_two_simultaneous_first_events_have_one_cas_winner" time="0.661" /><testcase classname="tests.test_core_decisions" name="test_no_carry_forward_to_other_snapshot_or_tenant" time="0.930"><failure message="AssertionError: assert '[]' == []&#10; +  where '[]' = selected((&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: c7f54647-3530-4923-aafb-fcaf95771ffb v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (2b57eb94-ee17-4f26-93bf-c10b401754e6)&gt;), snapshot=UUID('a22dfe1e-c0bd-42c3-9e28-9715f9f8c4f9'))&#10; +    where UUID('a22dfe1e-c0bd-42c3-9e28-9715f9f8c4f9') = uuid4()">decision_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: c7f54647-3530-4923-aafb-fcaf95771ffb v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (2b57eb94-ee17-4f26-93bf-c10b401754e6)&gt;)
+
+    def test_no_carry_forward_to_other_snapshot_or_tenant(decision_context):
+        decide(decision_context)
+&gt;       assert selected(decision_context,snapshot=uuid4())==[]
+E       AssertionError: assert '[]' == []
+E        +  where '[]' = selected((&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: c7f54647-3530-4923-aafb-fcaf95771ffb v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (2b57eb94-ee17-4f26-93bf-c10b401754e6)&gt;), snapshot=UUID('a22dfe1e-c0bd-42c3-9e28-9715f9f8c4f9'))
+E        +    where UUID('a22dfe1e-c0bd-42c3-9e28-9715f9f8c4f9') = uuid4()
+
+tests/test_core_decisions.py:160: AssertionError</failure></testcase></testsuite></testsuites>

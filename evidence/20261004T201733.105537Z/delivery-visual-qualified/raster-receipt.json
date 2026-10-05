@@ -1,0 +1,52 @@
+{
+  "input_pdf_sha256": "db54d35e5d3700ddb17295a1bf4d81cb695a5cbef77b02deb43d1f98b607dcfa",
+  "context_sha256": "4140035e3a61bd0c6c47e63c7409d6f7c0b30f25ca2491148633f5615dcecab0",
+  "tool": "pypdfium2",
+  "version": "5.14.0",
+  "pages": [
+    {
+      "page": 1,
+      "file": "page-01.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "b42bb23234874372d4111a1db1271bcb65c659ef42d3be79b409b48a9934f8fa"
+    },
+    {
+      "page": 2,
+      "file": "page-02.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "a2af51c923543c0b551347c2954c19f0dec9e1449dc720da43b06c8b73489e3b"
+    },
+    {
+      "page": 3,
+      "file": "page-03.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "b31bbc3c1fab5e4dce5ec1de3313ef9410aaf7782e58eb21d8fe26bd86cca34f"
+    },
+    {
+      "page": 4,
+      "file": "page-04.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "2249d90cb034622ee75f950bd5a234afecde58dfdeb42ab0442d595f65e7bf27"
+    },
+    {
+      "page": 5,
+      "file": "page-05.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "f10de405c72e633d57e9872fd1b4902c528a5f7feb22c0346a79111813dce3f1"
+    },
+    {
+      "page": 6,
+      "file": "page-06.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "87c0533e32d4f657050ce12b310b5e22808cc357104f27aa20ae45f9be321298"
+    }
+  ],
+  "pdf_unchanged": true,
+  "scope": "synthetic fixture exported from actual Chromium worker delivery; raster inspection only"
+}

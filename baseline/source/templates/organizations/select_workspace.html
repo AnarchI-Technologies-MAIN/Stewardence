@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Your workspaces — Stewardence{% endblock %}
+
+{% block content %}
+  <section class="heading-row page-heading">
+    <div>
+      <p class="eyebrow">Organization workspaces</p>
+      <h1>Where are we working today?</h1>
+      <p>
+        Every workspace keeps its own inventory, rules,
+        assessments, reports, and access boundary.
+      </p>
+    </div>
+
+    <a class="button" href="{% url 'organizations:setup' %}">
+      + New workspace
+    </a>
+  </section>
+
+  {% if memberships %}
+    <div class="workspace-grid">
+      {% for membership in memberships %}
+        <article class="card workspace-card">
+          <div class="workspace-card-top">
+            <span class="workspace-monogram">
+              {{ membership.organization.name|first|upper }}
+            </span>
+
+            {% if active_organization_id == membership.organization.id|stringformat:"s" %}
+              <span class="status-pill">Active</span>
+            {% endif %}
+          </div>
+
+          <h2>{{ membership.organization.name }}</h2>
+          <p>{{ membership.organization.get_industry_display }}</p>
+
+          <div class="workspace-meta">
+            <span>Your role</span>
+            <strong>{{ membership.get_role_display }}</strong>
+          </div>
+
+          <form method="post" action="{% url 'organizations:workspace-activate' %}">
+            {% csrf_token %}
+            <input
+              type="hidden"
+              name="organization_id"
+              value="{{ membership.organization.id }}"
+            >
+
+            <button class="button button-full" type="submit">
+              {% if active_organization_id == membership.organization.id|stringformat:"s" %}
+                Continue in workspace
+              {% else %}
+                Open workspace
+              {% endif %}
+            </button>
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <section class="empty-state card">
+      <span class="empty-icon">◇</span>
+      <h2>Create your first organization</h2>
+      <p>
+        Your Stewardence account is ready. The guided setup will
+        create your first isolated organization workspace.
+      </p>
+      <a class="button" href="{% url 'organizations:setup' %}">
+        Start guided setup
+      </a>
+    </section>
+  {% endif %}
+{% endblock %}

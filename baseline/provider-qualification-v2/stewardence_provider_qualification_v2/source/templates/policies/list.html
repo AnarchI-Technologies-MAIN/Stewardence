@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Rules — Stewardence{% endblock %}
+{% block content %}
+  <section class="page-heading heading-row"><div><p class="eyebrow">Organization controls</p><h1>Rules</h1><p>Describe situations that need attention, review, or a recorded control.</p></div>{% if can_write %}<a class="button" href="{% url 'policies:create' %}">Create a rule</a>{% endif %}</section>
+  <div class="inventory-grid">{% for rule in rules %}<article class="card"><p class="eyebrow">{% if rule.enabled %}Enabled{% else %}Disabled{% endif %} · version {{ rule.version }} · {{ rule.get_source_type_display }}</p><h2><a href="{% url 'policies:detail' rule.id %}">{{ rule.name }}</a></h2><p>{{ rule.explanation }}</p>{% if rule.source_type == "detector" %}<p class="muted">Applied by {{ rule.detector_id }} v{{ rule.detector_version }} through mapping {{ rule.mapping_id }} v{{ rule.mapping_version }}.</p>{% endif %}</article>{% empty %}<section class="card narrow-card"><h2>No organization rules yet</h2><p>Create the first sentence-style control when the firm needs a stricter rule.</p></section>{% endfor %}</div>
+{% endblock %}

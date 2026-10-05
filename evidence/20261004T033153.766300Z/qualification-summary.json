@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-42b0b06ddb",
+  "image_id": "sha256:107f6344072e80b534d4aa0413017188b7a82f7c1c523ab2510bdb674c249174",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T033153.766300Z",
+  "test_arguments": [
+    "tests/test_billing_terminal_concurrency.py"
+  ]
+}

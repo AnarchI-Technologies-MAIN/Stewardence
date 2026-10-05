@@ -1,0 +1,11 @@
+{
+  "schema": "anarchi.clock.observer.v1",
+  "global_before_sha256": "b3ea1a1d24c606067961649abba79255cf78845d6b3c6f6c223a293e1e5d6559",
+  "timex_modes_verified": true,
+  "cleanup_errors": [],
+  "private_instance_absent": true,
+  "owned_probe_event_absent": true,
+  "owned_probe_descriptor_absent": true,
+  "global_after_sha256": "b3ea1a1d24c606067961649abba79255cf78845d6b3c6f6c223a293e1e5d6559",
+  "global_state_unchanged": true
+}

@@ -1,0 +1,947 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+........................................................................ [  4%]
+........................................................................ [  8%]
+........................................................................ [ 12%]
+........................................................................ [ 16%]
+........................................................................ [ 20%]
+........................................................................ [ 25%]
+........................................................................ [ 29%]
+........................................................................ [ 33%]
+...................s.................................................... [ 37%]
+........................................................................ [ 41%]
+........................................................................ [ 46%]
+......................................................FF.......F........ [ 50%]
+.............F.......................................................... [ 54%]
+........................................................................ [ 58%]
+........................................................................ [ 62%]
+........................................................................ [ 66%]
+........................................................................ [ 71%]
+........................................................................ [ 75%]
+........................................................................ [ 79%]
+........................................................................ [ 83%]
+........................................................................ [ 87%]
+........................................................................ [ 92%]
+........................................................................ [ 96%]
+................................................................         [100%]
+=================================== FAILURES ===================================
+_ test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[390] _
+
+self = <django.contrib.sessions.backends.db.SessionStore object at 0x726a68c0b850>
+no_load = False
+
+    def _get_session(self, no_load=False):
+        """
+        Lazily load session from storage (unless "no_load" is True, when only
+        an empty dict is stored) and store it in the current instance.
+        """
+        self.accessed = True
+        try:
+>           return self._session_cache
+                   ^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:244: AttributeError
+
+During handling of the above exception, another exception occurred:
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 609d9ebd-405b-4cfe-af9a-25831b64dd58 v1>, <ActionCardRevision: ActionCardRevision object (5158e2dc-fff1-4a7e-9d6b-8f6867cf51b4)>)
+client = <django.test.client.Client object at 0x726a68e3a670>, width = 390
+
+    @pytest.mark.parametrize('width',[390,1280])
+    def test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links(workspace,client,width):
+        from pathlib import Path
+        from django.conf import settings
+        from playwright.sync_api import sync_playwright
+        assert client.post(decision_url(workspace),statement(notes='x'*4096,responsible_label='r'*200,
+            links='https://example.invalid/'+'e'*1500)).status_code==302
+        pack=freeze_pack(client,workspace)
+        routes=[reverse('reviews:history'),reverse('reviews:snapshot',args=[workspace[2].id]),
+            decision_url(workspace),reverse('reviews:pack-detail',args=[pack.id]),reverse('reviews:comparison')]
+        css='\n'.join((Path(settings.BASE_DIR)/'static'/name).read_text(encoding='utf-8') for name in ('agentledger.css','atlas.css'))
+        with sync_playwright() as driver:
+            browser=driver.chromium.launch(headless=True,chromium_sandbox=False)
+            context=browser.new_context(viewport={'width':width,'height':900},reduced_motion='reduce')
+            context.route('**/*',lambda route:route.abort())
+            page=context.new_page()
+            for url in routes:
+>               response=client.get(url);assert response.status_code==200
+                         ^^^^^^^^^^^^^^^
+
+tests/test_review_workspace_views.py:301: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/test/client.py:1127: in get
+    response = super().get(
+.venv/lib/python3.14/site-packages/django/test/client.py:475: in get
+    return self.generic(
+.venv/lib/python3.14/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+.venv/lib/python3.14/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+.venv/lib/python3.14/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+apps/billing/middleware.py:41: in __call__
+    if not user.is_authenticated:
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/functional.py:251: in inner
+    self._setup()
+.venv/lib/python3.14/site-packages/django/utils/functional.py:404: in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:40: in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:20: in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:304: in get_user
+    user_id = _get_user_session_key(request)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:95: in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:55: in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:249: in _get_session
+    self._session_cache = self.load()
+                          ^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:55: in load
+    s = self._get_session_from_db()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:34: in _get_session_from_db
+    return self.model.objects.get(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1621: in execute_sql
+    cursor = self.connection.cursor()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (<DatabaseWrapper vendor='postgresql' alias='default'>,), kwargs = {}
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        # Detect a running event loop in this thread.
+        try:
+            get_running_loop()
+        except RuntimeError:
+            pass
+        else:
+            if not os.environ.get("DJANGO_ALLOW_ASYNC_UNSAFE"):
+>               raise SynchronousOnlyOperation(message)
+E               django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.
+
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:24: SynchronousOnlyOperation
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:253 Internal Server Error: /reviews/
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 244, in _get_session
+    return self._session_cache
+           ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/app/apps/billing/middleware.py", line 41, in __call__
+    if not user.is_authenticated:
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/functional.py", line 251, in inner
+    self._setup()
+    ~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ~~~~~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ~~~~~~~~^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ~~~~~~~~~~~~~^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py", line 304, in get_user
+    user_id = _get_user_session_key(request)
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py", line 95, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 55, in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 249, in _get_session
+    self._session_cache = self.load()
+                          ~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py", line 55, in load
+    s = self._get_session_from_db()
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py", line 34, in _get_session_from_db
+    return self.model.objects.get(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        session_key=self.session_key, expire_date__gt=timezone.now()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 631, in get
+    num = len(clone)
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 368, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+    cursor = self.connection.cursor()
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/asyncio.py", line 24, in inner
+    raise SynchronousOnlyOperation(message)
+django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.
+_ test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[1280] _
+
+self = <django.contrib.sessions.backends.db.SessionStore object at 0x726a681f0d50>
+no_load = False
+
+    def _get_session(self, no_load=False):
+        """
+        Lazily load session from storage (unless "no_load" is True, when only
+        an empty dict is stored) and store it in the current instance.
+        """
+        self.accessed = True
+        try:
+>           return self._session_cache
+                   ^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:244: AttributeError
+
+During handling of the above exception, another exception occurred:
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: ad46801c-41a0-421c-86bd-daf47551504f v1>, <ActionCardRevision: ActionCardRevision object (c2765576-dc01-4200-b695-2f378c48af22)>)
+client = <django.test.client.Client object at 0x726a672c8e10>, width = 1280
+
+    @pytest.mark.parametrize('width',[390,1280])
+    def test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links(workspace,client,width):
+        from pathlib import Path
+        from django.conf import settings
+        from playwright.sync_api import sync_playwright
+        assert client.post(decision_url(workspace),statement(notes='x'*4096,responsible_label='r'*200,
+            links='https://example.invalid/'+'e'*1500)).status_code==302
+        pack=freeze_pack(client,workspace)
+        routes=[reverse('reviews:history'),reverse('reviews:snapshot',args=[workspace[2].id]),
+            decision_url(workspace),reverse('reviews:pack-detail',args=[pack.id]),reverse('reviews:comparison')]
+        css='\n'.join((Path(settings.BASE_DIR)/'static'/name).read_text(encoding='utf-8') for name in ('agentledger.css','atlas.css'))
+        with sync_playwright() as driver:
+            browser=driver.chromium.launch(headless=True,chromium_sandbox=False)
+            context=browser.new_context(viewport={'width':width,'height':900},reduced_motion='reduce')
+            context.route('**/*',lambda route:route.abort())
+            page=context.new_page()
+            for url in routes:
+>               response=client.get(url);assert response.status_code==200
+                         ^^^^^^^^^^^^^^^
+
+tests/test_review_workspace_views.py:301: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/test/client.py:1127: in get
+    response = super().get(
+.venv/lib/python3.14/site-packages/django/test/client.py:475: in get
+    return self.generic(
+.venv/lib/python3.14/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+.venv/lib/python3.14/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+.venv/lib/python3.14/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+apps/billing/middleware.py:41: in __call__
+    if not user.is_authenticated:
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/functional.py:251: in inner
+    self._setup()
+.venv/lib/python3.14/site-packages/django/utils/functional.py:404: in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:40: in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:20: in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:304: in get_user
+    user_id = _get_user_session_key(request)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:95: in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:55: in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:249: in _get_session
+    self._session_cache = self.load()
+                          ^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:55: in load
+    s = self._get_session_from_db()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:34: in _get_session_from_db
+    return self.model.objects.get(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1621: in execute_sql
+    cursor = self.connection.cursor()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (<DatabaseWrapper vendor='postgresql' alias='default'>,), kwargs = {}
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        # Detect a running event loop in this thread.
+        try:
+            get_running_loop()
+        except RuntimeError:
+            pass
+        else:
+            if not os.environ.get("DJANGO_ALLOW_ASYNC_UNSAFE"):
+>               raise SynchronousOnlyOperation(message)
+E               django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.
+
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:24: SynchronousOnlyOperation
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:253 Internal Server Error: /reviews/
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 244, in _get_session
+    return self._session_cache
+           ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/app/apps/billing/middleware.py", line 41, in __call__
+    if not user.is_authenticated:
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/functional.py", line 251, in inner
+    self._setup()
+    ~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ~~~~~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ~~~~~~~~^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ~~~~~~~~~~~~~^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py", line 304, in get_user
+    user_id = _get_user_session_key(request)
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py", line 95, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 55, in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 249, in _get_session
+    self._session_cache = self.load()
+                          ~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py", line 55, in load
+    s = self._get_session_from_db()
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py", line 34, in _get_session_from_db
+    return self.model.objects.get(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        session_key=self.session_key, expire_date__gt=timezone.now()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 631, in get
+    num = len(clone)
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 368, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+    cursor = self.connection.cursor()
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/asyncio.py", line 24, in inner
+    raise SynchronousOnlyOperation(message)
+django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.
+____________ test_reports_are_tenant_isolated_and_runtime_immutable ____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x726a66fc6510>
+sql = 'SELECT "reports"."id" AS "id" FROM "reports" ORDER BY "reports"."created_at" DESC, "reports"."report_identifier" ASC'
+params = ()
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x726a66fc6510>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x726a690c5550>
+query = 'SELECT "reports"."id" AS "id" FROM "reports" ORDER BY "reports"."created_at" DESC, "reports"."report_identifier" ASC'
+params = (), prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+E           SQL function "report_read_allowed" statement 1
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+isolation_fixture = IsolationFixture(user_a_id=UUID('15a9192e-0152-4e4c-8a64-08d8b41b6fa9'), user_b_id=UUID('607731ae-b234-4eef-a801-9c1de...c121'), item_a_id=UUID('b7536e39-2dac-472f-8116-3675091c490c'), item_b_id=UUID('564e4121-70f9-4fb2-82e3-548ff1668a76'))
+
+    def test_reports_are_tenant_isolated_and_runtime_immutable(
+        isolation_fixture,
+    ):
+        fixture = isolation_fixture
+        payload_a = {"tenant": "A"}
+        payload_b = {"tenant": "B"}
+        snapshot_a = AssessmentSnapshot.objects.create(
+            organization_id=fixture.organization_a_id,
+            created_by_id=fixture.user_a_id,
+            captured_at=datetime(2026, 9, 4, tzinfo=UTC),
+            input_payload=payload_a,
+            result_payload=payload_a,
+            input_sha256=canonical_sha256(payload_a),
+            result_sha256=canonical_sha256(payload_a),
+        )
+        snapshot_b = AssessmentSnapshot.objects.create(
+            organization_id=fixture.organization_b_id,
+            created_by_id=fixture.user_b_id,
+            captured_at=datetime(2026, 9, 4, tzinfo=UTC),
+            input_payload=payload_b,
+            result_payload=payload_b,
+            input_sha256=canonical_sha256(payload_b),
+            result_sha256=canonical_sha256(payload_b),
+        )
+        report_a = Report.objects.create(
+            organization_id=fixture.organization_a_id,
+            assessment_snapshot=snapshot_a,
+            sequence=900001,
+            identifier_year=2026,
+            report_identifier="AL-2026-900001",
+            organization_display_name="RLS Firm A",
+            created_by_id=fixture.user_a_id,
+        )
+        Report.objects.create(
+            organization_id=fixture.organization_b_id,
+            assessment_snapshot=snapshot_b,
+            sequence=900002,
+            identifier_year=2026,
+            report_identifier="AL-2026-900002",
+            organization_display_name="RLS Firm B",
+            created_by_id=fixture.user_b_id,
+        )
+    
+        with tenant_transaction(
+            fixture.organization_a_id,
+            using="app_runtime",
+        ):
+>           assert set(
+                Report.objects.using("app_runtime").values_list(
+                    "id",
+                    flat=True,
+                )
+            ) == {report_a.id}
+
+tests/test_rls.py:368: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/query.py:386: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:273: in __iter__
+    for row in compiler.results_iter(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1572: in results_iter
+    results = self.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x726a690c5550>
+query = 'SELECT "reports"."id" AS "id" FROM "reports" ORDER BY "reports"."created_at" DESC, "reports"."report_identifier" ASC'
+params = (), prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+E           SQL function "report_read_allowed" statement 1
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_______ test_report_artifacts_are_tenant_isolated_and_runtime_immutable ________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x726a66fc50d0>
+sql = 'SELECT "report_artifacts"."id" AS "id" FROM "report_artifacts" ORDER BY "report_artifacts"."created_at" DESC'
+params = ()
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x726a66fc50d0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x726a670df930>
+query = 'SELECT "report_artifacts"."id" AS "id" FROM "report_artifacts" ORDER BY "report_artifacts"."created_at" DESC'
+params = (), prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+E           SQL function "report_read_allowed" statement 1
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+isolation_fixture = IsolationFixture(user_a_id=UUID('f5fc103a-6d33-4b48-9500-854be7d5870c'), user_b_id=UUID('c3d15b4b-7e58-4b24-a764-a428d...0a7d'), item_a_id=UUID('abf08438-0bcd-4ef4-b3df-afaf4445584b'), item_b_id=UUID('a975e5b6-cf33-4b18-b804-b3c35c568042'))
+
+    def test_report_artifacts_are_tenant_isolated_and_runtime_immutable(
+        isolation_fixture,
+    ):
+        fixture = isolation_fixture
+    
+        def make_snapshot(organization_id, user_id, label):
+            payload = {"tenant": label}
+            return AssessmentSnapshot.objects.create(
+                organization_id=organization_id,
+                created_by_id=user_id,
+                captured_at=datetime(2026, 9, 4, tzinfo=UTC),
+                input_payload=payload,
+                result_payload=payload,
+                input_sha256=canonical_sha256(payload),
+                result_sha256=canonical_sha256(payload),
+            )
+    
+        def make_report(
+            organization_id,
+            user_id,
+            snapshot,
+            sequence,
+            identifier,
+            organization_name,
+        ):
+            return Report.objects.create(
+                organization_id=organization_id,
+                assessment_snapshot=snapshot,
+                sequence=sequence,
+                identifier_year=2026,
+                report_identifier=identifier,
+                organization_display_name=organization_name,
+                created_by_id=user_id,
+            )
+    
+        snapshot_a = make_snapshot(
+            fixture.organization_a_id,
+            fixture.user_a_id,
+            "artifact-a",
+        )
+        snapshot_b = make_snapshot(
+            fixture.organization_b_id,
+            fixture.user_b_id,
+            "artifact-b",
+        )
+        snapshot_app_insert = make_snapshot(
+            fixture.organization_a_id,
+            fixture.user_a_id,
+            "artifact-app-insert",
+        )
+        snapshot_worker_insert = make_snapshot(
+            fixture.organization_a_id,
+            fixture.user_a_id,
+            "artifact-worker-insert",
+        )
+        snapshot_cross_tenant = make_snapshot(
+            fixture.organization_b_id,
+            fixture.user_b_id,
+            "artifact-cross-tenant",
+        )
+    
+        report_a = make_report(
+            fixture.organization_a_id,
+            fixture.user_a_id,
+            snapshot_a,
+            910001,
+            "AL-2026-910001",
+            "RLS Firm A",
+        )
+        report_b = make_report(
+            fixture.organization_b_id,
+            fixture.user_b_id,
+            snapshot_b,
+            910002,
+            "AL-2026-910002",
+            "RLS Firm B",
+        )
+        report_app_insert = make_report(
+            fixture.organization_a_id,
+            fixture.user_a_id,
+            snapshot_app_insert,
+            910003,
+            "AL-2026-910003",
+            "RLS Firm A",
+        )
+        report_worker_insert = make_report(
+            fixture.organization_a_id,
+            fixture.user_a_id,
+            snapshot_worker_insert,
+            910004,
+            "AL-2026-910004",
+            "RLS Firm A",
+        )
+        report_cross_tenant = make_report(
+            fixture.organization_b_id,
+            fixture.user_b_id,
+            snapshot_cross_tenant,
+            910005,
+            "AL-2026-910005",
+            "RLS Firm B",
+        )
+    
+        artifact_a = ReportArtifact.objects.create(
+            organization_id=fixture.organization_a_id,
+            report=report_a,
+            assessment_snapshot=snapshot_a,
+            object_key=build_pdf_object_key(
+                organization_id=fixture.organization_a_id,
+                assessment_snapshot_id=snapshot_a.id,
+                report_id=report_a.id,
+            ),
+            content_type="application/pdf",
+            sha256="a" * 64,
+            size_bytes=100,
+        )
+    
+        artifact_b = ReportArtifact.objects.create(
+            organization_id=fixture.organization_b_id,
+            report=report_b,
+            assessment_snapshot=snapshot_b,
+            object_key=build_pdf_object_key(
+                organization_id=fixture.organization_b_id,
+                assessment_snapshot_id=snapshot_b.id,
+                report_id=report_b.id,
+            ),
+            content_type="application/pdf",
+            sha256="b" * 64,
+            size_bytes=200,
+        )
+    
+        # ------------------------------------------------------------
+        # App role: Tenant A can read only Tenant A.
+        # Tenant B remains hidden even with its exact UUID/object key.
+        # ------------------------------------------------------------
+    
+        with tenant_transaction(
+            fixture.organization_a_id,
+            using="app_runtime",
+        ):
+>           visible_ids = set(
+                ReportArtifact.objects.using("app_runtime").values_list(
+                    "id",
+                    flat=True,
+                )
+            )
+
+tests/test_rls.py:1020: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/query.py:386: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:273: in __iter__
+    for row in compiler.results_iter(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1572: in results_iter
+    results = self.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x726a670df930>
+query = 'SELECT "report_artifacts"."id" AS "id" FROM "report_artifacts" ORDER BY "report_artifacts"."created_at" DESC'
+params = (), prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+E           SQL function "report_read_allowed" statement 1
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py: 2 warnings
+tests/test_billing_founder_cancellation_authority.py: 3 warnings
+tests/test_billing_founder_checkout_authority.py: 2 warnings
+tests/test_billing_portal_cancellation.py: 2 warnings
+tests/test_billing_tenant_authority.py: 10 warnings
+tests/test_core_checkout_admission.py: 21 warnings
+tests/test_csv_import.py: 10 warnings
+tests/test_discovery.py: 2 warnings
+tests/test_discovery_reconciliation.py: 2 warnings
+tests/test_inventory.py: 10 warnings
+tests/test_organization_rules.py: 9 warnings
+tests/test_payflow_deployment_gates.py: 6 warnings
+tests/test_production_security.py: 3 warnings
+tests/test_public_signup.py: 11 warnings
+tests/test_report_history.py: 3 warnings
+tests/test_reports.py: 3 warnings
+tests/test_roi_engine_v2.py: 1 warning
+tests/test_workspaces.py: 9 warnings
+tests/test_billing_standard_launch.py: 3 warnings
+tests/test_core_workflows.py: 1 warning
+tests/test_lyra_authority_findings.py: 1 warning
+tests/test_operations_dashboard.py: 2 warnings
+tests/test_paid_workflow_boundary.py: 3 warnings
+tests/test_provider_lifecycle.py: 2 warnings
+tests/test_quickbooks_lifecycle.py: 13 warnings
+tests/test_quickbooks_reports.py: 6 warnings
+tests/test_report_artifacts.py: 4 warnings
+tests/test_report_recovery_states.py: 1 warning
+tests/test_review_report_read_authority.py: 3 warnings
+tests/test_review_workspace_views.py: 31 warnings
+tests/test_standard_checkout_route_durability.py: 4 warnings
+tests/test_workflow_profile_setup.py: 3 warnings
+tests/test_baseline.py: 4 warnings
+tests/test_download.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_review_workspace_views.py::test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[390]
+FAILED tests/test_review_workspace_views.py::test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[1280]
+FAILED tests/test_rls.py::test_reports_are_tenant_isolated_and_runtime_immutable
+FAILED tests/test_rls.py::test_report_artifacts_are_tenant_isolated_and_runtime_immutable
+4 failed, 1715 passed, 1 skipped, 191 warnings in 587.89s (0:09:47)

@@ -1,0 +1,37 @@
+{
+  "qualification_passed": true,
+  "uid": 10001,
+  "actual_chromium": true,
+  "repeat_bytes_equal": true,
+  "pages": 4,
+  "pdf_sha256": "fe606ca0ea3d2e2368228d61ad575f9b53a4587106b40a40a79b382a2f3147a6",
+  "input_sha256": "c65ede366b68c629ac447097c113f4e6a48d3d6478907c980e1171d0efccdd80",
+  "probe_sha256": "2d22f6868243897a24ae1ed1684c918384d0af42f4a59a679b747f14babb8a85",
+  "exact_roi_table_rows_verified": true,
+  "decorative_asset_sha256": "173afd2fa4df14b9067df281d539368b1f74e00985a2174cd7dc06a5921903f1",
+  "synthetic_only": true,
+  "provider_requests": false,
+  "production_touched": false,
+  "limits": "Direct packaged renderer execution without HTTP listener; not provider admission or production service qualification.",
+  "renderer_image_id": "sha256:45e9b2c15b940d94f9d8bd60ce4127d394fc6813223cd063b87ce2a2c75895a2",
+  "container_exit_code": 0,
+  "runtime_constraints": {
+    "NetworkMode": "none",
+    "ReadonlyRootfs": true,
+    "CapDrop": [
+      "ALL"
+    ],
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "Memory": 536870912,
+    "PidsLimit": 256,
+    "Tmpfs": {
+      "/tmp": "rw,size=128m",
+      "/work/output": "rw,size=32m,mode=0700,uid=10001,gid=10001"
+    }
+  },
+  "fresh_output_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\renderer-package\\20261003T225924.152399Z",
+  "verified_at": "2026-10-03T22:59:30.255166+00:00",
+  "cleanup_verified": true
+}

@@ -1,0 +1,16 @@
+{
+  "image": "sha256:afd7c85b5339b47489a927c86dd036f893bc54d2e9c602dffcf1bc3edc292f1a",
+  "specimen": "100 inventory records; one decision; max note/link fields",
+  "inventory_count": 100,
+  "decision_count": 1,
+  "notes_chars": 4096,
+  "link_count": 10,
+  "link_chars_each": 2048,
+  "payload_bytes": 353472,
+  "payload_sha256": "dbe2babf6b1c868ba1b02c73b612c1113766994348e73c2bda28693dabac88e7",
+  "customer_maximum_proven": false,
+  "admitted_or_stored_pack": false,
+  "concurrency": 1,
+  "timeout_seconds": 60,
+  "renders": []
+}

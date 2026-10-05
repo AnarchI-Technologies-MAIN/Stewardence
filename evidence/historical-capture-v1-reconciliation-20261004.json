@@ -1,0 +1,21 @@
+{
+  "scope": "Static extraction comparison plus separately executed golden tests; no production or input-truth claim",
+  "predecessor_image": "d3c7519316bb54216db079f37addc03db87194e3b3c56136223e220cb216fc59",
+  "checks": {
+    "policy_engine_ast_equal": true,
+    "accounting_definitions_ast_equal": true,
+    "published_ruleset_ast_equal": true,
+    "workflow_validator_ast_equal": true,
+    "capture_functions_ast_equal": true
+  },
+  "candidate_hashes": {
+    "source\\apps\\assessments\\capture_v1.py": "7cfb021f706aa3248ed46e01082f4dfcd0ec6f20d81a37fc968da603c4956c4d",
+    "source\\apps\\assessments\\policy_engine_v1.py": "d6956f72efa2122a0bef1cc8ea8c8048377077af3d2459e23f944a1bc9582f2f",
+    "source\\apps\\assessments\\accounting_pack_v1.py": "8bfd4364f9d6443809b6ac4582b636add77db02aab99cfec78204dac823e5000",
+    "source\\apps\\assessments\\workflow_profile_v1.py": "bc40ea4f558fbf9360c934f36f7f5257c30bba7b114bae9b873c791d3c6b88f8",
+    "source\\apps\\assessments\\capture_contract.py": "081f1c163f8f6055a150c558b0d2f833d8df99bebb173c35ac7fe3291b5be4cc"
+  },
+  "runtime_goldens_receipt": "20261004T225131.635655Z",
+  "historical_context_receipt": "20261004T230604.575162Z",
+  "all_ast_equal": true
+}

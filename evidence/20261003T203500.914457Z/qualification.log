@@ -1,0 +1,451 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+.....................FFFFFFFFFFFFFFFF..............................      [100%]
+=================================== FAILURES ===================================
+____________ test_null_heartbeat_parameters_leave_claim_intact[id] _____________
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 4ca944c3-aeb8-433d-8665-03f7db534720 v1>)
+field = 'id'
+
+    @pytest.mark.parametrize("field", ["id", "worker", "token", "action", "lease"])
+    def test_null_heartbeat_parameters_leave_claim_intact(configured, field):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("null-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('9b9a5fa4-fa25-4782-9194-854c3f2eea8f') == UUID('8361ff48-ee92-47d8-a3b3-3603638098dc')
+E        +  where UUID('9b9a5fa4-fa25-4782-9194-854c3f2eea8f') = ClaimedJob(id=UUID('9b9a5fa4-fa25-4782-9194-854c3f2eea8f'), organization_id=UUID('e7b2de81-05c6-41d8-99c9-bd614b5498bf...5ade2ad-1340-4fbf-89d9-31618974ea42'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('8361ff48-ee92-47d8-a3b3-3603638098dc') = <BackgroundJob: report_generation 8361ff48-ee92-47d8-a3b3-3603638098dc (queued)>.id
+
+tests/test_core_authority_successor.py:252: AssertionError
+__________ test_null_heartbeat_parameters_leave_claim_intact[worker] ___________
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: c0fa58e6-b6e3-4fca-90de-583533a85264 v1>)
+field = 'worker'
+
+    @pytest.mark.parametrize("field", ["id", "worker", "token", "action", "lease"])
+    def test_null_heartbeat_parameters_leave_claim_intact(configured, field):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("null-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('2b9c172b-f972-4bba-bbd7-af9c636d4c23') == UUID('dc934230-9f34-4988-ac83-271dc4e12a70')
+E        +  where UUID('2b9c172b-f972-4bba-bbd7-af9c636d4c23') = ClaimedJob(id=UUID('2b9c172b-f972-4bba-bbd7-af9c636d4c23'), organization_id=UUID('209867ae-7331-476c-8a59-b940adae9490...b4787a8-ba37-4cda-bf0b-926612abb5f3'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('dc934230-9f34-4988-ac83-271dc4e12a70') = <BackgroundJob: report_generation dc934230-9f34-4988-ac83-271dc4e12a70 (queued)>.id
+
+tests/test_core_authority_successor.py:252: AssertionError
+___________ test_null_heartbeat_parameters_leave_claim_intact[token] ___________
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 8c93ca24-a696-4570-9f94-17f0598c40d3 v1>)
+field = 'token'
+
+    @pytest.mark.parametrize("field", ["id", "worker", "token", "action", "lease"])
+    def test_null_heartbeat_parameters_leave_claim_intact(configured, field):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("null-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('c3f0df26-98e1-4834-b7d3-95f54f47d566') == UUID('429c9808-99f0-49be-984e-86a5e8199492')
+E        +  where UUID('c3f0df26-98e1-4834-b7d3-95f54f47d566') = ClaimedJob(id=UUID('c3f0df26-98e1-4834-b7d3-95f54f47d566'), organization_id=UUID('dbdda3da-7e7f-4333-a4a1-05b6b1530c85...312c404-fd45-41e3-8c27-b3a5c6e75e9b'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('429c9808-99f0-49be-984e-86a5e8199492') = <BackgroundJob: report_generation 429c9808-99f0-49be-984e-86a5e8199492 (queued)>.id
+
+tests/test_core_authority_successor.py:252: AssertionError
+__________ test_null_heartbeat_parameters_leave_claim_intact[action] ___________
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: e87ec4a4-38db-460d-832d-283933cc6477 v1>)
+field = 'action'
+
+    @pytest.mark.parametrize("field", ["id", "worker", "token", "action", "lease"])
+    def test_null_heartbeat_parameters_leave_claim_intact(configured, field):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("null-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('b55710ca-88c5-4b1d-97b2-0d9da43474fa') == UUID('e69c6848-121e-474f-8546-b4cf3d645d52')
+E        +  where UUID('b55710ca-88c5-4b1d-97b2-0d9da43474fa') = ClaimedJob(id=UUID('b55710ca-88c5-4b1d-97b2-0d9da43474fa'), organization_id=UUID('66754cd7-3590-44da-adc1-fa54d510d11e...f2ae57b-2ad9-4b26-afa0-c2292eff7432'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('e69c6848-121e-474f-8546-b4cf3d645d52') = <BackgroundJob: report_generation e69c6848-121e-474f-8546-b4cf3d645d52 (queued)>.id
+
+tests/test_core_authority_successor.py:252: AssertionError
+___________ test_null_heartbeat_parameters_leave_claim_intact[lease] ___________
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 03dcd0cb-1ee0-482e-a77c-5e7c66d0fa36 v1>)
+field = 'lease'
+
+    @pytest.mark.parametrize("field", ["id", "worker", "token", "action", "lease"])
+    def test_null_heartbeat_parameters_leave_claim_intact(configured, field):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("null-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('905eec70-2a07-4e3c-9a6d-e14d631e0710') == UUID('f5a00669-a9b8-4731-833b-a94c32b14cd1')
+E        +  where UUID('905eec70-2a07-4e3c-9a6d-e14d631e0710') = ClaimedJob(id=UUID('905eec70-2a07-4e3c-9a6d-e14d631e0710'), organization_id=UUID('bb418be1-2acf-4b59-aa64-a8288b27c900...39f4940-6895-489c-91f1-fa62df3eee75'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('f5a00669-a9b8-4731-833b-a94c32b14cd1') = <BackgroundJob: report_generation f5a00669-a9b8-4731-833b-a94c32b14cd1 (queued)>.id
+
+tests/test_core_authority_successor.py:252: AssertionError
+_ test_worker_authority_entrypoints_reject_snapshot_isolation[REPEATABLE READ-claim] _
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 1a8bab3f-a004-4be9-96ee-0dd23cb8f03b v1>)
+operation = 'claim', isolation = 'REPEATABLE READ'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    @pytest.mark.parametrize("isolation", ["REPEATABLE READ", "SERIALIZABLE"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(
+        configured, operation, isolation
+    ):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("isolation-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('91738f39-41f4-4ba6-8dc9-c754a092c97c') == UUID('36490622-8f1e-4402-bb14-15ac08638273')
+E        +  where UUID('91738f39-41f4-4ba6-8dc9-c754a092c97c') = ClaimedJob(id=UUID('91738f39-41f4-4ba6-8dc9-c754a092c97c'), organization_id=UUID('82270fc0-0476-494e-82ce-1a4a92200457...79d1eed-f8a2-4f8b-b5a9-6525f7962c4e'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('36490622-8f1e-4402-bb14-15ac08638273') = <BackgroundJob: report_generation 36490622-8f1e-4402-bb14-15ac08638273 (queued)>.id
+
+tests/test_core_authority_successor.py:292: AssertionError
+_ test_worker_authority_entrypoints_reject_snapshot_isolation[REPEATABLE READ-finish] _
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: f3bfba14-c3d8-4df7-ba78-286419762301 v1>)
+operation = 'finish', isolation = 'REPEATABLE READ'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    @pytest.mark.parametrize("isolation", ["REPEATABLE READ", "SERIALIZABLE"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(
+        configured, operation, isolation
+    ):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("isolation-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('e667d938-85c1-4717-8abb-ed82a054b153') == UUID('51f67171-6f36-433e-9fb6-ca41ebcd54bc')
+E        +  where UUID('e667d938-85c1-4717-8abb-ed82a054b153') = ClaimedJob(id=UUID('e667d938-85c1-4717-8abb-ed82a054b153'), organization_id=UUID('8b1e9ca3-164e-46e2-b5b5-ce8819dfd779...7ad4ddb-099d-4081-949e-928f55d2587c'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('51f67171-6f36-433e-9fb6-ca41ebcd54bc') = <BackgroundJob: report_generation 51f67171-6f36-433e-9fb6-ca41ebcd54bc (queued)>.id
+
+tests/test_core_authority_successor.py:292: AssertionError
+_ test_worker_authority_entrypoints_reject_snapshot_isolation[REPEATABLE READ-lock] _
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 4c49a36b-43a2-48b3-a355-b6ad86fcd1d1 v1>)
+operation = 'lock', isolation = 'REPEATABLE READ'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    @pytest.mark.parametrize("isolation", ["REPEATABLE READ", "SERIALIZABLE"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(
+        configured, operation, isolation
+    ):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("isolation-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('0097b721-c0b8-4d89-baf7-47fe84eb6f9f') == UUID('79b60edf-f62c-4d05-85a4-5fe8002c5c08')
+E        +  where UUID('0097b721-c0b8-4d89-baf7-47fe84eb6f9f') = ClaimedJob(id=UUID('0097b721-c0b8-4d89-baf7-47fe84eb6f9f'), organization_id=UUID('840039a9-2a1c-4954-9ca3-0e0b72562523...5ef92c5-1aca-4d8d-a3ba-f6a10db815d1'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('79b60edf-f62c-4d05-85a4-5fe8002c5c08') = <BackgroundJob: report_generation 79b60edf-f62c-4d05-85a4-5fe8002c5c08 (queued)>.id
+
+tests/test_core_authority_successor.py:292: AssertionError
+_ test_worker_authority_entrypoints_reject_snapshot_isolation[REPEATABLE READ-recover] _
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 495ff1e0-3437-48b2-88a7-0cb238724c61 v1>)
+operation = 'recover', isolation = 'REPEATABLE READ'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    @pytest.mark.parametrize("isolation", ["REPEATABLE READ", "SERIALIZABLE"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(
+        configured, operation, isolation
+    ):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("isolation-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('3c24a691-78d1-42bc-b4db-865f4f8f8604') == UUID('a6d800c7-6b87-480a-b624-bf8eb9250dd8')
+E        +  where UUID('3c24a691-78d1-42bc-b4db-865f4f8f8604') = ClaimedJob(id=UUID('3c24a691-78d1-42bc-b4db-865f4f8f8604'), organization_id=UUID('975f8867-3147-4855-bdad-dbe013a3af23...7c99095-ee1b-470b-956d-1874b0dafc86'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('a6d800c7-6b87-480a-b624-bf8eb9250dd8') = <BackgroundJob: report_generation a6d800c7-6b87-480a-b624-bf8eb9250dd8 (queued)>.id
+
+tests/test_core_authority_successor.py:292: AssertionError
+_ test_worker_authority_entrypoints_reject_snapshot_isolation[SERIALIZABLE-claim] _
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: e0f5b9a8-1eba-4074-bdf6-4830de914d00 v1>)
+operation = 'claim', isolation = 'SERIALIZABLE'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    @pytest.mark.parametrize("isolation", ["REPEATABLE READ", "SERIALIZABLE"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(
+        configured, operation, isolation
+    ):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("isolation-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('73528228-d512-4d39-9e2c-35292e907a0f') == UUID('8b197449-a773-4f3f-b211-1c775a55048e')
+E        +  where UUID('73528228-d512-4d39-9e2c-35292e907a0f') = ClaimedJob(id=UUID('73528228-d512-4d39-9e2c-35292e907a0f'), organization_id=UUID('0f34cda4-6b2e-4e1d-891a-79d3a3c969a2...28ec6aa-8d65-42e6-9132-53bf42aaa7d1'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('8b197449-a773-4f3f-b211-1c775a55048e') = <BackgroundJob: report_generation 8b197449-a773-4f3f-b211-1c775a55048e (queued)>.id
+
+tests/test_core_authority_successor.py:292: AssertionError
+_ test_worker_authority_entrypoints_reject_snapshot_isolation[SERIALIZABLE-finish] _
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: a3c83dd3-170a-4465-8143-710a963a59ae v1>)
+operation = 'finish', isolation = 'SERIALIZABLE'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    @pytest.mark.parametrize("isolation", ["REPEATABLE READ", "SERIALIZABLE"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(
+        configured, operation, isolation
+    ):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("isolation-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('23eb8be0-5363-446a-af4f-2c73c84207d8') == UUID('a63e749f-3b86-4fec-888d-7a44418eae66')
+E        +  where UUID('23eb8be0-5363-446a-af4f-2c73c84207d8') = ClaimedJob(id=UUID('23eb8be0-5363-446a-af4f-2c73c84207d8'), organization_id=UUID('3a0797cc-03f9-4fc5-9f2a-a2976fddeeaf...bd34ade-fa97-403a-84ee-d44a70c84c98'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('a63e749f-3b86-4fec-888d-7a44418eae66') = <BackgroundJob: report_generation a63e749f-3b86-4fec-888d-7a44418eae66 (queued)>.id
+
+tests/test_core_authority_successor.py:292: AssertionError
+_ test_worker_authority_entrypoints_reject_snapshot_isolation[SERIALIZABLE-lock] _
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: f1a20bc3-e0f1-4025-bcc1-c6ecf1c1ec01 v1>)
+operation = 'lock', isolation = 'SERIALIZABLE'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    @pytest.mark.parametrize("isolation", ["REPEATABLE READ", "SERIALIZABLE"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(
+        configured, operation, isolation
+    ):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("isolation-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('b641708e-8381-465c-bb4b-1ae6ab001fad') == UUID('8b80446e-c262-4c67-8654-3b47e760ceff')
+E        +  where UUID('b641708e-8381-465c-bb4b-1ae6ab001fad') = ClaimedJob(id=UUID('b641708e-8381-465c-bb4b-1ae6ab001fad'), organization_id=UUID('796994be-cc23-4983-9029-33675ad48b67...fadd11a-e596-496e-bf74-bc0e286f6b23'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('8b80446e-c262-4c67-8654-3b47e760ceff') = <BackgroundJob: report_generation 8b80446e-c262-4c67-8654-3b47e760ceff (queued)>.id
+
+tests/test_core_authority_successor.py:292: AssertionError
+_ test_worker_authority_entrypoints_reject_snapshot_isolation[SERIALIZABLE-recover] _
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 9018460d-43ab-4884-ac6d-e16a585487c6 v1>)
+operation = 'recover', isolation = 'SERIALIZABLE'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    @pytest.mark.parametrize("isolation", ["REPEATABLE READ", "SERIALIZABLE"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(
+        configured, operation, isolation
+    ):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("isolation-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('21b603a2-98dc-4efb-8a8e-4ccc135a02ef') == UUID('21fed6b7-88c6-436d-81e8-09ed3194f949')
+E        +  where UUID('21b603a2-98dc-4efb-8a8e-4ccc135a02ef') = ClaimedJob(id=UUID('21b603a2-98dc-4efb-8a8e-4ccc135a02ef'), organization_id=UUID('d0e84c8f-d3b8-4af6-9b1f-b2d10f530339...c1407ed-4586-4445-b1e5-b07a5ba26fca'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('21fed6b7-88c6-436d-81e8-09ed3194f949') = <BackgroundJob: report_generation 21fed6b7-88c6-436d-81e8-09ed3194f949 (queued)>.id
+
+tests/test_core_authority_successor.py:292: AssertionError
+_______ test_database_health_matches_issued_recovery_receipts[completed] _______
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 071ffc40-4d78-4a9e-9ac5-801b5874ecc5 v1>)
+outcome = 'completed'
+
+    @pytest.mark.parametrize("outcome", ["completed", "retry", "review"])
+    def test_database_health_matches_issued_recovery_receipts(configured, outcome):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("health-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('34c0062a-8b71-4a11-88f3-9fdbb093b5cb') == UUID('7eacf7fd-d847-4b7b-b6d7-8a639c6653a5')
+E        +  where UUID('34c0062a-8b71-4a11-88f3-9fdbb093b5cb') = ClaimedJob(id=UUID('34c0062a-8b71-4a11-88f3-9fdbb093b5cb'), organization_id=UUID('acf7fb2f-e99b-438b-b6f6-ee8a0e6c886e...9f218da-1377-4a58-bd2f-d80abfc21e03'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('7eacf7fd-d847-4b7b-b6d7-8a639c6653a5') = <BackgroundJob: report_generation 7eacf7fd-d847-4b7b-b6d7-8a639c6653a5 (queued)>.id
+
+tests/test_core_authority_successor.py:339: AssertionError
+_________ test_database_health_matches_issued_recovery_receipts[retry] _________
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: fc4bb6e7-f5e1-41ba-a010-5d99a63fb183 v1>)
+outcome = 'retry'
+
+    @pytest.mark.parametrize("outcome", ["completed", "retry", "review"])
+    def test_database_health_matches_issued_recovery_receipts(configured, outcome):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("health-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('d09c2341-ba58-4a35-9084-f5d866314dfa') == UUID('868ae659-123b-4cb4-9efb-773bd7f3393e')
+E        +  where UUID('d09c2341-ba58-4a35-9084-f5d866314dfa') = ClaimedJob(id=UUID('d09c2341-ba58-4a35-9084-f5d866314dfa'), organization_id=UUID('7f94de8b-1563-4d76-8d9e-da26300d40a0...abb2b39-eb1c-47ba-b95f-14250400d56a'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('868ae659-123b-4cb4-9efb-773bd7f3393e') = <BackgroundJob: report_generation 868ae659-123b-4cb4-9efb-773bd7f3393e (queued)>.id
+
+tests/test_core_authority_successor.py:339: AssertionError
+________ test_database_health_matches_issued_recovery_receipts[review] _________
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: d889e1ea-991b-4e95-b9d2-883b9c5a20c6 v1>)
+outcome = 'review'
+
+    @pytest.mark.parametrize("outcome", ["completed", "retry", "review"])
+    def test_database_health_matches_issued_recovery_receipts(configured, outcome):
+        user, org, *_ = configured
+        job = BackgroundJob.objects.create(
+            organization=org,
+            job_type="report_generation",
+            payload={},
+            available_at=timezone.now(),
+        )
+        claimed = claim_next_job("health-probe", using="worker_runtime")
+>       assert claimed.id == job.id
+E       AssertionError: assert UUID('811f4777-2879-48ec-a346-a8506353762f') == UUID('751ae5e6-0b60-4700-b916-1fba9026e81a')
+E        +  where UUID('811f4777-2879-48ec-a346-a8506353762f') = ClaimedJob(id=UUID('811f4777-2879-48ec-a346-a8506353762f'), organization_id=UUID('7d2b111e-613f-4afe-8e5a-db3974d3a88a...7870257-80e7-45ed-b2ca-4c9d636b227b'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('751ae5e6-0b60-4700-b916-1fba9026e81a') = <BackgroundJob: report_generation 751ae5e6-0b60-4700-b916-1fba9026e81a (queued)>.id
+
+tests/test_core_authority_successor.py:339: AssertionError
+=============================== warnings summary ===============================
+tests/test_lyra_authority_findings.py::test_owner_can_stop_after_entitlement_lapses_and_cannot_resume
+tests/test_core_workflows.py::test_core_workspace_private_and_forbids_cross_tenant_snapshot
+tests/test_report_recovery_states.py::test_report_retry_cannot_bypass_review_hold
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_core_authority_successor.py::test_null_heartbeat_parameters_leave_claim_intact[id]
+FAILED tests/test_core_authority_successor.py::test_null_heartbeat_parameters_leave_claim_intact[worker]
+FAILED tests/test_core_authority_successor.py::test_null_heartbeat_parameters_leave_claim_intact[token]
+FAILED tests/test_core_authority_successor.py::test_null_heartbeat_parameters_leave_claim_intact[action]
+FAILED tests/test_core_authority_successor.py::test_null_heartbeat_parameters_leave_claim_intact[lease]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[REPEATABLE READ-claim]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[REPEATABLE READ-finish]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[REPEATABLE READ-lock]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[REPEATABLE READ-recover]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[SERIALIZABLE-claim]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[SERIALIZABLE-finish]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[SERIALIZABLE-lock]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[SERIALIZABLE-recover]
+FAILED tests/test_core_authority_successor.py::test_database_health_matches_issued_recovery_receipts[completed]
+FAILED tests/test_core_authority_successor.py::test_database_health_matches_issued_recovery_receipts[retry]
+FAILED tests/test_core_authority_successor.py::test_database_health_matches_issued_recovery_receipts[review]
+16 failed, 51 passed, 3 warnings in 29.72s

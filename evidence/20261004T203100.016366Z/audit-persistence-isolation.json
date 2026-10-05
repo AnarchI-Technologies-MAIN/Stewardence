@@ -1,0 +1,7 @@
+[
+  {
+    "role": "agentledger_worker",
+    "transaction_isolation": "read committed",
+    "inside_atomic": true
+  }
+]

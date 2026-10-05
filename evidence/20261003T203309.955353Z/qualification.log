@@ -1,0 +1,1659 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+..................FFFFFFFFFFFF.............................              [100%]
+=================================== FAILURES ===================================
+____________ test_null_claim_parameters_leave_job_unclaimed[worker] ____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c435fe90>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('bed53412-f4ef-4bb7-a822-6fe7b98162f1'), UUID('6f128db6-de00-45d5-a12b-e1850f86b62e'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c435fe90>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4d31d30>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('bed53412-f4ef-4bb7-a822-6fe7b98162f1'), UUID('6f128db6-de00-45d5-a12b-e1850f86b62e'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (bed53412-f4ef-4bb7-a822-6fe7b98162f1, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:43.194047+00, null, 6f128db6-de00-45d5-a12b-e1850f86b62e, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: af27c1c2-5259-45db-82e4-1d031c35b8eb v1>)
+field = 'worker'
+
+    @pytest.mark.parametrize("field", ["worker", "lease", "token"])
+    def test_null_claim_parameters_leave_job_unclaimed(configured, field):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:223: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4d31d30>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('bed53412-f4ef-4bb7-a822-6fe7b98162f1'), UUID('6f128db6-de00-45d5-a12b-e1850f86b62e'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (bed53412-f4ef-4bb7-a822-6fe7b98162f1, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:43.194047+00, null, 6f128db6-de00-45d5-a12b-e1850f86b62e, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+____________ test_null_claim_parameters_leave_job_unclaimed[lease] _____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c3eb0050>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('86bc58df-2323-463f-a78d-1540a5ad5041'), UUID('867213a9-2fad-4ddd-87dd-3954edef8301'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c3eb0050>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c40360b0>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('86bc58df-2323-463f-a78d-1540a5ad5041'), UUID('867213a9-2fad-4ddd-87dd-3954edef8301'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (86bc58df-2323-463f-a78d-1540a5ad5041, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:43.650971+00, null, 867213a9-2fad-4ddd-87dd-3954edef8301, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: cdb60668-629a-4b59-98da-8c0cdeb7520d v1>)
+field = 'lease'
+
+    @pytest.mark.parametrize("field", ["worker", "lease", "token"])
+    def test_null_claim_parameters_leave_job_unclaimed(configured, field):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:223: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c40360b0>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('86bc58df-2323-463f-a78d-1540a5ad5041'), UUID('867213a9-2fad-4ddd-87dd-3954edef8301'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (86bc58df-2323-463f-a78d-1540a5ad5041, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:43.650971+00, null, 867213a9-2fad-4ddd-87dd-3954edef8301, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+____________ test_null_claim_parameters_leave_job_unclaimed[token] _____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c3637bf0>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('805cd05e-efbf-49c2-80ff-3a18cac81a5f'), UUID('2c682748-8f9b-4cce-8019-d87dade41a79'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c3637bf0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8f770>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('805cd05e-efbf-49c2-80ff-3a18cac81a5f'), UUID('2c682748-8f9b-4cce-8019-d87dade41a79'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (805cd05e-efbf-49c2-80ff-3a18cac81a5f, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:44.161091+00, null, 2c682748-8f9b-4cce-8019-d87dade41a79, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: ce900b19-1227-4593-81e9-8c01d8400d46 v1>)
+field = 'token'
+
+    @pytest.mark.parametrize("field", ["worker", "lease", "token"])
+    def test_null_claim_parameters_leave_job_unclaimed(configured, field):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:223: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8f770>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('805cd05e-efbf-49c2-80ff-3a18cac81a5f'), UUID('2c682748-8f9b-4cce-8019-d87dade41a79'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (805cd05e-efbf-49c2-80ff-3a18cac81a5f, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:44.161091+00, null, 2c682748-8f9b-4cce-8019-d87dade41a79, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+____________ test_null_heartbeat_parameters_leave_claim_intact[id] _____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c41e6e70>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('0c96187c-efb3-477f-805b-ec590e2eb6eb'), UUID('e932edac-80c2-4938-a7c4-59f4ed4533e7'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c41e6e70>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8f070>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('0c96187c-efb3-477f-805b-ec590e2eb6eb'), UUID('e932edac-80c2-4938-a7c4-59f4ed4533e7'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (0c96187c-efb3-477f-805b-ec590e2eb6eb, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:44.481238+00, null, e932edac-80c2-4938-a7c4-59f4ed4533e7, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 0c998824-afc6-4d4d-85bc-d7322e59dd05 v1>)
+field = 'id'
+
+    @pytest.mark.parametrize("field", ["id", "worker", "token", "action", "lease"])
+    def test_null_heartbeat_parameters_leave_claim_intact(configured, field):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:242: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8f070>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('0c96187c-efb3-477f-805b-ec590e2eb6eb'), UUID('e932edac-80c2-4938-a7c4-59f4ed4533e7'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (0c96187c-efb3-477f-805b-ec590e2eb6eb, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:44.481238+00, null, e932edac-80c2-4938-a7c4-59f4ed4533e7, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+__________ test_null_heartbeat_parameters_leave_claim_intact[worker] ___________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c4157830>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('4e565d22-d182-4371-9f1f-006c872aa5a2'), UUID('0bcc0844-9ab8-4e32-80a7-ce06f4b29423'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c4157830>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8f850>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('4e565d22-d182-4371-9f1f-006c872aa5a2'), UUID('0bcc0844-9ab8-4e32-80a7-ce06f4b29423'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (4e565d22-d182-4371-9f1f-006c872aa5a2, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:44.93128+00, null, 0bcc0844-9ab8-4e32-80a7-ce06f4b29423, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: e89779bc-91cd-41fa-afa5-dd768f18040a v1>)
+field = 'worker'
+
+    @pytest.mark.parametrize("field", ["id", "worker", "token", "action", "lease"])
+    def test_null_heartbeat_parameters_leave_claim_intact(configured, field):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:242: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8f850>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('4e565d22-d182-4371-9f1f-006c872aa5a2'), UUID('0bcc0844-9ab8-4e32-80a7-ce06f4b29423'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (4e565d22-d182-4371-9f1f-006c872aa5a2, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:44.93128+00, null, 0bcc0844-9ab8-4e32-80a7-ce06f4b29423, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+___________ test_null_heartbeat_parameters_leave_claim_intact[token] ___________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c41569f0>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('006c51e2-4224-4d67-952e-35e13be622a2'), UUID('04d60a1a-5439-42d9-838c-78257312be0a'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c41569f0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8e5f0>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('006c51e2-4224-4d67-952e-35e13be622a2'), UUID('04d60a1a-5439-42d9-838c-78257312be0a'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (006c51e2-4224-4d67-952e-35e13be622a2, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:45.305561+00, null, 04d60a1a-5439-42d9-838c-78257312be0a, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 13578b9c-012a-4ae0-9b2e-1b2eaa755c02 v1>)
+field = 'token'
+
+    @pytest.mark.parametrize("field", ["id", "worker", "token", "action", "lease"])
+    def test_null_heartbeat_parameters_leave_claim_intact(configured, field):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:242: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8e5f0>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('006c51e2-4224-4d67-952e-35e13be622a2'), UUID('04d60a1a-5439-42d9-838c-78257312be0a'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (006c51e2-4224-4d67-952e-35e13be622a2, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:45.305561+00, null, 04d60a1a-5439-42d9-838c-78257312be0a, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+__________ test_null_heartbeat_parameters_leave_claim_intact[action] ___________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c41a56d0>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('db459097-d508-447d-b5a4-f360577155b7'), UUID('fea376a9-c99b-4972-9840-656ca3c06e37'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c41a56d0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8fe70>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('db459097-d508-447d-b5a4-f360577155b7'), UUID('fea376a9-c99b-4972-9840-656ca3c06e37'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (db459097-d508-447d-b5a4-f360577155b7, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:45.665616+00, null, fea376a9-c99b-4972-9840-656ca3c06e37, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 4347b4f0-84fa-4ff3-a954-e4ca02724bdf v1>)
+field = 'action'
+
+    @pytest.mark.parametrize("field", ["id", "worker", "token", "action", "lease"])
+    def test_null_heartbeat_parameters_leave_claim_intact(configured, field):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:242: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8fe70>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('db459097-d508-447d-b5a4-f360577155b7'), UUID('fea376a9-c99b-4972-9840-656ca3c06e37'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (db459097-d508-447d-b5a4-f360577155b7, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:45.665616+00, null, fea376a9-c99b-4972-9840-656ca3c06e37, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+___________ test_null_heartbeat_parameters_leave_claim_intact[lease] ___________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c41a76b0>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('bdee986e-04a0-40ce-8bd6-2d21c6883e2c'), UUID('1b4f75c7-b951-4d37-8d55-a9297fe3447b'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c41a76b0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4d80bb0>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('bdee986e-04a0-40ce-8bd6-2d21c6883e2c'), UUID('1b4f75c7-b951-4d37-8d55-a9297fe3447b'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (bdee986e-04a0-40ce-8bd6-2d21c6883e2c, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:46.071111+00, null, 1b4f75c7-b951-4d37-8d55-a9297fe3447b, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: e371d2e9-f214-4417-bc7f-8da373482661 v1>)
+field = 'lease'
+
+    @pytest.mark.parametrize("field", ["id", "worker", "token", "action", "lease"])
+    def test_null_heartbeat_parameters_leave_claim_intact(configured, field):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:242: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4d80bb0>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('bdee986e-04a0-40ce-8bd6-2d21c6883e2c'), UUID('1b4f75c7-b951-4d37-8d55-a9297fe3447b'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (bdee986e-04a0-40ce-8bd6-2d21c6883e2c, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:46.071111+00, null, 1b4f75c7-b951-4d37-8d55-a9297fe3447b, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+______ test_worker_authority_entrypoints_reject_snapshot_isolation[claim] ______
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c4156c30>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('f499dbc7-bab7-4fd8-9231-8417cfb66d3b'), UUID('91750a38-4b6e-4277-8ab0-21ba50a9a190'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c4156c30>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8ef90>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('f499dbc7-bab7-4fd8-9231-8417cfb66d3b'), UUID('91750a38-4b6e-4277-8ab0-21ba50a9a190'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (f499dbc7-bab7-4fd8-9231-8417cfb66d3b, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:46.498585+00, null, 91750a38-4b6e-4277-8ab0-21ba50a9a190, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: daa94f70-540d-4ef0-bf4f-24453a476282 v1>)
+operation = 'claim'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(configured, operation):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4b8ef90>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('f499dbc7-bab7-4fd8-9231-8417cfb66d3b'), UUID('91750a38-4b6e-4277-8ab0-21ba50a9a190'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (f499dbc7-bab7-4fd8-9231-8417cfb66d3b, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:46.498585+00, null, 91750a38-4b6e-4277-8ab0-21ba50a9a190, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+_____ test_worker_authority_entrypoints_reject_snapshot_isolation[finish] ______
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c42e2c30>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('4232fa4e-2738-401c-abb0-8fbf5d6255e9'), UUID('bd2c4f6b-bb54-4954-b67f-fac6658f1a66'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c42e2c30>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4d81550>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('4232fa4e-2738-401c-abb0-8fbf5d6255e9'), UUID('bd2c4f6b-bb54-4954-b67f-fac6658f1a66'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (4232fa4e-2738-401c-abb0-8fbf5d6255e9, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:46.854602+00, null, bd2c4f6b-bb54-4954-b67f-fac6658f1a66, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 9218d4cf-81aa-4807-81bf-96cfa8f29612 v1>)
+operation = 'finish'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(configured, operation):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4d81550>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('4232fa4e-2738-401c-abb0-8fbf5d6255e9'), UUID('bd2c4f6b-bb54-4954-b67f-fac6658f1a66'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (4232fa4e-2738-401c-abb0-8fbf5d6255e9, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:46.854602+00, null, bd2c4f6b-bb54-4954-b67f-fac6658f1a66, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+______ test_worker_authority_entrypoints_reject_snapshot_isolation[lock] _______
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c41a7170>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('f46ecfc2-aa5b-4d89-9ae0-02a40428c863'), UUID('d11e4148-abe1-4e71-8e10-93e91ffc6c99'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c41a7170>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4d82430>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('f46ecfc2-aa5b-4d89-9ae0-02a40428c863'), UUID('d11e4148-abe1-4e71-8e10-93e91ffc6c99'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (f46ecfc2-aa5b-4d89-9ae0-02a40428c863, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:47.209052+00, null, d11e4148-abe1-4e71-8e10-93e91ffc6c99, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 01976f41-1f27-4828-8e2c-a3e6b013a17f v1>)
+operation = 'lock'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(configured, operation):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4d82430>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('f46ecfc2-aa5b-4d89-9ae0-02a40428c863'), UUID('d11e4148-abe1-4e71-8e10-93e91ffc6c99'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (f46ecfc2-aa5b-4d89-9ae0-02a40428c863, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:47.209052+00, null, d11e4148-abe1-4e71-8e10-93e91ffc6c99, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+_____ test_worker_authority_entrypoints_reject_snapshot_isolation[recover] _____
+
+self = <django.db.backends.utils.CursorWrapper object at 0x72b4c41a7dd0>
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('994815b9-ce87-4f8b-89c4-1265f41304eb'), UUID('ec54f5ea-5dbd-4b00-816c-b21a297b36d5'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x72b4c41a7dd0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4d818d0>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('994815b9-ce87-4f8b-89c4-1265f41304eb'), UUID('ec54f5ea-5dbd-4b00-816c-b21a297b36d5'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (994815b9-ce87-4f8b-89c4-1265f41304eb, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:47.601367+00, null, ec54f5ea-5dbd-4b00-816c-b21a297b36d5, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 04353236-de16-44e4-a056-8352dc31e555 v1>)
+operation = 'recover'
+
+    @pytest.mark.parametrize("operation", ["claim", "finish", "lock", "recover"])
+    def test_worker_authority_entrypoints_reject_snapshot_isolation(configured, operation):
+        user, org, *_ = configured
+>       job = BackgroundJob.objects.create(
+            organization=org, job_type="report_generation", payload={}
+        )
+
+tests/test_core_authority_successor.py:276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x72b4c4d818d0>
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('994815b9-ce87-4f8b-89c4-1265f41304eb'), UUID('ec54f5ea-5dbd-4b00-816c-b21a297b36d5'), 'report_generation', Jsonb({}), '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', BackgroundJob.Status.QUEUED, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+E           DETAIL:  Failing row contains (994815b9-ce87-4f8b-89c4-1265f41304eb, report_generation, {}, queued, 100, 0, null, null, null, null, null, null, null, null, 2026-10-03 20:33:47.601367+00, null, ec54f5ea-5dbd-4b00-816c-b21a297b36d5, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+=============================== warnings summary ===============================
+tests/test_lyra_authority_findings.py::test_owner_can_stop_after_entitlement_lapses_and_cannot_resume
+tests/test_core_workflows.py::test_core_workspace_private_and_forbids_cross_tenant_snapshot
+tests/test_report_recovery_states.py::test_report_retry_cannot_bypass_review_hold
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_core_authority_successor.py::test_null_claim_parameters_leave_job_unclaimed[worker]
+FAILED tests/test_core_authority_successor.py::test_null_claim_parameters_leave_job_unclaimed[lease]
+FAILED tests/test_core_authority_successor.py::test_null_claim_parameters_leave_job_unclaimed[token]
+FAILED tests/test_core_authority_successor.py::test_null_heartbeat_parameters_leave_claim_intact[id]
+FAILED tests/test_core_authority_successor.py::test_null_heartbeat_parameters_leave_claim_intact[worker]
+FAILED tests/test_core_authority_successor.py::test_null_heartbeat_parameters_leave_claim_intact[token]
+FAILED tests/test_core_authority_successor.py::test_null_heartbeat_parameters_leave_claim_intact[action]
+FAILED tests/test_core_authority_successor.py::test_null_heartbeat_parameters_leave_claim_intact[lease]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[claim]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[finish]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[lock]
+FAILED tests/test_core_authority_successor.py::test_worker_authority_entrypoints_reject_snapshot_isolation[recover]
+12 failed, 47 passed, 3 warnings in 19.86s

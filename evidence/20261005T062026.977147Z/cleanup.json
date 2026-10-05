@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "resources": [
+    {
+      "name": "stewardence-local-a55167c1ae-app",
+      "kind": "container",
+      "inspect_returncode": 1,
+      "label_matched": false,
+      "label_mismatch": false,
+      "remove_returncode": null,
+      "absence_query_returncode": 0,
+      "absent": true,
+      "passed": true
+    },
+    {
+      "name": "stewardence-local-a55167c1ae-renderer",
+      "kind": "container",
+      "inspect_returncode": 0,
+      "label_matched": true,
+      "label_mismatch": false,
+      "remove_returncode": 0,
+      "absence_query_returncode": 0,
+      "absent": true,
+      "passed": true
+    },
+    {
+      "name": "stewardence-local-a55167c1ae-db",
+      "kind": "container",
+      "inspect_returncode": 0,
+      "label_matched": true,
+      "label_mismatch": false,
+      "remove_returncode": 0,
+      "absence_query_returncode": 0,
+      "absent": true,
+      "passed": true
+    },
+    {
+      "name": "stewardence-local-a55167c1ae",
+      "kind": "network",
+      "inspect_returncode": 0,
+      "label_matched": true,
+      "label_mismatch": false,
+      "remove_returncode": 0,
+      "absence_query_returncode": 0,
+      "absent": true,
+      "passed": true
+    }
+  ]
+}

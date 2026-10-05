@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="17" time="167.647" timestamp="2026-10-04T22:00:55.404583+00:00" hostname="42a9edfe2a82"><testcase classname="tests.test_capture_review_ui" name="test_owner_preview_is_private_read_only_and_explicitly_not_a_benefit_model" time="40.914" /><testcase classname="tests.test_capture_review_ui" name="test_signed_owner_confirmation_admits_schema_two_without_roi_or_downstream_work" time="3.651"><failure message="assert b'Unknown' in b'\n&lt;!doctype html&gt;\n&lt;html lang=&quot;en&quot;&gt;\n  &lt;head&gt;\n    &lt;meta charset=&quot;utf-8&quot;&gt;\n    &lt;meta name=&quot;viewport&quot; content=&quot;width=...ualification is complete.&lt;/p&gt;&lt;/section&gt;\n\n          &lt;/main&gt;\n        &lt;/div&gt;\n      &lt;/div&gt;\n    \n  &lt;/body&gt;\n&lt;/html&gt;\n'&#10; +  where b'\n&lt;!doctype html&gt;\n&lt;html lang=&quot;en&quot;&gt;\n  &lt;head&gt;\n    &lt;meta charset=&quot;utf-8&quot;&gt;\n    &lt;meta name=&quot;viewport&quot; content=&quot;width=...ualification is complete.&lt;/p&gt;&lt;/section&gt;\n\n          &lt;/main&gt;\n        &lt;/div&gt;\n      &lt;/div&gt;\n    \n  &lt;/body&gt;\n&lt;/html&gt;\n' = &lt;HttpResponse status_code=200, &quot;text/html; charset=utf-8&quot;&gt;.content">capture_ui = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;InventoryItem: Workflow helper&gt;)
+client = &lt;django.test.client.Client object at 0x79c8458a6650&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x79c8450657f0&gt;
+
+    def test_signed_owner_confirmation_admits_schema_two_without_roi_or_downstream_work(
+        capture_ui, client, monkeypatch
+    ):
+        def no_roi(*args, **kwargs):
+            raise AssertionError("Deliberate capture must not run a benefit calculator")
+    
+        monkeypatch.setattr("apps.roi.engine_v2.calculate_roi", no_roi)
+        before = effects()
+        _, token, frame = preview(client)
+        response = confirm(client, token)
+        assert response.status_code == 302, response.content.decode()
+        snapshot = AssessmentSnapshot.objects.get(id=UUID(frame["capture_id"]))
+        assert response.url == reverse("reviews:snapshot", args=[snapshot.id])
+        assert snapshot.organization_id == capture_ui[1].id
+        assert snapshot.created_by_id == capture_ui[0].id
+        assert snapshot.input_payload["snapshot_schema_version"] == 2
+        assert snapshot.result_payload["snapshot_schema_version"] == 2
+        assert snapshot.input_payload["benefit_model"] == {"state": "not_supplied"}
+        assert snapshot.result_payload["benefit_model"] == {"state": "not_supplied"}
+        assert "roi" not in snapshot.input_payload and "roi" not in snapshot.result_payload
+        receipt = SnapshotCaptureReceipt.objects.get(snapshot=snapshot)
+        assert receipt.reviewed_frame == frame
+        after = effects()
+        assert after["AssessmentSnapshot"] == before["AssessmentSnapshot"] + 1
+        assert after["SnapshotCaptureReceipt"] == before["SnapshotCaptureReceipt"] + 1
+        for model in set(before) - {"AssessmentSnapshot", "SnapshotCaptureReceipt"}:
+            assert after[model] == before[model], model
+        shown = client.get(response.url)
+        assert shown.status_code == 200
+        assert b"Review captured exposure" in shown.content
+&gt;       assert b"Unknown" in shown.content
+E       assert b'Unknown' in b'\n&lt;!doctype html&gt;\n&lt;html lang="en"&gt;\n  &lt;head&gt;\n    &lt;meta charset="utf-8"&gt;\n    &lt;meta name="viewport" content="width=...ualification is complete.&lt;/p&gt;&lt;/section&gt;\n\n          &lt;/main&gt;\n        &lt;/div&gt;\n      &lt;/div&gt;\n    \n  &lt;/body&gt;\n&lt;/html&gt;\n'
+E        +  where b'\n&lt;!doctype html&gt;\n&lt;html lang="en"&gt;\n  &lt;head&gt;\n    &lt;meta charset="utf-8"&gt;\n    &lt;meta name="viewport" content="width=...ualification is complete.&lt;/p&gt;&lt;/section&gt;\n\n          &lt;/main&gt;\n        &lt;/div&gt;\n      &lt;/div&gt;\n    \n  &lt;/body&gt;\n&lt;/html&gt;\n' = &lt;HttpResponse status_code=200, "text/html; charset=utf-8"&gt;.content
+
+tests/test_capture_review_ui.py:128: AssertionError</failure></testcase><testcase classname="tests.test_capture_review_ui" name="test_same_signed_retry_returns_exact_committed_capture_after_inventory_changes" time="2.936" /><testcase classname="tests.test_capture_review_ui" name="test_changed_inventory_before_confirmation_is_conflict_with_no_capture" time="6.487" /><testcase classname="tests.test_capture_review_ui" name="test_bad_preview_tokens_have_no_domain_effects[tampered]" time="2.183" /><testcase classname="tests.test_capture_review_ui" name="test_bad_preview_tokens_have_no_domain_effects[foreign_org]" time="2.952" /><testcase classname="tests.test_capture_review_ui" name="test_bad_preview_tokens_have_no_domain_effects[foreign_actor]" time="2.696" /><testcase classname="tests.test_capture_review_ui" name="test_bad_preview_tokens_have_no_domain_effects[expired]" time="4.596" /><testcase classname="tests.test_capture_review_ui" name="test_bad_preview_tokens_have_no_domain_effects[malformed_signed]" time="3.550" /><testcase classname="tests.test_capture_review_ui" name="test_confirmation_requires_deliberate_checkbox_and_csrf" time="2.824" /><testcase classname="tests.test_capture_review_ui" name="test_preview_and_snapshot_distinguish_unknown_none_no_and_zero" time="2.610" /><testcase classname="tests.test_capture_review_ui" name="test_closed_gates_deny_preview_and_confirmation_without_effects[workspace]" time="2.347" /><testcase classname="tests.test_capture_review_ui" name="test_closed_gates_deny_preview_and_confirmation_without_effects[application]" time="3.179" /><testcase classname="tests.test_capture_review_ui" name="test_closed_gates_deny_preview_and_confirmation_without_effects[operator]" time="3.873" /><testcase classname="tests.test_capture_review_ui" name="test_same_tenant_viewer_cannot_preview_or_confirm_capture" time="2.302" /><testcase classname="tests.test_capture_review_ui" name="test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet[390]" time="30.203"><failure message="assert 2 == 1&#10; +  where 2 = count()&#10; +    where count = &lt;Locator frame=&lt;Frame name= url='about:blank'&gt; selector='internal:text=&quot;&lt;script&gt;untrusted label&lt;/script&gt;&quot;s'&gt;.count&#10; +      where &lt;Locator frame=&lt;Frame name= url='about:blank'&gt; selector='internal:text=&quot;&lt;script&gt;untrusted label&lt;/script&gt;&quot;s'&gt; = get_by_text('&lt;script&gt;untrusted label&lt;/script&gt;', exact=True)&#10; +        where get_by_text = &lt;Page url='about:blank'&gt;.get_by_text">capture_ui = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;InventoryItem: Workflow helper&gt;)
+client = &lt;django.test.client.Client object at 0x79c844741130&gt;, width = 390
+
+    @pytest.mark.parametrize("width", [390, 1280])
+    def test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet(
+        capture_ui, client, width
+    ):
+        from playwright.sync_api import sync_playwright
+    
+        issue(
+            capture_ui[:2],
+            form(
+                display_name="&lt;script&gt;untrusted label&lt;/script&gt;",
+                business_purpose="x" * 4096,
+                permissions=["__none__"],
+            ),
+        )
+        before = effects()
+        response, token, _ = preview(client)
+        html = response.content.decode()
+        css = "\n".join(
+            (Path(django_settings.BASE_DIR) / "static" / name).read_text(encoding="utf-8")
+            for name in ("agentledger.css", "atlas.css")
+        )
+        assert effects() == before
+        with sync_playwright() as runtime:
+            browser = runtime.chromium.launch()
+            context = browser.new_context(
+                viewport={"width": width, "height": 900}, reduced_motion="reduce"
+            )
+            page = context.new_page()
+            requests = []
+            page.on("request", lambda request: requests.append(request.url))
+            page.route("**/*", lambda route: route.abort())
+            page.set_content(html, wait_until="load")
+            page.add_style_tag(content=css)
+            assert page.locator("main h1").inner_text() == "Review before saving"
+            assert page.locator("main script").count() == 0
+&gt;           assert (
+                page.get_by_text("&lt;script&gt;untrusted label&lt;/script&gt;", exact=True).count()
+                == 1
+            )
+E           assert 2 == 1
+E            +  where 2 = count()
+E            +    where count = &lt;Locator frame=&lt;Frame name= url='about:blank'&gt; selector='internal:text="&lt;script&gt;untrusted label&lt;/script&gt;"s'&gt;.count
+E            +      where &lt;Locator frame=&lt;Frame name= url='about:blank'&gt; selector='internal:text="&lt;script&gt;untrusted label&lt;/script&gt;"s'&gt; = get_by_text('&lt;script&gt;untrusted label&lt;/script&gt;', exact=True)
+E            +        where get_by_text = &lt;Page url='about:blank'&gt;.get_by_text
+
+tests/test_capture_review_ui.py:365: AssertionError</failure></testcase><testcase classname="tests.test_capture_review_ui" name="test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet[1280]" time="44.301"><failure message="assert 2 == 1&#10; +  where 2 = count()&#10; +    where count = &lt;Locator frame=&lt;Frame name= url='about:blank'&gt; selector='internal:text=&quot;&lt;script&gt;untrusted label&lt;/script&gt;&quot;s'&gt;.count&#10; +      where &lt;Locator frame=&lt;Frame name= url='about:blank'&gt; selector='internal:text=&quot;&lt;script&gt;untrusted label&lt;/script&gt;&quot;s'&gt; = get_by_text('&lt;script&gt;untrusted label&lt;/script&gt;', exact=True)&#10; +        where get_by_text = &lt;Page url='about:blank'&gt;.get_by_text">capture_ui = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;InventoryItem: Workflow helper&gt;)
+client = &lt;django.test.client.Client object at 0x79c84308fe30&gt;, width = 1280
+
+    @pytest.mark.parametrize("width", [390, 1280])
+    def test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet(
+        capture_ui, client, width
+    ):
+        from playwright.sync_api import sync_playwright
+    
+        issue(
+            capture_ui[:2],
+            form(
+                display_name="&lt;script&gt;untrusted label&lt;/script&gt;",
+                business_purpose="x" * 4096,
+                permissions=["__none__"],
+            ),
+        )
+        before = effects()
+        response, token, _ = preview(client)
+        html = response.content.decode()
+        css = "\n".join(
+            (Path(django_settings.BASE_DIR) / "static" / name).read_text(encoding="utf-8")
+            for name in ("agentledger.css", "atlas.css")
+        )
+        assert effects() == before
+        with sync_playwright() as runtime:
+            browser = runtime.chromium.launch()
+            context = browser.new_context(
+                viewport={"width": width, "height": 900}, reduced_motion="reduce"
+            )
+            page = context.new_page()
+            requests = []
+            page.on("request", lambda request: requests.append(request.url))
+            page.route("**/*", lambda route: route.abort())
+            page.set_content(html, wait_until="load")
+            page.add_style_tag(content=css)
+            assert page.locator("main h1").inner_text() == "Review before saving"
+            assert page.locator("main script").count() == 0
+&gt;           assert (
+                page.get_by_text("&lt;script&gt;untrusted label&lt;/script&gt;", exact=True).count()
+                == 1
+            )
+E           assert 2 == 1
+E            +  where 2 = count()
+E            +    where count = &lt;Locator frame=&lt;Frame name= url='about:blank'&gt; selector='internal:text="&lt;script&gt;untrusted label&lt;/script&gt;"s'&gt;.count
+E            +      where &lt;Locator frame=&lt;Frame name= url='about:blank'&gt; selector='internal:text="&lt;script&gt;untrusted label&lt;/script&gt;"s'&gt; = get_by_text('&lt;script&gt;untrusted label&lt;/script&gt;', exact=True)
+E            +        where get_by_text = &lt;Page url='about:blank'&gt;.get_by_text
+
+tests/test_capture_review_ui.py:365: AssertionError</failure></testcase></testsuite></testsuites>

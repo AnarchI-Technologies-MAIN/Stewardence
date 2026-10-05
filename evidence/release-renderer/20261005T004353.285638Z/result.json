@@ -1,0 +1,6 @@
+{
+  "passed": false,
+  "error_type": "CalledProcessError",
+  "production_touched": false,
+  "cleanup_verified": true
+}

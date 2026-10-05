@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="21" time="19.627" timestamp="2026-10-04T20:25:05.695452+00:00" hostname="7c80cd38470d"><testcase classname="tests.test_review_workspace_views" name="test_default_workspace_gate_unavailable_without_effects" time="8.151" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[history]" time="0.534"><failure message="assert 302 == 403&#10; +  where 302 = &lt;HttpResponseRedirect status_code=302, &quot;text/html; charset=utf-8&quot;, url=&quot;/billing/portfolio/&quot;&gt;.status_code&#10; +    where &lt;HttpResponseRedirect status_code=302, &quot;text/html; charset=utf-8&quot;, url=&quot;/billing/portfolio/&quot;&gt; = get('/reviews/')&#10; +      where get = &lt;django.test.client.Client object at 0x7352a90c6780&gt;.get&#10; +      and   '/reviews/' = reverse(('reviews:' + 'history'), args=[])">workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 49562fc3-d582-4d95-a4da-95fea2098e85 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (1886cf4b-ce02-4614-b824-6f81ced9a39e)&gt;)
+client = &lt;django.test.client.Client object at 0x7352a90c6780&gt;, route = 'history'
+
+    @pytest.mark.parametrize('route',['history','snapshot','decision','comparison'])
+    def test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access(workspace,client,route):
+        viewer=get_user_model().objects.create_user('ui-viewer@example.invalid')
+        OrganizationMember.objects.create(organization=workspace[1],user=viewer,role='viewer')
+        client.force_login(viewer)
+        session=client.session;session['active_organization_id']=str(workspace[1].id);session.save()
+        args={'history':[],'snapshot':[workspace[2].id],'decision':[workspace[3].id,0],'comparison':[]}[route]
+&gt;       assert client.get(reverse('reviews:'+route,args=args)).status_code==403
+E       assert 302 == 403
+E        +  where 302 = &lt;HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"&gt;.status_code
+E        +    where &lt;HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"&gt; = get('/reviews/')
+E        +      where get = &lt;django.test.client.Client object at 0x7352a90c6780&gt;.get
+E        +      and   '/reviews/' = reverse(('reviews:' + 'history'), args=[])
+
+tests/test_review_workspace_views.py:67: AssertionError</failure></testcase><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[snapshot]" time="0.465"><failure message="assert 302 == 403&#10; +  where 302 = &lt;HttpResponseRedirect status_code=302, &quot;text/html; charset=utf-8&quot;, url=&quot;/billing/portfolio/&quot;&gt;.status_code&#10; +    where &lt;HttpResponseRedirect status_code=302, &quot;text/html; charset=utf-8&quot;, url=&quot;/billing/portfolio/&quot;&gt; = get('/reviews/snapshots/54bbf8ec-b4cb-426c-bea1-59e048fc1b95/')&#10; +      where get = &lt;django.test.client.Client object at 0x7352a8351b50&gt;.get&#10; +      and   '/reviews/snapshots/54bbf8ec-b4cb-426c-bea1-59e048fc1b95/' = reverse(('reviews:' + 'snapshot'), args=[UUID('54bbf8ec-b4cb-426c-bea1-59e048fc1b95')])">workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: ec58b6a6-b69e-4c8c-ac9a-de7b1e0d9e8d v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (d683991b-62f7-4471-abd2-05f58ce3d458)&gt;)
+client = &lt;django.test.client.Client object at 0x7352a8351b50&gt;
+route = 'snapshot'
+
+    @pytest.mark.parametrize('route',['history','snapshot','decision','comparison'])
+    def test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access(workspace,client,route):
+        viewer=get_user_model().objects.create_user('ui-viewer@example.invalid')
+        OrganizationMember.objects.create(organization=workspace[1],user=viewer,role='viewer')
+        client.force_login(viewer)
+        session=client.session;session['active_organization_id']=str(workspace[1].id);session.save()
+        args={'history':[],'snapshot':[workspace[2].id],'decision':[workspace[3].id,0],'comparison':[]}[route]
+&gt;       assert client.get(reverse('reviews:'+route,args=args)).status_code==403
+E       assert 302 == 403
+E        +  where 302 = &lt;HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"&gt;.status_code
+E        +    where &lt;HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"&gt; = get('/reviews/snapshots/54bbf8ec-b4cb-426c-bea1-59e048fc1b95/')
+E        +      where get = &lt;django.test.client.Client object at 0x7352a8351b50&gt;.get
+E        +      and   '/reviews/snapshots/54bbf8ec-b4cb-426c-bea1-59e048fc1b95/' = reverse(('reviews:' + 'snapshot'), args=[UUID('54bbf8ec-b4cb-426c-bea1-59e048fc1b95')])
+
+tests/test_review_workspace_views.py:67: AssertionError</failure></testcase><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[decision]" time="0.465"><failure message="assert 302 == 403&#10; +  where 302 = &lt;HttpResponseRedirect status_code=302, &quot;text/html; charset=utf-8&quot;, url=&quot;/billing/portfolio/&quot;&gt;.status_code&#10; +    where &lt;HttpResponseRedirect status_code=302, &quot;text/html; charset=utf-8&quot;, url=&quot;/billing/portfolio/&quot;&gt; = get('/reviews/cards/43a9cd97-1b82-4b00-8df5-891bbe4f96e1/0/')&#10; +      where get = &lt;django.test.client.Client object at 0x7352a83658c0&gt;.get&#10; +      and   '/reviews/cards/43a9cd97-1b82-4b00-8df5-891bbe4f96e1/0/' = reverse(('reviews:' + 'decision'), args=[UUID('43a9cd97-1b82-4b00-8df5-891bbe4f96e1'), 0])">workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 82100d9e-8c66-4d62-b754-9af71e77cbb9 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (43a9cd97-1b82-4b00-8df5-891bbe4f96e1)&gt;)
+client = &lt;django.test.client.Client object at 0x7352a83658c0&gt;
+route = 'decision'
+
+    @pytest.mark.parametrize('route',['history','snapshot','decision','comparison'])
+    def test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access(workspace,client,route):
+        viewer=get_user_model().objects.create_user('ui-viewer@example.invalid')
+        OrganizationMember.objects.create(organization=workspace[1],user=viewer,role='viewer')
+        client.force_login(viewer)
+        session=client.session;session['active_organization_id']=str(workspace[1].id);session.save()
+        args={'history':[],'snapshot':[workspace[2].id],'decision':[workspace[3].id,0],'comparison':[]}[route]
+&gt;       assert client.get(reverse('reviews:'+route,args=args)).status_code==403
+E       assert 302 == 403
+E        +  where 302 = &lt;HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"&gt;.status_code
+E        +    where &lt;HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"&gt; = get('/reviews/cards/43a9cd97-1b82-4b00-8df5-891bbe4f96e1/0/')
+E        +      where get = &lt;django.test.client.Client object at 0x7352a83658c0&gt;.get
+E        +      and   '/reviews/cards/43a9cd97-1b82-4b00-8df5-891bbe4f96e1/0/' = reverse(('reviews:' + 'decision'), args=[UUID('43a9cd97-1b82-4b00-8df5-891bbe4f96e1'), 0])
+
+tests/test_review_workspace_views.py:67: AssertionError</failure></testcase><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[comparison]" time="0.350"><failure message="assert 302 == 403&#10; +  where 302 = &lt;HttpResponseRedirect status_code=302, &quot;text/html; charset=utf-8&quot;, url=&quot;/billing/portfolio/&quot;&gt;.status_code&#10; +    where &lt;HttpResponseRedirect status_code=302, &quot;text/html; charset=utf-8&quot;, url=&quot;/billing/portfolio/&quot;&gt; = get('/reviews/compare/')&#10; +      where get = &lt;django.test.client.Client object at 0x7352a8b29950&gt;.get&#10; +      and   '/reviews/compare/' = reverse(('reviews:' + 'comparison'), args=[])">workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: bddaae38-ffb6-45ea-b7bb-d59367a6a431 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (e4c95cc6-5de8-4b39-8e04-a5b9a05d73f9)&gt;)
+client = &lt;django.test.client.Client object at 0x7352a8b29950&gt;
+route = 'comparison'
+
+    @pytest.mark.parametrize('route',['history','snapshot','decision','comparison'])
+    def test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access(workspace,client,route):
+        viewer=get_user_model().objects.create_user('ui-viewer@example.invalid')
+        OrganizationMember.objects.create(organization=workspace[1],user=viewer,role='viewer')
+        client.force_login(viewer)
+        session=client.session;session['active_organization_id']=str(workspace[1].id);session.save()
+        args={'history':[],'snapshot':[workspace[2].id],'decision':[workspace[3].id,0],'comparison':[]}[route]
+&gt;       assert client.get(reverse('reviews:'+route,args=args)).status_code==403
+E       assert 302 == 403
+E        +  where 302 = &lt;HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"&gt;.status_code
+E        +    where &lt;HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"&gt; = get('/reviews/compare/')
+E        +      where get = &lt;django.test.client.Client object at 0x7352a8b29950&gt;.get
+E        +      and   '/reviews/compare/' = reverse(('reviews:' + 'comparison'), args=[])
+
+tests/test_review_workspace_views.py:67: AssertionError</failure></testcase><testcase classname="tests.test_review_workspace_views" name="test_snapshot_get_is_dated_read_only_and_shows_unestablished_accounts" time="0.488" /><testcase classname="tests.test_review_workspace_views" name="test_decision_post_appends_exact_binding_and_stale_retry_is_conflict" time="0.597" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes0]" time="0.553" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes1]" time="1.030" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes2]" time="1.013" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes3]" time="0.503" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes4]" time="0.713" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes5]" time="0.326" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes6]" time="0.469" /><testcase classname="tests.test_review_workspace_views" name="test_missing_decision_feature_is_explicitly_unavailable" time="0.377" /><testcase classname="tests.test_review_workspace_views" name="test_foreign_snapshot_revision_and_pack_are_not_found" time="0.409"><failure message="assert 302 == 404&#10; +  where 302 = &lt;HttpResponseRedirect status_code=302, &quot;text/html; charset=utf-8&quot;, url=&quot;/workspaces/&quot;&gt;.status_code&#10; +    where &lt;HttpResponseRedirect status_code=302, &quot;text/html; charset=utf-8&quot;, url=&quot;/workspaces/&quot;&gt; = get('/reviews/snapshots/46c98078-bc94-4b48-993e-07a19620a062/')&#10; +      where get = &lt;django.test.client.Client object at 0x7352a7fe7570&gt;.get&#10; +      and   '/reviews/snapshots/46c98078-bc94-4b48-993e-07a19620a062/' = reverse(('reviews:' + 'snapshot'), args=[UUID('46c98078-bc94-4b48-993e-07a19620a062')])">workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 6bb3127e-3bee-4671-9558-4e7906ef05f5 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (0bf7ee9b-6745-4dcd-9be8-fb5f446cc848)&gt;)
+client = &lt;django.test.client.Client object at 0x7352a7fe7570&gt;
+
+    def test_foreign_snapshot_revision_and_pack_are_not_found(workspace,client):
+        pack=freeze_pack(client,workspace)
+        other=Organization.objects.create(name='Other owner workspace')
+        OrganizationMember.objects.create(organization=other,user=workspace[0],role='owner')
+        session=client.session;session['active_organization_id']=str(other.id);session.save()
+        for route,args in [('snapshot',[workspace[2].id]),('decision',[workspace[3].id,0]),('pack-detail',[pack.id])]:
+&gt;           assert client.get(reverse('reviews:'+route,args=args)).status_code==404
+E           assert 302 == 404
+E            +  where 302 = &lt;HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/workspaces/"&gt;.status_code
+E            +    where &lt;HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/workspaces/"&gt; = get('/reviews/snapshots/46c98078-bc94-4b48-993e-07a19620a062/')
+E            +      where get = &lt;django.test.client.Client object at 0x7352a7fe7570&gt;.get
+E            +      and   '/reviews/snapshots/46c98078-bc94-4b48-993e-07a19620a062/' = reverse(('reviews:' + 'snapshot'), args=[UUID('46c98078-bc94-4b48-993e-07a19620a062')])
+
+tests/test_review_workspace_views.py:119: AssertionError</failure></testcase><testcase classname="tests.test_review_workspace_views" name="test_freeze_projects_exact_old_statement_without_requesting_pdf" time="0.553" /><testcase classname="tests.test_review_workspace_views" name="test_explicit_artifact_request_queues_without_promoting_baseline_or_starting_worker" time="0.502" /><testcase classname="tests.test_review_workspace_views" name="test_database_denial_rolls_back_open_cycle_before_safe_response" time="0.401" /><testcase classname="tests.test_review_workspace_views" name="test_csrf_and_http_methods_preserve_no_effects" time="0.486" /><testcase classname="tests.test_review_workspace_views" name="test_user_selected_comparison_is_read_only_and_never_admits_a_baseline" time="0.608" /></testsuite></testsuites>

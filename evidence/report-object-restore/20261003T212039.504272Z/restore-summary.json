@@ -1,0 +1,86 @@
+{
+  "verified_at": "2026-10-03T21:21:02.004842+00:00",
+  "restore_passed": true,
+  "objects_restored": 6,
+  "total_plaintext_bytes_verified": 698217,
+  "source_backup_identity_verified": true,
+  "manifest_restored_from_wsl": true,
+  "archived_live_metadata_exact_match": true,
+  "source_backup_sha256": "0b20cd7ede2d1218e210af325f3ee19fa98a6d2cacff895728468c58981e1dbc",
+  "host_plaintext_files_created": false,
+  "production_writes": false,
+  "credentials_printed": false,
+  "wsl_ciphertext_custody": {
+    "directory": "/home/alexg-anarchi/stewardence-backups/report-objects/20261003T212039.504272Z",
+    "files": [
+      {
+        "file": "0.pdf.age",
+        "sha256": "f258c2dec2518711978c44772406a8e56efcc4189e80d393bd882ad556f78ed7"
+      },
+      {
+        "file": "1.pdf.age",
+        "sha256": "248e575a0da25e975ca2cb581bb96df37aed223228f958ddfed002f8e79a9d7e"
+      },
+      {
+        "file": "2.pdf.age",
+        "sha256": "cb37a59176d178bb51aa65a6475b8915295510d3bf94e77295c91e2b23a26527"
+      },
+      {
+        "file": "3.pdf.age",
+        "sha256": "e06cec79c0b177595c37e95ef4a9acfc1d4f6d8779ff3f71d193d3c3f449452a"
+      },
+      {
+        "file": "4.pdf.age",
+        "sha256": "5c4f6dd6b7dfe1d8cd3c289a50c62ad336b4b063a8ed024aa27ada319348ca19"
+      },
+      {
+        "file": "5.pdf.age",
+        "sha256": "f78a7255520f1f10339b18a1c575b54a5b154582235587d70f62d5ac24657f68"
+      },
+      {
+        "file": "manifest.json.age",
+        "sha256": "133fd931ca49bce481b870ba5772f28652ee046e51344c2b76c6d37bd9a1687a"
+      }
+    ],
+    "key_copied": false
+  },
+  "source_manifest_sha256": "098243a700ec0951d03ad0c3fb0e8385e552b0ce1995fbbc75ad63517fe82a68",
+  "private_key_copied": false,
+  "isolated_network": "none",
+  "target_storage": "private600 tmpfs",
+  "byte_verification_passed": true,
+  "verifier_image_id": "sha256:3aada76bfe0a0cb72fc4f57ad28ab67326bb60fe46b2b96bb9f3299228db4ace",
+  "postgres_image_id": "sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722",
+  "limits": "Existing report objects matched archived ownership/report/snapshot metadata and immutable SHA/size. Does not prove web authorization, full-system tenant replay or device-loss survival; WSL and Windows key share one physical host.",
+  "cleanup_passed": true,
+  "cleanup": [
+    {
+      "target": "stewardence-object-restore-f66026acc4",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-object-restore-f66026acc4-pdf-0",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-object-restore-f66026acc4-pdf-1",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-object-restore-f66026acc4-pdf-2",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-object-restore-f66026acc4-pdf-3",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-object-restore-f66026acc4-pdf-4",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-object-restore-f66026acc4-pdf-5",
+      "absence_verified": true
+    }
+  ]
+}

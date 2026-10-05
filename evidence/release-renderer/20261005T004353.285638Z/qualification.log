@@ -1,0 +1,19 @@
+{"renderer_uid": 10001, "apps_absent": true, "output_writable": true, "actual_headless_launch_and_close": true}
+System check identified no issues (0 silenced).
+Traceback (most recent call last):
+  File "/qualification/client.py", line 82, in <module>
+    renderer.render({"context_version":"unadmitted_unknown"})
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/apps/reports/render_client.py", line 92, in render
+    raise ReportRenderError(
+        f"Report renderer returned HTTP {response.status_code}"
+    )
+apps.reports.render_client.ReportRenderError: Report renderer returned HTTP 422
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/qualification/client.py", line 85, in <module>
+    assert "HTTP 400" in str(error)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

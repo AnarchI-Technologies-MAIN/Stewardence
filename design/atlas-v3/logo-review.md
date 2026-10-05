@@ -1,0 +1,1 @@
+Approved direction: transparent purple continuity emblem family. Historical B/C drafts are superseded. See brand-semantic-layer.md. Production implementation and final favicon qualification remain pending.

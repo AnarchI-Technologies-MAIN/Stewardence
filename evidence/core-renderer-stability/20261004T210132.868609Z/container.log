@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/probe.py", line 152, in <module>
+    main()
+    ~~~~^^
+  File "/probe.py", line 116, in main
+    probe("--validate-only" in sys.argv)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/probe.py", line 102, in probe
+    assert elapsed <= 60 and not missing and not record["zombie_pids"], record
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'index': 0, 'elapsed_seconds': 27.22109768097289, 'pdf_bytes': 361124, 'sha256': '8299eae8dd3811def2438bf62b27e0126f931e9c6f8e93439064f55c343d0704', 'missing_markers': ['stability-ref-0', 'stability-ref-9'], 'zombie_pids': [], 'resources': {'process_id': 7, 'memory.current': '65208320\n', 'memory.peak': '339509248\n', 'memory.events': 'low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n', 'pids.current': '2\n', 'pids.max': '512\n', 'cpu.stat': 'usage_usec 38129432\nuser_usec 17691981\nsystem_usec 20437451\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n', 'direct_children': '', 'processes': [{'Name': 'docker-init', 'State': 'S (sleeping)', 'Pid': '1', 'PPid': '0'}, {'Name': 'python', 'State': 'R (running)', 'Pid': '7', 'PPid': '1'}]}}

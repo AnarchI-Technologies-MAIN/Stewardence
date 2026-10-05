@@ -1,0 +1,129 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+..................E............                                          [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_database_denial_rolls_back_open_cycle_before_safe_response _
+
+report_context = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 2346e171-1629-4306-b162-5688020300db v1>)
+settings = <pytest_django.fixtures.Settings object at 0x7fcaf071d2e0>
+client = <django.test.client.Client object at 0x7fcaf0784b90>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fcaf06f23d0>
+
+    @pytest.fixture
+    def workspace(report_context, settings, client, monkeypatch):
+        user, org, _, _, snapshot = report_context
+        WorkflowProfile.objects.get_or_create(
+            organization=org,
+            defaults={
+                "created_by": user,
+                "profile": "business.v1",
+                "settings": {"name": "Owner journey"},
+            },
+        )
+        settings.CORE_REVIEW_WORKSPACE_ENABLED = True
+        settings.CORE_WORKFLOWS_ENABLED = True
+        settings.DECISION_DESK_ENABLED = True
+        settings.REVIEW_PACK_LIFECYCLE_ENABLED = False
+        DecisionDeskGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        from apps.reviews import views
+    
+        original = views.dispatch
+        failures = []
+    
+        def diagnosed(*args, **kwargs):
+            try:
+                return original(*args, **kwargs)
+            except Exception as error:
+                failures.append((type(error).__name__, str(error).splitlines()[0]))
+                raise
+    
+        monkeypatch.setattr(views, "dispatch", diagnosed)
+        result = client.post(reverse("reviews:issue-proposals", args=[snapshot.id]))
+>       assert result.status_code == 302, failures
+E       AssertionError: [('ProgrammingError', 'Workflow request identity invalid')]
+E       assert 409 == 302
+E        +  where 409 = <HttpResponse status_code=409, "text/html; charset=utf-8">.status_code
+
+tests/test_review_workspace_views.py:58: AssertionError
+------------------------------ Captured log setup ------------------------------
+WARNING  django.request:log.py:253 Conflict: /reviews/snapshots/f2b7cee0-f71d-48d5-b280-169411f83c81/proposals/
+=============================== warnings summary ===============================
+tests/test_review_workspace_views.py: 31 warnings
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/test_review_workspace_views.py::test_database_denial_rolls_back_open_cycle_before_safe_response
+30 passed, 31 warnings, 1 error in 66.67s (0:01:06)

@@ -1,0 +1,15 @@
+Core successor second review: both identified P2 source findings are addressed. Proceed with qualification of the exact new candidate.
+
+proposal_count now requires a JSON number and numeric agreement. The rejection tests followed by successful honest dispatch of the same input directly cover the earlier replay-poisoning case.
+Recovery freezes at most 100 job IDs and acquires the complete selected tenant-lock set in consistent UUID order before row locking. The controlled test meaningfully distinguishes the old lock inversion; the stale-candidate and rollback/retry checks cover receipt duplication and transaction rollback.
+
+The audit sealer’s READ COMMITTED compatibility argument also checks out in the supplied source: it locks the chain head before selecting events, hashes a fixed selected batch, conditionally binds events and conditionally advances the head within the transaction. I found no new concrete defect in those changes.
+
+Two evidence dependencies remain explicit:
+
+The handler sets persistence_isolation=None. Effective READ COMMITTED depends on the worker/default transaction setup; the RPC fence rejects other isolation levels. Include that effective runtime setting in the final evidence.
+The sealing argument relies on existing database-enforced event-content immutability. Preserve its enforcement and actual-role regression evidence; the conditional binding check alone doesn’t establish content immutability.
+
+The supplied summary records exit 0 and includes the audit test files. The 126 passes and duration are reported in the header; I haven’t rerun them. Keep the earlier 1136-pass/2-fail/1-skip run failed and separate.
+
+No additional source repair is requested from this review. Final successor regression clearance awaits the frozen full-run result. Broader production, restore and UI gates remain open; offline semantic acceptance is unchanged.

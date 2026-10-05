@@ -1,0 +1,5 @@
+{
+  "qualified": false,
+  "failure_type": "RuntimeError",
+  "safe_reason": "Restored owner lacks real snapshot entitlement; positive control unresolved"
+}

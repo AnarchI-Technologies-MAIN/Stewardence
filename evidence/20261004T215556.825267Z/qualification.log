@@ -1,0 +1,231 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+.F.............FF                                                        [100%]
+=================================== FAILURES ===================================
+_ test_signed_owner_confirmation_admits_schema_two_without_roi_or_downstream_work _
+
+capture_ui = (<User: reports@example.com>, <Organization: Report Firm>, <InventoryItem: Workflow helper>)
+client = <django.test.client.Client object at 0x79c8458a6650>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x79c8450657f0>
+
+    def test_signed_owner_confirmation_admits_schema_two_without_roi_or_downstream_work(
+        capture_ui, client, monkeypatch
+    ):
+        def no_roi(*args, **kwargs):
+            raise AssertionError("Deliberate capture must not run a benefit calculator")
+    
+        monkeypatch.setattr("apps.roi.engine_v2.calculate_roi", no_roi)
+        before = effects()
+        _, token, frame = preview(client)
+        response = confirm(client, token)
+        assert response.status_code == 302, response.content.decode()
+        snapshot = AssessmentSnapshot.objects.get(id=UUID(frame["capture_id"]))
+        assert response.url == reverse("reviews:snapshot", args=[snapshot.id])
+        assert snapshot.organization_id == capture_ui[1].id
+        assert snapshot.created_by_id == capture_ui[0].id
+        assert snapshot.input_payload["snapshot_schema_version"] == 2
+        assert snapshot.result_payload["snapshot_schema_version"] == 2
+        assert snapshot.input_payload["benefit_model"] == {"state": "not_supplied"}
+        assert snapshot.result_payload["benefit_model"] == {"state": "not_supplied"}
+        assert "roi" not in snapshot.input_payload and "roi" not in snapshot.result_payload
+        receipt = SnapshotCaptureReceipt.objects.get(snapshot=snapshot)
+        assert receipt.reviewed_frame == frame
+        after = effects()
+        assert after["AssessmentSnapshot"] == before["AssessmentSnapshot"] + 1
+        assert after["SnapshotCaptureReceipt"] == before["SnapshotCaptureReceipt"] + 1
+        for model in set(before) - {"AssessmentSnapshot", "SnapshotCaptureReceipt"}:
+            assert after[model] == before[model], model
+        shown = client.get(response.url)
+        assert shown.status_code == 200
+        assert b"Review captured exposure" in shown.content
+>       assert b"Unknown" in shown.content
+E       assert b'Unknown' in b'\n<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=...ualification is complete.</p></section>\n\n          </main>\n        </div>\n      </div>\n    \n  </body>\n</html>\n'
+E        +  where b'\n<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=...ualification is complete.</p></section>\n\n          </main>\n        </div>\n      </div>\n    \n  </body>\n</html>\n' = <HttpResponse status_code=200, "text/html; charset=utf-8">.content
+
+tests/test_capture_review_ui.py:128: AssertionError
+_ test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet[390] _
+
+capture_ui = (<User: reports@example.com>, <Organization: Report Firm>, <InventoryItem: Workflow helper>)
+client = <django.test.client.Client object at 0x79c844741130>, width = 390
+
+    @pytest.mark.parametrize("width", [390, 1280])
+    def test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet(
+        capture_ui, client, width
+    ):
+        from playwright.sync_api import sync_playwright
+    
+        issue(
+            capture_ui[:2],
+            form(
+                display_name="<script>untrusted label</script>",
+                business_purpose="x" * 4096,
+                permissions=["__none__"],
+            ),
+        )
+        before = effects()
+        response, token, _ = preview(client)
+        html = response.content.decode()
+        css = "\n".join(
+            (Path(django_settings.BASE_DIR) / "static" / name).read_text(encoding="utf-8")
+            for name in ("agentledger.css", "atlas.css")
+        )
+        assert effects() == before
+        with sync_playwright() as runtime:
+            browser = runtime.chromium.launch()
+            context = browser.new_context(
+                viewport={"width": width, "height": 900}, reduced_motion="reduce"
+            )
+            page = context.new_page()
+            requests = []
+            page.on("request", lambda request: requests.append(request.url))
+            page.route("**/*", lambda route: route.abort())
+            page.set_content(html, wait_until="load")
+            page.add_style_tag(content=css)
+            assert page.locator("main h1").inner_text() == "Review before saving"
+            assert page.locator("main script").count() == 0
+>           assert (
+                page.get_by_text("<script>untrusted label</script>", exact=True).count()
+                == 1
+            )
+E           assert 2 == 1
+E            +  where 2 = count()
+E            +    where count = <Locator frame=<Frame name= url='about:blank'> selector='internal:text="<script>untrusted label</script>"s'>.count
+E            +      where <Locator frame=<Frame name= url='about:blank'> selector='internal:text="<script>untrusted label</script>"s'> = get_by_text('<script>untrusted label</script>', exact=True)
+E            +        where get_by_text = <Page url='about:blank'>.get_by_text
+
+tests/test_capture_review_ui.py:365: AssertionError
+_ test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet[1280] _
+
+capture_ui = (<User: reports@example.com>, <Organization: Report Firm>, <InventoryItem: Workflow helper>)
+client = <django.test.client.Client object at 0x79c84308fe30>, width = 1280
+
+    @pytest.mark.parametrize("width", [390, 1280])
+    def test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet(
+        capture_ui, client, width
+    ):
+        from playwright.sync_api import sync_playwright
+    
+        issue(
+            capture_ui[:2],
+            form(
+                display_name="<script>untrusted label</script>",
+                business_purpose="x" * 4096,
+                permissions=["__none__"],
+            ),
+        )
+        before = effects()
+        response, token, _ = preview(client)
+        html = response.content.decode()
+        css = "\n".join(
+            (Path(django_settings.BASE_DIR) / "static" / name).read_text(encoding="utf-8")
+            for name in ("agentledger.css", "atlas.css")
+        )
+        assert effects() == before
+        with sync_playwright() as runtime:
+            browser = runtime.chromium.launch()
+            context = browser.new_context(
+                viewport={"width": width, "height": 900}, reduced_motion="reduce"
+            )
+            page = context.new_page()
+            requests = []
+            page.on("request", lambda request: requests.append(request.url))
+            page.route("**/*", lambda route: route.abort())
+            page.set_content(html, wait_until="load")
+            page.add_style_tag(content=css)
+            assert page.locator("main h1").inner_text() == "Review before saving"
+            assert page.locator("main script").count() == 0
+>           assert (
+                page.get_by_text("<script>untrusted label</script>", exact=True).count()
+                == 1
+            )
+E           assert 2 == 1
+E            +  where 2 = count()
+E            +    where count = <Locator frame=<Frame name= url='about:blank'> selector='internal:text="<script>untrusted label</script>"s'>.count
+E            +      where <Locator frame=<Frame name= url='about:blank'> selector='internal:text="<script>untrusted label</script>"s'> = get_by_text('<script>untrusted label</script>', exact=True)
+E            +        where get_by_text = <Page url='about:blank'>.get_by_text
+
+tests/test_capture_review_ui.py:365: AssertionError
+=============================== warnings summary ===============================
+tests/test_capture_review_ui.py: 17 warnings
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_capture_review_ui.py::test_signed_owner_confirmation_admits_schema_two_without_roi_or_downstream_work
+FAILED tests/test_capture_review_ui.py::test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet[390]
+FAILED tests/test_capture_review_ui.py::test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet[1280]
+3 failed, 14 passed, 17 warnings in 167.77s (0:02:47)

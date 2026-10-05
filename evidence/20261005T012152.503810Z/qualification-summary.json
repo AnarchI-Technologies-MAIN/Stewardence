@@ -1,0 +1,41 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-dccfa8c5d9",
+  "image_id": "sha256:ab1756a1c4fa4eff3219b5b2c403f7bb8bbbc5d51dc3b86d8697332495dd5135",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261005T012152.503810Z",
+  "test_arguments": [
+    "tests/test_capture_proposal_pk_wait_authority.py",
+    "tests/test_capture_proposal_admission.py",
+    "tests/test_capture_proposals_contract.py",
+    "tests/test_capture_v4_renderer.py",
+    "tests/test_capture_v4_worker.py",
+    "tests/test_review_unused_stop_ui.py",
+    "tests/test_render_client_bounds.py",
+    "tests/test_atomic_recovery_admission.py",
+    "tests/test_legacy_issuer_dependency_boundary.py",
+    "tests/test_legacy_decision_dependency_boundary.py",
+    "--cov=apps.reports.render_client",
+    "--cov-report=term-missing",
+    "--cov-report=xml:/qualification-evidence/coverage.xml"
+  ],
+  "coverage": {
+    "requested": true,
+    "xml_present": true,
+    "threshold_qualified": true,
+    "xml_sha256": "7b0a0cdd308e8a2d20452700e1bcb69a79b873d919be71750848f05ceee80ba0",
+    "line_rate": "0.9718",
+    "branch_rate": "0.9615"
+  },
+  "http_renderer": true,
+  "deployment_parity": false,
+  "test_result_counts": {
+    "cases": 164,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "25ac0559be7bc4fb2101f6dfe427ccce41af6e886bcc71b7bf2ebbfacf69a6f2",
+  "cleanup_verified": true
+}

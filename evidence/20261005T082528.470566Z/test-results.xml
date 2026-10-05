@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="9" time="58.939" timestamp="2026-10-05T08:26:04.251053+00:00" hostname="48985dc0c3b0"><testcase classname="tests.diagnostic_review_identity" name="test_instrumented_exact_rollback_fixture" time="6.753" /><testcase classname="tests.diagnostic_review_identity" name="test_instrumented_repeated_proposal_identity_inputs[0]" time="6.233" /><testcase classname="tests.diagnostic_review_identity" name="test_instrumented_repeated_proposal_identity_inputs[1]" time="5.715" /><testcase classname="tests.diagnostic_review_identity" name="test_instrumented_repeated_proposal_identity_inputs[2]" time="6.283" /><testcase classname="tests.diagnostic_review_identity" name="test_instrumented_repeated_proposal_identity_inputs[3]" time="5.718" /><testcase classname="tests.diagnostic_review_identity" name="test_instrumented_repeated_proposal_identity_inputs[4]" time="9.022"><failure message="AssertionError: {'diagnostic_batch': 4, 'failure_count': 1, 'first_failures': [{'profile': 'business.v1', 'request': {'schema': 'stewa...8:26:37.474372+00:00', ...}, 'bound_org': 'cb31b383-20b7-496a-871f-d28e2f283a50', 'isolation': 'read committed', ...}]}&#10;assert not [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', 'operation': 'action_cards.reassess_from_...08:26:37.474372+00:00', ...}, 'bound_org': 'cb31b383-20b7-496a-871f-d28e2f283a50', 'isolation': 'read committed', ...}]">workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 4b9c4616-ca90-47df-bbf4-dab4d44e0662 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (61d472ab-0aca-4c07-84fb-e213e1082d4c)&gt;)
+client = &lt;django.test.client.Client object at 0x77cce94c3f20&gt;
+diagnostic_repeat = 4
+
+    @pytest.mark.parametrize("diagnostic_repeat", range(8))
+    def test_instrumented_repeated_proposal_identity_inputs(
+        workspace, client, diagnostic_repeat
+    ):
+&gt;       ui.test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+            workspace, client, diagnostic_repeat=diagnostic_repeat
+        )
+
+tests/diagnostic_review_identity.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 4b9c4616-ca90-47df-bbf4-dab4d44e0662 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (61d472ab-0aca-4c07-84fb-e213e1082d4c)&gt;)
+client = &lt;django.test.client.Client object at 0x77cce94c3f20&gt;
+diagnostic_repeat = 4
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client, diagnostic_repeat=None
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        failures = []
+    
+        def effect_counts():
+            return {
+                "workflow_run": WorkflowRun.objects.filter(
+                    organization_id=workspace[1].id,
+                    operation=Operation.REASSESS.value,
+                ).count(),
+                "revision": ActionCardRevision.objects.filter(
+                    snapshot_id=workspace[2].id
+                ).count(),
+                "proposal_receipt": CaptureProposalAdmissionReceipt.objects.filter(
+                    snapshot_id=workspace[2].id
+                ).count(),
+            }
+    
+        for index in range(128):
+            observed = []
+            before = effect_counts() if diagnostic_repeat is not None else None
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+            assert observed
+            if diagnostic_repeat is not None:
+                after = effect_counts()
+                record = dict(observed[-1])
+                record.update(
+                    diagnostic_batch=diagnostic_repeat,
+                    diagnostic_attempt=index,
+                    http_status=response.status_code,
+                    effects_before=before,
+                    effects_after=after,
+                    effects_delta={key: after[key] - before[key] for key in before},
+                    result="accepted" if response.status_code == 302 else "denied",
+                )
+                print(
+                    "SYNTHETIC_IDENTITY_TRACE " + json.dumps(record, sort_keys=True),
+                    flush=True,
+                )
+                if response.status_code != 302 or any(
+                    value is not False for value in record["predicates"].values()
+                ):
+                    failures.append(record)
+                continue
+            assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+            assert observed
+            assert all(value is False for value in observed[-1]["predicates"].values()), (
+                observed
+            )
+&gt;       assert not failures, {
+            "diagnostic_batch": diagnostic_repeat,
+            "failure_count": len(failures),
+            "first_failures": failures[:3],
+        }
+E       AssertionError: {'diagnostic_batch': 4, 'failure_count': 1, 'first_failures': [{'profile': 'business.v1', 'request': {'schema': 'stewa...8:26:37.474372+00:00', ...}, 'bound_org': 'cb31b383-20b7-496a-871f-d28e2f283a50', 'isolation': 'read committed', ...}]}
+E       assert not [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', 'operation': 'action_cards.reassess_from_...08:26:37.474372+00:00', ...}, 'bound_org': 'cb31b383-20b7-496a-871f-d28e2f283a50', 'isolation': 'read committed', ...}]
+
+tests/test_review_workspace_views.py:653: AssertionError</failure></testcase><testcase classname="tests.diagnostic_review_identity" name="test_instrumented_repeated_proposal_identity_inputs[5]" time="5.789" /><testcase classname="tests.diagnostic_review_identity" name="test_instrumented_repeated_proposal_identity_inputs[6]" time="6.842" /><testcase classname="tests.diagnostic_review_identity" name="test_instrumented_repeated_proposal_identity_inputs[7]" time="5.913" /></testsuite></testsuites>

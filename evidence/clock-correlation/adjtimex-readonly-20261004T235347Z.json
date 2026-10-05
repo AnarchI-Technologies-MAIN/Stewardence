@@ -1,0 +1,19 @@
+{
+  "operation": "libc.adjtimex with zero-initialized modes=0; read-only",
+  "abi_verified_from_installed_header": "/usr/include/x86_64-linux-gnu/bits/timex.h",
+  "architecture": "x86_64",
+  "abi_size": 208,
+  "native_long_bytes": 8,
+  "verified_offsets": {"modes":0,"offset":8,"freq":16,"status":40,"time":72,"tick":88,"tai":160},
+  "adjtimex_return_state": 0,
+  "errno": 0,
+  "utc_before": "2026-10-04T23:53:47.321076+00:00",
+  "utc_after": "2026-10-04T23:53:47.323127+00:00",
+  "clock_getres_seconds": {"CLOCK_MONOTONIC":1e-9,"CLOCK_MONOTONIC_RAW":1e-9,"CLOCK_REALTIME":1e-9},
+  "exported_USER_HZ": 100,
+  "frequency_ppm": -43.65631103515625,
+  "tolerance_ppm": 500.0,
+  "timex": {"calcnt":0,"constant":1,"errcnt":0,"esterror":96709,"freq":-2861060,"jitcnt":0,"jitter":0,"maxerror":180492,"modes":0,"offset":0,"ppsfreq":0,"precision":1,"shift":0,"stabil":0,"status":8192,"stbcnt":0,"tai":37,"tick":10701,"tolerance":32768000},
+  "timex_time": {"nanosecond_mode":true,"seconds":1791158027,"subsecond":323037949},
+  "qualification": "Current frequency/tick state is observed, not setter attribution or independently measured current clock rate. No service, clock, setting, capability or container changed."
+}

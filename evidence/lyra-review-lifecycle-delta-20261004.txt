@@ -1,0 +1,2030 @@
+STEWARDENCE REVIEWCYCLE / DECISION DESK LIFECYCLE DELTA
+Request bounded adjudication of frozen selection/artifact-binding/baseline CAS, NOT complete delivered PDF or production approval. No production/provider changes. Gates defaultclosed. Renderer still legacyassessment in this qualified lifecycle snapshot; full frozenpack renderer/projection successor currently separately qualifying.
+65 lifecycle cases passed; same frozen actualworker barrier before70fbdfa6 admitted completion after head-row wait lease expiry, afterb200417b denies and leaves completion/artifact/promotion/consumption absent. Cleanup receipts preserved. Exact source below from immutable65-pass buildcontext.
+DecisionDesk62 cases (29new+33initial) separatelypassed. Integrated174 cases now pass paidcoverage/admission/replay+review/decision+checkout durability on9f95e426…, no realproviders. Frozen integratedsource includes early0003 projection but no claim of finalprojectionrender qualification. Not fullsuite; fullsuite now running. Previous1444pass/24fail/1error/1skip legacyfixture/RLS mismatches reconciled explicitly; initialcombined141pass/29setuperrors from negativefixture accidentally issuedcoverage retained; correctednegativefixtureoptsout retains denial assertions. Historical identity/Chromium failednodes laterpass no rootcauseclosed; crashbefore_commit oldfixedsleep lacksbackend/expirybarrierevidence, strongeractualrolebarriersqualifying.
+Critical remaining: PDF frozen decisions/exposure presentation, snapshotcomparison baselineadmission/UI, physicalretention, realStripe sandbox lifecycle, freshgeneration resubscription, external objectrestore/credentialisolation/rollback/release. No decision authorizeswrites, completion/evidence review ownerstatementonly.
+
+FILE apps/reviews/migrations/0001_initial.py SHA256 15be374b036120de7410542cf668326cb4e8bc8032f93846d670eddbc3daedc4
+"""Initial immutable review kernel. FROZEN reserves capacity, not completion."""
+import uuid
+from django.conf import settings
+from django.db import migrations, models
+import django.db.models.deletion
+
+
+def common_fields():
+    return [
+        ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+        ('created_at', models.DateTimeField(editable=False)),
+        ('organization', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='organizations.organization')),
+        ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
+    ]
+
+
+SQL = r"""
+CREATE FUNCTION app_private.reject_review_mutation() RETURNS trigger
+LANGUAGE plpgsql SET search_path=pg_catalog AS $fn$
+BEGIN RAISE EXCEPTION 'Review identity and events are immutable'; END;$fn$;
+ALTER FUNCTION app_private.reject_review_mutation() OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.reject_review_mutation() FROM PUBLIC;
+DO $fn$ DECLARE t text; BEGIN
+ FOREACH t IN ARRAY ARRAY['review_cycles','review_cycle_events','review_pack_identities',
+  'review_capacity_reservations','review_reservation_events'] LOOP
+  EXECUTE format('ALTER TABLE public.%I OWNER TO agentledger_owner',t);
+  EXECUTE format('REVOKE ALL ON public.%I FROM PUBLIC,agentledger_app,agentledger_worker',t);
+  EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',t);
+  EXECUTE format('ALTER TABLE public.%I FORCE ROW LEVEL SECURITY',t);
+  EXECUTE format('CREATE POLICY review_owner ON public.%I TO agentledger_owner USING(true) WITH CHECK(true)',t);
+  EXECUTE format('CREATE POLICY review_app_read ON public.%I FOR SELECT TO agentledger_app USING(organization_id=app_private.current_organization_id() AND EXISTS(SELECT 1 FROM public.organizations_organizationmember m WHERE m.organization_id=%I.organization_id AND m.user_id=app_private.current_user_id() AND m.role=''owner''))',t,t);
+  EXECUTE format('GRANT SELECT ON public.%I TO agentledger_app',t);
+  EXECUTE format('CREATE TRIGGER review_immutable BEFORE UPDATE OR DELETE ON public.%I FOR EACH ROW EXECUTE FUNCTION app_private.reject_review_mutation()',t);
+ END LOOP;
+END;$fn$;
+
+CREATE FUNCTION app_private.require_review_owner(org uuid,actor uuid) RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' THEN
+  RAISE EXCEPTION 'Review admission requires read committed'; END IF;
+ IF org IS NULL OR actor IS NULL OR org IS DISTINCT FROM app_private.current_organization_id()
+  OR actor IS DISTINCT FROM app_private.current_user_id() THEN RAISE EXCEPTION 'Review actor tenant binding required'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':control',0));
+ IF NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org) THEN
+  RAISE EXCEPTION 'Review paid owner admission unavailable'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended('review:'||org::text||':capacity',0));
+ -- Capacity waits can outlive paid authority. READ COMMITTED rechecks after
+ -- the complete ordered lock set; an earlier observation cannot authorize.
+ IF NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org) THEN
+  RAISE EXCEPTION 'Review paid owner admission unavailable'; END IF;
+END;$fn$;
+ALTER FUNCTION app_private.require_review_owner(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.require_review_owner(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker;
+
+CREATE FUNCTION app_private.review_snapshot_manifest(sid uuid,org uuid) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE s public.assessment_snapshots%ROWTYPE; profile public.organization_workflow_profiles%ROWTYPE;
+BEGIN
+ SELECT * INTO s FROM public.assessment_snapshots WHERE id=sid AND organization_id=org;
+ IF NOT FOUND OR s.input_payload->>'organization_id' IS DISTINCT FROM org::text
+  OR s.input_payload->'snapshot_schema_version' IS DISTINCT FROM '1'::jsonb
+  OR s.result_payload->'snapshot_schema_version' IS DISTINCT FROM '1'::jsonb
+  OR s.input_payload->'assessment' IS DISTINCT FROM jsonb_build_object('id',s.assessment_id::text,'version',s.version)
+  OR s.result_payload->'assessment' IS DISTINCT FROM jsonb_build_object('id',s.assessment_id::text,'version',s.version)
+  OR jsonb_typeof(s.input_payload->'captured_at') IS DISTINCT FROM 'string'
+  OR (s.input_payload->>'captured_at')::timestamptz IS DISTINCT FROM s.captured_at
+  OR s.input_sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(s.input_payload),'UTF8')),'hex')
+  OR s.result_sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(s.result_payload),'UTF8')),'hex')
+  OR jsonb_typeof(s.input_payload->'rulesets') IS DISTINCT FROM 'object'
+  OR jsonb_typeof(s.input_payload->'risk_configuration') IS DISTINCT FROM 'object'
+  OR jsonb_typeof(s.input_payload->'engine_versions') IS DISTINCT FROM 'object' THEN
+  RAISE EXCEPTION 'Review snapshot binding or integrity invalid'; END IF;
+ SELECT * INTO profile FROM public.organization_workflow_profiles WHERE organization_id=org;
+ IF NOT FOUND OR profile.profile NOT IN ('business.v1','development.v1') THEN
+  RAISE EXCEPTION 'Review workflow meaning is unresolved'; END IF;
+ RETURN jsonb_build_object('snapshot_id',s.id::text,'assessment_id',s.assessment_id::text,
+  'assessment_version',s.version,'input_sha256',s.input_sha256,'result_sha256',s.result_sha256,
+  'captured_at',s.input_payload->'captured_at',
+  'snapshot_schema',s.input_payload->'snapshot_schema_version',
+  'workflow_profile_id',profile.id::text,'workflow_profile',profile.profile,
+  'workflow_settings_sha256',encode(sha256(convert_to(app_private.queue_canonical(profile.settings),'UTF8')),'hex'),
+  'rules_sha256',encode(sha256(convert_to(app_private.queue_canonical(s.input_payload->'rulesets'),'UTF8')),'hex'),
+  'configuration_sha256',encode(sha256(convert_to(app_private.queue_canonical(s.input_payload->'risk_configuration'),'UTF8')),'hex'),
+  'engine_versions',s.input_payload->'engine_versions');
+END;$fn$;
+ALTER FUNCTION app_private.review_snapshot_manifest(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.review_snapshot_manifest(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker;
+
+CREATE FUNCTION app_private.open_review_cycle(cid uuid,org uuid,actor uuid,sid uuid) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE payload jsonb; existing public.review_cycles%ROWTYPE;
+BEGIN
+ PERFORM app_private.require_review_owner(org,actor);
+ IF cid IS NULL OR sid IS NULL THEN RAISE EXCEPTION 'Review identities required'; END IF;
+ PERFORM app_private.review_snapshot_manifest(sid,org);
+ SELECT * INTO existing FROM public.review_cycles WHERE id=cid;
+ IF FOUND THEN
+  IF existing.organization_id IS DISTINCT FROM org OR existing.created_by_id IS DISTINCT FROM actor
+   OR existing.input_snapshot_id IS DISTINCT FROM sid THEN RAISE EXCEPTION 'Review identity replay changed'; END IF;
+  RETURN cid;
+ END IF;
+ IF EXISTS(SELECT 1 FROM public.review_cycles c WHERE c.organization_id=org
+   AND (SELECT state FROM public.review_cycle_events e WHERE e.cycle_id=c.id ORDER BY revision DESC LIMIT 1)='OPEN') THEN
+  RAISE EXCEPTION 'Review active or open capacity exhausted'; END IF;
+ IF NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org) THEN
+  RAISE EXCEPTION 'Review paid owner admission unavailable'; END IF;
+ INSERT INTO public.review_cycles(id,organization_id,created_by_id,created_at,input_snapshot_id,baseline_pack_id)
+ VALUES(cid,org,actor,clock_timestamp(),sid,NULL);
+ payload:=jsonb_build_object('schema','stewardence.review_cycle_event.v2','cycle_id',cid::text,
+  'revision',1,'state','OPEN','input_snapshot_id',sid::text,'baseline_pack_id',NULL);
+ INSERT INTO public.review_cycle_events(id,organization_id,created_by_id,created_at,cycle_id,revision,state,payload,sha256)
+ VALUES(gen_random_uuid(),org,actor,clock_timestamp(),cid,1,'OPEN',payload,
+  encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+ RETURN cid;
+END;$fn$;
+ALTER FUNCTION app_private.open_review_cycle(uuid,uuid,uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.open_review_cycle(uuid,uuid,uuid,uuid) FROM PUBLIC,agentledger_worker;
+GRANT EXECUTE ON FUNCTION app_private.open_review_cycle(uuid,uuid,uuid,uuid) TO agentledger_app;
+
+CREATE FUNCTION app_private.freeze_review_cycle(cid uuid,org uuid,actor uuid,expected integer) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE c public.review_cycles%ROWTYPE; event public.review_cycle_events%ROWTYPE;
+ pack public.review_pack_identities%ROWTYPE; coverage public.billing_paid_coverage%ROWTYPE;
+ snapshot jsonb; manifest jsonb; payload jsonb; rid uuid; pid uuid; retained bigint; reserved bigint;
+BEGIN
+ PERFORM app_private.require_review_owner(org,actor);
+ IF expected IS DISTINCT FROM 1 THEN RAISE EXCEPTION 'Review revision compare and swap failed'; END IF;
+ SELECT * INTO c FROM public.review_cycles WHERE id=cid AND organization_id=org FOR UPDATE;
+ IF NOT FOUND OR c.created_by_id IS DISTINCT FROM actor THEN RAISE EXCEPTION 'Review cycle owner binding invalid'; END IF;
+ snapshot:=app_private.review_snapshot_manifest(c.input_snapshot_id,org);
+ manifest:=jsonb_build_object('schema','stewardence.review_pack.v2','cycle_id',c.id::text,
+  'organization_id',org::text,'baseline_pack_id',NULL,'snapshot',snapshot,
+  'selected_decisions','[]'::jsonb,'selection_scope','empty_initial_kernel',
+  'artifact_state','not_created','baseline_promotion','blocked');
+ SELECT * INTO pack FROM public.review_pack_identities WHERE cycle_id=cid;
+ IF FOUND THEN
+  IF pack.admitted_revision IS DISTINCT FROM expected OR pack.manifest IS DISTINCT FROM manifest
+   OR pack.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(manifest),'UTF8')),'hex') THEN
+   RAISE EXCEPTION 'Frozen review identity replay changed'; END IF;
+  RETURN pack.id;
+ END IF;
+ SELECT * INTO event FROM public.review_cycle_events WHERE cycle_id=cid ORDER BY revision DESC LIMIT 1;
+ IF NOT FOUND OR event.revision<>expected OR event.state<>'OPEN'
+  OR event.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(event.payload),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Review state compare and swap failed'; END IF;
+ IF EXISTS(SELECT 1 FROM public.review_cycles pending WHERE pending.organization_id=org AND pending.id<>cid
+  AND (SELECT state FROM public.review_cycle_events e WHERE e.cycle_id=pending.id ORDER BY revision DESC LIMIT 1) IN ('FINALIZATION_REQUESTED','FROZEN')) THEN
+  RAISE EXCEPTION 'Review frozen pending capacity exhausted'; END IF;
+ SELECT p.* INTO coverage FROM public.billing_paid_coverage p
+  JOIN public.billing_subscription s ON s.id=p.subscription_id
+  JOIN public.billing_billingcustomer b ON b.id=s.billing_customer_id
+  JOIN public.billing_paid_coverage_authority a ON a.id=1 AND a.stripe_account_id=p.stripe_account_id AND a.livemode=p.livemode
+  WHERE s.organization_id=org AND b.user_id=actor AND s.portfolio='core'
+   AND app_private.paid_subscription_access(s.id) AND p.stripe_subscription_id=s.stripe_subscription_id
+   AND p.stripe_customer_id=b.stripe_customer_id AND p.service_start<=clock_timestamp() AND p.service_end>clock_timestamp()
+  ORDER BY p.service_start DESC,p.service_end DESC,p.id LIMIT 1;
+ IF NOT FOUND THEN RAISE EXCEPTION 'Admitted billing interval required for review reservation'; END IF;
+ IF (SELECT count(*) FROM public.review_capacity_reservations r
+  JOIN public.billing_paid_coverage p ON p.id=r.paid_coverage_id
+  WHERE r.organization_id=org AND r.state IN ('reserved','reconciliation','consumed')
+   AND p.subscription_id=coverage.subscription_id AND p.stripe_subscription_id=coverage.stripe_subscription_id
+   AND p.service_start=coverage.service_start AND p.service_end=coverage.service_end)>=12 THEN
+  RAISE EXCEPTION 'Review billing interval capacity exhausted'; END IF;
+ SELECT coalesce(sum(size_bytes),0) INTO retained FROM public.report_artifacts WHERE organization_id=org;
+ SELECT coalesce(sum(reserved_bytes),0) INTO reserved FROM public.review_capacity_reservations
+  WHERE organization_id=org AND state IN ('reserved','reconciliation');
+ IF retained+reserved+16777216>3221225472 THEN RAISE EXCEPTION 'Review storage reservation capacity exhausted'; END IF;
+ IF NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org) THEN
+  RAISE EXCEPTION 'Review paid owner admission unavailable'; END IF;
+ rid:=gen_random_uuid(); pid:=gen_random_uuid();
+ INSERT INTO public.review_capacity_reservations(id,organization_id,created_by_id,created_at,cycle_id,paid_coverage_id,reserved_bytes,state)
+ VALUES(rid,org,actor,clock_timestamp(),cid,coverage.id,16777216,'reserved');
+ payload:=jsonb_build_object('schema','stewardence.review_reservation_event.v2','reservation_id',rid::text,
+  'cycle_id',cid::text,'revision',1,'state','reserved','paid_coverage_id',coverage.id::text,'reserved_bytes',16777216);
+ INSERT INTO public.review_reservation_events(id,organization_id,created_by_id,created_at,reservation_id,revision,state,payload,sha256)
+ VALUES(gen_random_uuid(),org,actor,clock_timestamp(),rid,1,'reserved',payload,
+  encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+ payload:=jsonb_build_object('schema','stewardence.review_cycle_event.v2','cycle_id',cid::text,
+  'revision',2,'state','FINALIZATION_REQUESTED','reservation_id',rid::text);
+ INSERT INTO public.review_cycle_events(id,organization_id,created_by_id,created_at,cycle_id,revision,state,payload,sha256)
+ VALUES(gen_random_uuid(),org,actor,clock_timestamp(),cid,2,'FINALIZATION_REQUESTED',payload,
+  encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+ INSERT INTO public.review_pack_identities(id,organization_id,created_by_id,created_at,cycle_id,admitted_revision,manifest,sha256)
+ VALUES(pid,org,actor,clock_timestamp(),cid,expected,manifest,
+  encode(sha256(convert_to(app_private.queue_canonical(manifest),'UTF8')),'hex'));
+ payload:=jsonb_build_object('schema','stewardence.review_cycle_event.v2','cycle_id',cid::text,
+  'revision',3,'state','FROZEN','pack_id',pid::text,'manifest_sha256',
+  encode(sha256(convert_to(app_private.queue_canonical(manifest),'UTF8')),'hex'));
+ INSERT INTO public.review_cycle_events(id,organization_id,created_by_id,created_at,cycle_id,revision,state,payload,sha256)
+ VALUES(gen_random_uuid(),org,actor,clock_timestamp(),cid,3,'FROZEN',payload,
+  encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+ RETURN pid;
+END;$fn$;
+ALTER FUNCTION app_private.freeze_review_cycle(uuid,uuid,uuid,integer) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.freeze_review_cycle(uuid,uuid,uuid,integer) FROM PUBLIC,agentledger_worker;
+GRANT EXECUTE ON FUNCTION app_private.freeze_review_cycle(uuid,uuid,uuid,integer) TO agentledger_app;
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies = [('jobs', '0013_paid_entitlement'), ('billing', '0006_paid_coverage')]
+    operations = [
+        migrations.CreateModel(name='ReviewCycle', fields=common_fields()+[
+            ('input_snapshot', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='assessments.assessmentsnapshot')),
+            ('baseline_pack_id', models.UUIDField(null=True, editable=False)),
+        ], options={'db_table': 'review_cycles'}),
+        migrations.CreateModel(name='CycleEvent', fields=common_fields()+[
+            ('cycle', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='events', to='reviews.reviewcycle')),
+            ('revision', models.PositiveIntegerField()), ('state', models.CharField(max_length=32)),
+            ('payload', models.JSONField(editable=False)), ('sha256', models.CharField(max_length=64, editable=False)),
+        ], options={'db_table':'review_cycle_events','constraints':[models.UniqueConstraint(fields=('cycle','revision'),name='review_event_revision_unique')]}),
+        migrations.CreateModel(name='PackIdentity', fields=common_fields()+[
+            ('cycle', models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='frozen_pack', to='reviews.reviewcycle')),
+            ('admitted_revision',models.PositiveIntegerField()), ('manifest',models.JSONField(editable=False)),
+            ('sha256',models.CharField(max_length=64,editable=False)),
+        ],options={'db_table':'review_pack_identities'}),
+        migrations.CreateModel(name='CapacityReservation', fields=common_fields()+[
+            ('cycle',models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='capacity_reservation', to='reviews.reviewcycle')),
+            ('paid_coverage',models.ForeignKey(on_delete=django.db.models.deletion.PROTECT,to='billing.paidcoverage')),
+            ('reserved_bytes',models.PositiveBigIntegerField()), ('state',models.CharField(default='reserved',max_length=32)),
+        ],options={'db_table':'review_capacity_reservations'}),
+        migrations.CreateModel(name='ReservationEvent', fields=common_fields()+[
+            ('reservation',models.ForeignKey(on_delete=django.db.models.deletion.PROTECT,related_name='events',to='reviews.capacityreservation')),
+            ('revision',models.PositiveIntegerField()),('state',models.CharField(max_length=32)),
+            ('payload',models.JSONField(editable=False)),('sha256',models.CharField(max_length=64,editable=False)),
+        ],options={'db_table':'review_reservation_events','constraints':[models.UniqueConstraint(fields=('reservation','revision'),name='review_reservation_event_unique')]}),
+        migrations.RunSQL(SQL),
+    ]
+
+FILE apps/reviews/migrations/0002_pack_lifecycle.py SHA256 32c91a053f052340fa854242a7ba1ec728a972c7bd927c6f61fddac22be45c79
+"""Closed lifecycle candidate. Qualified storage handler remains mandatory.
+
+No existing frozen identity changes and no worker table access. The operator
+switch alone cannot enable the application API or install a worker handler.
+"""
+import importlib
+from django.db import migrations, models
+import django.db.models.deletion
+
+initial = importlib.import_module('apps.reviews.migrations.0001_initial')
+
+# Copy the qualified predecessor function unchanged except the two explicit
+# state projections. Never alter the historical migration or frozen payload.
+freeze_sql = initial.SQL[initial.SQL.index('CREATE FUNCTION app_private.freeze_review_cycle'):]
+freeze_sql = freeze_sql.replace('CREATE FUNCTION app_private.freeze_review_cycle',
+                               'CREATE OR REPLACE FUNCTION app_private.freeze_review_cycle',1)
+assert freeze_sql.count("IN ('FINALIZATION_REQUESTED','FROZEN')") == 1
+freeze_sql = freeze_sql.replace("IN ('FINALIZATION_REQUESTED','FROZEN')",
+                               "IN ('FINALIZATION_REQUESTED','FROZEN','ARTIFACT_PENDING')")
+old_reserved = "WHERE organization_id=org AND state IN ('reserved','reconciliation');"
+assert freeze_sql.count(old_reserved) == 1
+freeze_sql = freeze_sql.replace(old_reserved,
+    "WHERE organization_id=org AND coalesce((SELECT e.state FROM public.review_reservation_events e "
+    "WHERE e.reservation_id=review_capacity_reservations.id ORDER BY revision DESC LIMIT 1),state) "
+    "IN ('reserved','reconciliation');")
+
+# Existing frozen packs replay their recorded selection, never current events.
+replay_start = freeze_sql.index(' SELECT * INTO pack FROM public.review_pack_identities WHERE cycle_id=cid;')
+replay_end = freeze_sql.index(' SELECT * INTO event FROM public.review_cycle_events',replay_start)
+freeze_sql = freeze_sql[:replay_start] + freeze_sql[replay_end:]
+anchor = ' snapshot:=app_private.review_snapshot_manifest(c.input_snapshot_id,org);'
+assert freeze_sql.count(anchor) == 1
+stored_replay = r"""
+ SELECT * INTO pack FROM public.review_pack_identities WHERE cycle_id=cid;
+ IF FOUND THEN
+  IF pack.admitted_revision IS DISTINCT FROM expected
+   OR pack.organization_id IS DISTINCT FROM org OR pack.created_by_id IS DISTINCT FROM actor
+   OR pack.manifest->>'cycle_id' IS DISTINCT FROM cid::text
+   OR pack.manifest->>'organization_id' IS DISTINCT FROM org::text
+   OR pack.manifest->'snapshot'->>'snapshot_id' IS DISTINCT FROM c.input_snapshot_id::text
+   OR pack.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(pack.manifest),'UTF8')),'hex') THEN
+   RAISE EXCEPTION 'Frozen review identity replay changed'; END IF;
+  RETURN pack.id;
+ END IF;
+"""
+freeze_sql = freeze_sql.replace(anchor,stored_replay+anchor)
+assert freeze_sql.count("'selected_decisions','[]'::jsonb,'selection_scope','empty_initial_kernel'") == 1
+freeze_sql = freeze_sql.replace("'selected_decisions','[]'::jsonb,'selection_scope','empty_initial_kernel'",
+    "'selected_decisions',app_private.selected_core_decisions(c.input_snapshot_id,org),"
+    "'selection_scope',CASE WHEN EXISTS(SELECT 1 FROM public.core_decision_desk_gate WHERE id=1 AND enabled) "
+    "THEN 'owner_statement_events' ELSE 'empty_initial_kernel' END")
+
+SQL = r"""
+ALTER TABLE public.review_lifecycle_gate OWNER TO agentledger_owner;
+REVOKE ALL ON public.review_lifecycle_gate FROM PUBLIC,agentledger_app,agentledger_worker;
+INSERT INTO public.review_lifecycle_gate(id,enabled) VALUES(1,false);
+DO $fn$ DECLARE t text; BEGIN
+ FOREACH t IN ARRAY ARRAY['review_artifact_requests','review_pack_completions','review_baseline_heads'] LOOP
+  EXECUTE format('ALTER TABLE public.%I OWNER TO agentledger_owner',t);
+  EXECUTE format('REVOKE ALL ON public.%I FROM PUBLIC,agentledger_app,agentledger_worker',t);
+  EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',t);
+  EXECUTE format('ALTER TABLE public.%I FORCE ROW LEVEL SECURITY',t);
+  EXECUTE format('CREATE POLICY review_owner ON public.%I TO agentledger_owner USING(true) WITH CHECK(true)',t);
+  EXECUTE format('CREATE POLICY review_app_read ON public.%I FOR SELECT TO agentledger_app USING(organization_id=app_private.current_organization_id() AND EXISTS(SELECT 1 FROM public.organizations_organizationmember m WHERE m.organization_id=%I.organization_id AND m.user_id=app_private.current_user_id() AND m.role=''owner''))',t,t);
+  EXECUTE format('GRANT SELECT ON public.%I TO agentledger_app',t);
+ END LOOP;
+ FOREACH t IN ARRAY ARRAY['review_artifact_requests','review_pack_completions'] LOOP
+  EXECUTE format('CREATE TRIGGER review_immutable BEFORE UPDATE OR DELETE ON public.%I FOR EACH ROW EXECUTE FUNCTION app_private.reject_review_mutation()',t);
+ END LOOP;
+END;$fn$;
+"""
+
+LIFECYCLE_SQL = r"""
+CREATE FUNCTION app_private.request_review_artifact(pid uuid,org uuid,actor uuid,expected integer,rid uuid,jid uuid,promote boolean) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE p public.review_pack_identities%ROWTYPE; c public.review_cycles%ROWTYPE;
+ r public.reports%ROWTYPE; j public.background_jobs%ROWTYPE; previous public.review_artifact_requests%ROWTYPE;
+ h public.review_baseline_heads%ROWTYPE; e public.review_cycle_events%ROWTYPE; target uuid; payload jsonb;
+BEGIN
+ PERFORM app_private.require_review_owner(org,actor);
+ IF NOT EXISTS(SELECT 1 FROM public.review_lifecycle_gate WHERE id=1 AND enabled)
+  THEN RAISE EXCEPTION 'Review lifecycle deployment gate closed'; END IF;
+ IF expected IS DISTINCT FROM 3 OR promote IS NULL THEN RAISE EXCEPTION 'Review request revision or choice invalid'; END IF;
+ SELECT * INTO p FROM public.review_pack_identities WHERE id=pid AND organization_id=org;
+ IF NOT FOUND OR p.created_by_id IS DISTINCT FROM actor OR p.sha256 IS DISTINCT FROM
+  encode(sha256(convert_to(app_private.queue_canonical(p.manifest),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Frozen review request identity invalid'; END IF;
+ SELECT * INTO c FROM public.review_cycles WHERE id=p.cycle_id AND organization_id=org FOR UPDATE;
+ SELECT * INTO previous FROM public.review_artifact_requests WHERE pack_id=pid;
+ IF FOUND THEN
+  IF previous.report_id IS DISTINCT FROM rid OR previous.job_id IS DISTINCT FROM jid
+   OR previous.promote_baseline IS DISTINCT FROM promote OR previous.manifest_sha256 IS DISTINCT FROM p.sha256 THEN
+   RAISE EXCEPTION 'Review artifact request replay changed'; END IF;
+  RETURN previous.id;
+ END IF;
+ SELECT * INTO e FROM public.review_cycle_events WHERE cycle_id=c.id ORDER BY revision DESC LIMIT 1;
+ IF e.revision IS DISTINCT FROM expected OR e.state IS DISTINCT FROM 'FROZEN' THEN
+  RAISE EXCEPTION 'Review request compare and swap failed'; END IF;
+ SELECT * INTO r FROM public.reports WHERE id=rid AND organization_id=org;
+ IF NOT FOUND OR r.assessment_snapshot_id IS DISTINCT FROM c.input_snapshot_id
+  OR r.created_by_id IS DISTINCT FROM actor OR EXISTS(SELECT 1 FROM public.report_artifacts WHERE report_id=rid) THEN
+  RAISE EXCEPTION 'Review report identity unavailable'; END IF;
+ SELECT * INTO j FROM public.background_jobs WHERE id=jid AND organization_id=org FOR UPDATE;
+ IF NOT FOUND OR j.job_type IS DISTINCT FROM 'report_generation' OR j.status IS DISTINCT FROM 'queued'
+  OR j.payload IS DISTINCT FROM jsonb_build_object('report_id',rid::text)
+  OR j.input_sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(j.payload),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Review job identity unavailable'; END IF;
+ SELECT * INTO h FROM public.review_baseline_heads WHERE organization_id=org;
+ IF NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org) THEN
+  RAISE EXCEPTION 'Review paid owner admission unavailable'; END IF;
+ target:=gen_random_uuid();
+ INSERT INTO public.review_artifact_requests(id,organization_id,created_by_id,created_at,pack_id,report_id,job_id,manifest_sha256,promote_baseline,observed_head_revision,observed_head_pack_id)
+ VALUES(target,org,actor,clock_timestamp(),pid,rid,jid,p.sha256,promote,coalesce(h.revision,0),h.pack_id);
+ payload:=jsonb_build_object('schema','stewardence.review_cycle_event.v2','cycle_id',c.id::text,
+  'revision',4,'state','ARTIFACT_PENDING','request_id',target::text,'manifest_sha256',p.sha256);
+ INSERT INTO public.review_cycle_events(id,organization_id,created_by_id,created_at,cycle_id,revision,state,payload,sha256)
+ VALUES(gen_random_uuid(),org,actor,clock_timestamp(),c.id,4,'ARTIFACT_PENDING',payload,
+  encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+ RETURN target;
+END;$fn$;
+ALTER FUNCTION app_private.request_review_artifact(uuid,uuid,uuid,integer,uuid,uuid,boolean) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.request_review_artifact(uuid,uuid,uuid,integer,uuid,uuid,boolean) FROM PUBLIC,agentledger_worker;
+GRANT EXECUTE ON FUNCTION app_private.request_review_artifact(uuid,uuid,uuid,integer,uuid,uuid,boolean) TO agentledger_app;
+
+CREATE FUNCTION app_private.review_job_target(jid uuid,token uuid) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE j public.background_jobs%ROWTYPE; r public.review_artifact_requests%ROWTYPE;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' THEN RAISE EXCEPTION 'Review worker requires read committed'; END IF;
+ SELECT * INTO j FROM public.background_jobs WHERE id=jid;
+ IF NOT FOUND OR j.organization_id IS DISTINCT FROM app_private.current_organization_id()
+  OR j.status IS DISTINCT FROM 'running' OR j.claim_token IS DISTINCT FROM token OR token IS NULL
+  OR j.lock_expires_at<=clock_timestamp() THEN RAISE EXCEPTION 'Review lease authority unavailable'; END IF;
+ SELECT * INTO r FROM public.review_artifact_requests WHERE job_id=jid AND organization_id=j.organization_id;
+ IF NOT FOUND THEN RETURN NULL; END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.review_lifecycle_gate WHERE id=1 AND enabled)
+  OR NOT app_private.core_owner_entitled(j.organization_id,r.created_by_id)
+  OR NOT app_private.core_work_allowed(j.organization_id) THEN RAISE EXCEPTION 'Review worker admission unavailable'; END IF;
+ RETURN r.id;
+END;$fn$;
+ALTER FUNCTION app_private.review_job_target(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.review_job_target(uuid,uuid) FROM PUBLIC,agentledger_app;
+GRANT EXECUTE ON FUNCTION app_private.review_job_target(uuid,uuid) TO agentledger_worker;
+
+CREATE FUNCTION app_private.complete_review_pack(request_id uuid,artifact_id uuid,jid uuid,worker_id text,token uuid) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE q public.review_artifact_requests%ROWTYPE; p public.review_pack_identities%ROWTYPE;
+ c public.review_cycles%ROWTYPE; a public.report_artifacts%ROWTYPE; r public.reports%ROWTYPE;
+ j public.background_jobs%ROWTYPE; reservation public.review_capacity_reservations%ROWTYPE;
+ h public.review_baseline_heads%ROWTYPE; previous public.review_pack_completions%ROWTYPE;
+ old_cycle public.review_cycles%ROWTYPE; payload jsonb; target uuid; promotion text:='not_requested';
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' THEN RAISE EXCEPTION 'Review worker requires read committed'; END IF;
+ SELECT * INTO q FROM public.review_artifact_requests WHERE id=request_id;
+ IF NOT FOUND OR q.organization_id IS DISTINCT FROM app_private.current_organization_id() OR q.job_id IS DISTINCT FROM jid THEN
+  RAISE EXCEPTION 'Review completion request identity invalid'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||q.organization_id::text||':control',0));
+ PERFORM pg_advisory_xact_lock(hashtextextended('review:'||q.organization_id::text||':capacity',0));
+ SELECT * INTO p FROM public.review_pack_identities WHERE id=q.pack_id AND organization_id=q.organization_id;
+ SELECT * INTO c FROM public.review_cycles WHERE id=p.cycle_id AND organization_id=q.organization_id FOR UPDATE;
+ SELECT * INTO j FROM public.background_jobs WHERE id=jid FOR UPDATE;
+ IF NOT FOUND OR j.organization_id IS DISTINCT FROM q.organization_id OR j.status IS DISTINCT FROM 'running'
+  OR j.claim_token IS DISTINCT FROM token OR token IS NULL OR j.locked_by IS DISTINCT FROM worker_id
+  OR j.lock_expires_at<=clock_timestamp() OR NOT EXISTS(SELECT 1 FROM public.review_lifecycle_gate WHERE id=1 AND enabled)
+  OR NOT app_private.core_owner_entitled(q.organization_id,q.created_by_id)
+  OR NOT app_private.core_work_allowed(q.organization_id) THEN RAISE EXCEPTION 'Review completion authority unavailable'; END IF;
+ IF p.sha256 IS DISTINCT FROM q.manifest_sha256 OR p.sha256 IS DISTINCT FROM
+  encode(sha256(convert_to(app_private.queue_canonical(p.manifest),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Review completion frozen identity invalid'; END IF;
+ SELECT * INTO r FROM public.reports WHERE id=q.report_id AND organization_id=q.organization_id;
+ SELECT * INTO a FROM public.report_artifacts WHERE id=artifact_id AND report_id=r.id AND organization_id=q.organization_id;
+ SELECT * INTO reservation FROM public.review_capacity_reservations WHERE cycle_id=c.id AND organization_id=q.organization_id;
+ IF a.id IS NULL OR r.assessment_snapshot_id IS DISTINCT FROM c.input_snapshot_id
+  OR a.assessment_snapshot_id IS DISTINCT FROM c.input_snapshot_id OR a.size_bytes>reservation.reserved_bytes
+  OR j.payload IS DISTINCT FROM jsonb_build_object('report_id',r.id::text)
+  OR j.input_sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(j.payload),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Review completion artifact binding invalid'; END IF;
+ SELECT done.* INTO previous FROM public.review_pack_completions done WHERE done.request_id=q.id;
+ IF FOUND THEN
+  IF previous.artifact_id IS DISTINCT FROM artifact_id THEN RAISE EXCEPTION 'Review completion replay changed'; END IF;
+  RETURN previous.id;
+ END IF;
+ IF (SELECT state FROM public.review_cycle_events WHERE cycle_id=c.id ORDER BY revision DESC LIMIT 1) IS DISTINCT FROM 'ARTIFACT_PENDING'
+  OR (SELECT state FROM public.review_reservation_events WHERE reservation_id=reservation.id ORDER BY revision DESC LIMIT 1) IS DISTINCT FROM 'reserved' THEN
+  RAISE EXCEPTION 'Review completion state invalid'; END IF;
+ -- The reads above and artifact readback are not renewable authority. Check
+ -- live paid/pause/lease authority again immediately before protected effects.
+ IF j.lock_expires_at<=clock_timestamp() OR NOT app_private.core_owner_entitled(q.organization_id,q.created_by_id)
+  OR NOT app_private.core_work_allowed(q.organization_id) THEN
+  RAISE EXCEPTION 'Review completion authority unavailable'; END IF;
+ SELECT * INTO h FROM public.review_baseline_heads WHERE organization_id=q.organization_id FOR UPDATE;
+ -- Even an operator-held head row can delay this transaction. Database clock
+ -- authority must be observed after that last row-lock wait, not before it.
+ IF j.lock_expires_at<=clock_timestamp() OR NOT EXISTS(SELECT 1 FROM public.review_lifecycle_gate WHERE id=1 AND enabled)
+  OR NOT app_private.core_owner_entitled(q.organization_id,q.created_by_id)
+  OR NOT app_private.core_work_allowed(q.organization_id) THEN
+  RAISE EXCEPTION 'Review completion authority unavailable'; END IF;
+ IF q.promote_baseline THEN
+  promotion:='stale_head';
+  IF coalesce(h.revision,0)=q.observed_head_revision AND h.pack_id IS NOT DISTINCT FROM q.observed_head_pack_id THEN
+   IF h.pack_id IS NOT NULL THEN
+    SELECT prior.* INTO old_cycle FROM public.review_cycles prior JOIN public.review_pack_identities old ON old.cycle_id=prior.id WHERE old.id=h.pack_id;
+   END IF;
+   promotion:='older_snapshot';
+   IF h.pack_id IS NULL OR ((c.created_at,c.id)>(old_cycle.created_at,old_cycle.id)
+    AND (SELECT captured_at FROM public.assessment_snapshots WHERE id=c.input_snapshot_id)>=
+        (SELECT captured_at FROM public.assessment_snapshots WHERE id=old_cycle.input_snapshot_id)) THEN
+    INSERT INTO public.review_baseline_heads(organization_id,pack_id,revision) VALUES(q.organization_id,p.id,coalesce(h.revision,0)+1)
+    ON CONFLICT(organization_id) DO UPDATE SET pack_id=EXCLUDED.pack_id,revision=EXCLUDED.revision;
+    promotion:='promoted';
+   END IF;
+  END IF;
+ END IF;
+ target:=gen_random_uuid();
+ payload:=jsonb_build_object('schema','stewardence.review_pack_completion.v2','request_id',q.id::text,'pack_id',p.id::text,
+  'manifest_sha256',p.sha256,'artifact_id',a.id::text,'artifact_sha256',a.sha256,'artifact_bytes',a.size_bytes,
+  'verification','trusted_handler_storage_readback','baseline_outcome',promotion);
+ INSERT INTO public.review_pack_completions(id,organization_id,created_by_id,created_at,request_id,artifact_id,payload,sha256)
+ VALUES(target,q.organization_id,q.created_by_id,clock_timestamp(),q.id,a.id,payload,
+  encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+ payload:=jsonb_build_object('schema','stewardence.review_cycle_event.v2','cycle_id',c.id::text,'revision',5,
+  'state','COMPLETED','completion_id',target::text,'manifest_sha256',p.sha256);
+ INSERT INTO public.review_cycle_events(id,organization_id,created_by_id,created_at,cycle_id,revision,state,payload,sha256)
+ VALUES(gen_random_uuid(),q.organization_id,q.created_by_id,clock_timestamp(),c.id,5,'COMPLETED',payload,
+  encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+ payload:=jsonb_build_object('schema','stewardence.review_reservation_event.v2','reservation_id',reservation.id::text,
+  'revision',2,'state','consumed','artifact_id',a.id::text,'actual_bytes',a.size_bytes);
+ INSERT INTO public.review_reservation_events(id,organization_id,created_by_id,created_at,reservation_id,revision,state,payload,sha256)
+ VALUES(gen_random_uuid(),q.organization_id,q.created_by_id,clock_timestamp(),reservation.id,2,'consumed',payload,
+  encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+ RETURN target;
+END;$fn$;
+ALTER FUNCTION app_private.complete_review_pack(uuid,uuid,uuid,text,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.complete_review_pack(uuid,uuid,uuid,text,uuid) FROM PUBLIC,agentledger_app;
+GRANT EXECUTE ON FUNCTION app_private.complete_review_pack(uuid,uuid,uuid,text,uuid) TO agentledger_worker;
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies = [('reviews','0001_initial'),('billing','0007_ingester_effects'),('jobs','0014_decision_desk')]
+    operations = [
+        migrations.CreateModel(name='ReviewLifecycleGate',fields=[
+            ('id',models.PositiveSmallIntegerField(default=1,primary_key=True,serialize=False)),
+            ('enabled',models.BooleanField(default=False)),
+        ],options={'db_table':'review_lifecycle_gate','constraints':[
+            models.CheckConstraint(condition=models.Q(id=1),name='review_lifecycle_gate_singleton')]}),
+        migrations.CreateModel(name='ArtifactRequest',fields=initial.common_fields()+[
+            ('pack',models.OneToOneField(on_delete=django.db.models.deletion.PROTECT,related_name='artifact_request',to='reviews.packidentity')),
+            ('report',models.OneToOneField(on_delete=django.db.models.deletion.PROTECT,to='reports.report')),
+            ('job',models.OneToOneField(on_delete=django.db.models.deletion.PROTECT,to='jobs.backgroundjob')),
+            ('manifest_sha256',models.CharField(max_length=64)),
+            ('promote_baseline',models.BooleanField(default=False)),
+            ('observed_head_revision',models.PositiveIntegerField()),
+            ('observed_head_pack_id',models.UUIDField(null=True)),
+        ],options={'db_table':'review_artifact_requests'}),
+        migrations.CreateModel(name='PackCompletion',fields=initial.common_fields()+[
+            ('request',models.OneToOneField(on_delete=django.db.models.deletion.PROTECT,related_name='completion',to='reviews.artifactrequest')),
+            ('artifact',models.OneToOneField(on_delete=django.db.models.deletion.PROTECT,to='reports.reportartifact')),
+            ('payload',models.JSONField()),('sha256',models.CharField(max_length=64)),
+        ],options={'db_table':'review_pack_completions'}),
+        migrations.CreateModel(name='BaselineHead',fields=[
+            ('organization',models.OneToOneField(on_delete=django.db.models.deletion.PROTECT,primary_key=True,serialize=False,to='organizations.organization')),
+            ('pack',models.ForeignKey(on_delete=django.db.models.deletion.PROTECT,to='reviews.packidentity')),
+            ('revision',models.PositiveIntegerField()),
+        ],options={'db_table':'review_baseline_heads'}),
+        migrations.RunSQL(SQL+freeze_sql+LIFECYCLE_SQL),
+    ]
+
+FILE apps/reviews/models.py SHA256 7cd7192a9791512378e09fa9b27acfb6e5f277a6bcd644e1c1e5b837741f5d3a
+"""Immutable initial review kernel; FROZEN does not mean artifact complete."""
+import uuid
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db import models
+
+
+class ImmutableRecord(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey('organizations.Organization', on_delete=models.PROTECT)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(editable=False)
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise ValidationError('Review evidence is immutable')
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError('Review evidence is append-only')
+
+
+class ReviewCycle(ImmutableRecord):
+    input_snapshot = models.ForeignKey('assessments.AssessmentSnapshot', on_delete=models.PROTECT)
+    baseline_pack_id = models.UUIDField(null=True, editable=False)
+
+    class Meta:
+        db_table = 'review_cycles'
+
+    @property
+    def current_event(self):
+        return self.events.order_by('-revision').first()
+
+    @property
+    def revision(self):
+        event = self.current_event
+        return event.revision if event else None
+
+    @property
+    def state(self):
+        event = self.current_event
+        return event.state if event else None
+
+
+class CycleEvent(ImmutableRecord):
+    cycle = models.ForeignKey(ReviewCycle, on_delete=models.PROTECT, related_name='events')
+    revision = models.PositiveIntegerField()
+    state = models.CharField(max_length=32)
+    payload = models.JSONField(editable=False)
+    sha256 = models.CharField(max_length=64, editable=False)
+
+    class Meta:
+        db_table = 'review_cycle_events'
+        constraints = [models.UniqueConstraint(fields=('cycle', 'revision'), name='review_event_revision_unique')]
+
+
+class PackIdentity(ImmutableRecord):
+    cycle = models.OneToOneField(ReviewCycle, on_delete=models.PROTECT, related_name='frozen_pack')
+    admitted_revision = models.PositiveIntegerField()
+    manifest = models.JSONField(editable=False)
+    sha256 = models.CharField(max_length=64, editable=False)
+
+    class Meta:
+        db_table = 'review_pack_identities'
+
+
+class CapacityReservation(ImmutableRecord):
+    cycle = models.OneToOneField(ReviewCycle, on_delete=models.PROTECT, related_name='capacity_reservation')
+    paid_coverage = models.ForeignKey('billing.PaidCoverage', on_delete=models.PROTECT)
+    reserved_bytes = models.PositiveBigIntegerField()
+    state = models.CharField(max_length=32, default='reserved')
+
+    class Meta:
+        db_table = 'review_capacity_reservations'
+
+
+class ReservationEvent(ImmutableRecord):
+    reservation = models.ForeignKey(CapacityReservation, on_delete=models.PROTECT, related_name='events')
+    revision = models.PositiveIntegerField()
+    state = models.CharField(max_length=32)
+    payload = models.JSONField(editable=False)
+    sha256 = models.CharField(max_length=64, editable=False)
+
+    class Meta:
+        db_table = 'review_reservation_events'
+        constraints = [models.UniqueConstraint(fields=('reservation', 'revision'), name='review_reservation_event_unique')]
+
+
+class ReviewLifecycleGate(models.Model):
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1)
+    enabled = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'review_lifecycle_gate'
+        constraints = [models.CheckConstraint(condition=models.Q(id=1),name='review_lifecycle_gate_singleton')]
+
+
+class ArtifactRequest(ImmutableRecord):
+    pack = models.OneToOneField(PackIdentity,on_delete=models.PROTECT,related_name='artifact_request')
+    report = models.OneToOneField('reports.Report',on_delete=models.PROTECT)
+    job = models.OneToOneField('jobs.BackgroundJob',on_delete=models.PROTECT)
+    manifest_sha256 = models.CharField(max_length=64)
+    promote_baseline = models.BooleanField(default=False)
+    observed_head_revision = models.PositiveIntegerField()
+    observed_head_pack_id = models.UUIDField(null=True)
+
+    class Meta:
+        db_table = 'review_artifact_requests'
+
+
+class PackCompletion(ImmutableRecord):
+    request = models.OneToOneField(ArtifactRequest,on_delete=models.PROTECT,related_name='completion')
+    artifact = models.OneToOneField('reports.ReportArtifact',on_delete=models.PROTECT)
+    payload = models.JSONField()
+    sha256 = models.CharField(max_length=64)
+
+    class Meta:
+        db_table = 'review_pack_completions'
+
+
+class BaselineHead(models.Model):
+    organization = models.OneToOneField('organizations.Organization',on_delete=models.PROTECT,primary_key=True)
+    pack = models.ForeignKey(PackIdentity,on_delete=models.PROTECT)
+    revision = models.PositiveIntegerField()
+
+    class Meta:
+        db_table = 'review_baseline_heads'
+
+FILE apps/reviews/services.py SHA256 38dcbd0ad8fafdcbe19be32e97e2adf5cf0471052ade157ba31f68b04a4dda1b
+"""Owner-bound initial slice. No artifacts, decisions or baseline promotion."""
+from uuid import UUID, uuid4
+from django.core.exceptions import ValidationError
+from django.db import connections
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+from apps.assessments.models import AssessmentSnapshot
+from apps.assessments.snapshots import verify_snapshot
+from .models import PackIdentity, ReviewCycle
+
+
+def request_pack_artifact(*, pack_id, organization_id, actor_id,
+                          expected_revision=3, promote_baseline=False, using='default'):
+    """Stage one immutable request. Closed application and database gates apply.
+
+    Report identity is one per snapshot; this slice cannot consume a report
+    already rendered or already attached to another pack.
+    """
+    from django.conf import settings
+    from apps.reports.services import create_report
+    from apps.reports.jobs import ensure_report_generation_job
+    from .models import ArtifactRequest
+    for value in (pack_id, organization_id, actor_id):
+        _identity(value)
+    if not getattr(settings, 'REVIEW_PACK_LIFECYCLE_ENABLED', False):
+        raise ValidationError('Review lifecycle deployment gate closed')
+    if type(expected_revision) is not int or expected_revision != 3 or type(promote_baseline) is not bool:
+        raise ValidationError('Exact frozen revision and explicit promotion choice required')
+    with identity_transaction(actor_id, using=using), tenant_transaction(organization_id, using=using):
+        # Same lock order as the database issuer; no report side effects precede
+        # serialization, and SQL rechecks authority after all waits.
+        with connections[using].cursor() as cursor:
+            for name in (f'core:{organization_id}:control', f'review:{organization_id}:capacity'):
+                cursor.execute('SELECT pg_advisory_xact_lock(hashtextextended(%s,0))',[name])
+        pack = PackIdentity.objects.using(using).select_related('cycle').get(id=pack_id,organization_id=organization_id)
+        existing = ArtifactRequest.objects.using(using).filter(pack_id=pack_id,organization_id=organization_id).first()
+        if existing is not None:
+            report_id, job_id = existing.report_id, existing.job_id
+        else:
+            report = create_report(organization_id=organization_id,
+                                  assessment_snapshot_id=pack.cycle.input_snapshot_id,
+                                  created_by_id=actor_id,using=using)
+            job = ensure_report_generation_job(report=report,using=using)
+            if job is None:
+                raise ValidationError('Review snapshot report is already rendered')
+            report_id, job_id = report.id, job.id
+        with connections[using].cursor() as cursor:
+            cursor.execute('SELECT app_private.request_review_artifact(%s,%s,%s,%s,%s,%s,%s)',
+                           [pack_id,organization_id,actor_id,expected_revision,report_id,job_id,promote_baseline])
+            identity = cursor.fetchone()[0]
+        return ArtifactRequest.objects.using(using).get(id=identity,organization_id=organization_id)
+
+
+def _identity(value):
+    if not isinstance(value, UUID):
+        raise ValidationError('Typed review identity required')
+    return value
+
+
+def open_cycle(*, organization_id, actor_id, input_snapshot_id, baseline_pack_id=None, using='default'):
+    for value in (organization_id, actor_id, input_snapshot_id):
+        _identity(value)
+    if baseline_pack_id is not None:
+        raise ValidationError('Baseline promotion is not qualified in the initial kernel')
+    with identity_transaction(actor_id, using=using), tenant_transaction(organization_id, using=using):
+        snapshot = AssessmentSnapshot.objects.using(using).get(id=input_snapshot_id, organization_id=organization_id)
+        if not verify_snapshot(snapshot):
+            raise ValidationError('Review snapshot integrity failed')
+        with connections[using].cursor() as cursor:
+            cursor.execute('SELECT app_private.open_review_cycle(%s,%s,%s,%s)',
+                           [uuid4(), organization_id, actor_id, input_snapshot_id])
+            identity = cursor.fetchone()[0]
+        return ReviewCycle.objects.using(using).get(id=identity, organization_id=organization_id)
+
+
+def freeze_cycle(*, cycle_id, organization_id, actor_id, expected_revision, using='default'):
+    for value in (cycle_id, organization_id, actor_id):
+        _identity(value)
+    if type(expected_revision) is not int or expected_revision != 1:
+        raise ValidationError('Initial freeze requires exact OPEN revision 1')
+    with identity_transaction(actor_id, using=using), tenant_transaction(organization_id, using=using):
+        cycle = ReviewCycle.objects.using(using).select_related('input_snapshot').get(id=cycle_id, organization_id=organization_id)
+        if not verify_snapshot(cycle.input_snapshot):
+            raise ValidationError('Review snapshot integrity failed')
+        with connections[using].cursor() as cursor:
+            cursor.execute('SELECT app_private.freeze_review_cycle(%s,%s,%s,%s)',
+                           [cycle_id, organization_id, actor_id, expected_revision])
+            identity = cursor.fetchone()[0]
+        return PackIdentity.objects.using(using).get(id=identity, organization_id=organization_id)
+
+FILE apps/reviews/jobs.py SHA256 45e04ab9ae9374234eb1122c2ed742313fdf4b12f3182bc63dda2dda7ea71806
+"""Opt-in worker wrapper. Storage readback precedes atomic completion issuance.
+
+Not wired into the live handler map. Database metadata cannot independently
+prove the bytes; this wrapper is a trusted report-worker execution boundary.
+"""
+from dataclasses import dataclass
+from django.db import connections
+from apps.reports.artifact_services import read_verified_pdf_artifact
+
+
+@dataclass(frozen=True)
+class ReviewReportGenerationHandler:
+    delegate: object
+    worker_id: str
+
+    @property
+    def persistence_isolation(self):
+        return self.delegate.persistence_isolation
+
+    def prepare(self, job):
+        return self.delegate.prepare(job)
+
+    def execute_external(self, prepared, heartbeat):
+        return self.delegate.execute_external(prepared, heartbeat=heartbeat)
+
+    def persist(self, job, result):
+        using = self.delegate.using
+        # This runs within execute_claimed_job's existing fenced persistence
+        # transaction; completion, artifact metadata and queue completion all
+        # roll back together on any subsequent error.
+        with connections[using].cursor() as cursor:
+            cursor.execute('SELECT app_private.review_job_target(%s,%s)',[job.id,job.claim_token])
+            request_id = cursor.fetchone()[0]
+        artifact = self.delegate.persist(job,result)
+        if request_id is not None:
+            read_verified_pdf_artifact(artifact=artifact,storage=self.delegate.storage)
+            with connections[using].cursor() as cursor:
+                cursor.execute('SELECT app_private.complete_review_pack(%s,%s,%s,%s,%s)',
+                               [request_id,artifact.id,job.id,self.worker_id,job.claim_token])
+                cursor.fetchone()
+        return artifact
+
+FILE apps/jobs/migrations/0014_decision_desk.py SHA256 881a7a9b0cadbf742ee558e698eddaba45f4d4e3689fd692f42fecdb0a9d7cb6
+"""Append-only decision admission on exact issued ActionCardRevision identities."""
+import uuid
+import django.db.models.deletion
+from django.conf import settings
+from django.db import migrations, models
+
+SQL = r"""
+ALTER TABLE core_decision_desk_gate OWNER TO agentledger_owner;
+ALTER TABLE core_decision_events OWNER TO agentledger_owner;
+REVOKE ALL ON core_decision_desk_gate,core_decision_events FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+ALTER TABLE core_decision_desk_gate ENABLE ROW LEVEL SECURITY;
+ALTER TABLE core_decision_desk_gate FORCE ROW LEVEL SECURITY;
+ALTER TABLE core_decision_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE core_decision_events FORCE ROW LEVEL SECURITY;
+CREATE POLICY decision_gate_owner ON core_decision_desk_gate TO agentledger_owner USING(true) WITH CHECK(true);
+CREATE POLICY decision_owner ON core_decision_events TO agentledger_owner USING(true) WITH CHECK(true);
+CREATE POLICY decision_tenant_read ON core_decision_events FOR SELECT TO agentledger_app
+ USING(organization_id=app_private.current_organization_id() AND EXISTS(
+ SELECT 1 FROM public.organizations_organizationmember m WHERE m.organization_id=core_decision_events.organization_id
+ AND m.user_id=app_private.current_user_id() AND m.role='owner'));
+GRANT SELECT ON core_decision_events TO agentledger_app;
+INSERT INTO core_decision_desk_gate(id,enabled) VALUES(1,false);
+CREATE TRIGGER immutable_core_decision BEFORE UPDATE OR DELETE ON core_decision_events
+ FOR EACH ROW EXECUTE FUNCTION app_private.prevent_paid_coverage_mutation();
+
+CREATE FUNCTION app_private.issue_core_decision(org uuid,actor uuid,e jsonb) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE r public.core_action_card_revisions%ROWTYPE; s public.assessment_snapshots%ROWTYPE;
+ prior public.core_decision_events%ROWTYPE; previous uuid; rid uuid; idx integer; seq integer;
+ event_id uuid:=gen_random_uuid(); issued timestamptz; card_hash text; due date; body jsonb;
+ required text[]:=ARRAY['schema','revision_id','card_index','expected_previous_event','event_kind','state',
+ 'responsible_label','due_date','notes','links']; key text; link jsonb;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' THEN RAISE EXCEPTION 'Decision admission requires read committed'; END IF;
+ IF org IS NULL OR actor IS NULL OR jsonb_typeof(e) IS DISTINCT FROM 'object' OR octet_length(e::text)>65536
+  OR NOT e ?& required OR EXISTS(SELECT 1 FROM jsonb_object_keys(e) k WHERE NOT k=ANY(required)) THEN
+  RAISE EXCEPTION 'Invalid decision envelope'; END IF;
+ IF session_user='agentledger_app' AND (org IS DISTINCT FROM app_private.current_organization_id()
+  OR actor IS DISTINCT FROM app_private.current_user_id()) THEN RAISE EXCEPTION 'Decision identity mismatch'; END IF;
+ FOREACH key IN ARRAY ARRAY['schema','revision_id','event_kind','state','responsible_label','notes'] LOOP
+  IF jsonb_typeof(e->key) IS DISTINCT FROM 'string' THEN RAISE EXCEPTION 'Decision fields must be strings'; END IF;
+ END LOOP;
+ IF e->>'schema'<>'stewardence.core_decision.v1' OR jsonb_typeof(e->'card_index')<>'number'
+  OR e->>'card_index' !~ '^[0-9]{1,9}$' OR length(btrim(e->>'responsible_label')) NOT BETWEEN 1 AND 200
+  OR e->>'responsible_label' ~ '[[:cntrl:]]' OR length(e->>'notes')>4096
+  OR jsonb_typeof(e->'links') IS DISTINCT FROM 'array' OR jsonb_array_length(e->'links')>10 THEN
+  RAISE EXCEPTION 'Invalid decision bounds'; END IF;
+ IF NOT ((e->>'event_kind'='disposition' AND e->>'state' IN ('act','defer','decline','accept_risk'))
+  OR (e->>'event_kind'='execution' AND e->>'state' IN ('completion_recorded','evidence_reviewed'))) THEN
+  RAISE EXCEPTION 'Unsupported decision state'; END IF;
+ FOREACH key IN ARRAY ARRAY['expected_previous_event','due_date'] LOOP
+  IF jsonb_typeof(e->key) NOT IN ('null','string') THEN RAISE EXCEPTION 'Invalid optional decision field'; END IF;
+ END LOOP;
+ IF e->>'due_date' IS NOT NULL THEN
+  IF e->>'due_date' !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN RAISE EXCEPTION 'Invalid due date'; END IF;
+  due:=(e->>'due_date')::date;
+ END IF;
+ FOR link IN SELECT value FROM jsonb_array_elements(e->'links') LOOP
+  IF jsonb_typeof(link)<>'string' OR length(link#>>'{}')>2048
+   OR link#>>'{}' !~ '^https://[^[:space:]/?#@]+([/?#][^[:space:]]*)?$' THEN RAISE EXCEPTION 'Invalid evidence link'; END IF;
+ END LOOP;
+ rid:=(e->>'revision_id')::uuid; idx:=(e->>'card_index')::integer;
+ previous:=(e->>'expected_previous_event')::uuid;
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':control',0));
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':decision:'||rid::text||':'||idx::text,0));
+ IF NOT EXISTS(SELECT 1 FROM public.core_decision_desk_gate WHERE id=1 AND enabled)
+  OR NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org) THEN
+  RAISE EXCEPTION 'Decision admission unavailable'; END IF;
+ SELECT * INTO r FROM public.core_action_card_revisions WHERE id=rid AND organization_id=org;
+ IF NOT FOUND OR jsonb_typeof(r.cards)<>'array' OR idx>=jsonb_array_length(r.cards)
+  OR r.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(r.cards),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Decision revision unresolved'; END IF;
+ SELECT * INTO s FROM public.assessment_snapshots WHERE id=r.snapshot_id AND organization_id=org;
+ IF NOT FOUND OR r.input_sha256 IS DISTINCT FROM s.result_sha256 THEN RAISE EXCEPTION 'Decision snapshot mismatch'; END IF;
+ card_hash:=encode(sha256(convert_to(app_private.queue_canonical(r.cards->idx),'UTF8')),'hex');
+ SELECT * INTO prior FROM public.core_decision_events WHERE revision_id=rid AND card_index=idx
+  ORDER BY sequence DESC LIMIT 1;
+ IF (FOUND AND previous IS DISTINCT FROM prior.id) OR (NOT FOUND AND previous IS NOT NULL) THEN
+  RAISE EXCEPTION 'Stale decision history'; END IF;
+ seq:=coalesce(prior.sequence,0)+1; issued:=clock_timestamp();
+ body:=jsonb_build_object('schema','stewardence.core_decision_event.v1','id',event_id,'organization_id',org,
+  'created_by_id',actor,'created_at',issued,'revision_id',rid,'revision_sha256',r.sha256,
+  'snapshot_id',s.id,'snapshot_result_sha256',s.result_sha256,'card_index',idx,'card_sha256',card_hash,
+  'previous_event_id',previous,'sequence',seq,'event_kind',e->>'event_kind','state',e->>'state',
+  'responsible_label',btrim(e->>'responsible_label'),'due_date',due,'notes',e->>'notes','links',e->'links',
+  'owner_statement_only',true,'resolution_verified',false);
+ INSERT INTO public.core_decision_events(id,organization_id,created_by_id,created_at,revision_id,snapshot_id,
+  revision_sha256,snapshot_result_sha256,card_index,card_sha256,previous_event_id,sequence,event_kind,state,
+  responsible_label,due_date,notes,links,payload,sha256)
+ VALUES(event_id,org,actor,issued,rid,s.id,r.sha256,s.result_sha256,idx,card_hash,previous,seq,e->>'event_kind',
+  e->>'state',btrim(e->>'responsible_label'),due,e->>'notes',e->'links',body,
+  encode(sha256(convert_to(app_private.queue_canonical(body),'UTF8')),'hex'));
+ RETURN event_id;
+END;$fn$;
+ALTER FUNCTION app_private.issue_core_decision(uuid,uuid,jsonb) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.issue_core_decision(uuid,uuid,jsonb) FROM PUBLIC,agentledger_worker,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.issue_core_decision(uuid,uuid,jsonb) TO agentledger_app;
+
+CREATE FUNCTION app_private.selected_core_decisions(snapshot uuid,org uuid) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE selected jsonb;
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM public.core_decision_desk_gate WHERE id=1 AND enabled) THEN RETURN '[]'::jsonb; END IF;
+ SELECT coalesce(jsonb_agg(jsonb_build_object('event_id',d.id,'event_sha256',d.sha256,'revision_id',r.id,
+  'revision_sha256',r.sha256,'card_index',d.card_index,'card_sha256',d.card_sha256,'snapshot_id',snapshot,
+  'snapshot_result_sha256',s.result_sha256,'event_kind',d.event_kind,'state',d.state,
+  'owner_statement_only',true,'resolution_verified',false) ORDER BY d.card_index),'[]'::jsonb) INTO selected
+ FROM public.core_decision_events d JOIN public.core_action_card_revisions r ON r.id=d.revision_id
+ JOIN public.assessment_snapshots s ON s.id=r.snapshot_id
+ WHERE s.id=snapshot AND s.organization_id=org AND d.organization_id=org
+  AND r.organization_id=org AND r.input_sha256=s.result_sha256
+  AND r.sha256=encode(sha256(convert_to(app_private.queue_canonical(r.cards),'UTF8')),'hex')
+  AND d.revision_sha256=r.sha256 AND d.snapshot_id=s.id AND d.snapshot_result_sha256=s.result_sha256
+  AND d.card_sha256=encode(sha256(convert_to(app_private.queue_canonical(r.cards->d.card_index),'UTF8')),'hex')
+  AND d.sha256=encode(sha256(convert_to(app_private.queue_canonical(d.payload),'UTF8')),'hex')
+  AND NOT EXISTS(SELECT 1 FROM public.core_decision_events later WHERE later.revision_id=d.revision_id
+   AND later.card_index=d.card_index AND later.sequence>d.sequence);
+ RETURN selected;
+END;$fn$;
+ALTER FUNCTION app_private.selected_core_decisions(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.selected_core_decisions(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies=[('jobs','0013_paid_entitlement'),migrations.swappable_dependency(settings.AUTH_USER_MODEL)]
+    operations=[
+        migrations.CreateModel(name='DecisionDeskGate',fields=[('id',models.PositiveSmallIntegerField(default=1,editable=False,primary_key=True,serialize=False)),('enabled',models.BooleanField(default=False))],
+            options={'db_table':'core_decision_desk_gate','constraints':[models.CheckConstraint(condition=models.Q(id=1),name='core_decision_gate_singleton')]}),
+        migrations.CreateModel(name='DecisionEvent',fields=[
+            ('id',models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True,serialize=False)),('created_at',models.DateTimeField(auto_now_add=True)),
+            ('organization',models.ForeignKey(on_delete=django.db.models.deletion.PROTECT,to='organizations.organization')),
+            ('created_by',models.ForeignKey(on_delete=django.db.models.deletion.PROTECT,to=settings.AUTH_USER_MODEL)),
+            ('revision',models.ForeignKey(on_delete=django.db.models.deletion.PROTECT,to='jobs.actioncardrevision')),
+            ('snapshot',models.ForeignKey(on_delete=django.db.models.deletion.PROTECT,to='assessments.assessmentsnapshot')),
+            *[(name,models.CharField(max_length=64)) for name in ('revision_sha256','snapshot_result_sha256','card_sha256','sha256')],
+            ('card_index',models.PositiveIntegerField()),('sequence',models.PositiveIntegerField()),
+            ('previous_event',models.OneToOneField(null=True,blank=True,on_delete=django.db.models.deletion.PROTECT,related_name='successor',to='jobs.decisionevent')),
+            ('event_kind',models.CharField(max_length=16)),('state',models.CharField(max_length=32)),('responsible_label',models.CharField(max_length=200)),
+            ('due_date',models.DateField(null=True,blank=True)),('notes',models.TextField(max_length=4096)),('links',models.JSONField(default=list)),('payload',models.JSONField(editable=False)),
+        ],options={'db_table':'core_decision_events','constraints':[models.UniqueConstraint(fields=('revision','card_index','sequence'),name='core_decision_sequence_unique')]}),
+        migrations.RunSQL(SQL),
+    ]
+
+FILE apps/jobs/core_decisions.py SHA256 c5ccdaca16bb4932d6ab6d05ad368028a0edfcbb3f8a08ccb2f470b43676b7f8
+"""Owner statements on exact immutable proposals, never execution authority."""
+import json
+from uuid import UUID
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
+from django.db import connections
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+
+
+def record_decision(*, organization_id, actor_id, revision_id, card_index,
+    event_kind, state, responsible_label, expected_previous_event=None,
+    due_date=None, notes='', links=(), using='default'):
+    if not getattr(settings, 'CORE_DECISIONS_ENABLED', False):
+        raise PermissionDenied('DecisionDesk admission is disabled')
+    envelope = {'schema':'stewardence.core_decision.v1','revision_id':str(UUID(str(revision_id))),
+        'card_index':card_index,'expected_previous_event':str(UUID(str(expected_previous_event))) if expected_previous_event is not None else None,
+        'event_kind':event_kind,'state':state,'responsible_label':responsible_label,
+        'due_date':due_date.isoformat() if due_date is not None else None,'notes':notes,'links':list(links)}
+    with identity_transaction(actor_id,using=using),tenant_transaction(organization_id,using=using):
+        with connections[using].cursor() as cursor:
+            cursor.execute('SELECT app_private.issue_core_decision(%s,%s,%s::jsonb)',
+                [organization_id,actor_id,json.dumps(envelope)])
+            return cursor.fetchone()[0]
+
+FILE tests/test_review_pack_lifecycle.py SHA256 b9312f9a689939de4bd4f4bcc100ca393fa8fd05edea6a127a97364cda9181e5
+"""Closed candidate, actual local storage/roles; no Spaces or rendering claim."""
+from uuid import uuid4
+from uuid import UUID
+import pytest
+from django.core.exceptions import ValidationError
+from django.db import connections, DatabaseError, transaction
+from django.utils import timezone
+from datetime import timedelta
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+from apps.jobs.models import BackgroundJob
+from apps.jobs.queue import claim_next_job
+from apps.jobs.worker import execute_claimed_job, JobExecution
+from apps.jobs.core_workflows import configure_control
+from apps.billing.models import PaidCoverageAuthority
+from apps.assessments.snapshots import create_assessment_snapshot
+from tests.conftest import _roi_inputs
+from apps.organizations.models import WorkflowProfile
+from apps.reports.jobs import ReportGenerationHandler
+from apps.reports.models import ReportArtifact
+from apps.reports.storage import LocalPrivateReportStorage, ReportStorageError
+from apps.reviews.jobs import ReviewReportGenerationHandler
+from apps.reviews.models import (ReviewCycle,ArtifactRequest,PackCompletion,BaselineHead,
+                                ReviewLifecycleGate,ReservationEvent)
+from apps.reviews.services import open_cycle,freeze_cycle,request_pack_artifact
+
+pytestmark=pytest.mark.django_db(transaction=True,databases='__all__')
+
+
+class Renderer:
+    def render(self,context):
+        return b'%PDF-1.7\nclosed local qualification\n%%EOF\n'
+
+
+@pytest.fixture
+def pack_context(report_context):
+    user,org,_,_,snapshot=report_context
+    WorkflowProfile.objects.create(organization=org,created_by=user,profile='business.v1',settings={'name':'Main'})
+    cycle=open_cycle(organization_id=org.id,actor_id=user.id,input_snapshot_id=snapshot.id,using='app_runtime')
+    pack=freeze_cycle(cycle_id=cycle.id,organization_id=org.id,actor_id=user.id,expected_revision=1,using='app_runtime')
+    return user,org,snapshot,pack
+
+
+def request(context,**kwargs):
+    user,org,_,pack=context
+    return request_pack_artifact(pack_id=pack.id,organization_id=org.id,actor_id=user.id,using='app_runtime',**kwargs)
+
+
+@pytest.fixture
+def enabled(settings):
+    settings.REVIEW_PACK_LIFECYCLE_ENABLED=True
+    ReviewLifecycleGate.objects.update_or_create(id=1,defaults={'enabled':True})
+
+
+def claimed(context):
+    _,org,_,_=context
+    job=ArtifactRequest.objects.get(organization=org).job
+    # Administrative fixture ordering; no production queue mutation authority.
+    BackgroundJob.objects.filter(id=job.id).update(priority=-100)
+    with transaction.atomic(using='worker_runtime'):
+        result=claim_next_job('review-qualification',using='worker_runtime')
+    assert result is not None and result.id==job.id
+    return result
+
+
+def handler(tmp_path,storage=None):
+    delegate=ReportGenerationHandler(renderer=Renderer(),storage=storage or LocalPrivateReportStorage(tmp_path),using='worker_runtime')
+    return ReviewReportGenerationHandler(delegate=delegate,worker_id='review-qualification')
+
+
+def test_application_and_database_gates_are_independent(pack_context,settings):
+    with pytest.raises(ValidationError,match='gate closed'):
+        request(pack_context)
+    settings.REVIEW_PACK_LIFECYCLE_ENABLED=True
+    with pytest.raises(DatabaseError,match='gate closed'):
+        request(pack_context)
+    assert not ArtifactRequest.objects.exists()
+    assert ReviewCycle.objects.get(id=pack_context[3].cycle_id).state=='FROZEN'
+
+
+def test_request_replay_is_bound_to_explicit_promotion_choice(pack_context,enabled):
+    first=request(pack_context,promote_baseline=True)
+    assert request(pack_context,promote_baseline=True).id==first.id
+    with pytest.raises(DatabaseError,match='replay changed'):
+        request(pack_context,promote_baseline=False)
+    assert ArtifactRequest.objects.count()==1
+    assert ReviewCycle.objects.get(id=pack_context[3].cycle_id).state=='ARTIFACT_PENDING'
+
+
+@pytest.mark.parametrize('promotion',[False,True])
+def test_actual_local_readback_completes_same_frozen_identity(pack_context,enabled,tmp_path,promotion):
+    staged=request(pack_context,promote_baseline=promotion)
+    pack=pack_context[3]
+    job=claimed(pack_context)
+    execute_claimed_job(JobExecution(job=job,worker_id='review-qualification'),handler(tmp_path),using='worker_runtime')
+    completion=PackCompletion.objects.get(request=staged)
+    assert completion.artifact.report_id==staged.report_id
+    assert completion.payload['manifest_sha256']==pack.sha256
+    assert completion.payload['verification']=='trusted_handler_storage_readback'
+    assert completion.payload['baseline_outcome']==('promoted' if promotion else 'not_requested')
+    assert BaselineHead.objects.exists()==promotion
+    assert ReviewCycle.objects.get(id=pack.cycle_id).state=='COMPLETED'
+    assert list(ReservationEvent.objects.order_by('revision').values_list('state',flat=True))==['reserved','consumed']
+    pack.refresh_from_db(using='default')
+    assert pack.manifest['artifact_state']=='not_created'
+    assert pack.manifest['baseline_promotion']=='blocked'
+    assert BackgroundJob.objects.get(id=job.id).status=='completed'
+
+
+def test_corrupt_local_readback_rolls_back_metadata_and_completion_but_keeps_request(pack_context,enabled,tmp_path):
+    class CorruptStorage(LocalPrivateReportStorage):
+        def get(self,*,key):
+            return b'%PDF-1.7\ncorrupted\n%%EOF\n'
+    staged=request(pack_context,promote_baseline=True)
+    job=claimed(pack_context)
+    with pytest.raises(ReportStorageError,match='verification failed'):
+        execute_claimed_job(JobExecution(job=job,worker_id='review-qualification'),handler(tmp_path,CorruptStorage(tmp_path)),using='worker_runtime')
+    assert not PackCompletion.objects.exists() and not ReportArtifact.objects.exists()
+    assert not BaselineHead.objects.exists()
+    assert ArtifactRequest.objects.get(id=staged.id).manifest_sha256==pack_context[3].sha256
+    assert ReviewCycle.objects.get(id=pack_context[3].cycle_id).state=='ARTIFACT_PENDING'
+    assert BackgroundJob.objects.get(id=job.id).status=='running'
+    assert ReservationEvent.objects.count()==1
+    # A retained matching external object is adopted by an honest retry of
+    # exactly this claim/request. No new pack or quota reservation is issued.
+    execute_claimed_job(JobExecution(job=job,worker_id='review-qualification'),handler(tmp_path),using='worker_runtime')
+    assert PackCompletion.objects.get(request=staged).payload['manifest_sha256']==pack_context[3].sha256
+    assert ArtifactRequest.objects.count()==1 and ReservationEvent.objects.count()==2
+
+
+@pytest.mark.parametrize('revocation',['paid','pause','lease','gate'])
+def test_completion_rechecks_current_authority_after_render(pack_context,enabled,tmp_path,revocation):
+    user,org,_,pack=pack_context
+    request(pack_context,promote_baseline=True)
+    job=claimed(pack_context)
+    wrapped=handler(tmp_path)
+    with tenant_transaction(org.id,using='worker_runtime'):
+        prepared=wrapped.prepare(job)
+    result=wrapped.execute_external(prepared,lambda:None)
+    if revocation=='paid':
+        PaidCoverageAuthority.objects.all().delete()
+    if revocation=='pause':
+        configure_control(organization_id=org.id,actor_id=user.id,mode='paused',reason='local qualification pause',using='app_runtime')
+    if revocation=='lease':
+        BackgroundJob.objects.filter(id=job.id).update(lock_expires_at=timezone.now()-timedelta(seconds=1))
+    if revocation=='gate':
+        ReviewLifecycleGate.objects.filter(id=1).update(enabled=False)
+    with pytest.raises(DatabaseError):
+        with tenant_transaction(org.id,using='worker_runtime'):
+            wrapped.persist(job,result)
+    assert not PackCompletion.objects.exists() and not ReportArtifact.objects.exists()
+    assert not BaselineHead.objects.exists()
+    assert ReviewCycle.objects.get(id=pack.cycle_id).state=='ARTIFACT_PENDING'
+
+
+def test_stale_claim_token_cannot_discover_or_complete_review_request(pack_context,enabled):
+    _,org,_,_=pack_context
+    request(pack_context)
+    job=claimed(pack_context)
+    with pytest.raises(DatabaseError,match='lease authority'):
+        with tenant_transaction(org.id,using='worker_runtime'):
+            with connections['worker_runtime'].cursor() as cursor:
+                cursor.execute('SELECT app_private.review_job_target(%s,%s)',[job.id,uuid4()])
+
+
+def test_completion_replay_does_not_promote_baseline_twice(pack_context,enabled,tmp_path):
+    _,org,_,_=pack_context
+    staged=request(pack_context,promote_baseline=True)
+    job=claimed(pack_context)
+    wrapped=handler(tmp_path)
+    with tenant_transaction(org.id,using='worker_runtime'):
+        prepared=wrapped.prepare(job)
+    result=wrapped.execute_external(prepared,lambda:None)
+    with tenant_transaction(org.id,using='worker_runtime'):
+        first=wrapped.persist(job,result)
+        again=wrapped.persist(job,result)
+        assert first.id==again.id
+    assert PackCompletion.objects.filter(request=staged).count()==1
+    assert BaselineHead.objects.get(organization=org).revision==1
+    assert ReservationEvent.objects.count()==2
+
+
+@pytest.mark.parametrize('offset,expected',[(-1,'older_snapshot'),(0,'promoted'),(1,'promoted')])
+def test_baseline_advancement_preserves_snapshot_order(pack_context,report_context,enabled,tmp_path,offset,expected):
+    user,org,snapshot,firstpack=pack_context
+    request(pack_context,promote_baseline=True)
+    firstjob=claimed(pack_context)
+    execute_claimed_job(JobExecution(job=firstjob,worker_id='review-qualification'),handler(tmp_path),using='worker_runtime')
+    next_snapshot=create_assessment_snapshot(organization_id=org.id,created_by_id=user.id,
+        assessed_item_id=report_context[3].id,roi_inputs=_roi_inputs(),
+        captured_at=snapshot.captured_at+timedelta(days=offset),previous_snapshot=snapshot)
+    cycle=open_cycle(organization_id=org.id,actor_id=user.id,input_snapshot_id=next_snapshot.id,using='app_runtime')
+    next_pack=freeze_cycle(cycle_id=cycle.id,organization_id=org.id,actor_id=user.id,expected_revision=1,using='app_runtime')
+    next_context=(user,org,next_snapshot,next_pack)
+    staged=request(next_context,promote_baseline=True)
+    BackgroundJob.objects.filter(id=staged.job_id).update(priority=-200)
+    next_job=claim_next_job('review-qualification',using='worker_runtime')
+    assert next_job.id==staged.job_id
+    execute_claimed_job(JobExecution(job=next_job,worker_id='review-qualification'),handler(tmp_path),using='worker_runtime')
+    assert PackCompletion.objects.get(request=staged).payload['baseline_outcome']==expected
+    head=BaselineHead.objects.get(organization=org)
+    assert head.pack_id==(firstpack.id if expected=='older_snapshot' else next_pack.id)
+    assert head.revision==(1 if expected=='older_snapshot' else 2)
+
+
+def test_head_lock_wait_cannot_reuse_pre_expiry_lease(pack_context,report_context,enabled,tmp_path):
+    import threading
+    import time
+    user,org,snapshot,firstpack=pack_context
+    request(pack_context,promote_baseline=True)
+    firstjob=claimed(pack_context)
+    execute_claimed_job(JobExecution(job=firstjob,worker_id='review-qualification'),handler(tmp_path),using='worker_runtime')
+    next_snapshot=create_assessment_snapshot(organization_id=org.id,created_by_id=user.id,
+        assessed_item_id=report_context[3].id,roi_inputs=_roi_inputs(),
+        captured_at=snapshot.captured_at+timedelta(days=1),previous_snapshot=snapshot)
+    cycle=open_cycle(organization_id=org.id,actor_id=user.id,input_snapshot_id=next_snapshot.id,using='app_runtime')
+    pack=freeze_cycle(cycle_id=cycle.id,organization_id=org.id,actor_id=user.id,expected_revision=1,using='app_runtime')
+    staged=request((user,org,next_snapshot,pack),promote_baseline=True)
+    BackgroundJob.objects.filter(id=staged.job_id).update(priority=-200)
+    job=claim_next_job('review-qualification',using='worker_runtime')
+    assert job.id==staged.job_id
+    wrapped=handler(tmp_path)
+    with tenant_transaction(org.id,using='worker_runtime'):
+        prepared=wrapped.prepare(job)
+    result=wrapped.execute_external(prepared,lambda:None)
+    with connections['default'].cursor() as cursor:
+        cursor.execute("UPDATE background_jobs SET lock_expires_at=clock_timestamp()+interval '3 seconds' WHERE id=%s",[job.id])
+    outcome=[]
+    def attempt():
+        try:
+            with tenant_transaction(org.id,using='worker_runtime'):
+                wrapped.persist(job,result)
+            outcome.append('admitted')
+        except DatabaseError as error:
+            outcome.append('denied' if 'completion authority unavailable' in str(error) else type(error).__name__)
+        finally:
+            connections['worker_runtime'].close()
+    thread=threading.Thread(target=attempt)
+    try:
+        with transaction.atomic():
+            with connections['default'].cursor() as cursor:
+                cursor.execute('SELECT revision FROM review_baseline_heads WHERE organization_id=%s FOR UPDATE',[org.id])
+                assert cursor.fetchone()[0]==1
+            thread.start()
+            deadline=time.monotonic()+8
+            observed=False
+            expired=False
+            while time.monotonic()<deadline:
+                with connections['default'].cursor() as cursor:
+                    # The observer holds a row-lock transaction. Refresh its
+                    # statistics snapshot instead of replaying its first view
+                    # of pg_stat_activity throughout the barrier wait.
+                    cursor.execute('SELECT pg_stat_clear_snapshot()')
+                    cursor.execute("SELECT EXISTS(SELECT 1 FROM pg_stat_activity a JOIN pg_locks l ON l.pid=a.pid WHERE a.usename='agentledger_worker' AND position('app_private.complete_review_pack' in a.query)>0 AND l.locktype='transactionid' AND NOT l.granted)")
+                    observed=observed or cursor.fetchone()[0]
+                    cursor.execute('SELECT clock_timestamp()>lock_expires_at FROM background_jobs WHERE id=%s',[job.id])
+                    expired=cursor.fetchone()[0]
+                if observed and expired:
+                    break
+                threading.Event().wait(.02)
+            assert observed,f'Actual worker did not reach the head row-lock barrier: {outcome}'
+            assert expired,'Database lease did not expire at the observed barrier'
+    finally:
+        thread.join(timeout=15)
+    assert not thread.is_alive() and outcome==['denied']
+    assert not PackCompletion.objects.filter(request=staged).exists()
+    assert not ReportArtifact.objects.filter(report_id=staged.report_id).exists()
+    assert BaselineHead.objects.get(organization=org).pack_id==firstpack.id
+    assert ReviewCycle.objects.get(id=pack.cycle_id).state=='ARTIFACT_PENDING'
+    assert ReservationEvent.objects.filter(reservation__cycle_id=pack.cycle_id).count()==1
+
+
+@pytest.mark.parametrize('table',['review_artifact_requests','review_pack_completions','review_baseline_heads'])
+def test_lifecycle_worker_has_no_direct_table_access(table):
+    with pytest.raises(DatabaseError,match='permission denied'),transaction.atomic(using='worker_runtime'):
+        with connections['worker_runtime'].cursor() as cursor:
+            cursor.execute(f'SELECT * FROM {table}')
+
+
+@pytest.mark.parametrize('table',['review_artifact_requests','review_pack_completions','review_baseline_heads'])
+def test_lifecycle_app_has_no_raw_write_admission(pack_context,table):
+    user,org,_,_=pack_context
+    with pytest.raises(DatabaseError,match='permission denied'):
+        with identity_transaction(user.id,using='app_runtime'),tenant_transaction(org.id,using='app_runtime'):
+            with connections['app_runtime'].cursor() as cursor:
+                cursor.execute(f'DELETE FROM {table}')
+
+
+def test_app_cannot_issue_completion(pack_context,enabled):
+    user,org,_,_=pack_context
+    with pytest.raises(DatabaseError,match='permission denied'):
+        with identity_transaction(user.id,using='app_runtime'),tenant_transaction(org.id,using='app_runtime'):
+            with connections['app_runtime'].cursor() as cursor:
+                cursor.execute('SELECT app_private.complete_review_pack(%s,%s,%s,%s,%s)',[uuid4(),uuid4(),uuid4(),'fake',uuid4()])
+
+
+@pytest.mark.parametrize('bad',[True,False,3.0,'3',None])
+def test_request_revision_type_is_exact(pack_context,enabled,bad):
+    with pytest.raises(ValidationError):
+        request(pack_context,expected_revision=bad)
+
+
+@pytest.mark.parametrize('bad',[0,1,'true',[],None])
+def test_request_promotion_type_is_exact(pack_context,enabled,bad):
+    with pytest.raises(ValidationError):
+        request(pack_context,promote_baseline=bad)
+
+FILE tests/test_core_decisions.py SHA256 c95823f5082c2e533f47f0c006624d1b6ec3f6c3610949a0427622481a0e77f3
+"""Exact-card owner statements using actual isolated PostgreSQL runtime roles."""
+from concurrent.futures import ThreadPoolExecutor
+from datetime import date
+from threading import Barrier
+from uuid import uuid4
+import json
+
+import pytest
+from django.core.exceptions import PermissionDenied
+from django.db import connections, DatabaseError, transaction
+
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+from apps.jobs.core_decisions import record_decision
+from apps.jobs.core_models import DecisionDeskGate, DecisionEvent, ActionCardRevision
+from apps.jobs.core_workflows import configure_control
+from apps.organizations.models import WorkflowProfile, Organization
+from apps.assessments.snapshots import canonical_sha256
+
+pytestmark=pytest.mark.django_db(transaction=True,databases='__all__')
+
+
+@pytest.fixture
+def decision_context(report_context,settings):
+    user,org,_,_,snapshot=report_context
+    WorkflowProfile.objects.get_or_create(organization=org,defaults={'created_by':user,'profile':'business.v1','settings':{'name':'Decision fixture'}})
+    settings.CORE_DECISIONS_ENABLED=True
+    DecisionDeskGate.objects.update_or_create(id=1,defaults={'enabled':True})
+    with identity_transaction(user.id,using='app_runtime'),tenant_transaction(org.id,using='app_runtime'):
+        with connections['app_runtime'].cursor() as cursor:
+            cursor.execute('SELECT app_private.issue_action_cards(%s,%s,%s,%s)',[uuid4(),org.id,user.id,snapshot.id])
+            revision_id=cursor.fetchone()[0]
+    revision=ActionCardRevision.objects.get(pk=revision_id)
+    assert revision.cards, 'Fixture requires an actually issued proposal'
+    return user,org,snapshot,revision
+
+
+def decide(context,**changes):
+    user,org,_,revision=context
+    options=dict(organization_id=org.id,actor_id=user.id,revision_id=revision.id,card_index=0,
+        event_kind='disposition',state='act',responsible_label='Named owner',notes='Owner decision rationale',
+        links=['https://example.invalid/evidence'],using='app_runtime')
+    options.update(changes)
+    return record_decision(**options)
+
+
+def envelope(context,**changes):
+    e={'schema':'stewardence.core_decision.v1','revision_id':str(context[3].id),'card_index':0,
+       'expected_previous_event':None,'event_kind':'disposition','state':'act',
+       'responsible_label':'Named owner','due_date':None,'notes':'Owner rationale','links':[]}
+    e.update(changes)
+    return e
+
+
+def raw_issue(context,e,alias='app_runtime'):
+    with identity_transaction(context[0].id,using=alias),tenant_transaction(context[1].id,using=alias):
+        with connections[alias].cursor() as cursor:
+            cursor.execute('SELECT app_private.issue_core_decision(%s,%s,%s::jsonb)',[context[1].id,context[0].id,json.dumps(e)])
+            return cursor.fetchone()[0]
+
+
+def selected(context,snapshot=None,org=None):
+    with connections['default'].cursor() as cursor:
+        cursor.execute('SELECT app_private.selected_core_decisions(%s,%s)',[snapshot or context[2].id,org or context[1].id])
+        value=cursor.fetchone()[0]
+        return json.loads(value) if isinstance(value,str) else value
+
+
+def test_exact_binding_append_only_statement_and_selection(decision_context):
+    first=decide(decision_context,due_date=date(2026,12,1))
+    row=DecisionEvent.objects.get(pk=first)
+    revision=decision_context[3]
+    assert row.card_sha256==canonical_sha256(revision.cards[0])
+    assert row.revision_sha256==revision.sha256
+    assert row.snapshot_result_sha256==decision_context[2].result_sha256
+    assert row.sha256==canonical_sha256(row.payload)
+    assert row.payload['owner_statement_only'] is True
+    assert row.payload['resolution_verified'] is False
+    second=decide(decision_context,expected_previous_event=first,event_kind='execution',state='completion_recorded')
+    assert DecisionEvent.objects.get(pk=second).previous_event_id==first
+    assert selected(decision_context)[0]['event_id']==str(second)
+    assert selected(decision_context)[0]['resolution_verified'] is False
+    assert DecisionEvent.objects.get(pk=second).sequence==2
+    with pytest.raises(DatabaseError),transaction.atomic():
+        DecisionEvent.objects.filter(pk=first).update(state='verified')
+    with pytest.raises(DatabaseError),transaction.atomic():
+        with connections['default'].cursor() as cursor:
+            cursor.execute('DELETE FROM core_decision_events WHERE id=%s',[second])
+
+
+def test_feature_and_operator_gates_fail_closed(decision_context,settings):
+    settings.CORE_DECISIONS_ENABLED=False
+    with pytest.raises(PermissionDenied):decide(decision_context)
+    settings.CORE_DECISIONS_ENABLED=True
+    DecisionDeskGate.objects.filter(pk=1).update(enabled=False)
+    with pytest.raises(DatabaseError):decide(decision_context)
+    assert selected(decision_context)==[]
+    assert not DecisionEvent.objects.exists()
+
+
+@pytest.mark.parametrize('changes',[
+    {'card_index':None},{'card_index':True},{'card_index':-1},{'card_index':999999},
+    {'responsible_label':None},{'responsible_label':''},{'responsible_label':'x'*201},
+    {'notes':None},{'notes':'x'*4097},{'links':None},{'links':['https://example.invalid']*11},
+    {'links':['http://example.invalid']},{'links':['https://user:password@example.invalid']},
+    {'links':['https://example.invalid/'+'x'*2048]}, {'state':'verified'},
+    {'event_kind':'execution','state':'remediated'},{'due_date':'2026-02-30'},
+    {'expected_previous_event':str(uuid4())},{'authority':'provider_write'},
+])
+def test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims(decision_context,changes):
+    with pytest.raises(DatabaseError):raw_issue(decision_context,envelope(decision_context,**changes))
+    assert not DecisionEvent.objects.exists()
+
+
+def test_raw_runtime_writes_and_owner_only_selection_denied(decision_context):
+    first=decide(decision_context)
+    for alias in ('app_runtime','worker_runtime'):
+        with pytest.raises(DatabaseError),transaction.atomic(using=alias):
+            with connections[alias].cursor() as cursor:
+                cursor.execute('UPDATE core_decision_events SET state=%s WHERE id=%s',['verified',first])
+        with pytest.raises(DatabaseError),transaction.atomic(using=alias):
+            with connections[alias].cursor() as cursor:
+                cursor.execute('SELECT app_private.selected_core_decisions(%s,%s)',[decision_context[2].id,decision_context[1].id])
+        with connections[alias].cursor() as cursor:
+            cursor.execute("SELECT has_table_privilege(current_user,'core_decision_events','INSERT'),has_table_privilege(current_user,'core_decision_events','DELETE'),has_table_privilege(current_user,'core_decision_desk_gate','UPDATE')")
+            assert cursor.fetchone()==(False,False,False)
+    with pytest.raises(DatabaseError):raw_issue(decision_context,envelope(decision_context),alias='worker_runtime')
+
+
+def test_stale_cas_and_cross_tenant_never_append(decision_context):
+    first=decide(decision_context)
+    with pytest.raises(DatabaseError):decide(decision_context,state='decline')
+    with pytest.raises(DatabaseError):decide(decision_context,organization_id=Organization.objects.create(name='Other tenant').id)
+    assert DecisionEvent.objects.count()==1
+    assert selected(decision_context)[0]['event_id']==str(first)
+
+
+def test_pause_denies_new_decisions(decision_context):
+    user,org,_,_=decision_context
+    configure_control(organization_id=org.id,actor_id=user.id,mode='paused',reason='Owner pause',using='app_runtime')
+    with pytest.raises(DatabaseError):decide(decision_context)
+    assert not DecisionEvent.objects.exists()
+
+
+def test_past_due_subscription_retains_current_issued_coverage_authority(decision_context):
+    from apps.billing.models import Subscription
+    Subscription.objects.filter(organization=decision_context[1]).update(status=Subscription.Status.PAST_DUE)
+    event=decide(decision_context)
+    assert DecisionEvent.objects.get(pk=event).state=='act'
+
+
+def test_same_tenant_viewer_cannot_read_or_issue_owner_decisions(decision_context):
+    from django.contrib.auth import get_user_model
+    from apps.organizations.models import OrganizationMember
+    first=decide(decision_context)
+    viewer=get_user_model().objects.create_user('decision-viewer@example.invalid')
+    org=decision_context[1]
+    OrganizationMember.objects.create(organization=org,user=viewer,role='viewer')
+    with identity_transaction(viewer.id,using='app_runtime'),tenant_transaction(org.id,using='app_runtime'):
+        with connections['app_runtime'].cursor() as cursor:
+            cursor.execute('SELECT id FROM core_decision_events WHERE id=%s',[first])
+            assert cursor.fetchall()==[]
+    with pytest.raises(DatabaseError):decide(decision_context,actor_id=viewer.id)
+    assert DecisionEvent.objects.count()==1
+
+
+def test_two_simultaneous_first_events_have_one_cas_winner(decision_context):
+    barrier=Barrier(2)
+    def contender(state):
+        try:
+            barrier.wait(timeout=10)
+            return ('accepted',decide(decision_context,state=state))
+        except DatabaseError:
+            return ('denied',None)
+        finally:
+            connections['app_runtime'].close()
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        outcomes=list(executor.map(contender,['act','defer']))
+    assert sorted(row[0] for row in outcomes)==['accepted','denied']
+    assert DecisionEvent.objects.count()==1
+
+
+def test_no_carry_forward_to_other_snapshot_or_tenant(decision_context,report_context):
+    from apps.assessments.snapshots import create_assessment_snapshot
+    from conftest import _roi_inputs
+    from datetime import timedelta
+    decide(decision_context)
+    user,org,snapshot,_=decision_context
+    item=report_context[3]
+    item.display_name='Changed payroll workflow'
+    item.save(update_fields=['display_name'])
+    changed=create_assessment_snapshot(organization_id=org.id,created_by_id=user.id,
+        assessed_item_id=item.id,roi_inputs=_roi_inputs(),captured_at=snapshot.captured_at+timedelta(days=1),
+        previous_snapshot=snapshot)
+    with identity_transaction(user.id,using='app_runtime'),tenant_transaction(org.id,using='app_runtime'):
+        with connections['app_runtime'].cursor() as cursor:
+            cursor.execute('SELECT app_private.issue_action_cards(%s,%s,%s,%s)',[uuid4(),org.id,user.id,changed.id])
+    assert selected(decision_context,snapshot=changed.id)==[]
+    assert selected(decision_context,snapshot=uuid4())==[]
+    assert selected(decision_context,org=Organization.objects.create(name='Unrelated tenant').id)==[]
+
+
+def test_frozen_pack_replay_retains_selected_event_when_current_decision_changes(decision_context):
+    from apps.reviews.services import open_cycle,freeze_cycle
+    user,org,snapshot,_=decision_context
+    first=decide(decision_context)
+    cycle=open_cycle(organization_id=org.id,actor_id=user.id,input_snapshot_id=snapshot.id,using='app_runtime')
+    pack=freeze_cycle(cycle_id=cycle.id,organization_id=org.id,actor_id=user.id,expected_revision=1,using='app_runtime')
+    assert pack.manifest['selected_decisions'][0]['event_id']==str(first)
+    second=decide(decision_context,expected_previous_event=first,state='defer')
+    assert selected(decision_context)[0]['event_id']==str(second)
+    replay=freeze_cycle(cycle_id=cycle.id,organization_id=org.id,actor_id=user.id,expected_revision=1,using='app_runtime')
+    assert replay.id==pack.id
+    assert replay.sha256==pack.sha256
+    assert replay.manifest['selected_decisions'][0]['event_id']==str(first)
+
+QUALIFICATION 20261004T195823.856812Z
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-3c1a07eba9",
+  "image_id": "sha256:b200417b87b0464bfcfe0e491a63a06b1d9ad85e9f37910d9af67c469b86e91c",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T195823.856812Z",
+  "test_arguments": [
+    "tests/test_review_pack_lifecycle.py",
+    "tests/test_review_cycle_authority.py"
+  ],
+  "test_result_counts": {
+    "cases": 65,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "70fc0da4403c6e4b864c87fc40840ee1c41670dbb79fc3603ebefc2b1221d6ed"
+}
+QUALIFICATION 20261004T195432.227991Z
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-175a8eb750",
+  "image_id": "sha256:0d86e8d623cd328fc19c4f13a74d54d9639fcb7de2dc22ee4dc1242b4f9aeaf3",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T195432.227991Z",
+  "test_arguments": [
+    "tests/test_core_decisions.py",
+    "tests/test_review_cycle_authority.py"
+  ],
+  "test_result_counts": {
+    "cases": 62,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "802c4a8d661fb467b6cd32e8d961d205d45ace99e124db6b909ab1410e225a3b"
+}
+QUALIFICATION 20261004T200631.243114Z
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-52b4057bcf",
+  "image_id": "sha256:9f95e42694938c9657c09d80a68cf4d84e86b6b5dfc7cfb590d6064af8c9195d",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T200631.243114Z",
+  "test_arguments": [
+    "tests/test_paid_coverage_authority.py",
+    "tests/test_billing_admission_service.py",
+    "tests/test_review_cycle_authority.py",
+    "tests/test_review_pack_lifecycle.py",
+    "tests/test_core_decisions.py",
+    "tests/test_paid_workflow_boundary.py",
+    "tests/test_standard_checkout_flow.py",
+    "tests/test_billing_standard_launch.py",
+    "tests/test_standard_checkout_route_durability.py"
+  ],
+  "test_result_counts": {
+    "cases": 174,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "e934b57b4818ac59fbf52620ad38ee9db091b54fcb17615bdb5301790b2047b1"
+}
+65 NAMED CASES
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="65" time="78.258" timestamp="2026-10-04T19:59:07.287013+00:00" hostname="d4640c04d092"><testcase classname="tests.test_review_pack_lifecycle" name="test_application_and_database_gates_are_independent" time="7.968" /><testcase classname="tests.test_review_pack_lifecycle" name="test_request_replay_is_bound_to_explicit_promotion_choice" time="0.965" /><testcase classname="tests.test_review_pack_lifecycle" name="test_actual_local_readback_completes_same_frozen_identity[False]" time="1.233" /><testcase classname="tests.test_review_pack_lifecycle" name="test_actual_local_readback_completes_same_frozen_identity[True]" time="0.974" /><testcase classname="tests.test_review_pack_lifecycle" name="test_corrupt_local_readback_rolls_back_metadata_and_completion_but_keeps_request" time="1.035" /><testcase classname="tests.test_review_pack_lifecycle" name="test_completion_rechecks_current_authority_after_render[paid]" time="0.754" /><testcase classname="tests.test_review_pack_lifecycle" name="test_completion_rechecks_current_authority_after_render[pause]" time="0.718" /><testcase classname="tests.test_review_pack_lifecycle" name="test_completion_rechecks_current_authority_after_render[lease]" time="0.934" /><testcase classname="tests.test_review_pack_lifecycle" name="test_completion_rechecks_current_authority_after_render[gate]" time="1.100" /><testcase classname="tests.test_review_pack_lifecycle" name="test_stale_claim_token_cannot_discover_or_complete_review_request" time="0.887" /><testcase classname="tests.test_review_pack_lifecycle" name="test_completion_replay_does_not_promote_baseline_twice" time="1.188" /><testcase classname="tests.test_review_pack_lifecycle" name="test_baseline_advancement_preserves_snapshot_order[-1-older_snapshot]" time="1.318" /><testcase classname="tests.test_review_pack_lifecycle" name="test_baseline_advancement_preserves_snapshot_order[0-promoted]" time="1.877" /><testcase classname="tests.test_review_pack_lifecycle" name="test_baseline_advancement_preserves_snapshot_order[1-promoted]" time="1.067" /><testcase classname="tests.test_review_pack_lifecycle" name="test_head_lock_wait_cannot_reuse_pre_expiry_lease" time="4.598" /><testcase classname="tests.test_review_pack_lifecycle" name="test_lifecycle_worker_has_no_direct_table_access[review_artifact_requests]" time="0.588" /><testcase classname="tests.test_review_pack_lifecycle" name="test_lifecycle_worker_has_no_direct_table_access[review_pack_completions]" time="0.439" /><testcase classname="tests.test_review_pack_lifecycle" name="test_lifecycle_worker_has_no_direct_table_access[review_baseline_heads]" time="0.380" /><testcase classname="tests.test_review_pack_lifecycle" name="test_lifecycle_app_has_no_raw_write_admission[review_artifact_requests]" time="1.045" /><testcase classname="tests.test_review_pack_lifecycle" name="test_lifecycle_app_has_no_raw_write_admission[review_pack_completions]" time="1.179" /><testcase classname="tests.test_review_pack_lifecycle" name="test_lifecycle_app_has_no_raw_write_admission[review_baseline_heads]" time="1.322" /><testcase classname="tests.test_review_pack_lifecycle" name="test_app_cannot_issue_completion" time="2.879" /><testcase classname="tests.test_review_pack_lifecycle" name="test_request_revision_type_is_exact[True]" time="2.431" /><testcase classname="tests.test_review_pack_lifecycle" name="test_request_revision_type_is_exact[False]" time="2.571" /><testcase classname="tests.test_review_pack_lifecycle" name="test_request_revision_type_is_exact[3.0]" time="1.744" /><testcase classname="tests.test_review_pack_lifecycle" name="test_request_revision_type_is_exact[3]" time="1.403" /><testcase classname="tests.test_review_pack_lifecycle" name="test_request_revision_type_is_exact[None]" time="1.247" /><testcase classname="tests.test_review_pack_lifecycle" name="test_request_promotion_type_is_exact[0]" time="1.151" /><testcase classname="tests.test_review_pack_lifecycle" name="test_request_promotion_type_is_exact[1]" time="0.804" /><testcase classname="tests.test_review_pack_lifecycle" name="test_request_promotion_type_is_exact[true]" time="0.646" /><testcase classname="tests.test_review_pack_lifecycle" name="test_request_promotion_type_is_exact[bad3]" time="0.966" /><testcase classname="tests.test_review_pack_lifecycle" name="test_request_promotion_type_is_exact[None]" time="0.577" /><testcase classname="tests.test_review_cycle_authority" name="test_initial_freeze_is_atomic_immutable_and_honest_about_empty_decisions" time="1.908" /><testcase classname="tests.test_review_cycle_authority" name="test_app_raw_admission_and_mutation_are_denied[review_cycles]" time="1.279" /><testcase classname="tests.test_review_cycle_authority" name="test_app_raw_admission_and_mutation_are_denied[review_cycle_events]" time="0.656" /><testcase classname="tests.test_review_cycle_authority" name="test_app_raw_admission_and_mutation_are_denied[review_pack_identities]" time="0.902" /><testcase classname="tests.test_review_cycle_authority" name="test_app_raw_admission_and_mutation_are_denied[review_capacity_reservations]" time="0.668" /><testcase classname="tests.test_review_cycle_authority" name="test_app_raw_admission_and_mutation_are_denied[review_reservation_events]" time="1.407" /><testcase classname="tests.test_review_cycle_authority" name="test_worker_has_no_review_table_access[review_cycles]" time="0.651" /><testcase classname="tests.test_review_cycle_authority" name="test_worker_has_no_review_table_access[review_cycle_events]" time="0.472" /><testcase classname="tests.test_review_cycle_authority" name="test_worker_has_no_review_table_access[review_pack_identities]" time="0.455" /><testcase classname="tests.test_review_cycle_authority" name="test_worker_has_no_review_table_access[review_capacity_reservations]" time="0.639" /><testcase classname="tests.test_review_cycle_authority" name="test_worker_has_no_review_table_access[review_reservation_events]" time="0.712" /><testcase classname="tests.test_review_cycle_authority" name="test_owner_role_in_another_workspace_does_not_authorize_review_reads" time="0.640" /><testcase classname="tests.test_review_cycle_authority" name="test_unadmitted_billing_authority_blocks_freeze_without_partial_events" time="1.018" /><testcase classname="tests.test_review_cycle_authority" name="test_pause_fences_freeze_and_keeps_open_identity" time="1.604" /><testcase classname="tests.test_review_cycle_authority" name="test_one_open_and_one_frozen_pending_are_enforced" time="1.784" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[0]" time="1.314" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[2]" time="0.921" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[3]" time="1.007" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[True]" time="0.602" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[1]" time="0.553" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[None]" time="0.587" /><testcase classname="tests.test_review_cycle_authority" name="test_baseline_promotion_is_explicitly_not_admitted" time="0.454" /><testcase classname="tests.test_review_cycle_authority" name="test_server_manifest_cannot_be_supplied_by_caller" time="0.637" /><testcase classname="tests.test_review_cycle_authority" name="test_reservation_has_no_timeout_or_arbitrary_release_interface" time="0.670" /><testcase classname="tests.test_review_cycle_authority" name="test_raw_issuer_rejects_corrupt_same_tenant_snapshot" time="0.380" /><testcase classname="tests.test_review_cycle_authority" name="test_quota_counts_held_reservations_against_exact_admitted_interval" time="0.440" /><testcase classname="tests.test_review_cycle_authority" name="test_storage_metadata_plus_reservation_has_exact_boundary[False]" time="0.388" /><testcase classname="tests.test_review_cycle_authority" name="test_storage_metadata_plus_reservation_has_exact_boundary[True]" time="0.507" /><testcase classname="tests.test_review_cycle_authority" name="test_concurrent_freeze_returns_one_pack_and_one_reservation" time="0.450" /><testcase classname="tests.test_review_cycle_authority" name="test_repeatable_read_cannot_admit_cycle_from_stale_authority_snapshot" time="0.760" /><testcase classname="tests.test_review_cycle_authority" name="test_past_due_with_admitted_unexpired_service_can_freeze" time="0.720" /><testcase classname="tests.test_review_cycle_authority" name="test_past_due_with_only_expired_admitted_service_cannot_freeze" time="0.941" /><testcase classname="tests.test_review_cycle_authority" name="test_capacity_wait_cannot_reuse_pre_revocation_paid_authority" time="3.366" /></testsuite></testsuites>
+INTEGRATED SOURCE MANIFEST
+{
+  ".dockerignore": "d1282c6c14176d70bcc409cffc20df6f61ac63973285581f43a5fd1df9b657b0",
+  ".gitattributes": "b83fbfb000793670602d1778c90356c44ef9fa350db9e3cf5586a7dfed312786",
+  ".github\\workflows\\production-smoke.yml": "695dd73f96c3531abd464dad69cac03c423b42a311701f0abf886938e7c18f2f",
+  ".gitignore": "750c434f337cba9a1937e79891efd83274bca91cda2a1dd4b09761a5f38f9b65",
+  ".python-version": "922fe0c3de073b01988e23348ea184456161678c5e329e6f34be89be24383f93",
+  ".railway\\railway.ts": "6dd15fd312826c2303c296ee9dc703233355b318b56aa64c8913e6cf30de5fc1",
+  ".railway\\README.md": "0e6b0b98aee2c505feced7e59776b3e6dcaa3edb4aed269fe8fb59a4d0105d3c",
+  ".ruff_cache\\.gitignore": "9e3a60f1e6ec4ae60215c11d54b171392745ec25e9dded433d5bd921363af316",
+  ".ruff_cache\\0.14.14\\11711118250916193891": "c7d269612e7bb0727cb710fb0ce823a223264f56376399b03ee4760f96beb32f",
+  ".ruff_cache\\0.14.14\\13448143890513560717": "eefb64afb494744d6165d6c2390f3fa7ba6211cec047f6c93e91b1767b783770",
+  ".ruff_cache\\0.14.14\\13578089511836009519": "f15eae10d48ed640b21ecb3e43a31498d9b15823506a21c6bd7d4877187d60e2",
+  ".ruff_cache\\0.14.14\\18359337313069955543": "b380333d2a2b70a935342e245a1e1a019e6db3badc6534898127716aa5a3c377",
+  ".ruff_cache\\0.14.14\\4389415400546227648": "b9fc38dd1ac6a8b46a0c826da372b59918d82084f2c47a7f193577bad9398f14",
+  ".ruff_cache\\0.14.14\\4926441907201070759": "968cb658c116623587124ea41108f035e3f161f157099c9d7e19d7721b222a6e",
+  ".ruff_cache\\0.14.14\\7279064029076219586": "422f8b9988ac361430708741c86dbc30bf5e7794d8b19232d74493306485734a",
+  ".ruff_cache\\0.14.14\\7699671595443073692": "ad94d1610a1900a4d3392dd764af1242e177f97817eefd664bad9c231e6d3235",
+  ".ruff_cache\\0.14.14\\7789848297809206164": "0cdfdd1255d00fa479c4e6d02c995bc181e215a1cf1b7e1f0bd5f09fc376620e",
+  ".ruff_cache\\0.14.14\\9998471136116283946": "5544dba107c5b8fe90a09877b6b0ee72ab6b949477b8beadeb0ab4ba33e6eeee",
+  ".ruff_cache\\CACHEDIR.TAG": "5953156d7e0c564a427251316eaf26f8870e6483ae2197f916b630e4f93e31ae",
+  "apps\\__init__.py": "b9cb4531bec357cb7696b80bf2fe4033c04c64e6f1712bbea67b4498b80a0e71",
+  "apps\\accounts\\__init__.py": "a7350fa0a8fe68adb4b5cc7eede764c9fc628619794557c638f6324d57f9998e",
+  "apps\\accounts\\apps.py": "a5622329454c7d8d97c9a8e6ebc19ccbe697c6541ad0d2e142520b7f56730dfb",
+  "apps\\accounts\\forms.py": "98f6c988c66758cb7cdcf9a14574615f2fd912f41a85af3fb67ee9fc121baba7",
+  "apps\\accounts\\managers.py": "8863cd2369eb6714024019d8ffcf670169ad90632e720fa59229ff86a4e64a94",
+  "apps\\accounts\\migrations\\0001_initial.py": "c372d33e78fd3505b5e22f0428486080fe9ccf00dabf4320ba56912186578e49",
+  "apps\\accounts\\migrations\\__init__.py": "64730bb48f84cdeb70d58988d64d81246acd053587365e33c84c6c34ce7000e6",
+  "apps\\accounts\\models.py": "b5d2721a954cc9f4f8549986a78e07e12f5e6ed9ffb774477ac0b55a3a3e2e32",
+  "apps\\accounts\\urls.py": "e70f509bf6e4967086f3e7248e997df20d2270e87897a9f0029b51da12f7a695",
+  "apps\\accounts\\views.py": "3e154eeac0896d0ed4d9bd1b636c6af8472af7c2c0ccace345e8a22f24bee729",
+  "apps\\assessments\\__init__.py": "915d7d3b98935eb236e930fd0b77aa29f76b1b6c22eef2e118e556e42808da68",
+  "apps\\assessments\\apps.py": "d20e84e151ad30d5bdd45391f99ebb2db14f6e6d9773a8385ff757fdf3e64cf3",
+  "apps\\assessments\\migrations\\0001_initial.py": "7f12754f8efd6fe869a4482351c6ad1346b793a295b39350f583f30ad564f763",
+  "apps\\assessments\\migrations\\0002_snapshot_security.py": "542fd99b745ac44f19968092ff4701bb948a7b32a7c2fe466df6845fdad184aa",
+  "apps\\assessments\\migrations\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "apps\\assessments\\models.py": "98a7c536ee91894d0161776da9ec74526108991bf767c2ed5e770e109a95e911",
+  "apps\\assessments\\snapshots.py": "47b4ca126223ddae929b9f470852f61c378e233443ad85027063c7e00fb6cc0e",
+  "apps\\assessments\\urls.py": "77938e62e8bd6a9e5a56c41e276cec88d1a0c9c99dc7c02e5baf50756d43c165",
+  "apps\\assessments\\views.py": "bb6eb63ea552560802e51b86d7f6ba7caea94ef6c0066d7da56b6da80c8406bb",
+  "apps\\audit\\__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "apps\\audit\\append.py": "8f59bbb3e10c1004a97e48ed1cf8e2ac1dfbbeee31b741302a8fe8e986db8460",
+  "apps\\audit\\apps.py": "aa0276f27c7d882d5f318346744c685f9a3c17630f2d447fba54cd5a2ef71a8d",
+  "apps\\audit\\events.py": "21fb5ce29f20a69e19aeb9b000fec82e8c922dcd79a8d234a1c9060c2b50979f",
+  "apps\\audit\\jobs.py": "b1d779cf2b53702869e135ab51e422c1070c2f27cd25c899661cd14acd79cb29",
+  "apps\\audit\\management\\__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "apps\\audit\\management\\commands\\__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "apps\\audit\\management\\commands\\verify_audit.py": "9f0de1e7f2ed7a9009dd1e6fd58ed49c9dc9b332786b5bc6ba7b257e19ef65a5",
+  "apps\\audit\\merkle.py": "323e64878b3492c1e00cc51cb78fd530968f1b76824a7f93d54a6463739ea799",
+  "apps\\audit\\migrations\\0001_initial.py": "915479d4fd4780f95711860061fe5c01e913c0168a2ea8e5b4fbca12487cbb3c",
+  "apps\\audit\\migrations\\0002_audit_security.py": "ede8a6252d8856c0d3eb9350af92ebcb5cc749f08f11d2c5ea7f0ec7ec46f651",
+  "apps\\audit\\migrations\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "apps\\audit\\models.py": "6180e5515eb9a1dcd2b1a51c5d935d42ff8fb5ec6966f976d24db93010012445",
+  "apps\\audit\\sealing.py": "36a67b09058ec330f8ca3f492fa74e7a8215c970874d6b334b13c28bfe92d4b9",
+  "apps\\audit\\verification.py": "fc5e8d3bafed1c5a8b8d5a542c8630458d49a27f9b667526be774bb6cc014e6e",
+  "apps\\billing\\__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "apps\\billing\\admin.py": "23c6467e17bff5c849acd5e9f7cfcb2583904106e025a75919c771d2f95ce627",
+  "apps\\billing\\admission.py": "8509b43d4f1d0d75c2f44566ff388ea204abbe6ea3c130ca7e46b4973d305cd9",
+  "apps\\billing\\admission_views.py": "fc39d882da936de00ee46908b0a16f2997ae1e264da7ae08eb4deb159c2eadf8",
+  "apps\\billing\\apps.py": "e6eb40df45ef31952514396ef3b44d8b1cf74efd09f2af629123637dcb879094",
+  "apps\\billing\\catalog.py": "598e51481bc34f280b3c87dc49cdd666261af08641752cd9a15e15093f9a4983",
+  "apps\\billing\\checkout_intents.py": "22dcd0ab6bdea71b4d6bdd5b79aa44af58b63a5a04b08a652a82bd36f8007fe4",
+  "apps\\billing\\coverage.py": "2d2aac37c19fe8509a59243ccc73575c53c4c458fbb78739be0fa02161c8320a",
+  "apps\\billing\\customer_requests.py": "dbf7b1ace0456b1adb9eecb275e465bf0dd4efc57edfb9c3740c77804ee04be2",
+  "apps\\billing\\entitlements.py": "609550fe764b5ba4b3d77cb7be3cd109b433dd8c73f47950292a9d865938d4b3",
+  "apps\\billing\\founder_slots.py": "0db15cfde07db49f644ed264a10b31421336157b1bdd7b4d5e5e14be53f67f66",
+  "apps\\billing\\middleware.py": "b3b452e4dae81fae28d77d65698c6671d695f693d550f074269f42104f05c108",
+  "apps\\billing\\migrations\\0001_initial.py": "86561c4db49c3686f021904659657d2b0d7a5b91b4dcf518a5ac5e3aed2396a8",
+  "apps\\billing\\migrations\\0002_stripewebhookevent.py": "007a0f01b24fc3cd1d2f8cfa77dcbf21ba5094751ea253d8eda573045e8bba27",
+  "apps\\billing\\migrations\\0003_founderslot.py": "2dd5e9473260160d96dda339fe35c12a4211f049fbfaccd99b3e5cf83d6be2e0",
+  "apps\\billing\\migrations\\0004_founderslot_reservation_token.py": "130fe200aff4c8b7f20187198caff702b0c7431f91ed11028d0eb93253c97cdc",
+  "apps\\billing\\migrations\\0005_billing_security.py": "8fb6d3717c9a92dc79ae1e9f095b877d14413dcfc89d4df2b2a2d87548242000",
+  "apps\\billing\\migrations\\0006_paid_coverage.py": "5eb3af8bf4c48611508f3b5521f5f9d7b6b62aa119e5487d68dd5b0059894a48",
+  "apps\\billing\\migrations\\0007_ingester_effects.py": "de457aea6734c63d5848a6617ecb69f5aac8d46077088536b218b20f4b3c0ea6",
+  "apps\\billing\\migrations\\0008_checkout_intent.py": "f12b28315fe4b70c6ac134529d681e514982cc6d228c8dd2f7860cb342bc9d63",
+  "apps\\billing\\migrations\\0009_customer_request.py": "7cecd3fb574e77bb3fd481f025d316360e9397f9ca3574f7330f8fedc9735a29",
+  "apps\\billing\\migrations\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "apps\\billing\\models.py": "985ca729834e77a1d054cb659eafc91aeda9b9de0665cf87e952d075a89fb4fa",
+  "apps\\billing\\offer_contracts.py": "c15a9d9ca5941eec2550dfb123eccd746405deb6ad7ba84041b0a341455e6364",
+  "apps\\billing\\paid_evidence.py": "270df75e46b2f2ad87bf91e81592839ad1bb9bba308008ea565c13ba24a7b13d",
+  "apps\\billing\\pricing.py": "2dee680bfa2effb3c06518d6dc27b3feeba476f31fa238ffdfcc42f6a49ab8ba",
+  "apps\\billing\\security.py": "f4ddd4325623545bfc968b2f64315a1b08043be52ad8fdaf6f372933999cb4a0",
+  "apps\\billing\\standard_checkout_flow.py": "a2c371a51b7a1725d52e013caa97281b88326492b12e759390366f695d071f7e",
+  "apps\\billing\\stripe_schedules.py": "4fad2b36fdd3f4887561995692477bcd848389d30cc7782ec8a984a200c5c21a",
+  "apps\\billing\\urls.py": "938611e64eaa8aa8cc6b69ceadf2ecd4925b86176a7df97d62e7fc32a2337819",
+  "apps\\billing\\views.py": "10ec0408336c47e023cb44c7156e5b840bf6499d257b6bac30d23aa548958305",
+  "apps\\catalog\\__init__.py": "cbfa59e11d6a79bfbfeb2dd9ca270d25b46863be95f34817a3dfa5d568af2d7a",
+  "apps\\catalog\\apps.py": "d298a01aeb553a50b5fa1f5e10ba7feb8d8988fe3e960c71bc71b767a0a1f311",
+  "apps\\catalog\\management\\__init__.py": "36738e75b512d7f39ec85d4e9b56fab74696ae388408669e5b7e351699f49377",
+  "apps\\catalog\\management\\commands\\__init__.py": "d03ebcd347db9857f468c599dd04840f0a726bc1a124e00da8f1e41b34f89510",
+  "apps\\catalog\\management\\commands\\seed_product_catalog.py": "fa02625b15346d7d81747360b8203a04e5a92f144fcedbfb27a255c1a2a24eef",
+  "apps\\catalog\\matching.py": "eb38d112a0ca13666aa51bd6fa3cee6402fcc9272721be261e4ef55c02032b29",
+  "apps\\catalog\\migrations\\0001_initial.py": "4b42245be922b2b9663bab19fce7137cef7f072c7c64b40dcdea47489a53209d",
+  "apps\\catalog\\migrations\\0002_catalog_security.py": "341a0a1deceb408610fc21c42512056ce4cafedcec86b055092f8b424d14d0ae",
+  "apps\\catalog\\migrations\\__init__.py": "62b823c8d40d8f2eb9f246092c75721a5e4028db42ec2fb85b6de93c63207fdf",
+  "apps\\catalog\\models.py": "7a272ad26ac47edea2cdbb5d6ce3588ab9cf94fc8995100f3d7c409571a4eadf",
+  "apps\\catalog\\normalization.py": "5ba489f866b2cedb8b857a45f57fc674b44fbd86eb56a8420b7e085b4aa83625",
+  "apps\\credentials\\__init__.py": "26860884d154f68714a0d52f7be5c11f61b352e522eebe1be71fe5e605c8af90",
+  "apps\\credentials\\crypto.py": "3b98354a253eb42a7f76d0273e2e3490413ffe305551474cec2b7595b2784dad",
+  "apps\\funnels\\__init__.py": "9174131b27f14e54b93cbbe24d46e1a456956d4b592d3b824d9604ae1c90e3ed",
+  "apps\\funnels\\contracts.py": "043ffa1baaa3e54475158a157ce7d5b2fa39474acb193614e3bd5cf43dbe859d",
+  "apps\\funnels\\urls.py": "d3ed4a9611ebaf81a37dbd3ab029776498a2935913fe1d8198089c763bf593cf",
+  "apps\\funnels\\views.py": "315e29526d1002f8c0eba32679fe89df2f097ed8c252b9220795b3dc509b5a89",
+  "apps\\imports\\__init__.py": "a516f7c7bc9cbb592cd80fb0952464f97e4b0e2824dd5cef84b1734d520e1dcc",
+  "apps\\imports\\apps.py": "34049ceae48129e2ed695b7c7193601a2bbbde0324ad2dfa98695754acfeb339",
+  "apps\\imports\\forms.py": "441ddfa2e39578b61d48ff101c42866fde25c46655a37531df0f705da2883f4a",
+  "apps\\imports\\migrations\\0001_initial.py": "035a9abbc0b057dd3523666236e889aea4d5754e881e919b2e5261f4d7182d8d",
+  "apps\\imports\\migrations\\0002_import_staging_security.py": "b450f37c7c4ff101d05a8bbd83868524dd8193c67579469a3b98b94af57ac226",
+  "apps\\imports\\migrations\\__init__.py": "e395e752b7518ccf72d0a9c188b29710cd7e62ed82e8ee758f8681512b295e70",
+  "apps\\imports\\models.py": "28db65b8eae6bf3c17dfdcc17277f195ced909a948752ad4dbe0f2ab2d867a68",
+  "apps\\imports\\parsing.py": "2c6d8ff9c4cc28239fce0685a1b661683698b51204b612def4c3ad75bec9182d",
+  "apps\\imports\\urls.py": "32ff355671a1caf7267a403449940d8a6dacec6cfa17443d326041c9324a9f97",
+  "apps\\imports\\views.py": "99c479c0499f7cf56bdad63489df6d4b87e2178bf557079ad41fffb625cee0e6",
+  "apps\\integrations\\__init__.py": "75665e40f6d645ec5b43afeade76a3e5cd4964fe3ffcf3a2ef63125b199e9a4e",
+  "apps\\integrations\\analysis.py": "40c25213f6e6363cee42064fb81eadc39fef476ebe349d7483848ed9f5a41903",
+  "apps\\integrations\\apps.py": "d07cf3ea0bd46904e8e5c142bbaad4faaa32d4cabab99a7c615bc0f53edc4af5",
+  "apps\\integrations\\capabilities.py": "f8c494a51164b3bb4fd3323e516dda3f56a0dfb2e013128f2b32595a26eae19c",
+  "apps\\integrations\\forms.py": "8b453067357e2e929088140e734fe251f1810ed91a3dd70ec03fe25e0bb5cde2",
+  "apps\\integrations\\logging.py": "9ae2db4afb2626f62c25efe5cd5b1287811af45a94e89e57b98fd2e96fff8cb6",
+  "apps\\integrations\\migrations\\0001_initial.py": "08809ab18d5896c62232229fa9b9268d87d6af5f155d515da2cbf4295286246f",
+  "apps\\integrations\\migrations\\0002_providerconnection_providerattempt_providerevent_and_more.py": "6c69db0779ad3228fa6777ff17d0be2852c28acb27616414d01d8c50083fb97f",
+  "apps\\integrations\\migrations\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "apps\\integrations\\models.py": "76569d4837ca38b4de147aca0f5329923631295b31e69afe580d7e63e8d512c3",
+  "apps\\integrations\\provider_client.py": "d439374a8b734525391916bb0a15c5af198ac8862832071d87ea0101ca93899f",
+  "apps\\integrations\\provider_crypto.py": "72b8b4c25758f4a53c43170625f99452a3cdd9f19e96cac35c30fbe748c2341a",
+  "apps\\integrations\\provider_services.py": "24e6566e0115d0e2ac1f4b8f6a459648a73afe17c5b4d519b8072fcb76830023",
+  "apps\\integrations\\provider_views.py": "96dcf6f0a9d996e7e14a3216c21321e9d6a4e27efb05059bdaa615cc0cff4e25",
+  "apps\\integrations\\quickbooks_client.py": "9ea899adad6de5483026cd872b11b55767c011fc645203e98aa555c94135ec43",
+  "apps\\integrations\\quickbooks_crypto.py": "0815561f762a5041265ae9f0cf8ac8df8113558a1c332a2da987024f2c52c30b",
+  "apps\\integrations\\quickbooks_reports.py": "3ebc14b8927d18a58aa9a9913969128f48c26b2337786c8fbdc10e8b05f68261",
+  "apps\\integrations\\quickbooks_services.py": "4c21d70c51568b5fdd8e8e58623b386cc1c6ed6fa67ddcd4de0fabfb1d32bdb2",
+  "apps\\integrations\\quickbooks_views.py": "26a1f2db31f01d511049a4ff885c71658860037f89551b6d36498403a30f44d5",
+  "apps\\integrations\\semantics\\__init__.py": "8616557404019bcdeaa536839783891f30c2e22446cbb421682b3062c3cd35b6",
+  "apps\\integrations\\semantics\\adapters.py": "44c7fee56aabd19c283a7609c0e7e9a5b8544e3b9941b94bef0b10c9593ef732",
+  "apps\\integrations\\semantics\\contracts.py": "a7b493666a2a0f19715eca27f11d34c1be8a37b1074ef6457dd2f4d0b1aace8a",
+  "apps\\integrations\\semantics\\openapi-components-v1.json": "f162d4430274344a99bd0d492460790390885fc006ad95f26d736457020462e8",
+  "apps\\integrations\\semantics\\README.md": "9630881aa67f2eed9b5a6b0e55b39b7a94212b498e7cf9f1e49a6409869cc9b3",
+  "apps\\integrations\\semantics\\registry-v1.json": "159db1ed5c319e69f71714deed640193de148b6a588989f4eabc588ea986f9d7",
+  "apps\\integrations\\semantics\\schemas\\assertion-v1.json": "694f9d0ed4fd6c837f62cee3b5d8144afd57b949c311d4d8de6bce3c29dc9546",
+  "apps\\integrations\\semantics\\schemas\\entity-profile-v1.json": "b15aba4c10a1decd594ab84ccb815e8a1b8d9076a8db58ff9eabe1a15afcd989",
+  "apps\\integrations\\semantics\\schemas\\normalization-request-v1.json": "f202278140573c17f115a852615c78b334007732a34a35ab01a482e67fc47f1d",
+  "apps\\integrations\\semantics\\schemas\\read-envelope-v1.json": "38a56681c61ae1e59e5a5b24971f770a6d46a66e5b1bfeb6cae0ed38d74a76b4",
+  "apps\\integrations\\semantics\\schemas\\read-payload-v1.json": "b5b1939beb08311f7a81333897c0d6eea66592452112e9a6b247fbe74cd13d50",
+  "apps\\integrations\\urls.py": "c83bde9c41bd69fa8e15df69c35e67fa24bd10c4866be741db32251ad389d465",
+  "apps\\inventory\\__init__.py": "68175d01ca01be0342ec25b2a292589995bc76c307e09e43c5c1eb76d6b6d8ee",
+  "apps\\inventory\\apps.py": "35a17d4b4333bf15778fc3d8a86644147ba64a7110b4be98d9d721342ef290fb",
+  "apps\\inventory\\discovery.py": "e8623b78ca855762359f362bff10e6d0ba56204ef458fdfbce6a1884a1710bbf",
+  "apps\\inventory\\discovery_views.py": "d9f7bce657590566aba5b2a030e806af9d85b8a30e5ff1debb863d1bafe975bd",
+  "apps\\inventory\\forms.py": "70d2d7a72095f4c6336f5d517cba9d8c369f54ab912a12d2089e624787b410c2",
+  "apps\\inventory\\management\\__init__.py": "0ceeedd6f74614ee7ae1455ec2a7ba106fb08e932c5e3c88b9ef8592bf036ee6",
+  "apps\\inventory\\management\\commands\\__init__.py": "3872c37cad8c2f423bb5cf25647b16ebf120e057ed2521fbd3833b9b8a6b3be6",
+  "apps\\inventory\\management\\commands\\seed_demo_company.py": "03b7a3bb653329f4e46cf1ee385ee508cf670cdca7da82302f8d97ed9cc869d9",
+  "apps\\inventory\\management\\commands\\seed_demo_inventory.py": "900a1fcc5230a677036bb8a31a81013a595bb0efadb934cbe8ae467cbee6389c",
+  "apps\\inventory\\migrations\\0001_initial.py": "c017cd12c5dd0e4ff2e2db21bffd04a4b06aca4320dbd26fc84321b7eedd328b",
+  "apps\\inventory\\migrations\\0002_database_security.py": "5c8cfba0e591122919412ac7214921fdbd7c04375105b475f4bf727c4d5d00bc",
+  "apps\\inventory\\migrations\\0003_remove_inventoryitem_product_id_and_more.py": "d84e1eae7b5b89c84399a628aa6055d95c9a4737e4ab74cf791725a3bb84e307",
+  "apps\\inventory\\migrations\\0004_discovery_evidence.py": "e17e731010186c439b363f6032f62a1a194c7dd27a3a2ed800f1be217b30b829",
+  "apps\\inventory\\migrations\\0005_discovery_security.py": "1eec5d51cab949d040bd74511ee5cad52c0f8fdd521457200d6452661c2ea125",
+  "apps\\inventory\\migrations\\0006_detectionevidence_inventory_item_and_more.py": "08abe75cbe47e6e81ba30ece14ff822e50337624acf300e5b63101577342cb0f",
+  "apps\\inventory\\migrations\\0007_inventoryitem_declared_fields.py": "e0ab0c7b5e054866d683d34a3a3ea164d61a80d874d3dff3176e9109ff3aef3d",
+  "apps\\inventory\\migrations\\__init__.py": "83fa60fd3ca51908e778fa99a301ee95d2c8e6102889d0796336c049f05038e9",
+  "apps\\inventory\\models.py": "a48689209d8ee6f5047b5123669f1a2609df2c1d14ea9825710ddb26e7c61e61",
+  "apps\\inventory\\provenance.py": "826d7588b4f83fc14f30652c33d486fa5f325c0120d2457255e6c7365733103e",
+  "apps\\inventory\\urls.py": "be78651f7ecf76e0a37363dc0d2cbf680ccc38461da126a38ba4a9ae9cec61d6",
+  "apps\\inventory\\views.py": "0a4b5b185e8749e79a84c4773bf67abf47c71542eb7324289d58697e115e7769",
+  "apps\\jobs\\__init__.py": "710d43ad8b4eb1ae679e78dc3ecc71d2a6e6daee98f220efc57f2e268773706b",
+  "apps\\jobs\\apps.py": "eb346b6789243ec64bd15e7735ac2bb85517cd6ef994211086b385b9fd692c69",
+  "apps\\jobs\\automation_contracts.py": "ac7254097fcca836a19e8ff6d89feb3c198dedfa75be428228ba871f1e33461e",
+  "apps\\jobs\\contracts.py": "795c758c4c7911f0285923d0f0d9c42e0acff1330ffa1327d0ea1476cdd6756f",
+  "apps\\jobs\\core_decisions.py": "c5ccdaca16bb4932d6ab6d05ad368028a0edfcbb3f8a08ccb2f470b43676b7f8",
+  "apps\\jobs\\core_models.py": "f0bd6df963c359931a2a8b59838f0301f1a6f449c7a0583962f8d939d441cb68",
+  "apps\\jobs\\core_views.py": "4c87c8c8255a13e625ac75be37db655ddda8eb8e05b5894fea5d449315ebe770",
+  "apps\\jobs\\core_workflows.py": "7a629e55070028a9ed30659a9a6fa0c42b97f9ff2456f8d655533581f0620087",
+  "apps\\jobs\\handlers.py": "2860264fc6b4d5feffbc3b27040e0b10fc50158cb499028f0f1d08d64e0afdd0",
+  "apps\\jobs\\listener.py": "1cfcc03bc111dcb3c3ebf5da2b27e8f6d342b88dca6ce4efac0e190e37130601",
+  "apps\\jobs\\management\\__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "apps\\jobs\\management\\commands\\__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "apps\\jobs\\management\\commands\\run_core_tick.py": "ee5c7200fddc89ca5631bb3061967bc1fd41bc248e5bf07df2e52470f5eb3657",
+  "apps\\jobs\\management\\commands\\run_core_worker.py": "4a964df32fed5322d660cd57d9004e61a246ff4972b1fa947b1007f150340a96",
+  "apps\\jobs\\management\\commands\\run_worker.py": "46c9f82a41892ec5ced6d4cd192c5510098938f96740eb5f01fa068229e56a54",
+  "apps\\jobs\\migrations\\0001_initial.py": "dd15b638e633d67bf27f33e6a600e540450c45827c1c0cc418aaa34c9197c684",
+  "apps\\jobs\\migrations\\0002_job_security.py": "b9e75d3564dca404e32ddf72df3cd6c10e73ae6dbdf957522bc6c6a32b4c6654",
+  "apps\\jobs\\migrations\\0003_recovery_receipts.py": "fb8f5bf12cd406a08d9f97bf27865076f4f97b261577794d7e65ba5b52b23cd7",
+  "apps\\jobs\\migrations\\0004_receipt_admission.py": "bb915a1d7867c4f38429733fe7686b21e5ba558b5184ca04de58a21c3b48c8e1",
+  "apps\\jobs\\migrations\\0005_atomic_recovery_admission.py": "bed4ecef1ff6999d9172ae681e704c08a9c31d271fa0b6426f90d842a849b7b6",
+  "apps\\jobs\\migrations\\0006_corecontrol_workflowschedule_actioncardrevision_and_more.py": "1b25a9dc787a6be8da250c4d12de94d929ca802ed064b4a0d35e6f929697ab5f",
+  "apps\\jobs\\migrations\\0007_core_workflow_security.py": "5c7e5f98d31300c354fb4b7bbe5dd362a0223bdb63018a2c3a586d3c2c5a5ec5",
+  "apps\\jobs\\migrations\\0008_worker_transition_authority.py": "58824d87e4a77421a06bdfec1970f4f865f0d33b42a7c1bba703c3120888bcfc",
+  "apps\\jobs\\migrations\\0009_core_issuance_authority.py": "9beb850cf4569be45f6abf8c10030d96e44a69567a9b90426cc3bc0d3e786aad",
+  "apps\\jobs\\migrations\\0010_job_input_admission.py": "2fc31a11d13e94f7bd21086d1d38d28e6228da2497632ae235aacae4d31430f8",
+  "apps\\jobs\\migrations\\0011_action_card_issuance.py": "2df81089a4c4e640bf00b622ae0081d7ad4915f43f60f36da4174d398b2706c0",
+  "apps\\jobs\\migrations\\0012_core_authority_successor.py": "357ce814aed41fa3a4effec56bf0c82949a90de65aef9a66c67626afd91bdb7a",
+  "apps\\jobs\\migrations\\0013_paid_entitlement.py": "02c572bcb1d9d9f2e6330e9f809116fa49d55c61ab141bac8fdbf268fe867700",
+  "apps\\jobs\\migrations\\0014_decision_desk.py": "881a7a9b0cadbf742ee558e698eddaba45f4d4e3689fd692f42fecdb0a9d7cb6",
+  "apps\\jobs\\migrations\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "apps\\jobs\\models.py": "eee795f32ce230f000eb26466dc3b20ab3cb2eb4ec5d3f4e8aff5403785897b1",
+  "apps\\jobs\\queue.py": "c45ffb401055fb0b8fef656cfb27f909e5455719eaee59cbfb86d301ff1c6e0b",
+  "apps\\jobs\\receipts.py": "75653128fa1de2ba3d373bbad876c618e610ad79276e01d486ddc408a3406945",
+  "apps\\jobs\\recovery.py": "151d6518fddbd19854c9dae58079f7ae3ce7b409f19f2f503486bbc09c864ee7",
+  "apps\\jobs\\views.py": "3c5b7fe064e0c81adbf65fe9d1ec798ab318a3a3a21e8b2643b09c892aa54d17",
+  "apps\\jobs\\worker.py": "169653e55f934b26ae5383865dfd6d55bd4a38d6f5901c2a54043398bb3b6c3d",
+  "apps\\organizations\\__init__.py": "43467b25668e3578ebcee5977529be9ee6dc4757979efe2a9b5d54a97496ef82",
+  "apps\\organizations\\apps.py": "2c75ae5414e2d2f62d6ebcc7f5a4a0bbc2d4c3baf18248bd2521433e1366f479",
+  "apps\\organizations\\forms.py": "c4a8357f07c9534bff734eb03355f076ced359913789888eb56671730c24cd35",
+  "apps\\organizations\\migrations\\0001_initial.py": "60711a79f16936b86a0e2099dd38c9e4e4bf27955a6fe5a54836cc95804dab65",
+  "apps\\organizations\\migrations\\0002_public_onboarding.py": "7c93e699d08dc7a9462538bfcaa99eb8f29c17341654e4b29700a7ebc5457340",
+  "apps\\organizations\\migrations\\0003_workflow_profile.py": "fc7daa063ddbcdbd117bbabdcaa22712e036480d2380c4c08b5f8ac37759982b",
+  "apps\\organizations\\migrations\\__init__.py": "d30ca1fc84e6afa9eae23b44081e76dc05b9607bd2ce9e634821ae298d63a1b4",
+  "apps\\organizations\\models.py": "d5d7d98650bd7a2ba0811f5871b044f091970e6b25b996125e66a4cad08dc16b",
+  "apps\\organizations\\services.py": "2f2391a1c7a6e17173d52f1641b5e5d48de787d0bb71c9e2f8093432ddbf95b6",
+  "apps\\organizations\\urls.py": "c457815579e7ff7a6564251aca0683500dc5c3cca1b1ab900cf55ff7ebfccdbe",
+  "apps\\organizations\\views.py": "cecb2a778bd09c9673c86689dbd12027ec4eccaf041ce72de3de2f0fb5504e20",
+  "apps\\organizations\\workflow_profiles.py": "f89b06f620401721e98be7fbf09a4de65a97b3017b79070ce1252991b26450e4",
+  "apps\\policies\\__init__.py": "8a76409b78802f3a03d021eee746b6e4738ffbd1e3aeaae00420ac004e3dc358",
+  "apps\\policies\\apps.py": "34325aa169629b4ebfe61cc7692f0cdffd7f6bdfea2dac69a4ad6fdb386a125d",
+  "apps\\policies\\context.py": "ef78f5670ea2f4ff7044a71d98479330fa38c866d6f80401eebc0673609b285f",
+  "apps\\policies\\detector_mappings.py": "1c17b5d2db9c623da45dbb28cc5855806b404e45db7841ab560d8d6f8e5bcfdf",
+  "apps\\policies\\engine.py": "ebdf820be99238c730cc30fb82233baf98c6ea345e1fd563595d04ba0e1552ab",
+  "apps\\policies\\forms.py": "b57e05838a08b7e71ea9cb280e098acc2a6e19fcb70d8dab8cf0a432b73badbf",
+  "apps\\policies\\migrations\\0001_initial.py": "5aab751e051b430edbea53b45e07e2c4d057bb8937ed69e8715ff91263420c94",
+  "apps\\policies\\migrations\\0002_organization_rule_security.py": "41eab34177e8f875a4a1cc92236d344d00cbf04ef95db9455f478287acd3b935",
+  "apps\\policies\\migrations\\0003_remove_organizationrule_unique_organization_rule_name_and_more.py": "13906c098286e2a9831ba73c32fdaff02b4171911b5d8358021f05b102bf58c2",
+  "apps\\policies\\migrations\\__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "apps\\policies\\models.py": "7e1180e093f5de4fe7cdd5420ff7dc9a71d76e345de37aa714db4627f0dd919f",
+  "apps\\policies\\organization_rules.py": "18ef6c2c2e791473a1ba14df324f835d33baf94381b87caedc1faa029868f86d",
+  "apps\\policies\\packs\\__init__.py": "92f04eb0bb2cf3106653afe4422bb01c53a7a9a785fcea05895d3f31a10db75a",
+  "apps\\policies\\packs\\accounting.py": "b6aaa241c9b28648504499f4d90854444bfbf53f0b8afebf8ff81ac14dac23f0",
+  "apps\\policies\\registry.py": "6eb30a6683f1e8d213d2ffb402b4de364957a4be7e0d2da7b3359f3930135598",
+  "apps\\policies\\risk.py": "c446b1e1b94db78613930116e97a7ffdcb6aa9d82f1e32df2a2ea0205332816a",
+  "apps\\policies\\urls.py": "90dc9f073d06ac32985855bd8b1a4ecf0c5d0f0f2ccf0f08ba99e310ff3d7bca",
+  "apps\\policies\\views.py": "6fcce5863b9128752e2206e8822a30c3258e62399b4ab95a9192e05bac0b0343",
+  "apps\\reports\\__init__.py": "a14e2e3330ac0706ef9b83c0587e7a1e69bbfeeacee949f4c66f5fa10bd020d4",
+  "apps\\reports\\apps.py": "29483c80b171a3440d88511259f11630cefef36fbe6484d349d424b3b73d617d",
+  "apps\\reports\\artifact_services.py": "fea6a46522adf9e88267ecc26f13760757814aa89d258fead048bd9d2d8a3848",
+  "apps\\reports\\context.py": "9e5cf2ff5f630e5b59206612dfb89141a1639da1a7ef49d2dd29d09939527bf9",
+  "apps\\reports\\jobs.py": "0713c999fa79e010ce288945bed90d4fb87509999ba4173def28d334785910e8",
+  "apps\\reports\\migrations\\0001_initial.py": "a8abb1cc199f2db6d82c84040857f2f807febff8a92f0f59155bc42d999a463e",
+  "apps\\reports\\migrations\\0002_report_security.py": "5dfd0ed04410e32f578ffb165114f4110327276fde03087bc6301d551b9d0f09",
+  "apps\\reports\\migrations\\0003_reportartifact.py": "9a1a71acd4e2c86495a803d3d8c7a76c6099b162d169887a808d7c9f78272f8f",
+  "apps\\reports\\migrations\\0004_reportartifact_security.py": "3d6d1cf32dd5dde4d09c5c71f6a1305b3c33a084648983379e9eee20b5f98a51",
+  "apps\\reports\\migrations\\__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "apps\\reports\\models.py": "98a21dbc1f7c7ee78cda1a8d101f63595db2caf49ac9449e9dff9e59a6436169",
+  "apps\\reports\\render_client.py": "ce23eecb7110167532ae27a65367815a2a6297576bba6b19fd90db566d3cb781",
+  "apps\\reports\\services.py": "7defcf360bcafabfce6d6fd1486e69c30cda3e20217eb47ec534df779c9c30dc",
+  "apps\\reports\\storage.py": "4289f3cfd64e2963e3b12eda552499a9aa2ab2daea1eb1c25caf2ec47fbcd7cf",
+  "apps\\reports\\urls.py": "d0d0b5f998a41480f4b86196c5decf285503c72923ae323dd0c9cec189c4ba85",
+  "apps\\reports\\views.py": "4f1855cb3a9521a709ae3e90d6d2328ce2a9374d9464aa0e73881878708821f5",
+  "apps\\reviews\\__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "apps\\reviews\\apps.py": "259959d8a4a43970477b10ddce7b156a73164bd30e6aa1e464ac1166fd8c4254",
+  "apps\\reviews\\exposure.py": "084663fb22bdaf90a6b01b22f30d2f0629f99c44d692dbab63351f145f42f376",
+  "apps\\reviews\\jobs.py": "45e04ab9ae9374234eb1122c2ed742313fdf4b12f3182bc63dda2dda7ea71806",
+  "apps\\reviews\\migrations\\0001_initial.py": "15be374b036120de7410542cf668326cb4e8bc8032f93846d670eddbc3daedc4",
+  "apps\\reviews\\migrations\\0002_pack_lifecycle.py": "32c91a053f052340fa854242a7ba1ec728a972c7bd927c6f61fddac22be45c79",
+  "apps\\reviews\\migrations\\0003_worker_pack_projection.py": "a718ddd3c539a58ca214ec9b08475e4b2d843cfebb794066a5a58930d27db58b",
+  "apps\\reviews\\migrations\\__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "apps\\reviews\\models.py": "7cd7192a9791512378e09fa9b27acfb6e5f277a6bcd644e1c1e5b837741f5d3a",
+  "apps\\reviews\\README.md": "d977b8febfdcac9971cec1c5ac5a7f21065e33a3ec3a3f52debf630a4d34410d",
+  "apps\\reviews\\services.py": "38dcbd0ad8fafdcbe19be32e97e2adf5cf0471052ade157ba31f68b04a4dda1b",
+  "apps\\roi\\__init__.py": "15a8796ffcaaf8fddc4b12070a8a555e9a8021c0a5f30e074d44c9573cf89c4f",
+  "apps\\roi\\apps.py": "0ae9293701fdd71e47fe14565c32ef4fd55dfb780dce910e0f13aeead2756fa9",
+  "apps\\roi\\engine.py": "265a4e4deb4d453c98b5f5994828b48af063bad67f86f1beeb41f8253b52b4eb",
+  "apps\\roi\\engine_v2.py": "6f6873c4650cf5c4bafd03fb487031f3b47b9c710a058d2ace28adbb1452ab40",
+  "apps\\roi\\forms.py": "659a88bceb4010251a074e9ca9a1ddb25eed2cb26a42a64aec4eac1d4ca5cd19",
+  "collector\\__init__.py": "f7faf146bf3d3a894f6c9ecc3b4b4a201fdd068b45144e2086daf1158250786c",
+  "collector\\__main__.py": "6002770d1a113fa0473eebd82c614c8d5d2c33a5bc4f07bd0689734a7937e70d",
+  "collector\\collector-modules.json": "1574d83e55b084fa0fbe706d60062e09fac0e3c35fd6825673f82d55ed31adc2",
+  "collector\\collector-profile-public.pem": "84b3b7bcabc2161479d82de2d75b45b55ef9ee0f1dd54d7d6108655cbe7b6ec5",
+  "collector\\contract.py": "40dc43063e6be953860dec66f2723eb207d452edad310a42953eefe253ab96f0",
+  "collector\\RELEASE_README.txt": "8465305b39ca9b017e97692744cef97b6da71d65ab031b751d52ec45ce56077c",
+  "collector\\setup.py": "9b854cdb895029198abf0fd79347cb9c74868305ff4e4dc8f0d940e91d828f4a",
+  "collector\\Stewardence-Collector.ps1": "56c26f2a1c99dc2d90ab74e69929878f4c7e15ba18707f3b184a7c82232b204b",
+  "collector\\windows.py": "121c80985c9c9418953c226376632fdfaa731680028cd3f235b34db61a54983c",
+  "compose.yaml": "ce16541fd55664fa92cb5a236b322f2f5aba051d561a203ca3dd391968742b1c",
+  "deploy\\playwright-seccomp.json": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849",
+  "Dockerfile": "20e05c8ab25b537d1ba576c9a88ffa8184b4e7378ba28b3bd3aadaaec266d033",
+  "Dockerfile.renderer": "cf567f9ae374e523495021c67b275e2c5315f24a39b62764f57eadb890209d81",
+  "docs\\automation_integration_contract.md": "cfa9aba85aa90e426c835f2694b3f02e06cae39a69ac1e09d40d47ad1bb0e048",
+  "docs\\brand\\BRAND_LOCK.md": "2134f392d06c50d7e0b7ace1c317d8f4de7a5a4af98d82c0e18918b6e74e39de",
+  "docs\\brand\\Stewardence-Helix-Orbit-brand-guidelines-v1.0.png": "6b9ccc46ea2851a85443cdc703724fb43c34df3e7eb5d0ba565dec6c62b71400",
+  "docs\\CATALOG_SEED.md": "260c297542f308fe621d729a1766bf09c1d9f82572d8596d1098e204af4ebc8e",
+  "docs\\COLLECTOR.md": "3afa98502e5ed04b819ea4f99610c90e4694d1110380af5267d0b6435e7cb363",
+  "docs\\CUSTOMER_PILOT_RUNBOOK.md": "162201f150b66ec7b7efad138bc6e43975e787a903d76471a8a872abb8c9d52f",
+  "docs\\demo\\PRODUCTION_DEMO_EVIDENCE.md": "ea5ab4078236ffcbf7176146ac5e74aefc7d2c3a5cb53bb49a5b4ef1e770cd28",
+  "docs\\demo\\PRODUCTION_DEMO_MANIFEST.json": "40b5eb2d82bdd8e39465a173fc2e367a8f2aee68e91278c15bfa4dd69b6efbfd",
+  "docs\\DEPLOYMENT_RAILWAY.md": "21dd7f37a4b7014e2d32aca1adcf6f02510eb5bb0445d6d7cdf3c8cb0aff038c",
+  "docs\\MVP_CHECKLIST.md": "87356eff50813996a9d69f613a3ee2767ebf31556dc38b6456256844d38c9143",
+  "docs\\PHASE19A_CHECKPOINT.md": "70cf2d6be1bc5f2cb6a71f401a8e7b757d8f66fadc98ef133ed43de7a23e493e",
+  "docs\\PHASE19C_CHECKPOINT.md": "cdabd42f3771f96d23f6fa8d1a5d6c2e4a70ca302d734a687461914714c686a4",
+  "docs\\PHASE19D_CHECKPOINT.md": "b7e3925236b996157f0cef3f696a562895cb58752350927d462954dba0b4dfa6",
+  "docs\\PHASE20_CHECKPOINT.md": "08bd993a95da3cf27961cfd648d2ad8977843252ae02bbc8a40bc80f4e5cc21c",
+  "docs\\PHASE21_CHECKPOINT.md": "c164fbcb87ac529901825470c4a17189c591a296f5a3cd7ebb8d743dc8b5a5ff",
+  "docs\\PHASE22_CHECKPOINT.md": "211f0cff1cd3cbfe1c50c78d2d2fe63d096770c926c73d0f91d6d5de80af1a5b",
+  "docs\\PHASE23_CHECKPOINT.md": "4a3386e0a505083cf43b7ff72737bb257c497543537a3a7b6f0a85da830ace8c",
+  "docs\\quickbooks_sandbox_candidate.md": "9614cac64bf7088b790affde2c1ab44ccdfd987bb97120fbea92e49133e475e0",
+  "docs\\RELEASE_v0.1.0.md": "2ebf1fed66b90b9910051d60d9ee92ae6813baba40111d6bd8c7e1db09e54135",
+  "docs\\SECURITY_INVARIANTS.md": "bfd211b6e726f425bc885a99a7d9346285dfdd428ad2e60b2d38586fc2134eb7",
+  "docs\\SPEC-1-AgentLedger-v1.8.md": "e42e9d400d93b269a968322c988a9cde5b0f244484e81641206cc092da4aa401",
+  "Makefile": "00b3929331c577d6aef2fc2d7c4f3d807653985dbd03e0b62433dd037c0dc62d",
+  "manage.py": "606549c72f9a1e25f063b6c8f2daabb3a753e680b110e4c6048942d6d11e3ad9",
+  "ops\\prepare_provider_credentials.py": "0a021943963015aae97b7aee529663744f4f1260cd138b691a9a549ccb9b725d",
+  "package-lock.json": "ed4b6b10ab44ebd5cd73a89222b24a5e5c8f1a01517123cad3dcc134b7a13be7",
+  "package.json": "0c9a3677da61e385c6199a5f90ee77f475abe99846db73e940a92cd47301329d",
+  "pyproject.toml": "0212825800aa6e3fa9c2088b5bea3d43b7f9a0fa241f689acda865122d7be046",
+  "railway\\README.md": "d7a1655e2987e08cd11c44a839bbc45c7aff3f4cf00a7e578a581fc7906c4ae9",
+  "README.md": "1f9fbdb0b5416f38100ab94c6b69b5f622ea16bde85509d17b9df866484f67f1",
+  "renderer\\__init__.py": "3ce14b17845eb49b6600f1033021c0144bcead50a92f2791d6c97b4a2088ffaa",
+  "renderer\\canonical_pdf.py": "9215508ddfc42c3a307e57050e9365dc99f903c04e234f5171e8f3cdd7db64f6",
+  "renderer\\render.py": "d64c351a3f0ac1e344f46b91b023196d879bc685bf38d0e2902d882f27ad3322",
+  "renderer\\schema.py": "84dba7d2b2308317506a93c343ad0d662e75440e4c6fc6a4d42ac39fdd40cfb9",
+  "renderer\\server.py": "35975cc8f1d830f14d19f8c9736d1d426801fa6e08293583834c921f33de0b04",
+  "renderer\\template.py": "7b9b5af0357cbece7dbbf25b7603635aadbbff2858be063e4c5feda229e73941",
+  "renderer\\templates\\report.html": "d5f6b0f2c13c42c93a60f7a4ba5772fd4169d2f45fcbc9c3e6209234123df07f",
+  "scripts\\bootstrap.ps1": "37a600b12ee23e7cefe1e644165e0901c9a355d0948e106f4116e930c8ae64fc",
+  "scripts\\build_collector_release.py": "33eb3e8b99e0028a3b5ab277c928cde8002a2b718a2b1f14f872c70c3d7ed8ae",
+  "scripts\\lint.ps1": "db133c8e6cfcadffd34d9a04ba5fd32f6901ae11085dd8bac2e0ec7d4d1864e3",
+  "scripts\\preview_bootstrap.py": "bd9cf2282935d06063ee7ea6e4db2fb5d23f9e258a53bda06f90f832e109c258",
+  "scripts\\probe_renderer_reaping.py": "f62f78011b1bb3335417bd3326e450f053a4cb2344b52b8ff1856f4a895b0550",
+  "scripts\\production_smoke.py": "8fce15dd01f5b490041165cb17d916218b2f58fa3d524163228d1c81e01918b9",
+  "scripts\\prove_phase19d_e2e.py": "a7d4313c2d535e802a96c65a895c35ae4d1853d5a852c5027120890801533b7b",
+  "scripts\\provision_database_roles.py": "2c88db64a1bb76b3301ff43fc14e75c3b6c25dc2af33e4618aa40e4742dda344",
+  "scripts\\run.ps1": "23388f69d168f76a4d69a120bc3b40b7eda66c35b0eee124a6a25dbe0dd8236f",
+  "scripts\\test.ps1": "8ad5d08ac655acff907d4a67286cea393ac4b5ab2227e32d8ec3ecf58ee5a3b3",
+  "scripts\\verify_mvp.py": "8b59c787425b5e479a6fc96a9bd1dd3ecc0e7b8b492747c4324c577465840f69",
+  "scripts\\verify_rls.py": "106f341bc60a394afbee55e29691d6cec75afd84d1646417afed31ca591a13e3",
+  "src\\agentledger\\__init__.py": "8787009c9340e3d9c992e631c5e155b8a9294d0813a62a315ca7fa0c6f849dd5",
+  "src\\agentledger\\billing_urls.py": "c1d89d48e0b7fe0fad12b754e27a3c796090f5407272442d7d248a7b66a83b6a",
+  "src\\agentledger\\downloads.py": "9d90ec9e0cd8409b18e61fba92bafc48ba0c0d8685097be771c09d4887802dac",
+  "src\\agentledger\\gunicorn.conf.py": "af5c4408bdbce779e56595a0936330c7fd0f08bdab895e517c075a5a5a1fc321",
+  "src\\agentledger\\health.py": "3a7ebc4d43838a862b085652c4149ba4daa377e73ccc438e8fe0733c46621b9e",
+  "src\\agentledger\\settings\\__init__.py": "8885a3e90067290b08edf65642b7321156a6248127b652a91c4367be19f6f5f7",
+  "src\\agentledger\\settings\\base.py": "efb29294f3725c53af5c6f9370d3138fbdfa0c76fe3fb0aacdd5f86026d3e812",
+  "src\\agentledger\\settings\\billing_admission.py": "2ebc280c28b6222a1719d03fea6902b5fd657c9e02424c8cf7b590ae7539b490",
+  "src\\agentledger\\settings\\development.py": "ac9d39d80419de5d8b3a69e3ac92ebdde43d2ed42aa4560736c7888be340d1cd",
+  "src\\agentledger\\settings\\production.py": "7f6a3e41d8b55b8649ef029afca21f15cebc89175aa1fca9cb3e674321214c8a",
+  "src\\agentledger\\settings\\qualification.py": "54bca976e3fc8eef8a683bf1b72700c5d0e26f45f5a6c1a55cb7f365aed9c270",
+  "src\\agentledger\\tenancy\\__init__.py": "0227e55e1978bb63e82cf6ebdf254bf50c02201d2b4261f3cb5dea376503f1d6",
+  "src\\agentledger\\tenancy\\context.py": "485d06d374da3e039d46c9f3b54edc95ed1a9d21f386337bee384e6f795d8b0e",
+  "src\\agentledger\\tenancy\\middleware.py": "838552978b162015ae6f1af8255bdf6576c3967cb3a63ef68e10778d25758713",
+  "src\\agentledger\\upload_limits.py": "e5c493bde20b763f20ef48441b1fbc6ba6f1c5f8f80de0d6d1ef7baa864c9edb",
+  "src\\agentledger\\urls.py": "f65ba51f656baad97bed3ef1639bf72c95d95255b3807fc82f02ce5c04371045",
+  "src\\agentledger\\wsgi.py": "80c3737057e27da9ae86fe03b6e96f851196b65c8fc35ce2a84598e4536cebf8",
+  "static\\.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "static\\agentledger.css": "a5c70074be4af5ee467e62cc36f19eb6d6c638171ae1dc79e1d7b0e76eee49c8",
+  "static\\atlas.css": "391200701735fee61311f76d99e27a2fa14cef2bff7d73be476cef4395b06667",
+  "static\\brand\\atlas\\admin.svg": "d0b699e1722f06678f6fcfb458431696f31f709f0245bc9dbc40c194468eadd5",
+  "static\\brand\\atlas\\evidence-library.svg": "df452da45ee25e67fd6b3294b75d9d1bd27799e90e24b8c8f31ac0076dc5615c",
+  "static\\brand\\atlas\\overview.svg": "f6e3f0e8c3bdcbc2ebb8d304c91cfaac097883b66d4402a51fb14349633ab965",
+  "static\\brand\\atlas\\reports.svg": "173afd2fa4df14b9067df281d539368b1f74e00985a2174cd7dc06a5921903f1",
+  "static\\brand\\stewardence-app-icon-dark.png": "5cbee80b9406646e498198a815ee050ead4235547cf100c441cbeb0bc3d3b4ba",
+  "static\\brand\\stewardence-helix-orbit-dark.png": "e022f6df5c644d803bec3c32d4905e2e1a3d42213fde615cf317e32a64665afc",
+  "static\\brand\\stewardence-helix-orbit-light.png": "e28a1f66864e0631c5cc5ac4c395240b72c73bfc634fa98d839b80839f49928d",
+  "static\\funnels.css": "2aef116685852cd76187d79ad3412053939e4913dc37b41304e38fff841cd4d5",
+  "static\\funnels.js": "56415dec4828539194186450d8266871062e6897cf367df220db8051d6b21e0d",
+  "templates\\.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "templates\\403.html": "f9299df82a36c4f72938b65adcf238f10fee289a880f253bda2d1096028f3068",
+  "templates\\assessments\\detail.html": "e930d8c3b391194517f970d92f75409a97511b13b2950f512193e827d47a77c6",
+  "templates\\base.html": "21586b401f359fbb89277094a3fbfbc12668c3b8beb2752be68d39465b198ae8",
+  "templates\\billing\\account.html": "b25125f2fcdf310107abfe1fbc8a997ac65b6716137451544355193fa3629474",
+  "templates\\billing\\portfolio.html": "e353d4ee8946f6bcb68f18632c4b0bd48cfe0453198c777184fe26d632b3264a",
+  "templates\\billing\\success.html": "d64a6c9b52d220fcebd1a5f4b608441cdf1ce9615a1a843910db7cdba3bec488",
+  "templates\\downloads\\_content.html": "a320dcc1b96877804badece7049b63350e95dbf979a3799a5046cb9086000596",
+  "templates\\downloads\\detail.html": "22d41f25db72ec54535364979c2812a72e15386d9354452f787920d56a1fdd64",
+  "templates\\funnels\\experience.html": "e7bb3c7e122b82c39589f40e47a373d0eae46c966ec74eb4a5c71b28c3c39bc1",
+  "templates\\home.html": "3038733451e957a791bae556419de3c64605e432492edc3919b94b1935ec6c2e",
+  "templates\\imports\\final.html": "df2ec9d508724678247284cf48d7c8362c48a6c08e84785642ab6c6abcc35d59",
+  "templates\\imports\\review.html": "16bf70c1ad7b00ae87cca36dc71f9ccc1e400a383b77f9a7d809c6d6c2c406da",
+  "templates\\imports\\upload.html": "fd7131ae26d1c56e7a7e85fdbb20b78af4990644f1e74883acbc138ccaa7b61a",
+  "templates\\integrations\\provider_preview.html": "77e1034dbf15a1e5e515082e9dd15e054c552d48c36672e1c1abb7da4cf23b4a",
+  "templates\\integrations\\quickbooks.html": "dcc4611ac251b857c13033e439a308edcd78d42fd16aa681a19545677009864f",
+  "templates\\inventory\\detail.html": "59168f093eebc4a254ed05b072ac1894934e9e73676cfbfcf90bf10902ac30c6",
+  "templates\\inventory\\discovery.html": "d58643ebb5590baf2b27891a7e30d38d6ebc46c8809c065199e3652bac8bc7ac",
+  "templates\\inventory\\form.html": "267e4e488c7f8dc5ac6fa7273d6ac3eba6e7fbecdd1779e774d8eff602298eb2",
+  "templates\\inventory\\list.html": "ea104e0cf61291099f5c035bba3708dd2b73438da3886ee643a7deca86590ba4",
+  "templates\\inventory\\roi.html": "02506ee23b96166667c3ffb0582ca4bd21c9620277c75164f15ec92ed0261deb",
+  "templates\\jobs\\core_workspace.html": "1f829e663614984d96f1f7424e063b52368d3686608e21c7975c5d8e434c78aa",
+  "templates\\jobs\\operations.html": "ef002bb6d3d59ee18012fd9271a5c876b16a077c8bdcdc96bd17fc18bfe219f8",
+  "templates\\organizations\\select_workspace.html": "e507fb4312a2002b973f89f65897d4557af2e8ed6eed2652c049e439f4637c8e",
+  "templates\\organizations\\setup.html": "f649e652658294c56b540149ea8b812f94b844dbf8c434b558fbf43359d8dcfb",
+  "templates\\organizations\\workflow_profile.html": "2dc6ec05846620fd3e1009096423e0e0e98aeca77f107de1ac8e12d73cf29285",
+  "templates\\policies\\detail.html": "c4b9c1924c4505d11f3b738d82f84981544ed764f2c7b2c3f6caf7580233c4ed",
+  "templates\\policies\\form.html": "a64d397834e3a3e461f09493ca15e4e7ce4c7a33f0acd7ab6b16ba74ad4ab8ed",
+  "templates\\policies\\list.html": "a04c371d8ace388fa0f69912d650af3f200bbcbffe509ecadb6791ef16c0a65e",
+  "templates\\registration\\login.html": "2978e6af1dee5991d9eef9917bf0372f704c62791d0b22155c2c806da6cb72d6",
+  "templates\\registration\\signup.html": "fd1dc1086749461b78bf4a5714d83222a691e6e932053655e0190f396070fd1f",
+  "templates\\reports\\detail.html": "64800193de5797e51094c196b858f25f93dfebdfc2a6fd238ecd5adf9ed27b41",
+  "templates\\reports\\history.html": "34d91b63090dfa9fa18678a5dc4896f1e50c6b911bd07e4254c547443dbf9f09",
+  "tests\\conftest.py": "e26314291bb977bf29783aa70175acaaf0f419a6c82c6c92088527ecb0e0c849",
+  "tests\\quickbooks_sqlite_settings.py": "c13d24375bea23839ad351f9d9b5e38106f541a67102a46c58aeb19cc6e10abf",
+  "tests\\renderer_qualification_diagnostics.py": "f2db226bca567ee8837d80965b9a59b5b7da458fe30c2ef0728017d709e065bc",
+  "tests\\stripe_fixtures.py": "8fcae80685640fe1fa6fff295f367bf204bc3789bef474e114824f82898861e3",
+  "tests\\test_accounting_policy_pack.py": "70bbe8e45d0fb1d4c4add08d83b6ccdeed6305458fd9e17f1df24a0f184ed552",
+  "tests\\test_accounts.py": "0da3767a747c0b58d50fb32518974822dc6d96f71c6c0962d5f08238653d01fe",
+  "tests\\test_assessment_snapshots.py": "e505d756201ffc7c16a7d09813f09609a1c79325fe9f0fe7db1ad38b9e67dd6b",
+  "tests\\test_atomic_recovery_admission.py": "c9dc5d6fe3e736e48b176a3271fc77d323d2904cff77a138a5ac27630d83e9d9",
+  "tests\\test_audit_append.py": "ce664aff1380870ade7efc5b16dd13a4d2ec6ccbcdba17539416eccac9f8786a",
+  "tests\\test_audit_job_handler.py": "63599c341a9af349ca5fb7bfed3e5b7f9b42a6da214d5f0f8d89d20ae43a7888",
+  "tests\\test_audit_merkle.py": "7cfc3df5e2db0241829454986428c70f44ae933a70686ec4d9049d501daa01aa",
+  "tests\\test_audit_models.py": "78a9d5a87b355701e3f468d7810c11d7156b683f1609710401563cc195f16da8",
+  "tests\\test_audit_rls.py": "439482f056359034fc6691e6e08a7d3c6045367e653a1cbe631d7dd99084bd1b",
+  "tests\\test_audit_sealing.py": "25100e0d94546c7bc02ff0ce6de0bfba6a04f322cdae9e69539fec519749f4f2",
+  "tests\\test_audit_sealing_concurrency.py": "6b9486ee0ad89be4c116c69cfa8d4179eae53c48100b9c495846c4fc4ef5e1a7",
+  "tests\\test_audit_verification.py": "b8f4dc8d07ac34c207db65517e2ed26a0fd12619a346cabb7fe9d18cda74b6be",
+  "tests\\test_automation_collection_contract.py": "ecc8b6316af9b68950c2918cfd03e0d6a2dc8d4e6d9f5743484bd71210cb89fc",
+  "tests\\test_automation_pricing.py": "49626837f06b500a0c93311319ebb2e1dda2e23d0eba8082ad46ccf399e8a798",
+  "tests\\test_background_jobs.py": "adfcb12e149ea18ca8dfcea85b1c1e525cc152c2859684ee29a9f99d9731ce5a",
+  "tests\\test_baseline.py": "9e3fe0661c3175a5d2355d243f8237667f6e056f731e4c7ca9c1faafabcf6e59",
+  "tests\\test_billing_account_ui.py": "7d0af5ce65e7ee06262450c9d7a1b24c62b420f4b4af2afddcdd4b0c20b943ce",
+  "tests\\test_billing_admission_service.py": "cb97cbb0366fec448e386421a47c3d66ad037b229f04103b7c19a7cc0ff08443",
+  "tests\\test_billing_first_checkout_concurrency.py": "9b5d717a8a6eb4cd35c929f0d94699a34ef0d90f06a0ca673680522cd975cea9",
+  "tests\\test_billing_founder_cancellation_authority.py": "26b7f625407a305f58cd2f31790f16d6793adce50dfb47610653137f4dd52979",
+  "tests\\test_billing_founder_checkout.py": "4c6a8f58af2e3842bb0622da2427e977c9c54731b0775854f8b590fb0a159ee7",
+  "tests\\test_billing_founder_checkout_authority.py": "506a00f61dd752c84b047c9ba67a61bef90d4fb1c3740ef7cebfce252ffaaeca",
+  "tests\\test_billing_founder_schedule.py": "880b79f15031b0ecdeb07f649341a795bc62c6184feac3e389a8e147b3c327a2",
+  "tests\\test_billing_founder_slot_concurrency.py": "79c7b441b01344ed7b25bfbc49f32037644831545a5c619f9e8abde8024703a9",
+  "tests\\test_billing_portal_cancellation.py": "0556e23911104d95a52b5c0544bc92d62a04455a8f07afb971f6719ea7963d9e",
+  "tests\\test_billing_rls.py": "56143161ac986cb9b413f10a8233963eb53d422b3592e3cafe3f0b7d7a49428b",
+  "tests\\test_billing_standard_launch.py": "cfebef999db5f8b93b850e4397c9e7b8b47b4c0b9801fc88aa9abae61e09c8f7",
+  "tests\\test_billing_tenant_authority.py": "7e4f80fbb8f9cebd44e91d9940a56d283bab04c6a75f017d450c6bb68ecff860",
+  "tests\\test_billing_terminal_checkout_concurrency.py": "23d1a38daca3d754592e250005c0a7dcfb20fe33875517bc5b7ece5d22f96ea1",
+  "tests\\test_billing_terminal_checkout_replay.py": "edf97e8f2b9b19675deff28a84005c8aea9f54c14647d69d965df8c250c37060",
+  "tests\\test_billing_terminal_concurrency.py": "579d661d358260bebc3444347eb3dbdb715a3d36597a0b22ab8dcaf1315078e9",
+  "tests\\test_billing_terminal_replay.py": "5f34916a569deac91ad77e9c94005d662acb557f7e880d9f8c1c1deb8108a796",
+  "tests\\test_billing_webhook_concurrency.py": "7e187d08c86e952162a77e0bfe63399641d6a8f03ca77ebe21fe8ca6f68b5eb4",
+  "tests\\test_billing_webhook_idempotency.py": "a60c1693cfe012976086b3717558058705e1a57463db24ae4088beeb579a038f",
+  "tests\\test_catalog.py": "9517193642b02c2807ccf35344a64c8c2383b5b9c275085b54fce445868f255c",
+  "tests\\test_checkout_intent_authority.py": "fc58199fce8e5406aeb6434368bf2cafc191ad8ff5f4b727683799f269f17f66",
+  "tests\\test_collector.py": "9de9f7ba8225e0a7a39f2d372f0db9edf883ec93518e24638e8d3ee8717a868f",
+  "tests\\test_core_authority_successor.py": "97362b330006db5831c09e20756a085d26d13c0a78324ead67ea0322a6164948",
+  "tests\\test_core_checkout_admission.py": "fa5baf9cf2164cc7c38bb66a56927968fad11c3d64129974737b529e6f48bce0",
+  "tests\\test_core_decisions.py": "c95823f5082c2e533f47f0c006624d1b6ec3f6c3610949a0427622481a0e77f3",
+  "tests\\test_core_workflows.py": "1503e9cef03c01047ffe590ab823d09de3847e912c3a1c2b917a95be1e6cb593",
+  "tests\\test_credential_crypto.py": "0ee9407e458583fafa5478934009d217fcad3cc833ecbf79e1c493c6cbfca2af",
+  "tests\\test_csv_import.py": "65fe8f1e7f7ff0842474134ef735cb441e7c3a8084fa618e8828f8a67acc10d4",
+  "tests\\test_customer_request_authority.py": "3f199d60625e1e7a7fe3cfda1c8b73c6897b773bec15ba582c3670bd6559bf16",
+  "tests\\test_discovery.py": "8e0b4f1a100a90abdef89483ab2c4d51bac3a70018ffdcb162ebd1e97fdf8633",
+  "tests\\test_discovery_reconciliation.py": "52de76f04613af1ab2655475376c3b6f39c82cff9a164c6a094595d7a9bdf137",
+  "tests\\test_discovery_rls.py": "9bb9fdb1f250dd75548631afca9e878fbbcc5713022c1fd330f57d12f04feaf9",
+  "tests\\test_download.py": "57e057194241f7b26130a36db332684f870a195d52d7f6b30834ca03b4c4da3e",
+  "tests\\test_exposure_declarations.py": "770f1ad6dcd2dcb805b727cec59d7f5489826026cdaf2c53ea3406fd35251bde",
+  "tests\\test_funnel_browser.py": "386be38db1facaeeca18ebb6c199ce44ce6606bb0a4ea27817402115081ab9d6",
+  "tests\\test_funnel_contracts.py": "7951378b5be0a542c2c545ada48918378fd996db19de562069789f06f4439f7e",
+  "tests\\test_funnel_routes.py": "131666f064f1b8a1434817bb792f9b67e234764a4cafc2b9c02d9f3fbc7e5b6a",
+  "tests\\test_integrations_analysis.py": "bc29947968c73102f967f11d61bd1405e5b82a75ac0fe8f1eb2a77df22b300c1",
+  "tests\\test_inventory.py": "1f1c310d4bad0a19e71f9f12848ef5cad9b393037ece4e01abe71c7f0172cbcc",
+  "tests\\test_job_payload_hydration.py": "68ddb19d7b0da07ee5c8f13726184c379910a8e982f67d03bf35fc95e42e2c54",
+  "tests\\test_lyra_authority_findings.py": "909b0c9396f625c90e89c1a263661a98ea8a55c2324db980b659b04169706d89",
+  "tests\\test_offer_contracts.py": "d8beec444c9fe55528e404c0fb42f22fc803796cfec32f2a88d4cb597ccf4404",
+  "tests\\test_offer_contracts_adversarial.py": "39b08e15c31489f0b4a3d64b188764b185c2b79b98e0ce230c86997317a87fcf",
+  "tests\\test_operations_dashboard.py": "9e93d922c1c134bd2faeda01b1ff72b76ebd1b42a08172fccf22612939257f75",
+  "tests\\test_organization_rules.py": "353961526fc737fd1c13c9e7e73a03ff50f32741365cc9ddfc12830d840b9043",
+  "tests\\test_paid_coverage_authority.py": "d0fd85982ad16ababc26a2bb31739e621a743cd7b3ed13348adb7fe6df41095d",
+  "tests\\test_paid_evidence_contracts.py": "0daa45b72f83ecbdf2dd1e16d624df3809fd206f84337030921463ff2874dd90",
+  "tests\\test_paid_workflow_boundary.py": "8db73b77de0b08c7fb0b4b2f5cc1fa42ee5fa0211ace4e628c80566ecc414d10",
+  "tests\\test_payflow_deployment_gates.py": "b426252a8da36209fc020ab349021ad605332b95b801fa8d8f581403becba07d",
+  "tests\\test_policy_engine.py": "1a9ec60add5b3236c71b0165bc99dc1e373a6cf077527beaf98e0b6b44015d90",
+  "tests\\test_production_security.py": "11566fbf8f1ac8f072e8b52c499b7e6b7c299feee1ac07f60f051def32588f1d",
+  "tests\\test_provider_boundary.py": "6c2f3283b7548ab267bb96fd9543fad8827cbe785929b9ef2f9778de8488f805",
+  "tests\\test_provider_client.py": "39d0272791428d335657ee62b7f8c667bdd1cd8d0001a8507151c254960cb5c1",
+  "tests\\test_provider_credential_staging.py": "cdd420174d120a093726616e95496aacc065e75c830f5adffd42044fcdaacf45",
+  "tests\\test_provider_lifecycle.py": "189a21af3d499ba283a9bd4c1a8c32e165e0a1a003b0647b4ba5c30c1c8e4120",
+  "tests\\test_provider_rls.py": "176aa14b8febaca7b342192c33c4150720050a279f4159d997cb8958dd568c72",
+  "tests\\test_public_signup.py": "34c7514c2c7a15e4b24fb94b26fdd45434372c983a524bd19d67ca27f84f94b0",
+  "tests\\test_quickbooks_boundary.py": "f6fb7261a66752b8df51d8024331785ce686c6bdd7ed9ab3bd1dbd36554f0931",
+  "tests\\test_quickbooks_client.py": "294383d3bc809af776ec7217c5d476735de7352ac72a8ed2df6eceeb05148db8",
+  "tests\\test_quickbooks_crypto.py": "9a9267c2b76321a57b8a2544eab2d00c027ffff6e1b08a02b1a0c1890d9d7a8d",
+  "tests\\test_quickbooks_lifecycle.py": "fe5a3e5103b51299ea2e6b3a9eb9e74408a7a0928e466c36b6cb3c98333c4eb2",
+  "tests\\test_quickbooks_reports.py": "012be7fb85b94b76e31f2e90279e7c43780687b1eccb4e81cf188f49d91f26ba",
+  "tests\\test_quickbooks_rls.py": "2369ff9fc98323b818fd2b4042c0e636a9d258a149c035b2ed842d5cd6192ade",
+  "tests\\test_recovery_policy.py": "8086205c7a1c38672944a53697573d928a4b3058692863281a80a27f1d16c6ca",
+  "tests\\test_recovery_receipts.py": "b8b150571220d39c8330286df149eb92ef5f719d71e44f5aa58b8b3bb8e71517",
+  "tests\\test_renderer.py": "bf15575f9dd068daae0349cdc039455b5d4102c4f9769173a5cb35d665314119",
+  "tests\\test_report_artifacts.py": "3fb2e7cc7917977c2fbbaa7795045daf32577d3d7f826076ad7978d7fbbcc4bc",
+  "tests\\test_report_generation_job.py": "b157a3619ddcc49c7368be293cb8759ee3fd2f0905ec550ce8dab73b2f8dfb55",
+  "tests\\test_report_history.py": "e25226fd8209f09c1d762a07581e0345943802e8f8f758cbbb86b52f87facf50",
+  "tests\\test_report_recovery_states.py": "e6abd25f6cc016957496920cc4e6c59dd1a59a18318af9269aafdb56bed3126b",
+  "tests\\test_report_storage_atomic.py": "126ceccdb0fdd47c7c586992720109673f595af9f84886ba331338e9d2fe8854",
+  "tests\\test_reports.py": "64618cbd922e0e4561fbd8e52b6a2506f3b2f574f4aa83d7c67bed4cbe92ace8",
+  "tests\\test_review_cycle_authority.py": "b0e3e77099bdfa5494f428483fb46aa5c27475233f5f48d9847040652c288abc",
+  "tests\\test_review_pack_lifecycle.py": "b9312f9a689939de4bd4f4bcc100ca393fa8fd05edea6a127a97364cda9181e5",
+  "tests\\test_risk_engine.py": "f4e4e956dddb6d69a232dc62562bf571aa15c7ec7858d18af4da76d5a442a53a",
+  "tests\\test_rls.py": "2d671275ba9da9b660e77de39843e28221edb544c922279dd13a223bcad41936",
+  "tests\\test_roi_engine.py": "716d59dfe64d8637e57d9d16417390347ef07e61058b9de84787ed3ffd138e34",
+  "tests\\test_roi_engine_v2.py": "357fa9ea2e0c23e8326bfd404e3dff3db229792646f394b9f88bbeb0d378582f",
+  "tests\\test_run_worker_command.py": "f8c5d4403c4c0e589ec636d5091dd3b7d10a35e2f3c8be96a6b69ee62b710c18",
+  "tests\\test_semantic_contracts.py": "7e668f1758b60a7ddd973711d6b53592650ad18ae2f34b7a8c173fa79df87d85",
+  "tests\\test_standard_checkout_flow.py": "6e757cfa74577a9981c123643d63b119829e711ee22555c0d20ee89c4a1bc1cc",
+  "tests\\test_standard_checkout_route_durability.py": "0588f61b9e13741d5dbc06e5509d49f04a9aa64ae2da6135bf0466414abed90c",
+  "tests\\test_tenancy_context.py": "8616b8eae9795d6fe31ec4fe3a55bbaddc278d40c1f9db2e243a1b87b3ed960e",
+  "tests\\test_upload_limits.py": "42be49d82b4fa15e69e2a6c7ddd4c879575a8420a956945214251b12f7e7a6bf",
+  "tests\\test_worker_process_crash.py": "799b2a32eb2f8ee65dea24134c576428a6a29c902f1e28cbd234114ffb774be3",
+  "tests\\test_workflow_contracts.py": "9ce13b60e92c70592ac38f3e25115ae483121b0bcad584e32546de8be55cbe1a",
+  "tests\\test_workflow_profile_setup.py": "d7d96234b9279d735e18c97647d0c55442e066f187f2246cd32aa002d279efd2",
+  "tests\\test_workflow_request_identity_boundary.py": "6e1b72e2aec825a4e52a29099351e38a74353e37e5815acaed1e367244b4c7c2",
+  "tests\\test_workspaces.py": "729c45c8013cd8ffcb34d3a14c49813ff8f2f9b3afb4f8ecf878229c0f739567",
+  "tests\\workflow_identity_diagnostics.py": "b92b47c3f45efc3d2c231af29454ca057722d1160a7903530d73119d20474e98",
+  "uv.lock": "0fbf562c85e422a03fbf751a3b1d99320c3dcf9e8e845c74a1311d3c85a4351a"
+}

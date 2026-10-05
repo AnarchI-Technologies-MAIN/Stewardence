@@ -1,0 +1,185 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+.........F......................................F.......F............... [ 81%]
+................                                                         [100%]
+=================================== FAILURES ===================================
+_________ test_owner_pause_blocks_queued_claim_and_running_persistence _________
+
+core_context = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: b2ef9ae7-6fe3-4721-bd76-55ccd83a5a47 v1>)
+
+    def test_owner_pause_blocks_queued_claim_and_running_persistence(core_context):
+        from apps.jobs.queue import claim_next_job,lock_job_for_persistence,LostJobLease
+        user,org,_,_,snapshot=core_context
+        dispatch(WorkflowRequest(org.id,Operation.REPORT,(snapshot.id,),timezone.now(),BranchProfile.BUSINESS),actor_id=user.id)
+        configure_control(organization_id=org.id,actor_id=user.id,mode='paused',reason='Owner pause')
+        claimed=claim_next_job('pause-worker',using='worker_runtime')
+        assert claimed is None or claimed.job_type=='audit_batch_seal'
+        if claimed:
+            from apps.jobs.queue import complete_job_with_fence
+            complete_job_with_fence(job_id=claimed.id,worker_id='pause-worker',claim_token=claimed.claim_token,using='worker_runtime')
+        configure_control(organization_id=org.id,actor_id=user.id,mode='normal',reason='Owner resumes')
+        claimed=claim_next_job('pause-worker',using='worker_runtime')
+        assert claimed is not None
+        configure_control(organization_id=org.id,actor_id=user.id,mode='paused',reason='Pause during processing')
+>       with pytest.raises(LostJobLease),transaction.atomic(using='worker_runtime'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE LostJobLease
+
+tests/test_core_workflows.py:122: Failed
+____ test_drain_queue_executes_until_queue_is_empty_with_tenant_boundaries _____
+
+organization = <Organization: Phase 13 Queue Firm>
+
+    def test_drain_queue_executes_until_queue_is_empty_with_tenant_boundaries(
+        organization,
+    ):
+        from apps.jobs.worker import drain_queue
+    
+        first = enqueue(organization)
+        second = enqueue(
+            organization,
+            job_type=BackgroundJob.Type.REPORT_GENERATION,
+        )
+    
+        handlers = {
+            BackgroundJob.Type.RISK_REASSESSMENT: RecordingHandler(),
+            BackgroundJob.Type.REPORT_GENERATION: RecordingHandler(),
+        }
+    
+        def resolver(job_type):
+            return handlers[job_type]
+    
+        processed = drain_queue(
+            "worker-a",
+            resolver,
+        )
+    
+>       assert processed == 2
+E       assert 1 == 2
+
+tests/test_background_jobs.py:463: AssertionError
+_____ test_worker_completion_receipt_is_bound_immutable_and_tenant_private _____
+
+    def test_worker_completion_receipt_is_bound_immutable_and_tenant_private():
+        organization = Organization.objects.create(name="Receipt firm")
+        other = Organization.objects.create(name="Other receipt firm")
+        job = enqueue_job(organization_id=organization.id,
+            job_type=BackgroundJob.Type.REPORT_GENERATION, payload={"report_id":str(uuid4())})
+        class Handler:
+            def prepare(self, job): return None
+            def execute_external(self, prepared, heartbeat): return None
+            def persist(self, job, result): return None
+        drain_queue("receipt-worker", lambda kind: Handler(), using="worker_runtime", max_jobs=1)
+>       receipt = RecoveryReceipt.objects.get(job=job)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_recovery_receipts.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <QuerySet []>, args = ()
+kwargs = {'job': <BackgroundJob: report_generation d5853906-aeff-4efa-aeb4-656f233f85bd (queued)>}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           apps.jobs.models.RecoveryReceipt.DoesNotExist: RecoveryReceipt matching query does not exist.
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:635: DoesNotExist
+=============================== warnings summary ===============================
+tests/test_roi_engine_v2.py::test_unknown_snapshot_and_browser_report_preserve_nulls_and_legacy
+tests/test_core_workflows.py::test_core_workspace_private_and_forbids_cross_tenant_snapshot
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_core_workflows.py::test_owner_pause_blocks_queued_claim_and_running_persistence
+FAILED tests/test_background_jobs.py::test_drain_queue_executes_until_queue_is_empty_with_tenant_boundaries
+FAILED tests/test_recovery_receipts.py::test_worker_completion_receipt_is_bound_immutable_and_tenant_private
+3 failed, 85 passed, 2 warnings in 116.68s (0:01:56)

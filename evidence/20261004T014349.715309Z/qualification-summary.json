@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-6d468d8ade",
+  "image_id": "sha256:2d6b7fe4553b229f87e625dff37824608f8e1640bbcd0f9867879d0d5fb25178",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T014349.715309Z",
+  "test_arguments": [
+    "tests/test_payflow_deployment_gates.py"
+  ]
+}

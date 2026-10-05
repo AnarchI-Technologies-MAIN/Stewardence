@@ -1,0 +1,649 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+..FFFFFF                                                                 [100%]
+=================================== FAILURES ===================================
+___ test_committed_deletion_cannot_be_overwritten_by_stale_update[2-active] ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e14a75d9150>
+incoming_status = 'active', contender_count = 2
+
+    @pytest.mark.parametrize("incoming_status", ["active", "trialing"])
+    @pytest.mark.parametrize("contender_count", [1, 2, 4, 8])
+    def test_committed_deletion_cannot_be_overwritten_by_stale_update(
+        monkeypatch, incoming_status, contender_count
+    ):
+        assert connections["default"].vendor == "postgresql"
+        user, _, subscription = make_subscription(
+            email=f"race-{incoming_status}-{contender_count}@example.invalid"
+        )
+        observed = Event()
+        resume = Event()
+        deletion_started = Event()
+        deletion_committed = Event()
+        identifiers = {}
+        started = {f"update-{index}": Event() for index in range(contender_count)}
+        original_contract = views.subscription_price_contract
+    
+        def pause_after_subscription_read(payload):
+            observed.set()
+            assert resume.wait(15), "Updater was not released"
+            return original_contract(payload)
+    
+        monkeypatch.setattr(
+            views, "subscription_price_contract", pause_after_subscription_read
+        )
+    
+        def invoke(kind):
+            try:
+                with identity_transaction(user.id):
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute("SET LOCAL ROLE agentledger_app")
+                        cursor.execute("SET LOCAL statement_timeout = '20s'")
+                        cursor.execute(
+                            "SELECT current_user, pg_backend_pid(), "
+                            "current_setting('transaction_isolation')"
+                        )
+                        role, pid, isolation = cursor.fetchone()
+                        assert role == "agentledger_app"
+                        assert isolation == "read committed"
+                        identifiers[kind] = pid
+                    if kind.startswith("update-"):
+                        started[kind].set()
+                        views._handle_subscription_updated(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status=incoming_status
+                            )
+                        )
+                    if kind == "delete":
+                        deletion_started.set()
+                        views._handle_subscription_deleted(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status="canceled"
+                            )
+                        )
+                if kind == "delete":
+                    deletion_committed.set()
+            finally:
+                connections["default"].close()
+    
+        with ThreadPoolExecutor(max_workers=contender_count + 1) as executor:
+            updaters = [executor.submit(invoke, "update-0")]
+            try:
+                assert observed.wait(10), "Updater never observed subscription"
+                updaters.extend(
+                    executor.submit(invoke, f"update-{index}")
+                    for index in range(1, contender_count)
+                )
+                for event in started.values():
+                    assert event.wait(10), "Contender did not establish its role and isolation"
+                deleter = executor.submit(invoke, "delete")
+                assert deletion_started.wait(10), "Deletion did not start"
+                deadline = monotonic() + 10
+                blocked = False
+                while not deletion_committed.is_set() and monotonic() < deadline:
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute(
+                            "SELECT %s = ANY(pg_blocking_pids(%s))",
+                            [identifiers["update-0"], identifiers["delete"]],
+                        )
+                        blocked = cursor.fetchone()[0]
+                    if blocked:
+                        break
+>               assert deletion_committed.is_set() or blocked, (
+                    "Neither committed deletion nor a proven row-lock wait occurred"
+                )
+E               AssertionError: Neither committed deletion nor a proven row-lock wait occurred
+E               assert (False or False)
+E                +  where False = is_set()
+E                +    where is_set = <threading.Event at 0x7e14a7b2e8d0: unset>.is_set
+
+tests/test_billing_terminal_concurrency.py:103: AssertionError
+__ test_committed_deletion_cannot_be_overwritten_by_stale_update[2-trialing] ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e14a75d8d10>
+incoming_status = 'trialing', contender_count = 2
+
+    @pytest.mark.parametrize("incoming_status", ["active", "trialing"])
+    @pytest.mark.parametrize("contender_count", [1, 2, 4, 8])
+    def test_committed_deletion_cannot_be_overwritten_by_stale_update(
+        monkeypatch, incoming_status, contender_count
+    ):
+        assert connections["default"].vendor == "postgresql"
+        user, _, subscription = make_subscription(
+            email=f"race-{incoming_status}-{contender_count}@example.invalid"
+        )
+        observed = Event()
+        resume = Event()
+        deletion_started = Event()
+        deletion_committed = Event()
+        identifiers = {}
+        started = {f"update-{index}": Event() for index in range(contender_count)}
+        original_contract = views.subscription_price_contract
+    
+        def pause_after_subscription_read(payload):
+            observed.set()
+            assert resume.wait(15), "Updater was not released"
+            return original_contract(payload)
+    
+        monkeypatch.setattr(
+            views, "subscription_price_contract", pause_after_subscription_read
+        )
+    
+        def invoke(kind):
+            try:
+                with identity_transaction(user.id):
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute("SET LOCAL ROLE agentledger_app")
+                        cursor.execute("SET LOCAL statement_timeout = '20s'")
+                        cursor.execute(
+                            "SELECT current_user, pg_backend_pid(), "
+                            "current_setting('transaction_isolation')"
+                        )
+                        role, pid, isolation = cursor.fetchone()
+                        assert role == "agentledger_app"
+                        assert isolation == "read committed"
+                        identifiers[kind] = pid
+                    if kind.startswith("update-"):
+                        started[kind].set()
+                        views._handle_subscription_updated(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status=incoming_status
+                            )
+                        )
+                    if kind == "delete":
+                        deletion_started.set()
+                        views._handle_subscription_deleted(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status="canceled"
+                            )
+                        )
+                if kind == "delete":
+                    deletion_committed.set()
+            finally:
+                connections["default"].close()
+    
+        with ThreadPoolExecutor(max_workers=contender_count + 1) as executor:
+            updaters = [executor.submit(invoke, "update-0")]
+            try:
+                assert observed.wait(10), "Updater never observed subscription"
+                updaters.extend(
+                    executor.submit(invoke, f"update-{index}")
+                    for index in range(1, contender_count)
+                )
+                for event in started.values():
+                    assert event.wait(10), "Contender did not establish its role and isolation"
+                deleter = executor.submit(invoke, "delete")
+                assert deletion_started.wait(10), "Deletion did not start"
+                deadline = monotonic() + 10
+                blocked = False
+                while not deletion_committed.is_set() and monotonic() < deadline:
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute(
+                            "SELECT %s = ANY(pg_blocking_pids(%s))",
+                            [identifiers["update-0"], identifiers["delete"]],
+                        )
+                        blocked = cursor.fetchone()[0]
+                    if blocked:
+                        break
+>               assert deletion_committed.is_set() or blocked, (
+                    "Neither committed deletion nor a proven row-lock wait occurred"
+                )
+E               AssertionError: Neither committed deletion nor a proven row-lock wait occurred
+E               assert (False or False)
+E                +  where False = is_set()
+E                +    where is_set = <threading.Event at 0x7e14a635a870: unset>.is_set
+
+tests/test_billing_terminal_concurrency.py:103: AssertionError
+___ test_committed_deletion_cannot_be_overwritten_by_stale_update[4-active] ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e14a7629250>
+incoming_status = 'active', contender_count = 4
+
+    @pytest.mark.parametrize("incoming_status", ["active", "trialing"])
+    @pytest.mark.parametrize("contender_count", [1, 2, 4, 8])
+    def test_committed_deletion_cannot_be_overwritten_by_stale_update(
+        monkeypatch, incoming_status, contender_count
+    ):
+        assert connections["default"].vendor == "postgresql"
+        user, _, subscription = make_subscription(
+            email=f"race-{incoming_status}-{contender_count}@example.invalid"
+        )
+        observed = Event()
+        resume = Event()
+        deletion_started = Event()
+        deletion_committed = Event()
+        identifiers = {}
+        started = {f"update-{index}": Event() for index in range(contender_count)}
+        original_contract = views.subscription_price_contract
+    
+        def pause_after_subscription_read(payload):
+            observed.set()
+            assert resume.wait(15), "Updater was not released"
+            return original_contract(payload)
+    
+        monkeypatch.setattr(
+            views, "subscription_price_contract", pause_after_subscription_read
+        )
+    
+        def invoke(kind):
+            try:
+                with identity_transaction(user.id):
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute("SET LOCAL ROLE agentledger_app")
+                        cursor.execute("SET LOCAL statement_timeout = '20s'")
+                        cursor.execute(
+                            "SELECT current_user, pg_backend_pid(), "
+                            "current_setting('transaction_isolation')"
+                        )
+                        role, pid, isolation = cursor.fetchone()
+                        assert role == "agentledger_app"
+                        assert isolation == "read committed"
+                        identifiers[kind] = pid
+                    if kind.startswith("update-"):
+                        started[kind].set()
+                        views._handle_subscription_updated(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status=incoming_status
+                            )
+                        )
+                    if kind == "delete":
+                        deletion_started.set()
+                        views._handle_subscription_deleted(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status="canceled"
+                            )
+                        )
+                if kind == "delete":
+                    deletion_committed.set()
+            finally:
+                connections["default"].close()
+    
+        with ThreadPoolExecutor(max_workers=contender_count + 1) as executor:
+            updaters = [executor.submit(invoke, "update-0")]
+            try:
+                assert observed.wait(10), "Updater never observed subscription"
+                updaters.extend(
+                    executor.submit(invoke, f"update-{index}")
+                    for index in range(1, contender_count)
+                )
+                for event in started.values():
+                    assert event.wait(10), "Contender did not establish its role and isolation"
+                deleter = executor.submit(invoke, "delete")
+                assert deletion_started.wait(10), "Deletion did not start"
+                deadline = monotonic() + 10
+                blocked = False
+                while not deletion_committed.is_set() and monotonic() < deadline:
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute(
+                            "SELECT %s = ANY(pg_blocking_pids(%s))",
+                            [identifiers["update-0"], identifiers["delete"]],
+                        )
+                        blocked = cursor.fetchone()[0]
+                    if blocked:
+                        break
+>               assert deletion_committed.is_set() or blocked, (
+                    "Neither committed deletion nor a proven row-lock wait occurred"
+                )
+E               AssertionError: Neither committed deletion nor a proven row-lock wait occurred
+E               assert (False or False)
+E                +  where False = is_set()
+E                +    where is_set = <threading.Event at 0x7e14a7957d10: unset>.is_set
+
+tests/test_billing_terminal_concurrency.py:103: AssertionError
+__ test_committed_deletion_cannot_be_overwritten_by_stale_update[4-trialing] ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e14a7628f50>
+incoming_status = 'trialing', contender_count = 4
+
+    @pytest.mark.parametrize("incoming_status", ["active", "trialing"])
+    @pytest.mark.parametrize("contender_count", [1, 2, 4, 8])
+    def test_committed_deletion_cannot_be_overwritten_by_stale_update(
+        monkeypatch, incoming_status, contender_count
+    ):
+        assert connections["default"].vendor == "postgresql"
+        user, _, subscription = make_subscription(
+            email=f"race-{incoming_status}-{contender_count}@example.invalid"
+        )
+        observed = Event()
+        resume = Event()
+        deletion_started = Event()
+        deletion_committed = Event()
+        identifiers = {}
+        started = {f"update-{index}": Event() for index in range(contender_count)}
+        original_contract = views.subscription_price_contract
+    
+        def pause_after_subscription_read(payload):
+            observed.set()
+            assert resume.wait(15), "Updater was not released"
+            return original_contract(payload)
+    
+        monkeypatch.setattr(
+            views, "subscription_price_contract", pause_after_subscription_read
+        )
+    
+        def invoke(kind):
+            try:
+                with identity_transaction(user.id):
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute("SET LOCAL ROLE agentledger_app")
+                        cursor.execute("SET LOCAL statement_timeout = '20s'")
+                        cursor.execute(
+                            "SELECT current_user, pg_backend_pid(), "
+                            "current_setting('transaction_isolation')"
+                        )
+                        role, pid, isolation = cursor.fetchone()
+                        assert role == "agentledger_app"
+                        assert isolation == "read committed"
+                        identifiers[kind] = pid
+                    if kind.startswith("update-"):
+                        started[kind].set()
+                        views._handle_subscription_updated(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status=incoming_status
+                            )
+                        )
+                    if kind == "delete":
+                        deletion_started.set()
+                        views._handle_subscription_deleted(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status="canceled"
+                            )
+                        )
+                if kind == "delete":
+                    deletion_committed.set()
+            finally:
+                connections["default"].close()
+    
+        with ThreadPoolExecutor(max_workers=contender_count + 1) as executor:
+            updaters = [executor.submit(invoke, "update-0")]
+            try:
+                assert observed.wait(10), "Updater never observed subscription"
+                updaters.extend(
+                    executor.submit(invoke, f"update-{index}")
+                    for index in range(1, contender_count)
+                )
+                for event in started.values():
+                    assert event.wait(10), "Contender did not establish its role and isolation"
+                deleter = executor.submit(invoke, "delete")
+                assert deletion_started.wait(10), "Deletion did not start"
+                deadline = monotonic() + 10
+                blocked = False
+                while not deletion_committed.is_set() and monotonic() < deadline:
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute(
+                            "SELECT %s = ANY(pg_blocking_pids(%s))",
+                            [identifiers["update-0"], identifiers["delete"]],
+                        )
+                        blocked = cursor.fetchone()[0]
+                    if blocked:
+                        break
+>               assert deletion_committed.is_set() or blocked, (
+                    "Neither committed deletion nor a proven row-lock wait occurred"
+                )
+E               AssertionError: Neither committed deletion nor a proven row-lock wait occurred
+E               assert (False or False)
+E                +  where False = is_set()
+E                +    where is_set = <threading.Event at 0x7e14a799b5f0: unset>.is_set
+
+tests/test_billing_terminal_concurrency.py:103: AssertionError
+___ test_committed_deletion_cannot_be_overwritten_by_stale_update[8-active] ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e14a63667b0>
+incoming_status = 'active', contender_count = 8
+
+    @pytest.mark.parametrize("incoming_status", ["active", "trialing"])
+    @pytest.mark.parametrize("contender_count", [1, 2, 4, 8])
+    def test_committed_deletion_cannot_be_overwritten_by_stale_update(
+        monkeypatch, incoming_status, contender_count
+    ):
+        assert connections["default"].vendor == "postgresql"
+        user, _, subscription = make_subscription(
+            email=f"race-{incoming_status}-{contender_count}@example.invalid"
+        )
+        observed = Event()
+        resume = Event()
+        deletion_started = Event()
+        deletion_committed = Event()
+        identifiers = {}
+        started = {f"update-{index}": Event() for index in range(contender_count)}
+        original_contract = views.subscription_price_contract
+    
+        def pause_after_subscription_read(payload):
+            observed.set()
+            assert resume.wait(15), "Updater was not released"
+            return original_contract(payload)
+    
+        monkeypatch.setattr(
+            views, "subscription_price_contract", pause_after_subscription_read
+        )
+    
+        def invoke(kind):
+            try:
+                with identity_transaction(user.id):
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute("SET LOCAL ROLE agentledger_app")
+                        cursor.execute("SET LOCAL statement_timeout = '20s'")
+                        cursor.execute(
+                            "SELECT current_user, pg_backend_pid(), "
+                            "current_setting('transaction_isolation')"
+                        )
+                        role, pid, isolation = cursor.fetchone()
+                        assert role == "agentledger_app"
+                        assert isolation == "read committed"
+                        identifiers[kind] = pid
+                    if kind.startswith("update-"):
+                        started[kind].set()
+                        views._handle_subscription_updated(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status=incoming_status
+                            )
+                        )
+                    if kind == "delete":
+                        deletion_started.set()
+                        views._handle_subscription_deleted(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status="canceled"
+                            )
+                        )
+                if kind == "delete":
+                    deletion_committed.set()
+            finally:
+                connections["default"].close()
+    
+        with ThreadPoolExecutor(max_workers=contender_count + 1) as executor:
+            updaters = [executor.submit(invoke, "update-0")]
+            try:
+                assert observed.wait(10), "Updater never observed subscription"
+                updaters.extend(
+                    executor.submit(invoke, f"update-{index}")
+                    for index in range(1, contender_count)
+                )
+                for event in started.values():
+                    assert event.wait(10), "Contender did not establish its role and isolation"
+                deleter = executor.submit(invoke, "delete")
+                assert deletion_started.wait(10), "Deletion did not start"
+                deadline = monotonic() + 10
+                blocked = False
+                while not deletion_committed.is_set() and monotonic() < deadline:
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute(
+                            "SELECT %s = ANY(pg_blocking_pids(%s))",
+                            [identifiers["update-0"], identifiers["delete"]],
+                        )
+                        blocked = cursor.fetchone()[0]
+                    if blocked:
+                        break
+>               assert deletion_committed.is_set() or blocked, (
+                    "Neither committed deletion nor a proven row-lock wait occurred"
+                )
+E               AssertionError: Neither committed deletion nor a proven row-lock wait occurred
+E               assert (False or False)
+E                +  where False = is_set()
+E                +    where is_set = <threading.Event at 0x7e14a638ef30: unset>.is_set
+
+tests/test_billing_terminal_concurrency.py:103: AssertionError
+__ test_committed_deletion_cannot_be_overwritten_by_stale_update[8-trialing] ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e14a636d9a0>
+incoming_status = 'trialing', contender_count = 8
+
+    @pytest.mark.parametrize("incoming_status", ["active", "trialing"])
+    @pytest.mark.parametrize("contender_count", [1, 2, 4, 8])
+    def test_committed_deletion_cannot_be_overwritten_by_stale_update(
+        monkeypatch, incoming_status, contender_count
+    ):
+        assert connections["default"].vendor == "postgresql"
+        user, _, subscription = make_subscription(
+            email=f"race-{incoming_status}-{contender_count}@example.invalid"
+        )
+        observed = Event()
+        resume = Event()
+        deletion_started = Event()
+        deletion_committed = Event()
+        identifiers = {}
+        started = {f"update-{index}": Event() for index in range(contender_count)}
+        original_contract = views.subscription_price_contract
+    
+        def pause_after_subscription_read(payload):
+            observed.set()
+            assert resume.wait(15), "Updater was not released"
+            return original_contract(payload)
+    
+        monkeypatch.setattr(
+            views, "subscription_price_contract", pause_after_subscription_read
+        )
+    
+        def invoke(kind):
+            try:
+                with identity_transaction(user.id):
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute("SET LOCAL ROLE agentledger_app")
+                        cursor.execute("SET LOCAL statement_timeout = '20s'")
+                        cursor.execute(
+                            "SELECT current_user, pg_backend_pid(), "
+                            "current_setting('transaction_isolation')"
+                        )
+                        role, pid, isolation = cursor.fetchone()
+                        assert role == "agentledger_app"
+                        assert isolation == "read committed"
+                        identifiers[kind] = pid
+                    if kind.startswith("update-"):
+                        started[kind].set()
+                        views._handle_subscription_updated(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status=incoming_status
+                            )
+                        )
+                    if kind == "delete":
+                        deletion_started.set()
+                        views._handle_subscription_deleted(
+                            stripe_subscription(
+                                cancel_at_period_end=False, status="canceled"
+                            )
+                        )
+                if kind == "delete":
+                    deletion_committed.set()
+            finally:
+                connections["default"].close()
+    
+        with ThreadPoolExecutor(max_workers=contender_count + 1) as executor:
+            updaters = [executor.submit(invoke, "update-0")]
+            try:
+                assert observed.wait(10), "Updater never observed subscription"
+                updaters.extend(
+                    executor.submit(invoke, f"update-{index}")
+                    for index in range(1, contender_count)
+                )
+                for event in started.values():
+                    assert event.wait(10), "Contender did not establish its role and isolation"
+                deleter = executor.submit(invoke, "delete")
+                assert deletion_started.wait(10), "Deletion did not start"
+                deadline = monotonic() + 10
+                blocked = False
+                while not deletion_committed.is_set() and monotonic() < deadline:
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute(
+                            "SELECT %s = ANY(pg_blocking_pids(%s))",
+                            [identifiers["update-0"], identifiers["delete"]],
+                        )
+                        blocked = cursor.fetchone()[0]
+                    if blocked:
+                        break
+>               assert deletion_committed.is_set() or blocked, (
+                    "Neither committed deletion nor a proven row-lock wait occurred"
+                )
+E               AssertionError: Neither committed deletion nor a proven row-lock wait occurred
+E               assert (False or False)
+E                +  where False = is_set()
+E                +    where is_set = <threading.Event at 0x7e14a6398fb0: unset>.is_set
+
+tests/test_billing_terminal_concurrency.py:103: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_billing_terminal_concurrency.py::test_committed_deletion_cannot_be_overwritten_by_stale_update[2-active]
+FAILED tests/test_billing_terminal_concurrency.py::test_committed_deletion_cannot_be_overwritten_by_stale_update[2-trialing]
+FAILED tests/test_billing_terminal_concurrency.py::test_committed_deletion_cannot_be_overwritten_by_stale_update[4-active]
+FAILED tests/test_billing_terminal_concurrency.py::test_committed_deletion_cannot_be_overwritten_by_stale_update[4-trialing]
+FAILED tests/test_billing_terminal_concurrency.py::test_committed_deletion_cannot_be_overwritten_by_stale_update[8-active]
+FAILED tests/test_billing_terminal_concurrency.py::test_committed_deletion_cannot_be_overwritten_by_stale_update[8-trialing]
+6 failed, 2 passed in 71.56s (0:01:11)

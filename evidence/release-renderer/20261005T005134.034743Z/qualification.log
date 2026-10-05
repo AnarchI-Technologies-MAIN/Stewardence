@@ -1,0 +1,4 @@
+{"renderer_uid": 10001, "apps_absent": true, "output_writable": true, "actual_headless_launch_and_close": true}
+System check identified no issues (0 silenced).
+{"actual_app_uid": 10001, "renderer_package_absent": true, "pytest_absent": true, "http_specimens": 2}
+{"semantic_pdf_checks": 2, "scope": "synthetic_not_admitted"}

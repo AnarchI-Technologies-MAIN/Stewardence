@@ -1,0 +1,2286 @@
+[
+  {
+    "id": "01-overview",
+    "title": "Evidence coverage",
+    "status": "proposed",
+    "brief": "Review what is supported and what needs attention.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D2",
+      "D3",
+      "D4",
+      "D6"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No source received; review manual intake options. Connection may exist independently.",
+      "loading": "Evidence coverage: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Evidence coverage: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Evidence coverage: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Evidence coverage: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Evidence coverage: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Observed",
+      "Source / time",
+      "What remains unknown",
+      "Next step",
+      "Last manual import",
+      "Last successful automatic collection",
+      "Last authorized automatic action",
+      "Expenditure sinks",
+      "Observed discrepancies",
+      "Calculated ROI"
+    ],
+    "primary_action": "Review supporting evidence",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "overview",
+    "brand_asset": "emblem-family/overview.svg"
+  },
+  {
+    "id": "02-home",
+    "title": "Understand your AI adoption.",
+    "status": "existing",
+    "brief": "Know what the evidence supports.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Prospective accounting/bookkeeping team",
+    "template": "home.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D12"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "Product preview absent: retain factual approach and maintenance availability.",
+      "loading": "Understand your AI adoption.: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Understand your AI adoption.: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Understand your AI adoption.: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Understand your AI adoption.: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Understand your AI adoption.: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Observe",
+      "Review",
+      "Document"
+    ],
+    "primary_action": "Explore the approach",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "src/agentledger/urls.py",
+      "home_view"
+    ],
+    "brand_variant": "overview",
+    "brand_asset": "emblem-family/overview.svg"
+  },
+  {
+    "id": "03-pricing",
+    "title": "Core and Automation",
+    "status": "existing",
+    "brief": "Source-defined prices; live Stripe configuration still needs verification.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Prospective accounting/bookkeeping team",
+    "template": "billing/portfolio.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D12"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No qualified offer: show pricing under review; no enabled checkout.",
+      "loading": "Core and Automation: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Core and Automation: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Core and Automation: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Core and Automation: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Core and Automation: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Review Core terms",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/billing/views.py",
+      "portfolio_view"
+    ],
+    "brand_variant": "pricing",
+    "brand_asset": "emblem-family/pricing.svg"
+  },
+  {
+    "id": "04-visibility-landing",
+    "title": "Know which tools are present.",
+    "status": "proposed",
+    "brief": "Understand the access the evidence establishes.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Prospective accounting/bookkeeping team",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D11"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No answers: contact and problem required; qualification optional.",
+      "loading": "Know which tools are present.: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Know which tools are present.: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Know which tools are present.: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Know which tools are present.: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Know which tools are present.: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Request a discovery conversation \u00c3\u201a\u00c2\u00b7 proposed",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "funnels",
+    "brand_asset": "emblem-family/funnels.svg"
+  },
+  {
+    "id": "05-roi-landing",
+    "title": "Is AI paying off?",
+    "status": "proposed",
+    "brief": "Start with comparable costs and outcomes.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Prospective accounting/bookkeeping team",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D11",
+      "D5"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No workflow stated: request a concrete workflow, not financial records.",
+      "loading": "Is AI paying off?: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Is AI paying off?: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Is AI paying off?: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Is AI paying off?: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Is AI paying off?: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Describe a workflow \u00c3\u201a\u00c2\u00b7 proposed",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "funnels",
+    "brand_asset": "emblem-family/funnels.svg"
+  },
+  {
+    "id": "06-automation-landing",
+    "title": "Repeatable evidence.",
+    "status": "proposed",
+    "brief": "Clear human authority.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Prospective accounting/bookkeeping team",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D11",
+      "D4"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No recurring need stated: ask desired workflow; no Automation checkout.",
+      "loading": "Repeatable evidence.: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Repeatable evidence.: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Repeatable evidence.: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Repeatable evidence.: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Repeatable evidence.: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Scheduled collection",
+      "Repeatable assessment",
+      "Report generation",
+      "Purchases"
+    ],
+    "primary_action": "Express Automation interest \u00c3\u201a\u00c2\u00b7 proposed",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "funnels",
+    "brand_asset": "emblem-family/funnels.svg"
+  },
+  {
+    "id": "07-lead-confirmation",
+    "title": "Request receipt",
+    "status": "proposed",
+    "brief": "A success state requires durable server receipt.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Prospective accounting/bookkeeping team",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D11"
+    ],
+    "interaction_contract": "Proposed durable receipt before success; same idempotency key + same payload returns same receipt; same key + different payload conflict; uncertain network retry reuses key. No automatic contact.",
+    "states": {
+      "empty": "No committed receipt: never show successful request confirmation.",
+      "loading": "Request receipt: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Request receipt: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Request receipt: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Request receipt: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Committed receipt with original answers and consent; synthetic success example only."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Receipt",
+      "Problem",
+      "Preferred contact",
+      "System responsibility",
+      "Marketing consent",
+      "Validation failed",
+      "Outcome uncertain",
+      "Duplicate request",
+      "Conflicting duplicate"
+    ],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "funnels",
+    "brand_asset": "emblem-family/funnels.svg"
+  },
+  {
+    "id": "08-login",
+    "title": "Log in",
+    "status": "existing",
+    "brief": "Use your Stewardence account.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Unauthenticated returning account user",
+    "template": "registration/login.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "Blank credentials: display bound form requirements.",
+      "loading": "Log in: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Log in: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Log in: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Log in: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Existing authenticated destination, safe next preserved."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Log in",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/accounts/urls.py",
+      "Django LoginView route"
+    ],
+    "brand_variant": "login",
+    "brand_asset": "emblem-family/login.svg"
+  },
+  {
+    "id": "09-signup",
+    "title": "Create your account",
+    "status": "existing",
+    "brief": "Account creation is separate from workspace and subscription access.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Unauthenticated prospective account user",
+    "template": "registration/signup.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "Blank account form: preserve actual signup required/optional fields.",
+      "loading": "Create your account: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Create your account: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Create your account: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Create your account: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Account created by source view; workspace authority separate."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Create account",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/accounts/views.py",
+      "signup_view"
+    ],
+    "brand_variant": "signup",
+    "brand_asset": "emblem-family/signup.svg"
+  },
+  {
+    "id": "10-workspace-selection",
+    "title": "Choose your workspace",
+    "status": "partially implemented",
+    "brief": "Ordinary workspace selection and sandbox testing have separate access paths.",
+    "maturity_detail": "Existing source surface; redesigned expansions require contracts.",
+    "primary_user": "Authenticated member; sandbox branch active allowlisted owner",
+    "template": "organizations/select_workspace.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D1"
+    ],
+    "interaction_contract": "Normal picker POST organizations:workspace-activate with organization_id; sandbox picker POST integrations:quickbooks-connect with action=select_workspace and exactly one workspace_id. Current active workspace requires authority() checks; no new authentication.",
+    "states": {
+      "empty": "No ordinary memberships / no sandbox owned workspace: separate empty messages.",
+      "loading": "Choose your workspace: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Choose your workspace: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Choose your workspace: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Choose your workspace: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Selected authorized workspace in session; sandbox grants no subscription."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Open selected workspace",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/organizations/views.py",
+      "workspace_selection_view / activate_workspace_action; sandbox quickbooks_views.connect"
+    ],
+    "brand_variant": "admin",
+    "brand_asset": "emblem-family/admin.svg"
+  },
+  {
+    "id": "11-workspace-setup",
+    "title": "Create your organization workspace",
+    "status": "existing",
+    "brief": "Step 1 of 3 \u00c3\u201a\u00c2\u00b7 Organization, starting point, review.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "organizations/setup.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No organization details: name and industry form errors.",
+      "loading": "Create your organization workspace: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Create your organization workspace: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Create your organization workspace: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Create your organization workspace: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Source-reviewed setup completes, then chosen supported starting point."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "2 \u00c3\u201a\u00c2\u00b7 Starting point",
+      "3 \u00c3\u201a\u00c2\u00b7 Review",
+      "Scope"
+    ],
+    "primary_action": "Continue",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/organizations/views.py",
+      "setup_organization_view / setup_organization_start_view / setup_organization_review_view"
+    ],
+    "brand_variant": "admin",
+    "brand_asset": "emblem-family/admin.svg"
+  },
+  {
+    "id": "12-inventory-list",
+    "title": "Software inventory",
+    "status": "partially implemented",
+    "brief": "Review records and their supporting sources.",
+    "maturity_detail": "Existing source surface; redesigned expansions require contracts.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "inventory/list.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D2"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No inventory records: add software or supported manual intake if writer.",
+      "loading": "Software inventory: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Software inventory: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Software inventory: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Software inventory: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Software inventory: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Add software",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/inventory/views.py",
+      "inventory_list_view"
+    ],
+    "brand_variant": "inventory",
+    "brand_asset": "emblem-family/inventory.svg"
+  },
+  {
+    "id": "13-inventory-detail",
+    "title": "Example Desktop Tool",
+    "status": "partially implemented",
+    "brief": "Software record \u00c3\u201a\u00c2\u00b7 synthetic.",
+    "maturity_detail": "Existing source surface; redesigned expansions require contracts.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "inventory/detail.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D2"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No supporting observation: declaration only, unknown source attributes.",
+      "loading": "Example Desktop Tool: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Example Desktop Tool: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Example Desktop Tool: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Example Desktop Tool: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Example Desktop Tool: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Observation",
+      "Source / observed time",
+      "Received",
+      "Catalog match",
+      "Authorized / enabled / actively used",
+      "Monthly cost"
+    ],
+    "primary_action": "Review source",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/inventory/views.py",
+      "inventory_detail_view"
+    ],
+    "brand_variant": "inventory",
+    "brand_asset": "emblem-family/inventory.svg"
+  },
+  {
+    "id": "14-inventory-form",
+    "title": "Add or edit software",
+    "status": "partially implemented",
+    "brief": "Customer declaration \u00c3\u201a\u00c2\u00b7 preserve the existing form contract.",
+    "maturity_detail": "Existing source surface; redesigned expansions require contracts.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "inventory/form.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D5"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "New blank record: do not default unknown cost to zero.",
+      "loading": "Add or edit software: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Add or edit software: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Add or edit software: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+      "error": "Add or edit software: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Inventory record durably saved under writer role; declaration provenance retained."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Context",
+      "Access and capability"
+    ],
+    "primary_action": "Save software",
+    "permission_contract": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/inventory/views.py",
+      "create_inventory_item_view / edit_inventory_item_view"
+    ],
+    "brand_variant": "inventory",
+    "brand_asset": "emblem-family/inventory.svg"
+  },
+  {
+    "id": "15-discovery",
+    "title": "StewardSensors collection",
+    "status": "existing",
+    "brief": "Manual, one-shot Windows installed-program observations.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "inventory/discovery.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No scans: upload supported Windows bundle; no continuous enrollment.",
+      "loading": "StewardSensors collection: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "StewardSensors collection: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "StewardSensors collection: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "StewardSensors collection: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Validated source received; catalog observation distinct from actual usage."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Observed / received",
+      "Scope",
+      "Coverage",
+      "Unknown"
+    ],
+    "primary_action": "Upload bundle",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/inventory/discovery_views.py",
+      "discovery_view"
+    ],
+    "brand_variant": "inventory",
+    "brand_asset": "emblem-family/inventory.svg"
+  },
+  {
+    "id": "16-download",
+    "title": "Download StewardSensors",
+    "status": "existing",
+    "brief": "Run locally, review the result, and upload manually.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "downloads/detail.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D1"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "Release unavailable: no active download promise; verify source artifact.",
+      "loading": "Download StewardSensors: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Download StewardSensors: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Download StewardSensors: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Download StewardSensors: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Download StewardSensors: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Source release metadata",
+      "1 \u00c3\u201a\u00c2\u00b7 Download",
+      "2 \u00c3\u201a\u00c2\u00b7 Run locally",
+      "3 \u00c3\u201a\u00c2\u00b7 Review",
+      "4 \u00c3\u201a\u00c2\u00b7 Upload"
+    ],
+    "primary_action": "Download Windows release",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "src/agentledger/downloads.py",
+      "download_view"
+    ],
+    "brand_variant": "inventory",
+    "brand_asset": "emblem-family/inventory.svg"
+  },
+  {
+    "id": "17-import-upload",
+    "title": "Upload software inventory CSV",
+    "status": "existing",
+    "brief": "Step 1 of 3 \u00c3\u201a\u00c2\u00b7 Upload, check and correct, final approval.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "imports/upload.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No selected CSV: field error; no staging receipt.",
+      "loading": "Upload software inventory CSV: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Upload software inventory CSV: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Upload software inventory CSV: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+      "error": "Upload software inventory CSV: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Import batch staged only."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Upload for review",
+    "permission_contract": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/imports/views.py",
+      "upload_csv_view"
+    ],
+    "brand_variant": "inventory",
+    "brand_asset": "emblem-family/inventory.svg"
+  },
+  {
+    "id": "18-import-review",
+    "title": "Check imported software",
+    "status": "existing",
+    "brief": "Step 2 of 3 \u00c3\u201a\u00c2\u00b7 No inventory has been written.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "imports/review.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No editable rows: reflect batch lifecycle; no inventory write.",
+      "loading": "Check imported software: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Check imported software: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Check imported software: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+      "error": "Check imported software: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Corrections validated and stage advanced; no inventory records yet."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Continue to final review",
+    "permission_contract": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/imports/views.py",
+      "review_import_view"
+    ],
+    "brand_variant": "inventory",
+    "brand_asset": "emblem-family/inventory.svg"
+  },
+  {
+    "id": "19-import-final",
+    "title": "Approve software import",
+    "status": "existing",
+    "brief": "Step 3 of 3 \u00c3\u201a\u00c2\u00b7 Final approval.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "imports/final.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No valid final batch: do not offer confirmation against nonexistent items.",
+      "loading": "Approve software import: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Approve software import: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Approve software import: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+      "error": "Approve software import: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Confirm import transaction adds validated software records, not accounting entries."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Workspace",
+      "Effect",
+      "Authority",
+      "Source"
+    ],
+    "primary_action": "Save and finish setup",
+    "permission_contract": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/imports/views.py",
+      "final_review_view / confirm_import_action"
+    ],
+    "brand_variant": "inventory",
+    "brand_asset": "emblem-family/inventory.svg"
+  },
+  {
+    "id": "20-integrations",
+    "title": "Integrations and collection",
+    "status": "proposed",
+    "brief": "Connection health and evidence collection are separate.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D2",
+      "D3"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No connection: manual sources still separate; ineligible sandbox stays unavailable.",
+      "loading": "Integrations and collection: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Integrations and collection: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Integrations and collection: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Integrations and collection: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Integrations and collection: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Review QuickBooks connection",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "evidence-library",
+    "brand_asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "id": "21-quickbooks",
+    "title": "QuickBooks sandbox",
+    "status": "existing",
+    "brief": "Example Sandbox \u00c3\u201a\u00c2\u00b7 connecting owner \u00c3\u201a\u00c2\u00b7 allowlisted example.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Active allowlisted owner of selected workspace and connecting owner for management",
+    "template": "integrations/quickbooks.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D1",
+      "D3"
+    ],
+    "interaction_contract": "Connect/refresh/disconnect POST named URLs with CSRF. callback and disconnected remain empty redirects. Models store disconnected, connected, reconnect, revoking. Authorization progress is transient proposed UI. No account-wide sandbox availability.",
+    "states": {
+      "empty": "No active workspace: eligible owned-workspace picker; no connection object means disconnected.",
+      "loading": "QuickBooks sandbox: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "QuickBooks sandbox: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "QuickBooks sandbox: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Active authenticated allowlisted user + sandbox enablement + selected workspace owner; connection management additionally connected_by. Denied responses source-backed.",
+      "error": "QuickBooks sandbox: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Persistent connection condition and transient result are distinct; fresh check is not renewal proof."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Persistent state",
+      "Environment",
+      "Token check",
+      "Production access",
+      "Accounting records",
+      "Last provider collection",
+      "Live normalization / ROI",
+      "External financial actions",
+      "Unavailable to this account",
+      "Workspace selection required",
+      "Eligible and disconnected",
+      "Authorization in progress",
+      "Reconnect required",
+      "Disconnect pending",
+      "Operation failed"
+    ],
+    "primary_action": "Check token validity",
+    "permission_contract": "Active authenticated allowlisted user + sandbox enablement + selected workspace owner; connection management additionally connected_by. Denied responses source-backed.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/integrations/quickbooks_views.py",
+      "connect / refresh / disconnect / callback"
+    ],
+    "brand_variant": "evidence-library",
+    "brand_asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "id": "22-xero",
+    "title": "Xero integration",
+    "status": "proposed",
+    "brief": "Proposed adapter \u00c3\u201a\u00c2\u00b7 not connected.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D3"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No adapter: show pending, not disconnected operational integration.",
+      "loading": "Xero integration: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Xero integration: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Xero integration: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Xero integration: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Xero integration: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Adapter",
+      "Exact approved scopes",
+      "Data collected",
+      "Last provider collection",
+      "Next step"
+    ],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "evidence-library",
+    "brand_asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "id": "23-microsoft",
+    "title": "Microsoft integration",
+    "status": "proposed",
+    "brief": "Proposed adapter \u00c3\u201a\u00c2\u00b7 not connected.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D3"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No adapter: exact registration/scopes require review.",
+      "loading": "Microsoft integration: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Microsoft integration: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Microsoft integration: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Microsoft integration: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Microsoft integration: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Adapter",
+      "Exact approved scopes",
+      "Data collected",
+      "Last provider collection",
+      "Next step"
+    ],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "evidence-library",
+    "brand_asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "id": "24-collection-history",
+    "title": "Collection history",
+    "status": "proposed",
+    "brief": "Proposed history over supported manual sources.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D2",
+      "D4"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No collection runs: no timestamps; connection alone creates no collection.",
+      "loading": "Collection history: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Collection history: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Collection history: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Collection history: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Collection history: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "evidence-library",
+    "brand_asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "id": "25-assessments-list",
+    "title": "Assessments",
+    "status": "proposed",
+    "brief": "Proposed list \u00c3\u201a\u00c2\u00b7 existing snapshot detail surface.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D9"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No snapshots: no assessed outcome or report claimed.",
+      "loading": "Assessments: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Assessments: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Assessments: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Assessments: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Assessments: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Open snapshot",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "policies",
+    "brand_asset": "emblem-family/policies.svg"
+  },
+  {
+    "id": "26-assessment-detail",
+    "title": "Assessment detail",
+    "status": "partially implemented",
+    "brief": "Captured snapshot \u00c3\u201a\u00c2\u00b7 synthetic example.",
+    "maturity_detail": "Existing source surface; redesigned expansions require contracts.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "assessments/detail.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D8"
+    ],
+    "interaction_contract": "Generate report POST reports:generate(snapshot.id), hashes_valid template branch, WRITE_ROLES server check. Creates report object + generation job, redirects report detail. Caption changes from Open browser report to Generate browser report; not a new generation contract.",
+    "states": {
+      "empty": "No report object: Generate browser report; no Open report.",
+      "loading": "Assessment detail: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Assessment detail: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Assessment detail: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+      "error": "Assessment detail: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Report object created and job ensured; PDF completion not asserted."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Captured",
+      "Rule set",
+      "Input",
+      "Limits"
+    ],
+    "primary_action": "Generate browser report",
+    "permission_contract": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/assessments/views.py",
+      "assessment_snapshot_detail_view; reports.views.generate_report_action"
+    ],
+    "brand_variant": "policies",
+    "brand_asset": "emblem-family/policies.svg"
+  },
+  {
+    "id": "27-policies-list",
+    "title": "Policies and rules",
+    "status": "existing",
+    "brief": "Rules create findings and recommendations; they do not enforce provider changes.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "policies/list.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No rules: create only when can_write.",
+      "loading": "Policies and rules: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Policies and rules: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Policies and rules: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+      "error": "Policies and rules: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Policies and rules: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Create a rule",
+    "permission_contract": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/policies/views.py",
+      "list_rules_view"
+    ],
+    "brand_variant": "policies",
+    "brand_asset": "emblem-family/policies.svg"
+  },
+  {
+    "id": "28-policy-detail",
+    "title": "Review external transfer",
+    "status": "partially implemented",
+    "brief": "Organization rule \u00c3\u201a\u00c2\u00b7 demo-v1 \u00c3\u201a\u00c2\u00b7 synthetic.",
+    "maturity_detail": "Existing source surface; redesigned expansions require contracts.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "policies/detail.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D9"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No history: expanded history proposed; current definition still available.",
+      "loading": "Review external transfer: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Review external transfer: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Review external transfer: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+      "error": "Review external transfer: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Review external transfer: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "When",
+      "And",
+      "Effect",
+      "Outcome limit"
+    ],
+    "primary_action": "Edit and test",
+    "permission_contract": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/policies/views.py",
+      "detail_rule_view"
+    ],
+    "brand_variant": "policies",
+    "brand_asset": "emblem-family/policies.svg"
+  },
+  {
+    "id": "29-policy-editor",
+    "title": "Organization rule editor",
+    "status": "existing",
+    "brief": "Structured deterministic conditions and effects.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "policies/form.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [],
+    "interaction_contract": "OrganizationRuleForm structured_definition: all/contains data_categories AND capabilities; configurable effects. POST action=test or save. Preserve all current fields and choice validation; text fields describe effects, never execute prose.",
+    "states": {
+      "empty": "No test item: Choose software to test this rule against.",
+      "loading": "Organization rule editor: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Organization rule editor: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Organization rule editor: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+      "error": "Organization rule editor: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Test returns evaluation without save; save writes rule version and audit event."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Test without saving",
+    "permission_contract": "Source writer roles: owner, admin, assessor. Read-only viewer cannot mutate. Import batch also belongs to creator and organization. Policy detector-derived editing follows can_edit restrictions.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/policies/views.py",
+      "_render_rule_form"
+    ],
+    "brand_variant": "policies",
+    "brand_asset": "emblem-family/policies.svg"
+  },
+  {
+    "id": "30-roi-overview",
+    "title": "ROI and outcomes",
+    "status": "proposed",
+    "brief": "Proposed evidence model \u00c3\u201a\u00c2\u00b7 financial collection unfinished.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D5",
+      "D6"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No comparable labor: costs may remain known; ROI insufficient.",
+      "loading": "ROI and outcomes: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "ROI and outcomes: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "ROI and outcomes: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "ROI and outcomes: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "ROI and outcomes: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Baseline / comparison periods",
+      "Labor hours and loaded rate",
+      "One-time costs / amortization",
+      "Additional revenue / avoided cost",
+      "Model"
+    ],
+    "primary_action": "Review required inputs",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "roi",
+    "brand_asset": "emblem-family/roi.svg"
+  },
+  {
+    "id": "31-roi-calculator",
+    "title": "ROI calculator",
+    "status": "partially implemented",
+    "brief": "Existing estimate form; missing-input semantics require engineering changes.",
+    "maturity_detail": "Existing source surface; redesigned expansions require contracts.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "inventory/roi.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D5"
+    ],
+    "interaction_contract": "Existing ROIForm and calculate_roi(AL-ROI-1) treat Unknown as zero and reject nonzero Unknown; desired missing-input behavior is blocked. POST calculate / save_snapshot contract exists. New baseline/comparison evidence fields and null semantics need coordinated backend change.",
+    "states": {
+      "empty": "Unknown required inputs: target insufficient; current zero-encoding blocker explicit.",
+      "loading": "ROI calculator: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "ROI calculator: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "ROI calculator: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Source membership scopes calculation; save_snapshot requires inventory writer (owner/admin/assessor). New missing-input model remains blocked.",
+      "error": "ROI calculator: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Existing calculate/save_snapshot contracts only after valid inputs; target semantic blocker not hidden."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Known recurring cost",
+      "Savings",
+      "ROI",
+      "Persistence"
+    ],
+    "primary_action": "Calculate ROI",
+    "permission_contract": "Source membership scopes calculation; save_snapshot requires inventory writer (owner/admin/assessor). New missing-input model remains blocked.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/inventory/views.py",
+      "inventory_roi_view; apps.roi.forms.ROIForm; apps.roi.engine.calculate_roi"
+    ],
+    "brand_variant": "roi",
+    "brand_asset": "emblem-family/roi.svg"
+  },
+  {
+    "id": "32-financial-evidence",
+    "title": "Financial evidence",
+    "status": "proposed",
+    "brief": "Proposed intake and normalization \u00c3\u201a\u00c2\u00b7 synthetic scenario.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D3",
+      "D6"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No financial evidence: no normalized totals; connected QBO is not a source receipt.",
+      "loading": "Financial evidence: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Financial evidence: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Financial evidence: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Financial evidence: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Financial evidence: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "roi",
+    "brand_asset": "emblem-family/roi.svg"
+  },
+  {
+    "id": "33-expenditure-sinks",
+    "title": "Expenditure sinks",
+    "status": "proposed",
+    "brief": "Proposed breakdown \u00c3\u201a\u00c2\u00b7 synthetic data.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D6"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No classified expenditure: no vendor count or recurrence claim.",
+      "loading": "Expenditure sinks: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Expenditure sinks: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Expenditure sinks: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Expenditure sinks: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Expenditure sinks: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "roi",
+    "brand_asset": "emblem-family/roi.svg"
+  },
+  {
+    "id": "34-discrepancies",
+    "title": "Discrepancy review",
+    "status": "proposed",
+    "brief": "Proposed comparisons, not proof of error or fraud.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D6"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No candidates: no discrepancy in compared evidence only; coverage limit shown.",
+      "loading": "Discrepancy review: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Discrepancy review: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Discrepancy review: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Discrepancy review: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Discrepancy review: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Authority",
+      "Effects",
+      "Accounting changes",
+      "Resolution"
+    ],
+    "primary_action": "Review supporting entries",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "roi",
+    "brand_asset": "emblem-family/roi.svg"
+  },
+  {
+    "id": "35-actions-list",
+    "title": "Action review queue",
+    "status": "proposed",
+    "brief": "Recommendations are distinct from approval, execution and verification.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D7"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No recommendations: no approved/executed actions inferred.",
+      "loading": "Action review queue: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Action review queue: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Action review queue: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Action review queue: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Action review queue: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Open recommendation",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "policies",
+    "brand_asset": "emblem-family/policies.svg"
+  },
+  {
+    "id": "36-action-detail",
+    "title": "Review application grant",
+    "status": "proposed",
+    "brief": "Proposed action detail \u00c3\u201a\u00c2\u00b7 synthetic evidence.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D7"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No approval or execution: fields stay not requested/not supported.",
+      "loading": "Review application grant: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Review application grant: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Review application grant: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Review application grant: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Review application grant: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Observed",
+      "Rule",
+      "Unknown",
+      "Suggested action",
+      "Mode",
+      "Responsible role",
+      "Approval",
+      "Execution",
+      "Verification"
+    ],
+    "primary_action": "Record review note \u00c3\u201a\u00c2\u00b7 proposed",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "policies",
+    "brand_asset": "emblem-family/policies.svg"
+  },
+  {
+    "id": "37-reports-list",
+    "title": "Reports",
+    "status": "proposed",
+    "brief": "Proposed list \u00c3\u201a\u00c2\u00b7 existing browser report detail.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D8",
+      "D9"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No report objects: assessments are not reports.",
+      "loading": "Reports: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Reports: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Reports: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Reports: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Reports: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Open browser report",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "reports",
+    "brand_asset": "emblem-family/reports.svg"
+  },
+  {
+    "id": "38-report-detail",
+    "title": "Software assessment report",
+    "status": "partially implemented",
+    "brief": "Existing report detail \u00c3\u201a\u00c2\u00b7 synthetic selected snapshot.",
+    "maturity_detail": "Existing source surface; redesigned expansions require contracts.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": "reports/detail.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D5",
+      "D8"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No PDF artifact: keep browser report separate; download unavailable.",
+      "loading": "Software assessment report: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Software assessment report: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Software assessment report: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Software assessment report: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Verified ready PDF only when actual artifact/storage lookup succeeds; browser availability independent."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Assessment date",
+      "Rule / engine basis",
+      "Software costs",
+      "ROI"
+    ],
+    "primary_action": "Read methodology",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/reports/views.py",
+      "report_detail_view / report_download_view"
+    ],
+    "brand_variant": "reports",
+    "brand_asset": "emblem-family/reports.svg"
+  },
+  {
+    "id": "39-evidence-library",
+    "title": "Evidence library",
+    "status": "proposed",
+    "brief": "Proposed browsing interface over evidence foundations.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D9"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No evidence records: scoped intake suggestion only.",
+      "loading": "Evidence library: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Evidence library: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Evidence library: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Evidence library: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Evidence library: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Open source",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "evidence-library",
+    "brand_asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "id": "40-evidence-detail",
+    "title": "Evidence detail",
+    "status": "proposed",
+    "brief": "Proposed lineage interface \u00c3\u201a\u00c2\u00b7 synthetic grant source.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D9"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No related report: not generated; do not fabricate lineage.",
+      "loading": "Evidence detail: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Evidence detail: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Evidence detail: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Evidence detail: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Evidence detail: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Finding",
+      "Source",
+      "Observed / received",
+      "Match",
+      "Establishes",
+      "Unknown"
+    ],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "evidence-library",
+    "brand_asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "id": "41-audit",
+    "title": "Audit history",
+    "status": "proposed",
+    "brief": "Proposed expanded interface \u00c3\u201a\u00c2\u00b7 scoped recorded activity.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D9"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No recorded audit events: not proof no external activity.",
+      "loading": "Audit history: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Audit history: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Audit history: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Audit history: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Audit history: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "evidence-library",
+    "brand_asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "id": "42-workspace-admin",
+    "title": "Workspace administration",
+    "status": "proposed",
+    "brief": "Expanded controls are proposed.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D10"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No editable administration contract: read-only context.",
+      "loading": "Workspace administration: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Workspace administration: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Workspace administration: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Workspace administration: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Workspace administration: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Workspace",
+      "Your organization role",
+      "Subscription entitlement",
+      "Provider authority"
+    ],
+    "primary_action": "Save settings \u00c3\u201a\u00c2\u00b7 proposed",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "admin",
+    "brand_asset": "emblem-family/admin.svg"
+  },
+  {
+    "id": "43-members-authority",
+    "title": "Members and authority",
+    "status": "proposed",
+    "brief": "Proposed expanded member-management interface.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D10"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No invitation implementation: no operative invite control.",
+      "loading": "Members and authority: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Members and authority: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Members and authority: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Members and authority: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Members and authority: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Purchasing authority",
+      "Provider authorization",
+      "Invitation / role change",
+      "Action approval"
+    ],
+    "primary_action": "Invite member \u00c3\u201a\u00c2\u00b7 proposed",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "admin",
+    "brand_asset": "emblem-family/admin.svg"
+  },
+  {
+    "id": "44-billing",
+    "title": "Subscription and billing",
+    "status": "existing",
+    "brief": "Existing account surface \u00c3\u201a\u00c2\u00b7 synthetic subscription example.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Subscription account user; exact billing authority checks",
+    "template": "billing/account.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D12"
+    ],
+    "interaction_contract": "Keep billing:portal route plus founder-cancel and founder-cancel-undo POST/CSRF and exact context gates. No UI-only entitlement checks; do not copy Stripe card or invoice data.",
+    "states": {
+      "empty": "No subscription record: existing View subscription options branch.",
+      "loading": "Subscription and billing: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Subscription and billing: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Subscription and billing: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Subscription and billing: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Actual provider-backed subscription/cancellation fields; no invented future dates."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Portfolio",
+      "Status",
+      "Current monthly price",
+      "Paid period end",
+      "Product entitlement",
+      "Available action",
+      "Undo action",
+      "Calendar"
+    ],
+    "primary_action": "Manage billing",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/billing/views.py",
+      "billing_account / founder_cancel / founder_cancel_undo / billing_portal"
+    ],
+    "brand_variant": "billing",
+    "brand_asset": "emblem-family/billing.svg"
+  },
+  {
+    "id": "45-checkout-confirmation",
+    "title": "Confirming your subscription",
+    "status": "existing",
+    "brief": "Pending example \u00c3\u201a\u00c2\u00b7 a checkout return is not payment confirmation.",
+    "maturity_detail": "Existing template/view foundation; no public qualification claim.",
+    "primary_user": "Returning checkout account user",
+    "template": "billing/success.html",
+    "source_basis": "qbo3-workspace qualification package inspected; runtime observations reported by Alexander",
+    "backend_dependencies": [
+      "D12"
+    ],
+    "interaction_contract": "Pending versus confirmed based on subscription.grants_access; preserve existing billing:portfolio and organizations:setup routes. Redirect alone is not a verified payment.",
+    "states": {
+      "empty": "No grants_access: existing pending branch, not confirmed.",
+      "loading": "Confirming your subscription: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Confirming your subscription: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Confirming your subscription: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Confirming your subscription: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "subscription.grants_access confirmed; does not grant workspace role."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Check subscription status",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "apps/billing/views.py",
+      "checkout_success"
+    ],
+    "brand_variant": "billing",
+    "brand_asset": "emblem-family/billing.svg"
+  },
+  {
+    "id": "46-privacy",
+    "title": "Privacy",
+    "status": "proposed",
+    "brief": "Layout proposal \u00c3\u201a\u00c2\u00b7 content not approved.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Prospective accounting/bookkeeping team",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D11"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No approved legal text: layout drafting topics only.",
+      "loading": "Privacy: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Privacy: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Privacy: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Privacy: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Privacy: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Information collected",
+      "Purposes and lawful basis",
+      "Sources and sharing",
+      "Consent and contact",
+      "Retention and deletion",
+      "Rights and requests",
+      "Operator contact"
+    ],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "policies",
+    "brand_asset": "emblem-family/policies.svg"
+  },
+  {
+    "id": "47-terms",
+    "title": "Terms",
+    "status": "proposed",
+    "brief": "Layout proposal \u00c3\u201a\u00c2\u00b7 content not approved.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Prospective accounting/bookkeeping team",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D12"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No approved terms: no agreement or guarantees.",
+      "loading": "Terms: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Terms: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Terms: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Terms: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Terms: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Service scope",
+      "Accounts and authority",
+      "Subscriptions and cancellation",
+      "Current and planned capabilities",
+      "Responsibilities",
+      "Limitations",
+      "Contact"
+    ],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "policies",
+    "brand_asset": "emblem-family/policies.svg"
+  },
+  {
+    "id": "48-contact",
+    "title": "Start a conversation",
+    "status": "proposed",
+    "brief": "Proposed request form \u00c3\u201a\u00c2\u00b7 no active submission workflow.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Prospective accounting/bookkeeping team",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D11"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No request answers: contact and problem only required.",
+      "loading": "Start a conversation: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Start a conversation: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Start a conversation: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Start a conversation: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Start a conversation: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [],
+    "primary_action": "Send request \u00c3\u201a\u00c2\u00b7 proposed",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "contact",
+    "brand_asset": "emblem-family/contact.svg"
+  },
+  {
+    "id": "49-states",
+    "title": "General operating states",
+    "status": "proposed",
+    "brief": "Proposed reusable state specification.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D2",
+      "D8",
+      "D11"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No source state: do not infer healthy condition.",
+      "loading": "General operating states: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "General operating states: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "General operating states: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "General operating states: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "General operating states: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Report",
+      "Lead"
+    ],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "overview",
+    "brand_asset": "emblem-family/overview.svg"
+  },
+  {
+    "id": "50-authority-states",
+    "title": "Authority and connection states",
+    "status": "proposed",
+    "brief": "Proposed presentation specification over source-backed QuickBooks conditions.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized workspace member; writer controls require actual server role",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D3",
+      "D7",
+      "D12"
+    ],
+    "interaction_contract": "Preserve existing form/view/URL contract where mapped. New controls and persistence are proposed until implemented.",
+    "states": {
+      "empty": "No entitlement/membership/provider scope: independent unavailable fields.",
+      "loading": "Authority and connection states: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Authority and connection states: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Authority and connection states: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+      "error": "Authority and connection states: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Authority and connection states: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Unavailable",
+      "Workspace needed",
+      "Disconnected",
+      "Connected",
+      "Reconnect required",
+      "Disconnect pending",
+      "Operation failed"
+    ],
+    "primary_action": "Review available information",
+    "permission_contract": "Use actual source role/context where mapped; proposed mutation needs an explicit server authority contract. Subscription never establishes organizational/provider authority.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "admin",
+    "brand_asset": "emblem-family/admin.svg"
+  },
+  {
+    "id": "51-lead-review",
+    "title": "Lead review",
+    "status": "proposed",
+    "brief": "Internal operator workflow \u00c3\u201a\u00c2\u00b7 proposed.",
+    "maturity_detail": "No implemented route is established for this designed surface.",
+    "primary_user": "Authorized internal Stewardence operator; proposed",
+    "template": null,
+    "source_basis": "October 3 proposed product contract",
+    "backend_dependencies": [
+      "D10",
+      "D11"
+    ],
+    "interaction_contract": "Internal operator permission scope separate from customer tenancy; categories and review actions require backend contracts and recorded consent/time/rule inputs.",
+    "states": {
+      "empty": "No leads: no routing or contact action; internal scope only.",
+      "loading": "Lead review: request pending only; preserve scope/current safe data. For server-rendered pages this is a proposed submitting cue, not a background worker state.",
+      "partial": "Lead review: identify unavailable source/field/operation before conclusions; do not conflate missing evidence with no finding.",
+      "stale": "Lead review: show actual observation/receipt or captured-object time; freshness policy required before stale badges. Snapshot history does not auto-update.",
+      "denied": "Proposed internal operator permission; not ordinary customer membership or subscription.",
+      "error": "Lead review: retain safe entered values; show current source validation or operation result. No durable result before commit; secrets/query authorization data omitted.",
+      "success": "Lead review: only actual scoped result or clearly labeled synthetic proposed state; no downstream approval, execution or data import inferred."
+    },
+    "responsive": "390px mobile: evidence/task first, stacked forms, accessible horizontally scrollable tables; SignalMeter financial detail collapsed. Desktop1440px: narrow205px navigation and clear content hierarchy.",
+    "visual_review": {
+      "reviewed": true,
+      "method": "All 51 desktop/mobile headings verified during browser capture; v3 brand placement reviewed in thumbnail contact sheets. Static review only.",
+      "limitations": "Static design review only, not workflow/accessibility/authorization audit."
+    },
+    "mockup_revision": "atlas-v3-2026-10-03",
+    "mockup_change": "Approved transparent purple emblem family in shared brand placement and page semantic header; existing maturity/data/authority contracts preserved.",
+    "required_data": [
+      "Category",
+      "Rule version",
+      "Reasons",
+      "Self-reported problem",
+      "System responsibility",
+      "Observed receipt",
+      "Unknown",
+      "Request-related preference",
+      "Request notice",
+      "Optional marketing",
+      "Campaign attribution"
+    ],
+    "primary_action": "Record human review \u00c3\u201a\u00c2\u00b7 proposed",
+    "permission_contract": "Proposed internal operator permission; not ordinary customer membership or subscription.",
+    "state_support": "Specific current branches identified in source mapping; all extra loading/stale/expanded states are proposed until context exists.",
+    "source_functions": [
+      "Proposed; no route verified",
+      "Contract pending"
+    ],
+    "brand_variant": "funnels",
+    "brand_asset": "emblem-family/funnels.svg"
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "exit_code": 1,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-1da5507ce8",
+  "image_id": "sha256:cabe54fb39c2e1f2e1e9310b99da74bc3dc0b36f713991ae0264b5b3dec17d9e",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T192706.940742Z",
+  "test_arguments": [
+    "tests"
+  ],
+  "test_result_counts": {
+    "cases": 1469,
+    "failed": 24,
+    "errors": 1,
+    "skipped": 1
+  },
+  "test_results_sha256": "3d7cbfe186e184dc706a9580d307f76c53c3630493d48ad91150370c3c2dfb93"
+}

@@ -1,0 +1,295 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reviews.0004_capture_pack_projection... OK
+  Applying jobs.0015_legacy_action_card_schema_fence... OK
+  Applying reviews.0005_capture_proposal_admission... OK
+  Applying jobs.0016_capture_decisions... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0005_review_pack_read_authority... OK
+  Applying reports.0006_capture_owner_read... OK
+  Applying reviews.0006_capture_proposal_packs... OK
+........................................................................ [  3%]
+........................................................................ [  6%]
+........................................................................ [ 10%]
+........................................................................ [ 13%]
+........................................................................ [ 17%]
+........................................................................ [ 20%]
+........................................................................ [ 24%]
+....................F............F...................................... [ 27%]
+........................................................................ [ 31%]
+........................................................................ [ 34%]
+........................................................................ [ 38%]
+.........s.............................................................. [ 41%]
+........................................................................ [ 44%]
+........................................................................ [ 48%]
+........................................................................ [ 51%]
+........................................................................ [ 55%]
+........................................................................ [ 58%]
+........................................................................ [ 62%]
+........................................................................ [ 65%]
+........................................................................ [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 76%]
+........................................................................ [ 79%]
+........................................................................ [ 82%]
+........................................................................ [ 86%]
+........................................................................ [ 89%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+...................................................................      [100%]
+=================================== FAILURES ===================================
+________ test_missing_issuance_receipt_withholds_saved_capture_content _________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x79679e5b9bb0>
+sql = 'TRUNCATE assessment_capture_receipts', params = None
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x79679e5b9bb0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+>               return self.cursor.execute(sql)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x79679e1dfa10>
+query = 'TRUNCATE assessment_capture_receipts', params = None, prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.FeatureNotSupported: cannot truncate a table referenced in a foreign key constraint
+E           DETAIL:  Table "review_capture_proposal_receipts" references "assessment_capture_receipts".
+E           HINT:  Truncate table "review_capture_proposal_receipts" at the same time, or use TRUNCATE ... CASCADE.
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: FeatureNotSupported
+
+The above exception was the direct cause of the following exception:
+
+capture_ui = (<User: reports@example.com>, <Organization: Report Firm>, <InventoryItem: Workflow helper>)
+client = <django.test.client.Client object at 0x79679e077430>
+
+    def test_missing_issuance_receipt_withholds_saved_capture_content(capture_ui, client):
+        _, token, _ = preview(client)
+        saved = confirm(client, token)
+        assert saved.status_code == 302
+        # Privileged disposable-fixture corruption, not an application-role exploit.
+        # TRUNCATE leaves every immutable trigger and grant intact.
+        with connections["default"].cursor() as cursor:
+>           cursor.execute("TRUNCATE assessment_capture_receipts")
+
+tests/test_capture_review_ui.py:393: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:103: in _execute
+    return self.cursor.execute(sql)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x79679e1dfa10>
+query = 'TRUNCATE assessment_capture_receipts', params = None, prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.NotSupportedError: cannot truncate a table referenced in a foreign key constraint
+E           DETAIL:  Table "review_capture_proposal_receipts" references "assessment_capture_receipts".
+E           HINT:  Truncate table "review_capture_proposal_receipts" at the same time, or use TRUNCATE ... CASCADE.
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotSupportedError
+__________ test_second_owner_cannot_reassign_original_capture_creator __________
+
+capture_decision_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: e5d16cfd-6d85-487a-9256-c15e170166ff v1>, <ActionCardRevision: ActionCardRevision object (fb50774c-fd86-42ba-8623-7ef3d9174b6d)>)
+lifecycle = None
+
+    def test_second_owner_cannot_reassign_original_capture_creator(
+        capture_decision_context,
+        lifecycle,
+    ):
+        from django.contrib.auth import get_user_model
+    
+        from apps.organizations.models import OrganizationMember
+        from apps.reviews.models import ArtifactRequest, PackIdentity
+        from apps.reviews.services import request_pack_artifact
+    
+        original, org, snapshot, _ = capture_decision_context
+>       second = get_user_model().objects.create_user(
+            username="second-pack-owner",
+            password="qualification-password",
+        )
+E       TypeError: UserManager.create_user() missing 1 required positional argument: 'email'
+
+tests/test_capture_v4_packs.py:223: TypeError
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py: 2 warnings
+tests/test_billing_founder_cancellation_authority.py: 3 warnings
+tests/test_billing_founder_checkout_authority.py: 2 warnings
+tests/test_billing_portal_cancellation.py: 2 warnings
+tests/test_billing_tenant_authority.py: 10 warnings
+tests/test_core_checkout_admission.py: 21 warnings
+tests/test_csv_import.py: 10 warnings
+tests/test_discovery.py: 2 warnings
+tests/test_discovery_reconciliation.py: 2 warnings
+tests/test_inventory.py: 10 warnings
+tests/test_organization_rules.py: 9 warnings
+tests/test_payflow_deployment_gates.py: 6 warnings
+tests/test_production_security.py: 3 warnings
+tests/test_public_signup.py: 11 warnings
+tests/test_report_history.py: 3 warnings
+tests/test_reports.py: 3 warnings
+tests/test_roi_engine_v2.py: 1 warning
+tests/test_workspaces.py: 9 warnings
+tests/test_billing_standard_launch.py: 3 warnings
+tests/test_capture_archived_reads.py: 2 warnings
+tests/test_capture_comparison_ui.py: 2 warnings
+tests/test_capture_proposal_ui.py: 10 warnings
+tests/test_capture_report_access.py: 2 warnings
+tests/test_capture_review_ui.py: 21 warnings
+tests/test_capture_review_worker.py: 2 warnings
+tests/test_capture_v4_reads.py: 6 warnings
+tests/test_capture_v4_worker.py: 2 warnings
+tests/test_core_first_capture_journey.py: 1 warning
+tests/test_core_workflows.py: 1 warning
+tests/test_explicit_inventory.py: 6 warnings
+tests/test_lyra_authority_findings.py: 1 warning
+tests/test_operations_dashboard.py: 2 warnings
+tests/test_paid_workflow_boundary.py: 3 warnings
+tests/test_provider_lifecycle.py: 2 warnings
+tests/test_quickbooks_lifecycle.py: 13 warnings
+tests/test_quickbooks_reports.py: 6 warnings
+tests/test_report_artifacts.py: 4 warnings
+tests/test_report_recovery_states.py: 1 warning
+tests/test_review_profile_handoff.py: 3 warnings
+tests/test_review_report_read_authority.py: 3 warnings
+tests/test_review_workspace_views.py: 33 warnings
+tests/test_standard_checkout_route_durability.py: 4 warnings
+tests/test_workflow_profile_setup.py: 3 warnings
+tests/test_baseline.py: 4 warnings
+tests/test_download.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_capture_review_ui.py::test_missing_issuance_receipt_withholds_saved_capture_content
+FAILED tests/test_capture_v4_packs.py::test_second_owner_cannot_reassign_original_capture_creator
+2 failed, 2080 passed, 1 skipped, 250 warnings in 984.83s (0:16:24)

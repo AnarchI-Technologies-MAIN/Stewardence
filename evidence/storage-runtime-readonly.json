@@ -1,0 +1,11 @@
+{
+  "backend": "s3",
+  "credential_material_printed": false,
+  "writes_performed": false,
+  "required_configuration_present": true,
+  "bucket_acl_read": true,
+  "public_acl_grants": 0,
+  "bounded_list_read": true,
+  "objects_present": true,
+  "verified_at": "2026-10-03T19:06:41.413010+00:00"
+}

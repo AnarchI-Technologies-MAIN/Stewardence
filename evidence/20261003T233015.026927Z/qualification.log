@@ -1,0 +1,260 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+.................FF.........F                                            [100%]
+=================================== FAILURES ===================================
+_____________ test_matching_completed_checkout_claims_founder_slot _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x78d0c8d9ade0>
+
+    def test_matching_completed_checkout_claims_founder_slot(
+        monkeypatch,
+    ):
+        user = make_user("claim-founder@example.com")
+        customer = BillingCustomer.objects.create(user=user)
+    
+        slot = reserve_founder_slot(
+            billing_customer_id=customer.id
+        )
+    
+        attached = attach_founder_checkout_session(
+            slot_sequence=slot.sequence,
+            reservation_token=slot.reservation_token,
+            billing_customer_id=customer.id,
+            stripe_checkout_session_id="cs_claim",
+            checkout_expires_at=slot.checkout_expires_at,
+        )
+    
+        assert attached is True
+    
+        schedule_calls = []
+    
+        def fake_schedule(*, subscription):
+            schedule_calls.append(
+                {
+                    "subscription_id": subscription.stripe_subscription_id,
+                    "founder_sequence": subscription.founder_sequence,
+                }
+            )
+    
+            return {
+                "schedule_id": "sub_sched_test_founder",
+                "intro_ends_at": slot.checkout_expires_at,
+            }
+    
+        monkeypatch.setattr(
+            "apps.billing.views.ensure_founder_subscription_schedule",
+            fake_schedule,
+        )
+    
+        session = fake_session(
+            session_id="cs_claim",
+            user_id=user.id,
+            sequence=slot.sequence,
+            token=slot.reservation_token,
+        )
+    
+>       _handle_checkout_completed(session)
+
+tests/test_billing_founder_checkout.py:271: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/billing/views.py:656: in _handle_checkout_completed
+    authoritative = _validate_core_checkout(session, billing_customer)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = {'id': 'cs_claim', 'client_reference_id': '7656eb3b-6822-4951-b788-cfbb2a380bd7', 'subscription': 'sub_test', 'metadat...ion.Portfolio.CORE, 'founder_slot_sequence': '1', 'founder_reservation_token': '6e9b3871-a7df-47ef-911b-63c0099dc4e8'}}
+billing_customer = <BillingCustomer: BillingCustomer object (511b1a45-a91c-469d-a6c1-e9569fade8be)>
+
+    def _validate_core_checkout(session, billing_customer):
+        metadata = session.get("metadata", {})
+        if (
+            session.get("mode") != "subscription"
+            or session.get("status") != "complete"
+            or session.get("payment_status") != "paid"
+            or not billing_customer.stripe_customer_id
+            or session.get("customer") != billing_customer.stripe_customer_id
+            or metadata.get("stewardence_user_id") != str(billing_customer.user_id)
+            or metadata.get("portfolio") != "core"
+            or not isinstance(session.get("subscription"), str)
+            or not session["subscription"]
+        ):
+>           raise RuntimeError("Core checkout identity or payment is unverified.")
+E           RuntimeError: Core checkout identity or payment is unverified.
+
+apps/billing/views.py:571: RuntimeError
+____________ test_stale_reservation_token_cannot_claim_founder_slot ____________
+
+    def test_stale_reservation_token_cannot_claim_founder_slot():
+        user = make_user("stale-founder@example.com")
+        customer = BillingCustomer.objects.create(user=user)
+    
+        slot = reserve_founder_slot(
+            billing_customer_id=customer.id
+        )
+    
+        attached = attach_founder_checkout_session(
+            slot_sequence=slot.sequence,
+            reservation_token=slot.reservation_token,
+            billing_customer_id=customer.id,
+            stripe_checkout_session_id="cs_authoritative",
+            checkout_expires_at=slot.checkout_expires_at,
+        )
+    
+        assert attached is True
+    
+        stale_session = fake_session(
+            session_id="cs_stale",
+            user_id=user.id,
+            sequence=slot.sequence,
+            token=slot.reservation_token,
+        )
+    
+>       with pytest.raises(
+            RuntimeError,
+            match="could not prove its authoritative reservation",
+        ):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'could not prove its authoritative reservation'
+E         Actual message: 'Core checkout identity or payment is unverified.'
+
+tests/test_billing_founder_checkout.py:328: AssertionError
+___________ test_standard_resubscription_clears_active_founder_state ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x78d0c7c69cc0>
+
+    def test_standard_resubscription_clears_active_founder_state(
+        monkeypatch,
+    ):
+        user, customer, subscription = (
+            make_subscription(
+                email="standard-resubscribe@example.com",
+                status=Subscription.Status.CANCELED,
+            )
+        )
+    
+        subscription.is_founder = True
+        subscription.stripe_schedule_id = (
+            "sub_sched_historical"
+        )
+    
+        subscription.save(
+            update_fields=[
+                "is_founder",
+                "stripe_schedule_id",
+                "updated_at",
+            ]
+        )
+    
+        session = {
+            "id": "cs_standard_new",
+            "client_reference_id": str(user.id),
+            "subscription": "sub_standard_new",
+            "metadata": {
+                "portfolio": "core",
+            },
+        }
+    
+>       _handle_checkout_completed(
+            session
+        )
+
+tests/test_billing_portal_cancellation.py:342: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/billing/views.py:656: in _handle_checkout_completed
+    authoritative = _validate_core_checkout(session, billing_customer)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+session = {'id': 'cs_standard_new', 'client_reference_id': '762e5550-83a8-4399-bfc9-227f829dfee8', 'subscription': 'sub_standard_new', 'metadata': {'portfolio': 'core'}}
+billing_customer = <BillingCustomer: BillingCustomer object (07a216fa-aec2-41d6-9313-b52220c34855)>
+
+    def _validate_core_checkout(session, billing_customer):
+        metadata = session.get("metadata", {})
+        if (
+            session.get("mode") != "subscription"
+            or session.get("status") != "complete"
+            or session.get("payment_status") != "paid"
+            or not billing_customer.stripe_customer_id
+            or session.get("customer") != billing_customer.stripe_customer_id
+            or metadata.get("stewardence_user_id") != str(billing_customer.user_id)
+            or metadata.get("portfolio") != "core"
+            or not isinstance(session.get("subscription"), str)
+            or not session["subscription"]
+        ):
+>           raise RuntimeError("Core checkout identity or payment is unverified.")
+E           RuntimeError: Core checkout identity or payment is unverified.
+
+apps/billing/views.py:571: RuntimeError
+=============================== warnings summary ===============================
+tests/test_billing_portal_cancellation.py::test_portal_requires_authenticated_user
+tests/test_billing_portal_cancellation.py::test_portal_session_uses_owned_stripe_customer
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_billing_founder_checkout.py::test_matching_completed_checkout_claims_founder_slot
+FAILED tests/test_billing_founder_checkout.py::test_stale_reservation_token_cannot_claim_founder_slot
+FAILED tests/test_billing_portal_cancellation.py::test_standard_resubscription_clears_active_founder_state
+3 failed, 26 passed, 2 warnings in 12.09s

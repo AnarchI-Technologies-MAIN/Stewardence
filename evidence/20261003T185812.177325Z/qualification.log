@@ -1,0 +1,371 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+....FFFF.................F......................................F....... [ 69%]
+F...............................                                         [100%]
+=================================== FAILURES ===================================
+_ test_unknown_outcome_nonreport_expiry_is_review_not_replay[risk_reassessment] _
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 869f6fcb-792b-48d1-bcf7-c73f21e2870c v1>)
+job_type = 'risk_reassessment'
+
+    @pytest.mark.parametrize('job_type',['risk_reassessment','catalog_refresh','audit_batch_seal'])
+    def test_unknown_outcome_nonreport_expiry_is_review_not_replay(configured,job_type):
+        user,org,*_=configured
+        job=BackgroundJob.objects.create(organization=org,job_type=job_type,payload={},available_at=timezone.now())
+        claimed=claim_next_job('expiry-probe',using='worker_runtime')
+>       assert claimed.id==job.id
+E       AssertionError: assert UUID('155fed1c-a1f6-4ef9-81db-52645a8a5fff') == UUID('f47e136f-974d-41a6-aaac-b6e342516932')
+E        +  where UUID('155fed1c-a1f6-4ef9-81db-52645a8a5fff') = ClaimedJob(id=UUID('155fed1c-a1f6-4ef9-81db-52645a8a5fff'), organization_id=UUID('69f4561b-4394-4037-9442-b7ddd3519c4e...1ef8387-5ca7-4790-9c50-1924c86fcd9d'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('f47e136f-974d-41a6-aaac-b6e342516932') = <BackgroundJob: risk_reassessment f47e136f-974d-41a6-aaac-b6e342516932 (queued)>.id
+
+tests/test_lyra_authority_findings.py:55: AssertionError
+_ test_unknown_outcome_nonreport_expiry_is_review_not_replay[catalog_refresh] __
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 68b78020-0415-47e2-838d-ef3aa4779db5 v1>)
+job_type = 'catalog_refresh'
+
+    @pytest.mark.parametrize('job_type',['risk_reassessment','catalog_refresh','audit_batch_seal'])
+    def test_unknown_outcome_nonreport_expiry_is_review_not_replay(configured,job_type):
+        user,org,*_=configured
+        job=BackgroundJob.objects.create(organization=org,job_type=job_type,payload={},available_at=timezone.now())
+        claimed=claim_next_job('expiry-probe',using='worker_runtime')
+>       assert claimed.id==job.id
+E       AssertionError: assert UUID('7b0e8c49-0b7e-4b38-9664-73b085d458d5') == UUID('362aaa8a-640e-426b-b2ff-8351369b4ece')
+E        +  where UUID('7b0e8c49-0b7e-4b38-9664-73b085d458d5') = ClaimedJob(id=UUID('7b0e8c49-0b7e-4b38-9664-73b085d458d5'), organization_id=UUID('908e7fc5-25ab-40fb-9c81-ba85d0d39902...af1df81-c78b-485c-9ea9-66b28366ef9d'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('362aaa8a-640e-426b-b2ff-8351369b4ece') = <BackgroundJob: catalog_refresh 362aaa8a-640e-426b-b2ff-8351369b4ece (queued)>.id
+
+tests/test_lyra_authority_findings.py:55: AssertionError
+_ test_unknown_outcome_nonreport_expiry_is_review_not_replay[audit_batch_seal] _
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: b6a706dc-17c1-4ed3-ae76-0e3a37ce6a42 v1>)
+job_type = 'audit_batch_seal'
+
+    @pytest.mark.parametrize('job_type',['risk_reassessment','catalog_refresh','audit_batch_seal'])
+    def test_unknown_outcome_nonreport_expiry_is_review_not_replay(configured,job_type):
+        user,org,*_=configured
+        job=BackgroundJob.objects.create(organization=org,job_type=job_type,payload={},available_at=timezone.now())
+        claimed=claim_next_job('expiry-probe',using='worker_runtime')
+>       assert claimed.id==job.id
+E       AssertionError: assert UUID('7427d553-2505-49d2-b0ae-fd0b8fa9b931') == UUID('8e25d766-743e-407e-9cc5-c8da2581283c')
+E        +  where UUID('7427d553-2505-49d2-b0ae-fd0b8fa9b931') = ClaimedJob(id=UUID('7427d553-2505-49d2-b0ae-fd0b8fa9b931'), organization_id=UUID('ac26a9a1-9518-445c-be45-23d450072d0a...df513e6-0efe-4ab0-a7d2-76cd81bed671'), input_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a').id
+E        +  and   UUID('8e25d766-743e-407e-9cc5-c8da2581283c') = <BackgroundJob: audit_batch_seal 8e25d766-743e-407e-9cc5-c8da2581283c (queued)>.id
+
+tests/test_lyra_authority_findings.py:55: AssertionError
+_________ test_worker_raw_completion_and_expired_heartbeat_are_denied __________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x715853811eb0>
+sql = 'UPDATE "background_jobs" SET "lock_expires_at" = %s WHERE "background_jobs"."id" = %s'
+params = (datetime.datetime(2026, 10, 3, 19, 0, 50, 621203, tzinfo=datetime.timezone.utc), UUID('e0a69bf5-b5a6-4121-99c3-00fc6894ea39'))
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x715853811eb0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7158528a9ef0>
+query = 'UPDATE "background_jobs" SET "lock_expires_at" = %s WHERE "background_jobs"."id" = %s'
+params = (datetime.datetime(2026, 10, 3, 19, 0, 50, 621203, tzinfo=datetime.timezone.utc), UUID('e0a69bf5-b5a6-4121-99c3-00fc6894ea39'))
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.CheckViolation: new row for relation "background_jobs" violates check constraint "background_job_state_consistent"
+E           DETAIL:  Failing row contains (e0a69bf5-b5a6-4121-99c3-00fc6894ea39, report_generation, {}, queued, 100, 0, 2026-10-03 19:00:51.509313+00, null, 2026-10-03 19:00:50.621203+00, null, null, null, null, null, 2026-10-03 19:00:51.51035+00, null, 01b80dd1-8709-474e-9162-938b0fcbe51f, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: CheckViolation
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: e961a69d-8847-4cde-bd57-7b7158be39d6 v1>)
+
+    def test_worker_raw_completion_and_expired_heartbeat_are_denied(configured):
+        user,org,*_=configured
+        job=BackgroundJob.objects.create(organization=org,job_type='report_generation',payload={},available_at=timezone.now())
+        claimed=claim_next_job('authority-probe',using='worker_runtime')
+        configure_control(organization_id=org.id,actor_id=user.id,mode='paused',reason='Pause before completion')
+        with pytest.raises(DatabaseError),transaction.atomic(using='worker_runtime'):
+            BackgroundJob.objects.using('worker_runtime').filter(pk=job.id).update(status='completed',completed_at=timezone.now(),
+                locked_at=None,lock_expires_at=None,locked_by=None,claim_token=None)
+        with pytest.raises(LostJobLease):
+            complete_job_with_fence(job_id=job.id,worker_id='authority-probe',claim_token=claimed.claim_token,using='worker_runtime')
+>       BackgroundJob.objects.filter(pk=job.id).update(lock_expires_at=timezone.now()-timedelta(seconds=1))
+
+tests/test_lyra_authority_findings.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1263: in update
+    rows = query.get_compiler(self.db).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:2060: in execute_sql
+    row_count = super().execute_sql(result_type)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7158528a9ef0>
+query = 'UPDATE "background_jobs" SET "lock_expires_at" = %s WHERE "background_jobs"."id" = %s'
+params = (datetime.datetime(2026, 10, 3, 19, 0, 50, 621203, tzinfo=datetime.timezone.utc), UUID('e0a69bf5-b5a6-4121-99c3-00fc6894ea39'))
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: new row for relation "background_jobs" violates check constraint "background_job_state_consistent"
+E           DETAIL:  Failing row contains (e0a69bf5-b5a6-4121-99c3-00fc6894ea39, report_generation, {}, queued, 100, 0, 2026-10-03 19:00:51.509313+00, null, 2026-10-03 19:00:50.621203+00, null, null, null, null, null, 2026-10-03 19:00:51.51035+00, null, 01b80dd1-8709-474e-9162-938b0fcbe51f, 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a).
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+_________ test_owner_pause_blocks_queued_claim_and_running_persistence _________
+
+core_context = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 83f74ed2-2b61-4ce8-afe2-252d4a5b6fbd v1>)
+
+    def test_owner_pause_blocks_queued_claim_and_running_persistence(core_context):
+        from apps.jobs.queue import claim_next_job,lock_job_for_persistence,LostJobLease
+        user,org,_,_,snapshot=core_context
+        dispatch(WorkflowRequest(org.id,Operation.REPORT,(snapshot.id,),timezone.now(),BranchProfile.BUSINESS),actor_id=user.id)
+        configure_control(organization_id=org.id,actor_id=user.id,mode='paused',reason='Owner pause')
+        claimed=claim_next_job('pause-worker',using='worker_runtime')
+        assert claimed is None or claimed.job_type=='audit_batch_seal'
+        if claimed:
+            from apps.jobs.queue import complete_job_with_fence
+            complete_job_with_fence(job_id=claimed.id,worker_id='pause-worker',claim_token=claimed.claim_token,using='worker_runtime')
+        configure_control(organization_id=org.id,actor_id=user.id,mode='normal',reason='Owner resumes')
+        claimed=claim_next_job('pause-worker',using='worker_runtime')
+        assert claimed is not None
+        configure_control(organization_id=org.id,actor_id=user.id,mode='paused',reason='Pause during processing')
+>       with pytest.raises(LostJobLease),transaction.atomic(using='worker_runtime'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE LostJobLease
+
+tests/test_core_workflows.py:122: Failed
+____ test_drain_queue_executes_until_queue_is_empty_with_tenant_boundaries _____
+
+organization = <Organization: Phase 13 Queue Firm>
+
+    def test_drain_queue_executes_until_queue_is_empty_with_tenant_boundaries(
+        organization,
+    ):
+        from apps.jobs.worker import drain_queue
+    
+        first = enqueue(organization)
+        second = enqueue(
+            organization,
+            job_type=BackgroundJob.Type.REPORT_GENERATION,
+        )
+    
+        handlers = {
+            BackgroundJob.Type.RISK_REASSESSMENT: RecordingHandler(),
+            BackgroundJob.Type.REPORT_GENERATION: RecordingHandler(),
+        }
+    
+        def resolver(job_type):
+            return handlers[job_type]
+    
+        processed = drain_queue(
+            "worker-a",
+            resolver,
+        )
+    
+        assert processed == 2
+    
+        first.refresh_from_db()
+        second.refresh_from_db()
+    
+        assert first.status == BackgroundJob.Status.COMPLETED
+        assert second.status == BackgroundJob.Status.COMPLETED
+    
+        for handler in handlers.values():
+>           assert handler.prepare_contexts == [str(organization.id)]
+E           AssertionError: assert [] == ['f76ae6fe-74...4f393aa6c83a']
+E             
+E             Right contains one more item: 'f76ae6fe-74f0-45cf-8908-4f393aa6c83a'
+E             Use -v to get more diff
+
+tests/test_background_jobs.py:472: AssertionError
+_____ test_worker_completion_receipt_is_bound_immutable_and_tenant_private _____
+
+    def test_worker_completion_receipt_is_bound_immutable_and_tenant_private():
+        organization = Organization.objects.create(name="Receipt firm")
+        other = Organization.objects.create(name="Other receipt firm")
+        job = enqueue_job(organization_id=organization.id,
+            job_type=BackgroundJob.Type.REPORT_GENERATION, payload={"report_id":str(uuid4())})
+        class Handler:
+            def prepare(self, job): return None
+            def execute_external(self, prepared, heartbeat): return None
+            def persist(self, job, result): return None
+        drain_queue("receipt-worker", lambda kind: Handler(), using="worker_runtime", max_jobs=1)
+>       receipt = RecoveryReceipt.objects.get(job=job)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_recovery_receipts.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <QuerySet []>, args = ()
+kwargs = {'job': <BackgroundJob: report_generation 7c655994-4fdf-4965-a949-2df3b4e97818 (queued)>}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           apps.jobs.models.RecoveryReceipt.DoesNotExist: RecoveryReceipt matching query does not exist.
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:635: DoesNotExist
+=============================== warnings summary ===============================
+tests/test_roi_engine_v2.py::test_unknown_snapshot_and_browser_report_preserve_nulls_and_legacy
+tests/test_lyra_authority_findings.py::test_owner_can_stop_after_entitlement_lapses_and_cannot_resume
+tests/test_core_workflows.py::test_core_workspace_private_and_forbids_cross_tenant_snapshot
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_lyra_authority_findings.py::test_unknown_outcome_nonreport_expiry_is_review_not_replay[risk_reassessment]
+FAILED tests/test_lyra_authority_findings.py::test_unknown_outcome_nonreport_expiry_is_review_not_replay[catalog_refresh]
+FAILED tests/test_lyra_authority_findings.py::test_unknown_outcome_nonreport_expiry_is_review_not_replay[audit_batch_seal]
+FAILED tests/test_lyra_authority_findings.py::test_worker_raw_completion_and_expired_heartbeat_are_denied
+FAILED tests/test_core_workflows.py::test_owner_pause_blocks_queued_claim_and_running_persistence
+FAILED tests/test_background_jobs.py::test_drain_queue_executes_until_queue_is_empty_with_tenant_boundaries
+FAILED tests/test_recovery_receipts.py::test_worker_completion_receipt_is_bound_immutable_and_tenant_private
+7 failed, 97 passed, 3 warnings in 127.91s (0:02:07)

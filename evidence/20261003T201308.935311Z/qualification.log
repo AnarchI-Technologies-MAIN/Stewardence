@@ -1,0 +1,293 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+........................................................................ [  6%]
+........................................................................ [ 13%]
+........................................................................ [ 19%]
+........................................................................ [ 26%]
+......................................................................s. [ 32%]
+........................................................................ [ 39%]
+........................................................................ [ 45%]
+..........E............................................................. [ 52%]
+........................................................................ [ 58%]
+........................................................................ [ 65%]
+........................................................................ [ 72%]
+........................................................................ [ 78%]
+........................................................................ [ 85%]
+........................................................................ [ 91%]
+........................................................................ [ 98%]
+...................                                                      [100%]
+==================================== ERRORS ====================================
+_ ERROR at teardown of test_worker_runtime_can_claim_across_tenants_without_tenant_context _
+
+    @pytest.fixture
+    def isolation_fixture():
+        user_model = get_user_model()
+        user_a = user_model.objects.create_user("rls-a@example.com")
+        user_b = user_model.objects.create_user("rls-b@example.com")
+        organization_a = Organization.objects.create(name="RLS Firm A")
+        organization_b = Organization.objects.create(name="RLS Firm B")
+        OrganizationMember.objects.create(
+            user=user_a,
+            organization=organization_a,
+            role=OrganizationMember.Role.OWNER,
+        )
+        OrganizationMember.objects.create(
+            user=user_b,
+            organization=organization_b,
+            role=OrganizationMember.Role.OWNER,
+        )
+        item_a = InventoryItem.objects.create(
+            organization=organization_a,
+            display_name="Inventory A",
+            vendor_name="Vendor A",
+        )
+        item_b = InventoryItem.objects.create(
+            organization=organization_b,
+            display_name="Inventory B",
+            vendor_name="Vendor B",
+        )
+        fixture = IsolationFixture(
+            user_a.id,
+            user_b.id,
+            organization_a.id,
+            organization_b.id,
+            item_a.id,
+            item_b.id,
+        )
+        yield fixture
+        with connections["default"].cursor() as cursor:
+            cursor.execute(
+                "TRUNCATE TABLE reports, audit_events, "
+                "audit_merkle_blocks, audit_chain_heads, "
+                "assessment_snapshots CASCADE"
+            )
+        BackgroundJob.objects.all().delete()
+        OrganizationRule.objects.all().delete()
+        InventoryItem.objects.all().delete()
+        OrganizationMember.objects.all().delete()
+>       Organization.objects.all().delete()
+
+tests/test_rls.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1200: in delete
+    collector.collect(del_query)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.models.deletion.Collector object at 0x70f213ba42d0>
+objs = <QuerySet [<Organization: RLS Firm A>, <Organization: RLS Firm B>]>
+source = None, nullable = False, collect_related = True, source_attr = None
+reverse_dependency = False, keep_parents = False, fail_on_restricted = True
+
+    def collect(
+        self,
+        objs,
+        source=None,
+        nullable=False,
+        collect_related=True,
+        source_attr=None,
+        reverse_dependency=False,
+        keep_parents=False,
+        fail_on_restricted=True,
+    ):
+        """
+        Add 'objs' to the collection of objects to be deleted as well as all
+        parent instances.  'objs' must be a homogeneous iterable collection of
+        model instances (e.g. a QuerySet).  If 'collect_related' is True,
+        related objects will be handled by their respective on_delete handler.
+    
+        If the call is the result of a cascade, 'source' should be the model
+        that caused it and 'nullable' should be set to True, if the relation
+        can be null.
+    
+        If 'reverse_dependency' is True, 'source' will be deleted before the
+        current model, rather than after. (Needed for cascading to parent
+        models, the one case in which the cascade follows the forwards
+        direction of an FK rather than the reverse direction.)
+    
+        If 'keep_parents' is True, data of parent model's will be not deleted.
+    
+        If 'fail_on_restricted' is False, error won't be raised even if it's
+        prohibited to delete such objects due to RESTRICT, that defers
+        restricted object checking in recursive calls where the top-level call
+        may need to collect more objects to determine whether restricted ones
+        can be deleted.
+        """
+        if self.can_fast_delete(objs):
+            self.fast_deletes.append(objs)
+            return
+        new_objs = self.add(
+            objs, source, nullable, reverse_dependency=reverse_dependency
+        )
+        if not new_objs:
+            return
+    
+        model = new_objs[0].__class__
+    
+        if not keep_parents:
+            # Recursively collect concrete model's parent models, but not their
+            # related objects. These will be found by meta.get_fields()
+            concrete_model = model._meta.concrete_model
+            for ptr in concrete_model._meta.parents.values():
+                if ptr:
+                    parent_objs = [getattr(obj, ptr.name) for obj in new_objs]
+                    self.collect(
+                        parent_objs,
+                        source=model,
+                        source_attr=ptr.remote_field.related_name,
+                        collect_related=False,
+                        reverse_dependency=True,
+                        fail_on_restricted=False,
+                    )
+        if not collect_related:
+            return
+    
+        model_fast_deletes = defaultdict(list)
+        protected_objects = defaultdict(list)
+        for related in get_candidate_relations_to_delete(model._meta):
+            # Preserve parent reverse relationships if keep_parents=True.
+            if keep_parents and related.model in model._meta.all_parents:
+                continue
+            field = related.field
+            on_delete = field.remote_field.on_delete
+            if on_delete == DO_NOTHING:
+                continue
+            related_model = related.related_model
+            if self.can_fast_delete(related_model, from_field=field):
+                model_fast_deletes[related_model].append(field)
+                continue
+            batches = self.get_del_batches(new_objs, [field])
+            for batch in batches:
+                sub_objs = self.related_objects(related_model, [field], batch)
+                # Non-referenced fields can be deferred if no signal receivers
+                # are connected for the related model as they'll never be
+                # exposed to the user. Skip field deferring when some
+                # relationships are select_related as interactions between both
+                # features are hard to get right. This should only happen in
+                # the rare cases where .related_objects is overridden anyway.
+                if not (
+                    sub_objs.query.select_related
+                    or self._has_signal_listeners(related_model)
+                ):
+                    referenced_fields = set(
+                        chain.from_iterable(
+                            (rf.attname for rf in rel.field.foreign_related_fields)
+                            for rel in get_candidate_relations_to_delete(
+                                related_model._meta
+                            )
+                        )
+                    )
+                    sub_objs = sub_objs.only(*tuple(referenced_fields))
+                if getattr(on_delete, "lazy_sub_objs", False) or sub_objs:
+                    try:
+                        on_delete(self, field, sub_objs, self.using)
+                    except ProtectedError as error:
+                        key = "'%s.%s'" % (field.model.__name__, field.name)
+                        protected_objects[key] += error.protected_objects
+        if protected_objects:
+>           raise ProtectedError(
+                "Cannot delete some instances of model %r because they are "
+                "referenced through protected foreign keys: %s."
+                % (
+                    model.__name__,
+                    ", ".join(protected_objects),
+                ),
+                set(chain.from_iterable(protected_objects.values())),
+            )
+E           django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Organization' because they are referenced through protected foreign keys: 'Subscription.organization'.", {<Subscription: Subscription object (c8b5085f-0b96-4331-a43a-6287708bcd56)>})
+
+.venv/lib/python3.14/site-packages/django/db/models/deletion.py:350: ProtectedError
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py: 2 warnings
+tests/test_billing_founder_cancellation_authority.py: 3 warnings
+tests/test_billing_founder_checkout_authority.py: 2 warnings
+tests/test_billing_portal_cancellation.py: 2 warnings
+tests/test_billing_tenant_authority.py: 10 warnings
+tests/test_csv_import.py: 10 warnings
+tests/test_discovery.py: 2 warnings
+tests/test_discovery_reconciliation.py: 2 warnings
+tests/test_inventory.py: 10 warnings
+tests/test_organization_rules.py: 9 warnings
+tests/test_production_security.py: 3 warnings
+tests/test_public_signup.py: 11 warnings
+tests/test_report_history.py: 3 warnings
+tests/test_reports.py: 3 warnings
+tests/test_roi_engine_v2.py: 1 warning
+tests/test_workspaces.py: 9 warnings
+tests/test_core_workflows.py: 1 warning
+tests/test_lyra_authority_findings.py: 1 warning
+tests/test_operations_dashboard.py: 2 warnings
+tests/test_provider_lifecycle.py: 2 warnings
+tests/test_quickbooks_lifecycle.py: 13 warnings
+tests/test_quickbooks_reports.py: 6 warnings
+tests/test_report_artifacts.py: 4 warnings
+tests/test_report_recovery_states.py: 1 warning
+tests/test_workflow_profile_setup.py: 3 warnings
+tests/test_baseline.py: 4 warnings
+tests/test_download.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/test_rls.py::test_worker_runtime_can_claim_across_tenants_without_tenant_context
+1097 passed, 1 skipped, 120 warnings, 1 error in 181.22s (0:03:01)

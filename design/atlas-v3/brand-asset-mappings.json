@@ -1,0 +1,257 @@
+[
+  {
+    "screen": "01-overview",
+    "variant": "overview",
+    "asset": "emblem-family/overview.svg"
+  },
+  {
+    "screen": "02-home",
+    "variant": "overview",
+    "asset": "emblem-family/overview.svg"
+  },
+  {
+    "screen": "03-pricing",
+    "variant": "pricing",
+    "asset": "emblem-family/pricing.svg"
+  },
+  {
+    "screen": "04-visibility-landing",
+    "variant": "funnels",
+    "asset": "emblem-family/funnels.svg"
+  },
+  {
+    "screen": "05-roi-landing",
+    "variant": "funnels",
+    "asset": "emblem-family/funnels.svg"
+  },
+  {
+    "screen": "06-automation-landing",
+    "variant": "funnels",
+    "asset": "emblem-family/funnels.svg"
+  },
+  {
+    "screen": "07-lead-confirmation",
+    "variant": "funnels",
+    "asset": "emblem-family/funnels.svg"
+  },
+  {
+    "screen": "08-login",
+    "variant": "login",
+    "asset": "emblem-family/login.svg"
+  },
+  {
+    "screen": "09-signup",
+    "variant": "signup",
+    "asset": "emblem-family/signup.svg"
+  },
+  {
+    "screen": "10-workspace-selection",
+    "variant": "admin",
+    "asset": "emblem-family/admin.svg"
+  },
+  {
+    "screen": "11-workspace-setup",
+    "variant": "admin",
+    "asset": "emblem-family/admin.svg"
+  },
+  {
+    "screen": "12-inventory-list",
+    "variant": "inventory",
+    "asset": "emblem-family/inventory.svg"
+  },
+  {
+    "screen": "13-inventory-detail",
+    "variant": "inventory",
+    "asset": "emblem-family/inventory.svg"
+  },
+  {
+    "screen": "14-inventory-form",
+    "variant": "inventory",
+    "asset": "emblem-family/inventory.svg"
+  },
+  {
+    "screen": "15-discovery",
+    "variant": "inventory",
+    "asset": "emblem-family/inventory.svg"
+  },
+  {
+    "screen": "16-download",
+    "variant": "inventory",
+    "asset": "emblem-family/inventory.svg"
+  },
+  {
+    "screen": "17-import-upload",
+    "variant": "inventory",
+    "asset": "emblem-family/inventory.svg"
+  },
+  {
+    "screen": "18-import-review",
+    "variant": "inventory",
+    "asset": "emblem-family/inventory.svg"
+  },
+  {
+    "screen": "19-import-final",
+    "variant": "inventory",
+    "asset": "emblem-family/inventory.svg"
+  },
+  {
+    "screen": "20-integrations",
+    "variant": "evidence-library",
+    "asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "screen": "21-quickbooks",
+    "variant": "evidence-library",
+    "asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "screen": "22-xero",
+    "variant": "evidence-library",
+    "asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "screen": "23-microsoft",
+    "variant": "evidence-library",
+    "asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "screen": "24-collection-history",
+    "variant": "evidence-library",
+    "asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "screen": "25-assessments-list",
+    "variant": "policies",
+    "asset": "emblem-family/policies.svg"
+  },
+  {
+    "screen": "26-assessment-detail",
+    "variant": "policies",
+    "asset": "emblem-family/policies.svg"
+  },
+  {
+    "screen": "27-policies-list",
+    "variant": "policies",
+    "asset": "emblem-family/policies.svg"
+  },
+  {
+    "screen": "28-policy-detail",
+    "variant": "policies",
+    "asset": "emblem-family/policies.svg"
+  },
+  {
+    "screen": "29-policy-editor",
+    "variant": "policies",
+    "asset": "emblem-family/policies.svg"
+  },
+  {
+    "screen": "30-roi-overview",
+    "variant": "roi",
+    "asset": "emblem-family/roi.svg"
+  },
+  {
+    "screen": "31-roi-calculator",
+    "variant": "roi",
+    "asset": "emblem-family/roi.svg"
+  },
+  {
+    "screen": "32-financial-evidence",
+    "variant": "roi",
+    "asset": "emblem-family/roi.svg"
+  },
+  {
+    "screen": "33-expenditure-sinks",
+    "variant": "roi",
+    "asset": "emblem-family/roi.svg"
+  },
+  {
+    "screen": "34-discrepancies",
+    "variant": "roi",
+    "asset": "emblem-family/roi.svg"
+  },
+  {
+    "screen": "35-actions-list",
+    "variant": "policies",
+    "asset": "emblem-family/policies.svg"
+  },
+  {
+    "screen": "36-action-detail",
+    "variant": "policies",
+    "asset": "emblem-family/policies.svg"
+  },
+  {
+    "screen": "37-reports-list",
+    "variant": "reports",
+    "asset": "emblem-family/reports.svg"
+  },
+  {
+    "screen": "38-report-detail",
+    "variant": "reports",
+    "asset": "emblem-family/reports.svg"
+  },
+  {
+    "screen": "39-evidence-library",
+    "variant": "evidence-library",
+    "asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "screen": "40-evidence-detail",
+    "variant": "evidence-library",
+    "asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "screen": "41-audit",
+    "variant": "evidence-library",
+    "asset": "emblem-family/evidence-library.svg"
+  },
+  {
+    "screen": "42-workspace-admin",
+    "variant": "admin",
+    "asset": "emblem-family/admin.svg"
+  },
+  {
+    "screen": "43-members-authority",
+    "variant": "admin",
+    "asset": "emblem-family/admin.svg"
+  },
+  {
+    "screen": "44-billing",
+    "variant": "billing",
+    "asset": "emblem-family/billing.svg"
+  },
+  {
+    "screen": "45-checkout-confirmation",
+    "variant": "billing",
+    "asset": "emblem-family/billing.svg"
+  },
+  {
+    "screen": "46-privacy",
+    "variant": "policies",
+    "asset": "emblem-family/policies.svg"
+  },
+  {
+    "screen": "47-terms",
+    "variant": "policies",
+    "asset": "emblem-family/policies.svg"
+  },
+  {
+    "screen": "48-contact",
+    "variant": "contact",
+    "asset": "emblem-family/contact.svg"
+  },
+  {
+    "screen": "49-states",
+    "variant": "overview",
+    "asset": "emblem-family/overview.svg"
+  },
+  {
+    "screen": "50-authority-states",
+    "variant": "admin",
+    "asset": "emblem-family/admin.svg"
+  },
+  {
+    "screen": "51-lead-review",
+    "variant": "funnels",
+    "asset": "emblem-family/funnels.svg"
+  }
+]

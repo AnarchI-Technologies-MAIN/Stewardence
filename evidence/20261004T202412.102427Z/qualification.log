@@ -1,0 +1,190 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+.FFFF..........F.....                                                    [100%]
+=================================== FAILURES ===================================
+_ test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[history] _
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 49562fc3-d582-4d95-a4da-95fea2098e85 v1>, <ActionCardRevision: ActionCardRevision object (1886cf4b-ce02-4614-b824-6f81ced9a39e)>)
+client = <django.test.client.Client object at 0x7352a90c6780>, route = 'history'
+
+    @pytest.mark.parametrize('route',['history','snapshot','decision','comparison'])
+    def test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access(workspace,client,route):
+        viewer=get_user_model().objects.create_user('ui-viewer@example.invalid')
+        OrganizationMember.objects.create(organization=workspace[1],user=viewer,role='viewer')
+        client.force_login(viewer)
+        session=client.session;session['active_organization_id']=str(workspace[1].id);session.save()
+        args={'history':[],'snapshot':[workspace[2].id],'decision':[workspace[3].id,0],'comparison':[]}[route]
+>       assert client.get(reverse('reviews:'+route,args=args)).status_code==403
+E       assert 302 == 403
+E        +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+E        +    where <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"> = get('/reviews/')
+E        +      where get = <django.test.client.Client object at 0x7352a90c6780>.get
+E        +      and   '/reviews/' = reverse(('reviews:' + 'history'), args=[])
+
+tests/test_review_workspace_views.py:67: AssertionError
+_ test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[snapshot] _
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: ec58b6a6-b69e-4c8c-ac9a-de7b1e0d9e8d v1>, <ActionCardRevision: ActionCardRevision object (d683991b-62f7-4471-abd2-05f58ce3d458)>)
+client = <django.test.client.Client object at 0x7352a8351b50>
+route = 'snapshot'
+
+    @pytest.mark.parametrize('route',['history','snapshot','decision','comparison'])
+    def test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access(workspace,client,route):
+        viewer=get_user_model().objects.create_user('ui-viewer@example.invalid')
+        OrganizationMember.objects.create(organization=workspace[1],user=viewer,role='viewer')
+        client.force_login(viewer)
+        session=client.session;session['active_organization_id']=str(workspace[1].id);session.save()
+        args={'history':[],'snapshot':[workspace[2].id],'decision':[workspace[3].id,0],'comparison':[]}[route]
+>       assert client.get(reverse('reviews:'+route,args=args)).status_code==403
+E       assert 302 == 403
+E        +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+E        +    where <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"> = get('/reviews/snapshots/54bbf8ec-b4cb-426c-bea1-59e048fc1b95/')
+E        +      where get = <django.test.client.Client object at 0x7352a8351b50>.get
+E        +      and   '/reviews/snapshots/54bbf8ec-b4cb-426c-bea1-59e048fc1b95/' = reverse(('reviews:' + 'snapshot'), args=[UUID('54bbf8ec-b4cb-426c-bea1-59e048fc1b95')])
+
+tests/test_review_workspace_views.py:67: AssertionError
+_ test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[decision] _
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 82100d9e-8c66-4d62-b754-9af71e77cbb9 v1>, <ActionCardRevision: ActionCardRevision object (43a9cd97-1b82-4b00-8df5-891bbe4f96e1)>)
+client = <django.test.client.Client object at 0x7352a83658c0>
+route = 'decision'
+
+    @pytest.mark.parametrize('route',['history','snapshot','decision','comparison'])
+    def test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access(workspace,client,route):
+        viewer=get_user_model().objects.create_user('ui-viewer@example.invalid')
+        OrganizationMember.objects.create(organization=workspace[1],user=viewer,role='viewer')
+        client.force_login(viewer)
+        session=client.session;session['active_organization_id']=str(workspace[1].id);session.save()
+        args={'history':[],'snapshot':[workspace[2].id],'decision':[workspace[3].id,0],'comparison':[]}[route]
+>       assert client.get(reverse('reviews:'+route,args=args)).status_code==403
+E       assert 302 == 403
+E        +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+E        +    where <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"> = get('/reviews/cards/43a9cd97-1b82-4b00-8df5-891bbe4f96e1/0/')
+E        +      where get = <django.test.client.Client object at 0x7352a83658c0>.get
+E        +      and   '/reviews/cards/43a9cd97-1b82-4b00-8df5-891bbe4f96e1/0/' = reverse(('reviews:' + 'decision'), args=[UUID('43a9cd97-1b82-4b00-8df5-891bbe4f96e1'), 0])
+
+tests/test_review_workspace_views.py:67: AssertionError
+_ test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[comparison] _
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: bddaae38-ffb6-45ea-b7bb-d59367a6a431 v1>, <ActionCardRevision: ActionCardRevision object (e4c95cc6-5de8-4b39-8e04-a5b9a05d73f9)>)
+client = <django.test.client.Client object at 0x7352a8b29950>
+route = 'comparison'
+
+    @pytest.mark.parametrize('route',['history','snapshot','decision','comparison'])
+    def test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access(workspace,client,route):
+        viewer=get_user_model().objects.create_user('ui-viewer@example.invalid')
+        OrganizationMember.objects.create(organization=workspace[1],user=viewer,role='viewer')
+        client.force_login(viewer)
+        session=client.session;session['active_organization_id']=str(workspace[1].id);session.save()
+        args={'history':[],'snapshot':[workspace[2].id],'decision':[workspace[3].id,0],'comparison':[]}[route]
+>       assert client.get(reverse('reviews:'+route,args=args)).status_code==403
+E       assert 302 == 403
+E        +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+E        +    where <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/"> = get('/reviews/compare/')
+E        +      where get = <django.test.client.Client object at 0x7352a8b29950>.get
+E        +      and   '/reviews/compare/' = reverse(('reviews:' + 'comparison'), args=[])
+
+tests/test_review_workspace_views.py:67: AssertionError
+____________ test_foreign_snapshot_revision_and_pack_are_not_found _____________
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 6bb3127e-3bee-4671-9558-4e7906ef05f5 v1>, <ActionCardRevision: ActionCardRevision object (0bf7ee9b-6745-4dcd-9be8-fb5f446cc848)>)
+client = <django.test.client.Client object at 0x7352a7fe7570>
+
+    def test_foreign_snapshot_revision_and_pack_are_not_found(workspace,client):
+        pack=freeze_pack(client,workspace)
+        other=Organization.objects.create(name='Other owner workspace')
+        OrganizationMember.objects.create(organization=other,user=workspace[0],role='owner')
+        session=client.session;session['active_organization_id']=str(other.id);session.save()
+        for route,args in [('snapshot',[workspace[2].id]),('decision',[workspace[3].id,0]),('pack-detail',[pack.id])]:
+>           assert client.get(reverse('reviews:'+route,args=args)).status_code==404
+E           assert 302 == 404
+E            +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/workspaces/">.status_code
+E            +    where <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/workspaces/"> = get('/reviews/snapshots/46c98078-bc94-4b48-993e-07a19620a062/')
+E            +      where get = <django.test.client.Client object at 0x7352a7fe7570>.get
+E            +      and   '/reviews/snapshots/46c98078-bc94-4b48-993e-07a19620a062/' = reverse(('reviews:' + 'snapshot'), args=[UUID('46c98078-bc94-4b48-993e-07a19620a062')])
+
+tests/test_review_workspace_views.py:119: AssertionError
+=============================== warnings summary ===============================
+tests/test_review_workspace_views.py: 21 warnings
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_review_workspace_views.py::test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[history]
+FAILED tests/test_review_workspace_views.py::test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[snapshot]
+FAILED tests/test_review_workspace_views.py::test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[decision]
+FAILED tests/test_review_workspace_views.py::test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[comparison]
+FAILED tests/test_review_workspace_views.py::test_foreign_snapshot_revision_and_pack_are_not_found
+5 failed, 16 passed, 21 warnings in 19.63s

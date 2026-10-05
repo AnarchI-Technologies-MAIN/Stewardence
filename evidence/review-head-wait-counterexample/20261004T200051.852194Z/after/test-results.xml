@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="25.412" timestamp="2026-10-04T20:02:12.572936+00:00" hostname="9752eb8bd500"><testcase classname="tests.test_review_pack_lifecycle" name="test_head_lock_wait_cannot_reuse_pre_expiry_lease" time="23.024" /></testsuite></testsuites>

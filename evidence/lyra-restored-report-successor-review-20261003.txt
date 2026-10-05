@@ -1,0 +1,91 @@
+Share
+You said:
+Pasted text.txt
+Document
+Worked for 1m 12s
+ChatGPT said:
+
+Alexander, I’ve read the complete Lyra–Stewardence Codex continuity handoff. This establishes the historical review baseline for this consultation—not freshly verified current state or new operational authority. Codex-reported execution, supplied execution records, Lyra source review, and independent reruns remain separate evidence categories. The handoff does not claim that Lyra independently ran the STEWARDENCE suite, deployed production, or executed a restore. 
+Pasted text
+
+Review state carried forward
+
+The historical dispositions are: offline semantic foundation accepted within its frozen scope; Core authority successor accepted on the supplied source and regression evidence; actual report-byte recovery accepted narrowly; and restored application checks accepted for the demonstrated isolated, in-process cases. The application checks retain the qualifications below. Those outcomes do not establish overall production readiness through this consultation. 
+Pasted text
+
+Closed findings stay closed for their reviewed successors; earlier failures remain historical failures. A passing result does not transfer to another source revision or image without a verified relationship. 
+Pasted text
+ 
+Pasted text
+ 
+Pasted text
+
+Five restore qualifications remain open
+
+Post-request metadata immutability. The existing equality check occurs before the request sequence. Closure requires a subsequent query and comparison against the frozen original bindings. 
+Pasted text
+
+Same-length corruption. The demonstrated corruption changes both length and bytes. A same-length mutation is still needed to exercise hash-mismatch handling specifically. 
+Pasted text
+
+Failure-path cleanup. Cleanup can stop at its first exception. It needs to attempt every known target, aggregate failures, verify absence where possible, and refuse an overall PASS when cleanup is incomplete. This qualification does not invalidate the successful cleanup already demonstrated. 
+Pasted text
+
+Anonymous redirect destination. Accepting any 302 is insufficient for the intended assertion. The probe must check the expected login or entitlement destination. 
+Pasted text
+
+Release-image evidence alignment. The full-suite image beginning 95b24d42… and the stage-2 application image beginning 4b12ba09… are distinct. The supplied packet does not establish source equivalence. Establish that relationship or repeat the relevant application gate on the final selected release image before combining their results. 
+Pasted text
+
+These remain source/proof qualifications—not demonstrated production access leaks. 
+Pasted text
+
+Boundaries remain intact
+
+The general report worker must not acquire unrestricted provider credentials. Installed adapters, hashes, and self-consistent receipts do not confer authority. Provider writes and the semantic layer’s live admission/installer remain disabled within the reviewed scope. 
+Pasted text
+
+The restored application evidence is not live HTTP/public-cutover or production-entitlement proof. Windows-held keys and WSL-held ciphertext on the same physical host do not establish device-loss resilience or independent off-site recovery. Final live HTTP/static/UI evidence, atlas/PDF and sales delivery, and overall release/recovery requirements remain open in the handoff. 
+Pasted text
+ 
+Pasted text
+
+The continuation point is the separately labeled, freshly verified current-state update. That update should identify changed source and image identities, supply evidence for any proposed qualification closure, and retain everything still unresolved. Nothing in this handoff grants deployment approval or expands permissions. 
+Pasted text
+
+You said:
+Fresh Stewardence continuation update: the five restore qualifications in your handoff are being addressed, without production mutation. The first rerun on exact full-suite image sha256:95b24d4215bb6cec845a42ee8061504b95d62ba11e4c6f53c7d596c354680946 passed all six actual restored objects: same-length hash corruption denied 6/6; post-request artifact metadata matched 6/6; anonymous redirects matched accounts:login exactly 6/6. Owners without clone entitlement were denied and explicit synthetic clone subscriptions were created; those are not live entitlement facts. Cleanup now uses a shared exhaustive helper that attempts all targets and verifies absence even after a removal exception. Its injected first-target failure check passed and withheld cleanup success while checking later targets and the network. A final rerun of that exact helper is in progress. I will send source and sanitized execution evidence for review when complete. Core production remains unapproved; worker/provider writes/Automation purchases stay disabled. Please preserve prior bounded closures and review only this successor when the packet arrives.
+…
+Show more
+
+Preserved project status
+
+You said:
+Pasted text(20261003-221849).txt
+Document
+Reviewing sandbox restore checks safely
+Reviewing sandbox restore checks safely
+
+I’ll review this successor against the five restore qualifications, assessing the supplied source and evidence while preserving the earlier bounded closures.
+
+Reviewed the source content
+
+Evaluated qualifications
+
+Tested cleanup coverage
+
+Validated the probe
+
+Validated cleanup failure-path evidence
+
+The probe assertions and digest check out, but simulated failure testing found cleanup can omit a network when creation succeeds before raising; overall PASS remains withheld.
+
+Tested Docker cleanup failure handling
+
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+Pro

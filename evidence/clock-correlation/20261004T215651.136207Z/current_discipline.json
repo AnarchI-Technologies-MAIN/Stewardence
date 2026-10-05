@@ -1,0 +1,12 @@
+{
+  "command": [
+    "wsl",
+    "-d",
+    "docker-desktop",
+    "--",
+    "adjtimex"
+  ],
+  "exit_code": 0,
+  "stdout": "    mode:         0\n-o  offset:       0 us\n-f  freq.adjust:  -3977406 (65536 = 1ppm)\n    maxerror:     147753\n    esterror:     104650\n    status:       8192 ()\n-p  timeconstant: 1\n    precision:    1 us\n    tolerance:    32768000\n-t  tick:         10530 us\n    time.tv_sec:  1791151023\n    time.tv_usec: 327990863\n    return value: 0 (clock synchronized)\n",
+  "stderr": ""
+}

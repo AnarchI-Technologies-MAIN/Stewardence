@@ -1,0 +1,13 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:current",
+  "image_id": "sha256:2ebd6f2aa9bfabb334d3dfd2af7e97346c419a1aeb283c22937d023e1c00da73",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T160837.713297Z",
+  "test_arguments": [
+    "tests/test_report_storage_atomic.py",
+    "tests/test_report_artifacts.py",
+    "tests/test_report_generation_job.py"
+  ]
+}

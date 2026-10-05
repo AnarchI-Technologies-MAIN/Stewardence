@@ -1,0 +1,302 @@
+{
+  "before": {
+    "process_id": 1,
+    "memory.current": "56782848\n",
+    "memory.peak": "81956864\n",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "pids.current": "1\n",
+    "pids.max": "512\n",
+    "cpu.stat": "usage_usec 5240582\nuser_usec 3674166\nsystem_usec 1566415\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+    "direct_children": "",
+    "processes": [
+      {
+        "Name": "python",
+        "State": "R (running)",
+        "Pid": "1",
+        "PPid": "0"
+      }
+    ]
+  },
+  "renders": [
+    {
+      "index": 0,
+      "elapsed": 4.134626025974285,
+      "sha256": "44662cdd955aa5db5170a0527bce7f82e27267df12f09e755bc41c9986beeede",
+      "resources": {
+        "process_id": 1,
+        "memory.current": "61415424\n",
+        "memory.peak": "249057280\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "3\n",
+        "pids.max": "512\n",
+        "cpu.stat": "usage_usec 10466586\nuser_usec 5983092\nsystem_usec 4483494\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+        "direct_children": "21 22 ",
+        "processes": [
+          {
+            "Name": "python",
+            "State": "R (running)",
+            "Pid": "1",
+            "PPid": "0"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "21",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "22",
+            "PPid": "1"
+          }
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "elapsed": 1.300254299014341,
+      "sha256": "44662cdd955aa5db5170a0527bce7f82e27267df12f09e755bc41c9986beeede",
+      "resources": {
+        "process_id": 1,
+        "memory.current": "62619648\n",
+        "memory.peak": "252096512\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "5\n",
+        "pids.max": "512\n",
+        "cpu.stat": "usage_usec 12441979\nuser_usec 7117898\nsystem_usec 5324080\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+        "direct_children": "21 22 101 102 ",
+        "processes": [
+          {
+            "Name": "python",
+            "State": "R (running)",
+            "Pid": "1",
+            "PPid": "0"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "21",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "22",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "101",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "102",
+            "PPid": "1"
+          }
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "elapsed": 1.224621707049664,
+      "sha256": "44662cdd955aa5db5170a0527bce7f82e27267df12f09e755bc41c9986beeede",
+      "resources": {
+        "process_id": 1,
+        "memory.current": "62996480\n",
+        "memory.peak": "252096512\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "7\n",
+        "pids.max": "512\n",
+        "cpu.stat": "usage_usec 14353929\nuser_usec 8178669\nsystem_usec 6175260\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+        "direct_children": "21 22 101 102 180 181 ",
+        "processes": [
+          {
+            "Name": "python",
+            "State": "R (running)",
+            "Pid": "1",
+            "PPid": "0"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "21",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "22",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "101",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "102",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "180",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "181",
+            "PPid": "1"
+          }
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "elapsed": 1.4395312330452725,
+      "sha256": "44662cdd955aa5db5170a0527bce7f82e27267df12f09e755bc41c9986beeede",
+      "resources": {
+        "process_id": 1,
+        "memory.current": "63348736\n",
+        "memory.peak": "258105344\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "9\n",
+        "pids.max": "512\n",
+        "cpu.stat": "usage_usec 16561530\nuser_usec 9590673\nsystem_usec 6970856\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+        "direct_children": "21 22 101 102 180 181 261 262 ",
+        "processes": [
+          {
+            "Name": "python",
+            "State": "R (running)",
+            "Pid": "1",
+            "PPid": "0"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "21",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "22",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "101",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "102",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "180",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "181",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "261",
+            "PPid": "1"
+          },
+          {
+            "Name": "chrome-headless",
+            "State": "Z (zombie)",
+            "Pid": "262",
+            "PPid": "1"
+          }
+        ]
+      }
+    }
+  ],
+  "synthetic_payload_only": true,
+  "timeout_seconds": 60,
+  "after": {
+    "process_id": 1,
+    "memory.current": "63348736\n",
+    "memory.peak": "258105344\n",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "pids.current": "9\n",
+    "pids.max": "512\n",
+    "cpu.stat": "usage_usec 16561530\nuser_usec 9590673\nsystem_usec 6970856\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+    "direct_children": "21 22 101 102 180 181 261 262 ",
+    "processes": [
+      {
+        "Name": "python",
+        "State": "R (running)",
+        "Pid": "1",
+        "PPid": "0"
+      },
+      {
+        "Name": "chrome-headless",
+        "State": "Z (zombie)",
+        "Pid": "21",
+        "PPid": "1"
+      },
+      {
+        "Name": "chrome-headless",
+        "State": "Z (zombie)",
+        "Pid": "22",
+        "PPid": "1"
+      },
+      {
+        "Name": "chrome-headless",
+        "State": "Z (zombie)",
+        "Pid": "101",
+        "PPid": "1"
+      },
+      {
+        "Name": "chrome-headless",
+        "State": "Z (zombie)",
+        "Pid": "102",
+        "PPid": "1"
+      },
+      {
+        "Name": "chrome-headless",
+        "State": "Z (zombie)",
+        "Pid": "180",
+        "PPid": "1"
+      },
+      {
+        "Name": "chrome-headless",
+        "State": "Z (zombie)",
+        "Pid": "181",
+        "PPid": "1"
+      },
+      {
+        "Name": "chrome-headless",
+        "State": "Z (zombie)",
+        "Pid": "261",
+        "PPid": "1"
+      },
+      {
+        "Name": "chrome-headless",
+        "State": "Z (zombie)",
+        "Pid": "262",
+        "PPid": "1"
+      }
+    ]
+  }
+}

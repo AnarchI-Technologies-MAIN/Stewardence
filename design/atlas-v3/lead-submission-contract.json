@@ -1,0 +1,163 @@
+{
+  "status": "Proposed for engineering review; not implemented",
+  "schema_version": "lead-submission-proposal-v2",
+  "provenance": "Synthetic examples only",
+  "landing_page_id": "visibility",
+  "campaign_id": null,
+  "page_copy_version": "visibility-copy-v2",
+  "submitted_at_server_utc": null,
+  "answers": {
+    "preferred_contact_method": {
+      "value": "email",
+      "source_category": "self_reported"
+    },
+    "contact": {
+      "value": "prospect@example.invalid",
+      "source_category": "self_reported"
+    },
+    "organization": {
+      "value": null,
+      "source_category": "missing"
+    },
+    "role": {
+      "value": null,
+      "source_category": "missing"
+    },
+    "primary_problem": {
+      "value": "Unclear which tools have access",
+      "source_category": "self_reported"
+    },
+    "relevant_software": {
+      "value": null,
+      "source_category": "missing"
+    },
+    "desired_outcome": {
+      "value": null,
+      "source_category": "missing"
+    },
+    "timeframe": {
+      "value": "exploring",
+      "source_category": "self_reported"
+    },
+    "system_responsibility": {
+      "value": "not_sure",
+      "source_category": "self_reported",
+      "question": "Do you administer the relevant systems, or can you involve someone authorized to do so?",
+      "choices": [
+        "administer",
+        "can_involve_authorized_person",
+        "neither",
+        "not_sure"
+      ]
+    },
+    "desired_next_step": {
+      "value": null,
+      "source_category": "missing"
+    }
+  },
+  "consent": {
+    "service_request": {
+      "requested_followup": true,
+      "contact_channel": "email",
+      "notice_version": "request-notice-v2",
+      "recorded_at_server_utc": null,
+      "notice_text": "Use my contact details to review and respond to this request through my chosen channel."
+    },
+    "optional_marketing": {
+      "opted_in": false,
+      "default_checked": false,
+      "notice_version": "marketing-notice-v2",
+      "recorded_at_server_utc": null,
+      "notice_text": "I would like occasional Stewardence product updates. This is optional and separate from my request."
+    }
+  },
+  "missing_information": [
+    "organization",
+    "role",
+    "relevant_software",
+    "desired_next_step",
+    "verified_system_authority"
+  ],
+  "qualification": {
+    "category": "Potential fit; clarification needed",
+    "source_category": "derived",
+    "rule_version": "qualification-proposal-v2",
+    "supporting_input_paths": [
+      "answers.primary_problem",
+      "answers.system_responsibility"
+    ],
+    "limitations": [
+      "Self-reported answers are not independently verified",
+      "Role does not establish purchasing or system authority",
+      "No stated budget or independently confirmed fit"
+    ],
+    "human_review_status": "proposed_pending_review"
+  },
+  "attribution": {
+    "source_category": "campaign_attribution",
+    "campaign_id": null,
+    "causation_established": false
+  },
+  "behavioral_analytics": {
+    "included": false,
+    "separate_from_explicit_answers": true
+  },
+  "boundaries": {
+    "automated_outreach": false,
+    "crm_write": false,
+    "enrichment": false,
+    "account_connection_required": false,
+    "sensitive_financial_records_required": false
+  },
+  "engineering_review_requirements": [
+    "Validate only fields required for useful next step",
+    "Record receipt and consent server-side",
+    "Do not silently infer missing facts",
+    "Respect contact preference and opt-outs",
+    "Confirm storage, retention, duplicate handling, validation, access and authorization before implementation"
+  ],
+  "receipt_contract": {
+    "status": "proposed",
+    "idempotency_key": "Opaque client-generated request key; no credentials",
+    "receipt_id": null,
+    "states": [
+      "validation_failed",
+      "submitting",
+      "outcome_uncertain",
+      "durably_received",
+      "duplicate_same_payload",
+      "duplicate_conflicting_payload"
+    ],
+    "success_gate": "Durable committed receipt and answers/consent recorded before confirmation",
+    "same_key_same_payload": "Return original receipt without duplicate routing/contact",
+    "same_key_different_payload": "Conflict; no overwrite; offer new request",
+    "uncertain_response": "Retry original key and payload; do not invent success or failure",
+    "human_contact": "Requires authorized internal review and request/consent scope; no automatic email/CRM"
+  },
+  "required_fields": [
+    "answers.contact",
+    "answers.primary_problem"
+  ],
+  "optional_fields": [
+    "organization",
+    "role",
+    "relevant_software",
+    "desired_outcome",
+    "timeframe",
+    "system_responsibility",
+    "desired_next_step",
+    "preferred_contact_method"
+  ],
+  "marketing_required": false,
+  "qualification_rules": {
+    "status": "proposed deterministic category rules for review",
+    "version": "qualification-proposal-v2",
+    "precedence": [
+      "Explicit outside-scope request \u2192 Outside current scope",
+      "Requested planned capability \u2192 Interested in a planned capability",
+      "Relevant explicit problem plus adequate request context \u2192 Relevant problem identified",
+      "Otherwise \u2192 Potential fit; clarification needed"
+    ],
+    "limitations": "Categories are routing hypotheses; no inferred budget, verified authority or guaranteed fit. Missing fields lead to clarification."
+  }
+}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ mode }} rule — Stewardence{% endblock %}
+{% block content %}
+  <section class="page-heading"><p class="eyebrow">No-code rule builder</p><h1>{{ mode }} an organization rule</h1><p>Build a stricter assessment control in plain language. These controls create findings and recommendations; they do not block third-party software.</p></section>
+  <form class="card form-card" method="post">
+    {% csrf_token %}{{ form.non_field_errors }}
+    <div class="field">{{ form.name.label_tag }}{{ form.name.errors }}{{ form.name }}</div>
+    <fieldset class="sentence-rule"><legend>When</legend><p>{{ form.data_category.label_tag }}{{ form.data_category.errors }}{{ form.data_category }}</p><p><strong>And</strong></p><p>{{ form.capability.label_tag }}{{ form.capability.errors }}{{ form.capability }}</p></fieldset>
+    <fieldset class="sentence-rule"><legend>Then</legend><div class="field">{{ form.severity_floor.label_tag }}{{ form.severity_floor.errors }}{{ form.severity_floor }}</div><div class="field">{{ form.required_control.label_tag }}{{ form.required_control.errors }}{{ form.required_control }}</div><div class="field">{{ form.risk_dimension.label_tag }}{{ form.risk_dimension.errors }}{{ form.risk_dimension }}</div><div class="field">{{ form.risk_points.label_tag }}{{ form.risk_points.errors }}{{ form.risk_points }}</div><div class="field">{{ form.finding_message.label_tag }}{{ form.finding_message.errors }}{{ form.finding_message }}</div><div class="field">{{ form.review_message.label_tag }}{{ form.review_message.errors }}{{ form.review_message }}</div></fieldset>
+    <div class="field">{{ form.result_on_match.label_tag }}{{ form.result_on_match.errors }}{{ form.result_on_match }}</div><div class="field">{{ form.severity.label_tag }}{{ form.severity.errors }}{{ form.severity }}</div><div class="field">{{ form.explanation.label_tag }}{{ form.explanation.errors }}{{ form.explanation }}</div><div class="field">{{ form.remediation.label_tag }}{{ form.remediation.errors }}{{ form.remediation }}</div><div class="field">{{ form.enabled }} {{ form.enabled.label_tag }}{{ form.enabled.errors }}</div>
+    <fieldset class="sentence-rule"><legend>Try it</legend><div class="field">{{ form.test_item.label_tag }}{{ form.test_item.errors }}{{ form.test_item }}</div><button class="button secondary" type="submit" name="action" value="test">Test without saving</button></fieldset>
+    <button class="button" type="submit" name="action" value="save">Save rule</button>
+  </form>
+  {% if test_evaluation %}<section class="card risk-summary"><h2>Test result: {{ test_evaluation.result.value|title }}</h2><p>{{ test_evaluation.explanation }}</p><p><strong>Next step:</strong> {{ test_evaluation.recommended_remediation }}</p></section>{% endif %}
+{% endblock %}

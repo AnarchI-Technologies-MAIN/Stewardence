@@ -1,0 +1,9 @@
+{
+  "before_image": "sha256:a3b11cb508a0cd4e7671a6edb01b8e6ee8675aee930acce9d4d0dbce008ae51e",
+  "after_image": "sha256:56c6876be025c7c9c99ec15eda6de0cbfad2166ac5d6d2728f20462b63de7cf7",
+  "compared_product_files": 280,
+  "differences": [
+    "renderer\\templates\\report.html"
+  ],
+  "scope": "Product file manifest comparison; not independent container filesystem measurement."
+}

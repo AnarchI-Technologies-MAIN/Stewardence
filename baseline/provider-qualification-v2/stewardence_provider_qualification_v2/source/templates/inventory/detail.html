@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ item.display_name }} — Stewardence{% endblock %}
+{% block content %}
+  <section class="page-heading heading-row"><div><p class="eyebrow">{{ item.get_status_display }} · {{ item.get_source_type_display }}</p><h1>{{ item.display_name }} <span class="muted">({{ item_provenance.display_name }})</span></h1><p>{{ item.vendor_name }} <span class="muted">({{ item_provenance.vendor_name }})</span></p></div>{% if can_write and not item.archived_at %}<a class="button" href="{% url 'inventory:edit' item.id %}">Edit</a>{% endif %}</section>
+  {% if item.source_type == "discovered" %}<section class="card"><p class="eyebrow">Collector-derived inventory</p><p>The software name and vendor came from an exact verified catalog match to observed installed-program evidence. Business use, subscription cost, permissions, capabilities, and access remain unknown until a person records them.</p></section>{% endif %}
+  <dl class="card detail-grid">
+    <div><dt>Responsible person</dt><dd>{{ item.business_owner|default:"Unknown" }} ({{ item_provenance.business_owner }})</dd></div><div><dt>Team</dt><dd>{{ item.department|default:"Unknown" }} ({{ item_provenance.department }})</dd></div><div><dt>People using it</dt><dd>{% if item_provenance.user_count == "Unknown" %}Unknown{% else %}{{ item.user_count }}{% endif %} ({{ item_provenance.user_count }})</dd></div><div><dt>Paid seats</dt><dd>{% if item_provenance.seat_count == "Unknown" %}Unknown{% else %}{{ item.seat_count }}{% endif %} ({{ item_provenance.seat_count }})</dd></div><div><dt>Monthly cost</dt><dd>{% if item_provenance.monthly_cost_cents == "Unknown" %}Unknown{% else %}${{ item.monthly_cost_display }}{% endif %} ({{ item_provenance.monthly_cost_cents }})</dd></div><div><dt>Independent action</dt><dd>{% if item_provenance.autonomy_level == "Unknown" %}Unknown{% else %}{{ item.get_autonomy_level_display }}{% endif %} ({{ item_provenance.autonomy_level }})</dd></div><div><dt>Human approval</dt><dd>{% if item_provenance.human_approval == "Unknown" %}Unknown{% elif item.human_approval %}Required for important actions{% else %}Not recorded as required{% endif %} ({{ item_provenance.human_approval }})</dd></div>
+    <div class="wide"><dt>Business purpose</dt><dd>{{ item.business_purpose|default:"Not recorded" }}</dd></div><div class="wide"><dt>Connected systems</dt><dd>{{ item.connected_systems|join:", "|default:"None recorded" }}</dd></div><div class="wide"><dt>Information accessed</dt><dd>{{ item.data_categories|join:", "|default:"None recorded" }}</dd></div><div class="wide"><dt>Permissions</dt><dd>{{ item.permissions|join:", "|default:"None recorded" }}</dd></div>
+  </dl>
+  <section class="card risk-summary" aria-labelledby="risk-heading">
+    <p class="eyebrow">Accounting and bookkeeping assessment</p>
+    <h2 id="risk-heading">Risk: {{ risk_score.score }} — {{ risk_score.band.value }}</h2>
+    {% if risk_score.severity_floor %}<p>A required rule sets a minimum {{ risk_score.severity_floor.value }} risk level.</p>{% endif %}
+    <h3>Why did this receive this score?</h3>
+    {% if risk_score.explanation_lines %}<ul>{% for line in risk_score.explanation_lines %}<li>{{ line }}</li>{% endfor %}</ul>{% else %}<p>No risk-point contributions matched the recorded information.</p>{% endif %}
+    <details><summary>Show the arithmetic</summary><ul>{% for dimension in risk_score.dimensions %}<li>{{ dimension.arithmetic }}</li>{% endfor %}</ul><p>Weighted total before required minimums: {{ risk_score.raw_weighted_score }}</p></details>
+  </section>
+  <p><a class="button" href="{% url 'inventory:roi' item.id %}">Calculate return on investment</a></p>
+  <section class="card" aria-labelledby="findings-heading">
+    <h2 id="findings-heading">Findings and next steps</h2>
+    {% if policy_findings %}{% for finding in policy_findings %}<article class="finding"><h3>{{ finding.severity.name|title }} — {{ finding.result.value|title }}</h3><p>{{ finding.explanation }}</p><p><strong>Next step:</strong> {{ finding.recommended_remediation }}</p><p class="muted">Rule {{ finding.rule_id }} · version {{ finding.rule_version }}</p></article>{% endfor %}{% else %}<p>No accounting policy findings matched the recorded information.</p>{% endif %}
+  </section>
+  {% if can_write and not item.archived_at %}<form method="post" action="{% url 'inventory:archive' item.id %}">{% csrf_token %}<button class="button danger" type="submit">Archive this software</button></form>{% endif %}
+{% endblock %}

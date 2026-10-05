@@ -1,0 +1,11 @@
+{
+  "verified_at": "2026-10-04T01:23:36.419119+00:00",
+  "authenticated": true,
+  "livemode": false,
+  "operation": "GET /v1/balance",
+  "provider_writes": false,
+  "production_configuration_changed": false,
+  "key_values_recorded": false,
+  "webhook_signing_secret_present_in_document": false,
+  "limits": "Test-mode authentication only; not separate-sandbox isolation, Checkout, webhook delivery, fulfillment or production qualification."
+}

@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-f51f1f314d",
+  "image_id": "sha256:2a2c78f7e77b74a9b2dac2b9fc22256bdf6a40496a202f9066ed8c918e6b623c",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T003844.323122Z",
+  "test_arguments": [
+    "tests/test_core_checkout_admission.py"
+  ]
+}

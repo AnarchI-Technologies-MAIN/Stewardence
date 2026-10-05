@@ -1,0 +1,28 @@
+READ-ONLY CLOCK CORRELATION — 2026-10-04, inspection approximately 23:48–23:50 UTC
+
+No services, time/settings/capabilities, containers or tracing changed. No setter attribution established.
+
+Executed qualification evidence: 20261004T233946.893548Z/qualification.log lines441–442.
+Legacy owner UI iteration114 supplied effective_at=23:44:09.043330+00:00; PostgreSQL transaction timestamp=23:44:09.024266+00.
+Later Python samples=23:44:07.943067 and23:44:07.941747; PostgreSQL clock_timestamp samples=23:44:07.943676 and23:44:07.942580.
+Only effective_future predicate true; other11 identity predicates false; effective PostgreSQL roundtrip difference0us.
+Both Python and PostgreSQL wall clocks regressed about1.10seconds; canonical issuer rejected the future request. No assertion or future-time guard weakened.
+
+Windows Get-WinEvent exact UTC23:42–23:46 filters:
+- System, Microsoft-Windows-Kernel-General, event1: NoMatchingEventsFound.
+- Microsoft-Windows-Time-Service/Operational: NoMatchingEventsFound.
+- Hyper-V Compute-Operational, Hypervisor-Operational, Worker-Admin: NoMatchingEventsFound.
+These are absence of matching recorded events, not exclusion of kernel/host synchronization.
+Latest Time-Service events are02:14:48UTC: event261 set system time, event258 stopping W32time successfully. Current w32tm/query/status reports service not started0x80070426.
+Latest Hyper-V Compute-Operational entries are21:24:18UTC, not the regression interval.
+
+WSL running list confirmed Ubuntu/docker-desktop/AnarchI-Mail before reads. Mail systemd-timesyncd remains active.
+Ubuntu chronyd392(parent282) and406(parent392) both run -n -F1 -x; still observers, not evidence of clock-setting authority.
+hv_utils.timesync_implicit remains Y. This setting does not establish an executed setter.
+Exact since/until journald/chrony queries initially returned no entries, but bounded journalctl -u systemd-journald -n24 exposed entries within that interval. Therefore time-filter absence was not reliable here.
+Bounded Ubuntu journald tail independently records "Time jumped backwards, rotating" at23:42:15,23:42:43,23:43:12,23:43:40,23:44:08,23:44:36,23:45:04,23:45:32,23:46:00 and subsequent approximately28-second intervals through23:50:15UTC.
+23:44:08 journald observation correlates with the SQL/Python regression; it does not name the setter.
+Mail timesyncd journal tail has no entries. Ubuntu chrony tail reports NTP source disagreement/network failures, but -x monitoring messages cannot be promoted to setter attribution.
+
+Prior docs/core-clock-controller-findings-20261004.md and raw-rate receipt215828 already show abnormal adjusted/raw rate and continued backward steps while Mailtimesync temporarily stopped. Current read-only inspection does not resolve remaining setter attribution.
+Actual setter requires a separately coordinated process/kernel adjustment trace; none collected by this read-only investigation.

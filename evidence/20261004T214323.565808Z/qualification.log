@@ -1,0 +1,632 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+FFFFFFFFF..F..FFFFFF...FF............................................... [ 96%]
+...                                                                      [100%]
+=================================== FAILURES ===================================
+_______ test_preview_read_only_counts_legacy_and_admit_one_exact_receipt _______
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+
+    def test_preview_read_only_counts_legacy_and_admit_one_exact_receipt(capture_context):
+        before = AssessmentSnapshot.objects.count()
+        frame = preview(capture_context)
+        assert (
+            AssessmentSnapshot.objects.count() == before
+            and SnapshotCaptureReceipt.objects.count() == 0
+        )
+>       assert frame["legacy_active_count"] >= 1
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:96: TypeError
+__________ test_committed_replay_does_not_reinterpret_later_inventory __________
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+
+    def test_committed_replay_does_not_reinterpret_later_inventory(capture_context):
+        frame = preview(capture_context)
+>       original = admit(capture_context, frame)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_admission.py:116: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_capture_admission.py:48: in admit
+    return issue_deliberate_capture(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+organization_id = UUID('5521e641-90cb-4ab7-8892-646e4d55ed43')
+actor_id = UUID('dcccf493-bfab-4182-8a02-1e5c2cc72751')
+reviewed_frame = '{"schema": "core.capture.preview.v1", "actor_id": "dcccf493-bfab-4182-8a02-1e5c2cc72751", "industry": "other", "captu...ull, "declaration_contract": "core.inventory.declarations.v1"}], "legacy_active_count": 1, "excluded_active_count": 1}'
+using = 'app_runtime'
+
+    def issue_deliberate_capture(
+        *, organization_id, actor_id, reviewed_frame, using="default"
+    ):
+        """Qualify computation before the narrow issuer admits exact live pins."""
+        _identities(organization_id, actor_id)
+        if type(reviewed_frame) is not dict or set(reviewed_frame) != {
+            "schema",
+            "capture_id",
+            "reviewed_at",
+            "organization_id",
+            "actor_id",
+            "industry",
+            "workflow_profile",
+            "inventory_records",
+            "excluded_active_count",
+            "legacy_active_count",
+        }:
+>           raise ValidationError("Exact reviewed capture frame required")
+E           django.core.exceptions.ValidationError: ['Exact reviewed capture frame required']
+
+apps/assessments/capture_admission.py:61: ValidationError
+_________ test_review_to_admit_inventory_mutation_requires_new_preview _________
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+
+    def test_review_to_admit_inventory_mutation_requires_new_preview(capture_context):
+        frame = preview(capture_context)
+        issue(
+            capture_context,
+            form(display_name="Changed"),
+>           item_id=UUID(frame["inventory_records"][0]["id"]),
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        )
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:131: TypeError
+___________ test_new_explicit_record_is_not_a_silent_capture_phantom ___________
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+
+    def test_new_explicit_record_is_not_a_silent_capture_phantom(capture_context):
+        frame = preview(capture_context)
+        issue(capture_context)
+        with pytest.raises(DatabaseError, match="source changed"):
+>           admit(capture_context, frame)
+
+tests/test_capture_admission.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_capture_admission.py:48: in admit
+    return issue_deliberate_capture(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+organization_id = UUID('18831ac6-7aba-4553-bec5-49bac9ae44e5')
+actor_id = UUID('a141738b-2aa3-4aea-a99b-9a6bbe562131')
+reviewed_frame = '{"schema": "core.capture.preview.v1", "actor_id": "a141738b-2aa3-4aea-a99b-9a6bbe562131", "industry": "other", "captu...ull, "declaration_contract": "core.inventory.declarations.v1"}], "legacy_active_count": 1, "excluded_active_count": 1}'
+using = 'app_runtime'
+
+    def issue_deliberate_capture(
+        *, organization_id, actor_id, reviewed_frame, using="default"
+    ):
+        """Qualify computation before the narrow issuer admits exact live pins."""
+        _identities(organization_id, actor_id)
+        if type(reviewed_frame) is not dict or set(reviewed_frame) != {
+            "schema",
+            "capture_id",
+            "reviewed_at",
+            "organization_id",
+            "actor_id",
+            "industry",
+            "workflow_profile",
+            "inventory_records",
+            "excluded_active_count",
+            "legacy_active_count",
+        }:
+>           raise ValidationError("Exact reviewed capture frame required")
+E           django.core.exceptions.ValidationError: ['Exact reviewed capture frame required']
+
+apps/assessments/capture_admission.py:61: ValidationError
+___________ test_reviewed_server_pin_changes_are_rejected[industry] ____________
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+change = 'industry'
+
+    @pytest.mark.parametrize("change", ["industry", "profile", "counts", "future", "old"])
+    def test_reviewed_server_pin_changes_are_rejected(capture_context, change):
+        from datetime import datetime, timedelta
+    
+        frame = preview(capture_context)
+        if change == "industry":
+>           frame["industry"] = "legal"
+            ^^^^^^^^^^^^^^^^^
+E           TypeError: 'str' object does not support item assignment
+
+tests/test_capture_admission.py:151: TypeError
+____________ test_reviewed_server_pin_changes_are_rejected[profile] ____________
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+change = 'profile'
+
+    @pytest.mark.parametrize("change", ["industry", "profile", "counts", "future", "old"])
+    def test_reviewed_server_pin_changes_are_rejected(capture_context, change):
+        from datetime import datetime, timedelta
+    
+        frame = preview(capture_context)
+        if change == "industry":
+            frame["industry"] = "legal"
+        elif change == "profile":
+>           frame["workflow_profile"]["settings"]["name"] = "Forged"
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:153: TypeError
+____________ test_reviewed_server_pin_changes_are_rejected[counts] _____________
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+change = 'counts'
+
+    @pytest.mark.parametrize("change", ["industry", "profile", "counts", "future", "old"])
+    def test_reviewed_server_pin_changes_are_rejected(capture_context, change):
+        from datetime import datetime, timedelta
+    
+        frame = preview(capture_context)
+        if change == "industry":
+            frame["industry"] = "legal"
+        elif change == "profile":
+            frame["workflow_profile"]["settings"]["name"] = "Forged"
+        elif change == "counts":
+>           frame["legacy_active_count"] += 1
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:155: TypeError
+____________ test_reviewed_server_pin_changes_are_rejected[future] _____________
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+change = 'future'
+
+    @pytest.mark.parametrize("change", ["industry", "profile", "counts", "future", "old"])
+    def test_reviewed_server_pin_changes_are_rejected(capture_context, change):
+        from datetime import datetime, timedelta
+    
+        frame = preview(capture_context)
+        if change == "industry":
+            frame["industry"] = "legal"
+        elif change == "profile":
+            frame["workflow_profile"]["settings"]["name"] = "Forged"
+        elif change == "counts":
+            frame["legacy_active_count"] += 1
+        else:
+            delta = timedelta(minutes=1 if change == "future" else -16)
+            frame["reviewed_at"] = (
+                (
+>                   datetime.fromisoformat(frame["reviewed_at"].replace("Z", "+00:00"))
+                                           ^^^^^^^^^^^^^^^^^^^^
+                    + delta
+                )
+                .isoformat()
+                .replace("+00:00", "Z")
+            )
+E           TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:160: TypeError
+______________ test_reviewed_server_pin_changes_are_rejected[old] ______________
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+change = 'old'
+
+    @pytest.mark.parametrize("change", ["industry", "profile", "counts", "future", "old"])
+    def test_reviewed_server_pin_changes_are_rejected(capture_context, change):
+        from datetime import datetime, timedelta
+    
+        frame = preview(capture_context)
+        if change == "industry":
+            frame["industry"] = "legal"
+        elif change == "profile":
+            frame["workflow_profile"]["settings"]["name"] = "Forged"
+        elif change == "counts":
+            frame["legacy_active_count"] += 1
+        else:
+            delta = timedelta(minutes=1 if change == "future" else -16)
+            frame["reviewed_at"] = (
+                (
+>                   datetime.fromisoformat(frame["reviewed_at"].replace("Z", "+00:00"))
+                                           ^^^^^^^^^^^^^^^^^^^^
+                    + delta
+                )
+                .isoformat()
+                .replace("+00:00", "Z")
+            )
+E           TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:160: TypeError
+_______________ test_authority_denies_preview_and_issue[paused] ________________
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+settings = <pytest_django.fixtures.Settings object at 0x723da21016d0>
+kind = 'paused'
+
+    @pytest.mark.parametrize(
+        "kind", ["python_gate", "operator_gate", "paused", "viewer", "paid_expired"]
+    )
+    def test_authority_denies_preview_and_issue(capture_context, settings, kind):
+        user, org = capture_context
+        frame = preview(capture_context)
+        if kind == "python_gate":
+            settings.DELIBERATE_CAPTURE_ENABLED = False
+        elif kind == "operator_gate":
+            CaptureAdmissionGate.objects.filter(id=1).update(enabled=False)
+        elif kind == "paused":
+>           configure_control(
+                organization_id=org.id, actor_id=user.id, paused=True, using="app_runtime"
+E               TypeError: configure_control() got an unexpected keyword argument 'paused'
+
+tests/test_capture_admission.py:182: TypeError
+_____ test_raw_issuer_checks_result_identity_not_just_caller_hash[benefit] _____
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+change = 'benefit'
+
+    @pytest.mark.parametrize(
+        "change", ["benefit", "risk", "input_hash", "result_hash", "schema", "membership"]
+    )
+    def test_raw_issuer_checks_result_identity_not_just_caller_hash(
+        capture_context, change
+    ):
+        import hashlib
+    
+        import rfc8785
+    
+        frame = preview(capture_context)
+>       value = envelope(capture_context, frame)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_admission.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+context = (<User: reports@example.com>, <Organization: Report Firm>)
+frame = '{"schema": "core.capture.preview.v1", "actor_id": "b5684844-ed77-4068-ad78-0d98a655faeb", "industry": "other", "captu...ull, "declaration_contract": "core.inventory.declarations.v1"}], "legacy_active_count": 1, "excluded_active_count": 1}'
+
+    def envelope(context, frame):
+        from datetime import datetime
+    
+        user, org = context
+>       profile = frame["workflow_profile"]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:60: TypeError
+______ test_raw_issuer_checks_result_identity_not_just_caller_hash[risk] _______
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+change = 'risk'
+
+    @pytest.mark.parametrize(
+        "change", ["benefit", "risk", "input_hash", "result_hash", "schema", "membership"]
+    )
+    def test_raw_issuer_checks_result_identity_not_just_caller_hash(
+        capture_context, change
+    ):
+        import hashlib
+    
+        import rfc8785
+    
+        frame = preview(capture_context)
+>       value = envelope(capture_context, frame)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_admission.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+context = (<User: reports@example.com>, <Organization: Report Firm>)
+frame = '{"schema": "core.capture.preview.v1", "actor_id": "81f2a980-c1ec-461b-b345-cbc1a4f36097", "industry": "other", "captu...ull, "declaration_contract": "core.inventory.declarations.v1"}], "legacy_active_count": 1, "excluded_active_count": 1}'
+
+    def envelope(context, frame):
+        from datetime import datetime
+    
+        user, org = context
+>       profile = frame["workflow_profile"]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:60: TypeError
+___ test_raw_issuer_checks_result_identity_not_just_caller_hash[input_hash] ____
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+change = 'input_hash'
+
+    @pytest.mark.parametrize(
+        "change", ["benefit", "risk", "input_hash", "result_hash", "schema", "membership"]
+    )
+    def test_raw_issuer_checks_result_identity_not_just_caller_hash(
+        capture_context, change
+    ):
+        import hashlib
+    
+        import rfc8785
+    
+        frame = preview(capture_context)
+>       value = envelope(capture_context, frame)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_admission.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+context = (<User: reports@example.com>, <Organization: Report Firm>)
+frame = '{"schema": "core.capture.preview.v1", "actor_id": "bed53684-c677-4a8e-892e-58d1566c8626", "industry": "other", "captu...ull, "declaration_contract": "core.inventory.declarations.v1"}], "legacy_active_count": 1, "excluded_active_count": 1}'
+
+    def envelope(context, frame):
+        from datetime import datetime
+    
+        user, org = context
+>       profile = frame["workflow_profile"]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:60: TypeError
+___ test_raw_issuer_checks_result_identity_not_just_caller_hash[result_hash] ___
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+change = 'result_hash'
+
+    @pytest.mark.parametrize(
+        "change", ["benefit", "risk", "input_hash", "result_hash", "schema", "membership"]
+    )
+    def test_raw_issuer_checks_result_identity_not_just_caller_hash(
+        capture_context, change
+    ):
+        import hashlib
+    
+        import rfc8785
+    
+        frame = preview(capture_context)
+>       value = envelope(capture_context, frame)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_admission.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+context = (<User: reports@example.com>, <Organization: Report Firm>)
+frame = '{"schema": "core.capture.preview.v1", "actor_id": "5bfb49dd-a948-4476-9951-8ba10e3b59c6", "industry": "other", "captu...ull, "declaration_contract": "core.inventory.declarations.v1"}], "legacy_active_count": 1, "excluded_active_count": 1}'
+
+    def envelope(context, frame):
+        from datetime import datetime
+    
+        user, org = context
+>       profile = frame["workflow_profile"]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:60: TypeError
+_____ test_raw_issuer_checks_result_identity_not_just_caller_hash[schema] ______
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+change = 'schema'
+
+    @pytest.mark.parametrize(
+        "change", ["benefit", "risk", "input_hash", "result_hash", "schema", "membership"]
+    )
+    def test_raw_issuer_checks_result_identity_not_just_caller_hash(
+        capture_context, change
+    ):
+        import hashlib
+    
+        import rfc8785
+    
+        frame = preview(capture_context)
+>       value = envelope(capture_context, frame)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_admission.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+context = (<User: reports@example.com>, <Organization: Report Firm>)
+frame = '{"schema": "core.capture.preview.v1", "actor_id": "d941f219-74db-4f8f-af1c-9ede1633f637", "industry": "other", "captu...ull, "declaration_contract": "core.inventory.declarations.v1"}], "legacy_active_count": 1, "excluded_active_count": 1}'
+
+    def envelope(context, frame):
+        from datetime import datetime
+    
+        user, org = context
+>       profile = frame["workflow_profile"]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:60: TypeError
+___ test_raw_issuer_checks_result_identity_not_just_caller_hash[membership] ____
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+change = 'membership'
+
+    @pytest.mark.parametrize(
+        "change", ["benefit", "risk", "input_hash", "result_hash", "schema", "membership"]
+    )
+    def test_raw_issuer_checks_result_identity_not_just_caller_hash(
+        capture_context, change
+    ):
+        import hashlib
+    
+        import rfc8785
+    
+        frame = preview(capture_context)
+>       value = envelope(capture_context, frame)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_admission.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+context = (<User: reports@example.com>, <Organization: Report Firm>)
+frame = '{"schema": "core.capture.preview.v1", "actor_id": "af94ffb6-bff3-4abf-99a0-b31f97b17d79", "industry": "other", "captu...ull, "declaration_contract": "core.inventory.declarations.v1"}], "legacy_active_count": 1, "excluded_active_count": 1}'
+
+    def envelope(context, frame):
+        from datetime import datetime
+    
+        user, org = context
+>       profile = frame["workflow_profile"]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_capture_admission.py:60: TypeError
+_______________ test_receipt_raw_app_writes_and_mutation_denied ________________
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+
+    def test_receipt_raw_app_writes_and_mutation_denied(capture_context):
+        frame = preview(capture_context)
+>       admit(capture_context, frame)
+
+tests/test_capture_admission.py:284: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_capture_admission.py:48: in admit
+    return issue_deliberate_capture(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+organization_id = UUID('3ebed4d9-fd39-447d-bfc0-1145692537b1')
+actor_id = UUID('519a32e4-5624-430e-a878-11c5b307b4f5')
+reviewed_frame = '{"schema": "core.capture.preview.v1", "actor_id": "519a32e4-5624-430e-a878-11c5b307b4f5", "industry": "other", "captu...ull, "declaration_contract": "core.inventory.declarations.v1"}], "legacy_active_count": 1, "excluded_active_count": 1}'
+using = 'app_runtime'
+
+    def issue_deliberate_capture(
+        *, organization_id, actor_id, reviewed_frame, using="default"
+    ):
+        """Qualify computation before the narrow issuer admits exact live pins."""
+        _identities(organization_id, actor_id)
+        if type(reviewed_frame) is not dict or set(reviewed_frame) != {
+            "schema",
+            "capture_id",
+            "reviewed_at",
+            "organization_id",
+            "actor_id",
+            "industry",
+            "workflow_profile",
+            "inventory_records",
+            "excluded_active_count",
+            "legacy_active_count",
+        }:
+>           raise ValidationError("Exact reviewed capture frame required")
+E           django.core.exceptions.ValidationError: ['Exact reviewed capture frame required']
+
+apps/assessments/capture_admission.py:61: ValidationError
+_________ test_changed_request_cannot_reuse_committed_capture_identity _________
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+
+    def test_changed_request_cannot_reuse_committed_capture_identity(capture_context):
+        frame = preview(capture_context)
+>       admit(capture_context, frame)
+
+tests/test_capture_admission.py:304: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_capture_admission.py:48: in admit
+    return issue_deliberate_capture(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+organization_id = UUID('4a83fa1f-4c85-44cc-a347-d7071451d837')
+actor_id = UUID('efcb2a6e-060e-455f-ac3f-d81ca9a80b2b')
+reviewed_frame = '{"schema": "core.capture.preview.v1", "actor_id": "efcb2a6e-060e-455f-ac3f-d81ca9a80b2b", "industry": "other", "captu...ull, "declaration_contract": "core.inventory.declarations.v1"}], "legacy_active_count": 1, "excluded_active_count": 1}'
+using = 'app_runtime'
+
+    def issue_deliberate_capture(
+        *, organization_id, actor_id, reviewed_frame, using="default"
+    ):
+        """Qualify computation before the narrow issuer admits exact live pins."""
+        _identities(organization_id, actor_id)
+        if type(reviewed_frame) is not dict or set(reviewed_frame) != {
+            "schema",
+            "capture_id",
+            "reviewed_at",
+            "organization_id",
+            "actor_id",
+            "industry",
+            "workflow_profile",
+            "inventory_records",
+            "excluded_active_count",
+            "legacy_active_count",
+        }:
+>           raise ValidationError("Exact reviewed capture frame required")
+E           django.core.exceptions.ValidationError: ['Exact reviewed capture frame required']
+
+apps/assessments/capture_admission.py:61: ValidationError
+=========================== short test summary info ============================
+FAILED tests/test_capture_admission.py::test_preview_read_only_counts_legacy_and_admit_one_exact_receipt
+FAILED tests/test_capture_admission.py::test_committed_replay_does_not_reinterpret_later_inventory
+FAILED tests/test_capture_admission.py::test_review_to_admit_inventory_mutation_requires_new_preview
+FAILED tests/test_capture_admission.py::test_new_explicit_record_is_not_a_silent_capture_phantom
+FAILED tests/test_capture_admission.py::test_reviewed_server_pin_changes_are_rejected[industry]
+FAILED tests/test_capture_admission.py::test_reviewed_server_pin_changes_are_rejected[profile]
+FAILED tests/test_capture_admission.py::test_reviewed_server_pin_changes_are_rejected[counts]
+FAILED tests/test_capture_admission.py::test_reviewed_server_pin_changes_are_rejected[future]
+FAILED tests/test_capture_admission.py::test_reviewed_server_pin_changes_are_rejected[old]
+FAILED tests/test_capture_admission.py::test_authority_denies_preview_and_issue[paused]
+FAILED tests/test_capture_admission.py::test_raw_issuer_checks_result_identity_not_just_caller_hash[benefit]
+FAILED tests/test_capture_admission.py::test_raw_issuer_checks_result_identity_not_just_caller_hash[risk]
+FAILED tests/test_capture_admission.py::test_raw_issuer_checks_result_identity_not_just_caller_hash[input_hash]
+FAILED tests/test_capture_admission.py::test_raw_issuer_checks_result_identity_not_just_caller_hash[result_hash]
+FAILED tests/test_capture_admission.py::test_raw_issuer_checks_result_identity_not_just_caller_hash[schema]
+FAILED tests/test_capture_admission.py::test_raw_issuer_checks_result_identity_not_just_caller_hash[membership]
+FAILED tests/test_capture_admission.py::test_receipt_raw_app_writes_and_mutation_denied
+FAILED tests/test_capture_admission.py::test_changed_request_cannot_reuse_committed_capture_identity
+18 failed, 57 passed in 42.43s

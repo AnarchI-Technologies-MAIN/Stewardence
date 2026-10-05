@@ -1,0 +1,404 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+FFFFFFFFFFFFFFF                                                          [100%]
+=================================== FAILURES ===================================
+______ test_invalid_session_cannot_issue_core_access[payment_status-None] ______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (72882bf3-f8c7-4dac-be07-8aa0e892caa1)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '1b1d472b-8b62-4cfe-8545-5a771750e3ac'}, ...})
+field = 'payment_status', value = None
+
+    @pytest.mark.parametrize('field,value',[
+        ('payment_status',None),('payment_status','no_payment_required'),
+        ('customer','cus_other_owner'),('mode','payment'),('status','open'),
+        ('subscription',None),
+    ])
+    def test_invalid_session_cannot_issue_core_access(checkout_evidence,field,value):
+        customer,session,authoritative = checkout_evidence
+        session[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:45: Failed
+_ test_invalid_session_cannot_issue_core_access[payment_status-no_payment_required] _
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (65d15562-08ae-49ec-a37c-31d949df7903)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '4629dd0e-6eda-4856-9d96-4d92741474d1'}, ...})
+field = 'payment_status', value = 'no_payment_required'
+
+    @pytest.mark.parametrize('field,value',[
+        ('payment_status',None),('payment_status','no_payment_required'),
+        ('customer','cus_other_owner'),('mode','payment'),('status','open'),
+        ('subscription',None),
+    ])
+    def test_invalid_session_cannot_issue_core_access(checkout_evidence,field,value):
+        customer,session,authoritative = checkout_evidence
+        session[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:45: Failed
+___ test_invalid_session_cannot_issue_core_access[customer-cus_other_owner] ____
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (f4b82da5-5fec-4add-96be-fcf3134b78cc)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'd6ac9802-2305-4069-88fb-23c9d7c5e5d5'}, ...})
+field = 'customer', value = 'cus_other_owner'
+
+    @pytest.mark.parametrize('field,value',[
+        ('payment_status',None),('payment_status','no_payment_required'),
+        ('customer','cus_other_owner'),('mode','payment'),('status','open'),
+        ('subscription',None),
+    ])
+    def test_invalid_session_cannot_issue_core_access(checkout_evidence,field,value):
+        customer,session,authoritative = checkout_evidence
+        session[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:45: Failed
+_________ test_invalid_session_cannot_issue_core_access[mode-payment] __________
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (1f047475-4986-4147-94b2-688537c0d02c)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '66c5177d-f721-4d27-a755-382a4ab44845'}, ...})
+field = 'mode', value = 'payment'
+
+    @pytest.mark.parametrize('field,value',[
+        ('payment_status',None),('payment_status','no_payment_required'),
+        ('customer','cus_other_owner'),('mode','payment'),('status','open'),
+        ('subscription',None),
+    ])
+    def test_invalid_session_cannot_issue_core_access(checkout_evidence,field,value):
+        customer,session,authoritative = checkout_evidence
+        session[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:45: Failed
+__________ test_invalid_session_cannot_issue_core_access[status-open] __________
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (ed2ae6b0-af07-4f56-8e8e-8bfecb213a4e)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'e98fb1af-d2d5-4c33-bd75-3c6db5a33b7b'}, ...})
+field = 'status', value = 'open'
+
+    @pytest.mark.parametrize('field,value',[
+        ('payment_status',None),('payment_status','no_payment_required'),
+        ('customer','cus_other_owner'),('mode','payment'),('status','open'),
+        ('subscription',None),
+    ])
+    def test_invalid_session_cannot_issue_core_access(checkout_evidence,field,value):
+        customer,session,authoritative = checkout_evidence
+        session[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:45: Failed
+_______ test_invalid_session_cannot_issue_core_access[subscription-None] _______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (1e8d3923-b6a2-4b4b-a23c-d9eff913a438)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'e68be313-d044-43d3-adff-8a0a6d73176f'}, ...})
+field = 'subscription', value = None
+
+    @pytest.mark.parametrize('field,value',[
+        ('payment_status',None),('payment_status','no_payment_required'),
+        ('customer','cus_other_owner'),('mode','payment'),('status','open'),
+        ('subscription',None),
+    ])
+    def test_invalid_session_cannot_issue_core_access(checkout_evidence,field,value):
+        customer,session,authoritative = checkout_evidence
+        session[field] = value
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:45: Failed
+_____ test_invalid_subscription_cannot_issue_core_access[foreign_customer] _____
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (10b74dfe-c91f-404e-abfd-9502d4c18893)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'b70a6a3c-aaea-4c08-994b-2b738e1001e4'}, ...})
+mutation = 'foreign_customer'
+
+    @pytest.mark.parametrize('mutation',[
+        'foreign_customer','foreign_owner','unregistered_price','wrong_amount',
+        'annual_price','inactive_subscription','missing_period','expired_period',
+    ])
+    def test_invalid_subscription_cannot_issue_core_access(checkout_evidence,mutation):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        if mutation == 'foreign_customer': authoritative['customer'] = 'cus_other_owner'
+        if mutation == 'foreign_owner': authoritative['metadata']['stewardence_user_id'] = 'other-owner'
+        if mutation == 'unregistered_price': item['price']['id'] = 'price_unregistered'
+        if mutation == 'wrong_amount': item['price']['unit_amount'] = 4900
+        if mutation == 'annual_price': item['price']['recurring']['interval'] = 'year'
+        if mutation == 'inactive_subscription': authoritative['status'] = 'incomplete'
+        if mutation == 'missing_period': item.pop('current_period_end')
+        if mutation == 'expired_period': item['current_period_end'] = 1
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:65: Failed
+______ test_invalid_subscription_cannot_issue_core_access[foreign_owner] _______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (a402d57d-c5de-4aa0-8a10-a9090957714a)>, {'id': 'cs_core_admission', 'client...cus_core_admission', 'status': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'other-owner'}, ...})
+mutation = 'foreign_owner'
+
+    @pytest.mark.parametrize('mutation',[
+        'foreign_customer','foreign_owner','unregistered_price','wrong_amount',
+        'annual_price','inactive_subscription','missing_period','expired_period',
+    ])
+    def test_invalid_subscription_cannot_issue_core_access(checkout_evidence,mutation):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        if mutation == 'foreign_customer': authoritative['customer'] = 'cus_other_owner'
+        if mutation == 'foreign_owner': authoritative['metadata']['stewardence_user_id'] = 'other-owner'
+        if mutation == 'unregistered_price': item['price']['id'] = 'price_unregistered'
+        if mutation == 'wrong_amount': item['price']['unit_amount'] = 4900
+        if mutation == 'annual_price': item['price']['recurring']['interval'] = 'year'
+        if mutation == 'inactive_subscription': authoritative['status'] = 'incomplete'
+        if mutation == 'missing_period': item.pop('current_period_end')
+        if mutation == 'expired_period': item['current_period_end'] = 1
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:65: Failed
+____ test_invalid_subscription_cannot_issue_core_access[unregistered_price] ____
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (410c801f-7f6c-4a29-879c-c4af93cca5af)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '5ff8e378-96e1-418e-bc74-f93a627a7538'}, ...})
+mutation = 'unregistered_price'
+
+    @pytest.mark.parametrize('mutation',[
+        'foreign_customer','foreign_owner','unregistered_price','wrong_amount',
+        'annual_price','inactive_subscription','missing_period','expired_period',
+    ])
+    def test_invalid_subscription_cannot_issue_core_access(checkout_evidence,mutation):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        if mutation == 'foreign_customer': authoritative['customer'] = 'cus_other_owner'
+        if mutation == 'foreign_owner': authoritative['metadata']['stewardence_user_id'] = 'other-owner'
+        if mutation == 'unregistered_price': item['price']['id'] = 'price_unregistered'
+        if mutation == 'wrong_amount': item['price']['unit_amount'] = 4900
+        if mutation == 'annual_price': item['price']['recurring']['interval'] = 'year'
+        if mutation == 'inactive_subscription': authoritative['status'] = 'incomplete'
+        if mutation == 'missing_period': item.pop('current_period_end')
+        if mutation == 'expired_period': item['current_period_end'] = 1
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:65: Failed
+_______ test_invalid_subscription_cannot_issue_core_access[wrong_amount] _______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (51970ec9-83b4-47f7-b68f-98bf2c8ba50e)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '612365d1-fc97-4d70-8112-147f0712d319'}, ...})
+mutation = 'wrong_amount'
+
+    @pytest.mark.parametrize('mutation',[
+        'foreign_customer','foreign_owner','unregistered_price','wrong_amount',
+        'annual_price','inactive_subscription','missing_period','expired_period',
+    ])
+    def test_invalid_subscription_cannot_issue_core_access(checkout_evidence,mutation):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        if mutation == 'foreign_customer': authoritative['customer'] = 'cus_other_owner'
+        if mutation == 'foreign_owner': authoritative['metadata']['stewardence_user_id'] = 'other-owner'
+        if mutation == 'unregistered_price': item['price']['id'] = 'price_unregistered'
+        if mutation == 'wrong_amount': item['price']['unit_amount'] = 4900
+        if mutation == 'annual_price': item['price']['recurring']['interval'] = 'year'
+        if mutation == 'inactive_subscription': authoritative['status'] = 'incomplete'
+        if mutation == 'missing_period': item.pop('current_period_end')
+        if mutation == 'expired_period': item['current_period_end'] = 1
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:65: Failed
+_______ test_invalid_subscription_cannot_issue_core_access[annual_price] _______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (ab323ccc-414b-4b5f-8121-dafe9ca49cb5)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '5fc287e0-3dae-4792-9333-18eb2830f98b'}, ...})
+mutation = 'annual_price'
+
+    @pytest.mark.parametrize('mutation',[
+        'foreign_customer','foreign_owner','unregistered_price','wrong_amount',
+        'annual_price','inactive_subscription','missing_period','expired_period',
+    ])
+    def test_invalid_subscription_cannot_issue_core_access(checkout_evidence,mutation):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        if mutation == 'foreign_customer': authoritative['customer'] = 'cus_other_owner'
+        if mutation == 'foreign_owner': authoritative['metadata']['stewardence_user_id'] = 'other-owner'
+        if mutation == 'unregistered_price': item['price']['id'] = 'price_unregistered'
+        if mutation == 'wrong_amount': item['price']['unit_amount'] = 4900
+        if mutation == 'annual_price': item['price']['recurring']['interval'] = 'year'
+        if mutation == 'inactive_subscription': authoritative['status'] = 'incomplete'
+        if mutation == 'missing_period': item.pop('current_period_end')
+        if mutation == 'expired_period': item['current_period_end'] = 1
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:65: Failed
+__ test_invalid_subscription_cannot_issue_core_access[inactive_subscription] ___
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (388770ff-b35b-4ba4-8e53-e20ba053c8f0)>, {'id': 'cs_core_admission', 'client...: 'incomplete', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '0f050d7a-db7d-4231-92b3-45cc01ee56b8'}, ...})
+mutation = 'inactive_subscription'
+
+    @pytest.mark.parametrize('mutation',[
+        'foreign_customer','foreign_owner','unregistered_price','wrong_amount',
+        'annual_price','inactive_subscription','missing_period','expired_period',
+    ])
+    def test_invalid_subscription_cannot_issue_core_access(checkout_evidence,mutation):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        if mutation == 'foreign_customer': authoritative['customer'] = 'cus_other_owner'
+        if mutation == 'foreign_owner': authoritative['metadata']['stewardence_user_id'] = 'other-owner'
+        if mutation == 'unregistered_price': item['price']['id'] = 'price_unregistered'
+        if mutation == 'wrong_amount': item['price']['unit_amount'] = 4900
+        if mutation == 'annual_price': item['price']['recurring']['interval'] = 'year'
+        if mutation == 'inactive_subscription': authoritative['status'] = 'incomplete'
+        if mutation == 'missing_period': item.pop('current_period_end')
+        if mutation == 'expired_period': item['current_period_end'] = 1
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:65: Failed
+______ test_invalid_subscription_cannot_issue_core_access[missing_period] ______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (90580b3a-aea3-4201-8ea0-a093480042ac)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'b610ff38-a948-4aa1-b01a-464503d668a8'}, ...})
+mutation = 'missing_period'
+
+    @pytest.mark.parametrize('mutation',[
+        'foreign_customer','foreign_owner','unregistered_price','wrong_amount',
+        'annual_price','inactive_subscription','missing_period','expired_period',
+    ])
+    def test_invalid_subscription_cannot_issue_core_access(checkout_evidence,mutation):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        if mutation == 'foreign_customer': authoritative['customer'] = 'cus_other_owner'
+        if mutation == 'foreign_owner': authoritative['metadata']['stewardence_user_id'] = 'other-owner'
+        if mutation == 'unregistered_price': item['price']['id'] = 'price_unregistered'
+        if mutation == 'wrong_amount': item['price']['unit_amount'] = 4900
+        if mutation == 'annual_price': item['price']['recurring']['interval'] = 'year'
+        if mutation == 'inactive_subscription': authoritative['status'] = 'incomplete'
+        if mutation == 'missing_period': item.pop('current_period_end')
+        if mutation == 'expired_period': item['current_period_end'] = 1
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:65: Failed
+______ test_invalid_subscription_cannot_issue_core_access[expired_period] ______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (0929e7bf-1f8f-4f3f-a4e1-a1f58df51027)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '7040ee70-aabf-4f65-a615-7c7289753c91'}, ...})
+mutation = 'expired_period'
+
+    @pytest.mark.parametrize('mutation',[
+        'foreign_customer','foreign_owner','unregistered_price','wrong_amount',
+        'annual_price','inactive_subscription','missing_period','expired_period',
+    ])
+    def test_invalid_subscription_cannot_issue_core_access(checkout_evidence,mutation):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        if mutation == 'foreign_customer': authoritative['customer'] = 'cus_other_owner'
+        if mutation == 'foreign_owner': authoritative['metadata']['stewardence_user_id'] = 'other-owner'
+        if mutation == 'unregistered_price': item['price']['id'] = 'price_unregistered'
+        if mutation == 'wrong_amount': item['price']['unit_amount'] = 4900
+        if mutation == 'annual_price': item['price']['recurring']['interval'] = 'year'
+        if mutation == 'inactive_subscription': authoritative['status'] = 'incomplete'
+        if mutation == 'missing_period': item.pop('current_period_end')
+        if mutation == 'expired_period': item['current_period_end'] = 1
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:65: Failed
+_____________ test_paid_core_contract_records_its_verified_period ______________
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (a7950fd2-0534-460d-b49a-7c29fb25b927)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'a60f4b1c-7bcd-4ca4-9b5b-e4f1cd510a12'}, ...})
+
+    def test_paid_core_contract_records_its_verified_period(checkout_evidence):
+        customer,session,authoritative = checkout_evidence
+        _handle_checkout_completed(session)
+        subscription = Subscription.objects.get(billing_customer=customer)
+        assert subscription.current_price_cents == 9900
+>       assert subscription.current_period_end is not None
+E       assert None is not None
+E        +  where None = <Subscription: Subscription object (cd9e834a-5f1c-4f99-8faa-d0003c227009)>.current_period_end
+
+tests/test_core_checkout_admission.py:75: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_core_checkout_admission.py::test_invalid_session_cannot_issue_core_access[payment_status-None]
+FAILED tests/test_core_checkout_admission.py::test_invalid_session_cannot_issue_core_access[payment_status-no_payment_required]
+FAILED tests/test_core_checkout_admission.py::test_invalid_session_cannot_issue_core_access[customer-cus_other_owner]
+FAILED tests/test_core_checkout_admission.py::test_invalid_session_cannot_issue_core_access[mode-payment]
+FAILED tests/test_core_checkout_admission.py::test_invalid_session_cannot_issue_core_access[status-open]
+FAILED tests/test_core_checkout_admission.py::test_invalid_session_cannot_issue_core_access[subscription-None]
+FAILED tests/test_core_checkout_admission.py::test_invalid_subscription_cannot_issue_core_access[foreign_customer]
+FAILED tests/test_core_checkout_admission.py::test_invalid_subscription_cannot_issue_core_access[foreign_owner]
+FAILED tests/test_core_checkout_admission.py::test_invalid_subscription_cannot_issue_core_access[unregistered_price]
+FAILED tests/test_core_checkout_admission.py::test_invalid_subscription_cannot_issue_core_access[wrong_amount]
+FAILED tests/test_core_checkout_admission.py::test_invalid_subscription_cannot_issue_core_access[annual_price]
+FAILED tests/test_core_checkout_admission.py::test_invalid_subscription_cannot_issue_core_access[inactive_subscription]
+FAILED tests/test_core_checkout_admission.py::test_invalid_subscription_cannot_issue_core_access[missing_period]
+FAILED tests/test_core_checkout_admission.py::test_invalid_subscription_cannot_issue_core_access[expired_period]
+FAILED tests/test_core_checkout_admission.py::test_paid_core_contract_records_its_verified_period
+15 failed in 7.05s

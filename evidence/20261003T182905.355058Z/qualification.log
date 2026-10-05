@@ -1,0 +1,146 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+........................................................................ [  7%]
+........................................................................ [ 15%]
+........................................................................ [ 22%]
+........................................................................ [ 30%]
+................................................s....................... [ 38%]
+........................................................................ [ 45%]
+.......................................................................F [ 53%]
+........................................................................ [ 60%]
+........................................................................ [ 68%]
+........................................................................ [ 76%]
+........................................................................ [ 83%]
+........................................................................ [ 91%]
+........................................................................ [ 98%]
+..........                                                               [100%]
+=================================== FAILURES ===================================
+___ test_actual_process_termination_and_independent_recovery[before_commit] ____
+
+stage = 'before_commit'
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_actual_process_terminatio3')
+report_context = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 4b4e18b3-fcb8-49db-97c5-6b4a9def5c90 v1>)
+
+    @pytest.mark.skipif(sys.platform=='win32',reason='SIGKILL qualification runs in Linux qualification image')
+    @pytest.mark.parametrize('stage',['claimed','external','persistence','before_commit','after_commit'])
+    def test_actual_process_termination_and_independent_recovery(stage,tmp_path,report_context):
+        user,org,_,_,snapshot = report_context
+        report = create_report(organization_id=org.id,assessment_snapshot_id=snapshot.id,created_by_id=user.id)
+        job = ensure_report_generation_job(report=report)
+        BackgroundJob.objects.filter(pk=job.id).update(priority=-100)
+        env=os.environ.copy()
+        for variable in ('DATABASE_URL','OWNER_DATABASE_URL','APP_DATABASE_URL','WORKER_DATABASE_URL'):
+            parts=urlsplit(env[variable])
+            env[variable]=urlunsplit((parts.scheme,parts.netloc,'/'+connections['default'].settings_dict['NAME'],parts.query,parts.fragment))
+        env.update(CRASH_STAGE=stage,CRASH_ROOT=str(tmp_path))
+        killed=subprocess.run([sys.executable,'-c',CHILD],env=env,capture_output=True,timeout=30)
+        assert killed.returncode == -9, 'Child must terminate by SIGKILL, not setup error'
+        job.refresh_from_db()
+        if stage=='after_commit':
+            assert job.status=='completed'
+            assert ReportArtifact.objects.filter(report=report).count()==1
+            assert verify_recovery_receipt(RecoveryReceipt.objects.get(job=job))
+            assert recover_expired_jobs()==0
+            return
+        assert job.status=='running'
+        assert not ReportArtifact.objects.filter(report=report).exists()
+        assert not RecoveryReceipt.objects.filter(job=job).exists()
+        storage=LocalPrivateReportStorage(root=tmp_path)
+        key=build_pdf_object_key(organization_id=org.id,assessment_snapshot_id=snapshot.id,report_id=report.id)
+        if stage!='claimed': assert storage.get(key=key)==PDF
+        time.sleep(1.2)
+>       assert recover_expired_jobs()==1
+E       assert 0 == 1
+E        +  where 0 = recover_expired_jobs()
+
+tests/test_worker_process_crash.py:91: AssertionError
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py: 2 warnings
+tests/test_billing_founder_cancellation_authority.py: 3 warnings
+tests/test_billing_founder_checkout_authority.py: 2 warnings
+tests/test_billing_portal_cancellation.py: 2 warnings
+tests/test_billing_tenant_authority.py: 10 warnings
+tests/test_csv_import.py: 10 warnings
+tests/test_discovery.py: 2 warnings
+tests/test_discovery_reconciliation.py: 2 warnings
+tests/test_inventory.py: 10 warnings
+tests/test_organization_rules.py: 9 warnings
+tests/test_production_security.py: 3 warnings
+tests/test_public_signup.py: 11 warnings
+tests/test_report_history.py: 3 warnings
+tests/test_reports.py: 3 warnings
+tests/test_roi_engine_v2.py: 1 warning
+tests/test_workspaces.py: 9 warnings
+tests/test_core_workflows.py: 1 warning
+tests/test_operations_dashboard.py: 2 warnings
+tests/test_provider_lifecycle.py: 2 warnings
+tests/test_quickbooks_lifecycle.py: 13 warnings
+tests/test_quickbooks_reports.py: 6 warnings
+tests/test_report_artifacts.py: 4 warnings
+tests/test_report_recovery_states.py: 1 warning
+tests/test_workflow_profile_setup.py: 3 warnings
+tests/test_baseline.py: 4 warnings
+tests/test_download.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_worker_process_crash.py::test_actual_process_termination_and_independent_recovery[before_commit]
+1 failed, 944 passed, 1 skipped, 119 warnings in 247.38s (0:04:07)

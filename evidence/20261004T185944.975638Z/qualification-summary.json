@@ -1,0 +1,19 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-7b7c211f4b",
+  "image_id": "sha256:e458ec86a4ae57c6a74875bbdd15e9debe3a689e035b20b429a037a6b6ffd7d8",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T185944.975638Z",
+  "test_arguments": [
+    "tests/test_funnel_contracts.py",
+    "tests/test_funnel_routes.py"
+  ],
+  "test_result_counts": {
+    "cases": 13,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "9e8ae0ef04b86b449eb01f7e1240e978c6893b7321c3919b33b30d62928d3b79"
+}

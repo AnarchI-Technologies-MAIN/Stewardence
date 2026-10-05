@@ -1,0 +1,1571 @@
+- link "Skip to content":
+  - /url: "#_R_3ndjqctdbntccged79l75_"
+- complementary:
+  - navigation "App navigation":
+    - button "Home":
+      - generic: Home
+    - button "Space":
+      - generic: Space
+    - button "Scheduled":
+      - generic: Scheduled
+    - button "Plugins":
+      - generic: Plugins
+    - button "Explore":
+      - generic: Explore
+    - button "Sites":
+      - generic: Sites
+    - button "Open profile menu"
+  - navigation "Home":
+    - link "Home":
+      - /url: /
+      - generic: ChatGPT
+    - button "View activity":
+    - button "Search":
+    - button "Toggle sidebar" [expanded]:
+    - button "New chat":
+      - generic: New chat
+    - button "Lyra":
+      - generic: Lyra
+    - button "Pinned" [expanded]:
+      - generic: Pinned
+    - button "Software Architect GPT":
+      - generic: Software Architect GPT
+    - button "Unpin GPT":
+    - button "AI CODER 🤖 WEBSITE & APP BUILDER":
+      - generic: AI CODER 🤖 WEBSITE & APP BUILDER
+    - button "Unpin GPT":
+    - button "Scholar GPT":
+      - generic: Scholar GPT
+    - button "Unpin GPT":
+    - button "Video AI by invideo":
+      - generic: Video AI by invideo
+    - button "Unpin GPT":
+    - button "AI Video Generator & Text to Video Maker GPT":
+      - generic: AI Video Generator & Text to Video Maker GPT
+    - button "Unpin GPT":
+    - button "Mia AI, your friend to understand yourself":
+      - generic: Mia AI, your friend to understand yourself
+    - button "Unpin GPT":
+    - button "Mystic Tarot Reader":
+      - generic: Mystic Tarot Reader
+    - button "Unpin GPT":
+    - list:
+      - group "Lyra":
+        - link "Lyra":
+          - /url: /c/6aa212c5-5484-83e9-aa0b-b91e13c8aa25
+          - generic: Lyra
+        - button "Chat actions":
+        - button "Unpin chat":
+      - group "Choose Audit Or Fix":
+        - link "Choose Audit Or Fix":
+          - /url: /g/g-2DQzU5UZl/c/6aa2ead9-ae28-83e9-99da-4e0ec7b58972
+          - generic: Choose Audit Or Fix
+        - button "Chat actions":
+        - button "Unpin chat":
+      - group "Conceptual Organism Model":
+        - link "Conceptual Organism Model":
+          - /url: /g/g-J0FYgDhN5/c/6aab5747-8764-83e9-803a-b04eb9c6ba75
+          - generic: Conceptual Organism Model
+        - button "Chat actions":
+        - button "Unpin chat":
+      - group "Lyra-Stewardence":
+        - link "Lyra-Stewardence":
+          - /url: /c/6ac17a91-7ae0-83ea-bcc7-9abdfd2f6e97
+          - generic: Lyra-Stewardence
+        - button "Chat actions":
+        - button "Unpin chat":
+    - button "Projects" [expanded]:
+      - generic: Projects
+    - button "Project sidebar options":
+    - button "Add new project":
+    - list:
+      - button "AnarchI OS and Server Intigration":
+        - generic: AnarchI OS and Server Intigration
+        - button "Project actions for AnarchI OS and Server Intigration":
+        - button "New chat in AnarchI OS and Server Intigration":
+      - button "Founder Alignment":
+        - generic: Founder Alignment
+        - button "Project actions for Founder Alignment":
+        - button "New chat in Founder Alignment":
+      - button "Foundry":
+        - generic: Foundry
+        - button "Project actions for Foundry":
+        - button "New chat in Foundry":
+    - button "Recents" [expanded]:
+      - generic: Recents
+    - button "Chat sidebar options":
+    - button "Filter chats and work":
+    - button "New chat":
+    - list:
+      - group "Build Landing Page":
+        - link "Build Landing Page":
+          - /url: /c/6ac2c1dd-d848-83ea-b6a0-756d6fc2bf52
+          - generic: Build Landing Page
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Lyra-Brain":
+        - link "Lyra-Brain":
+          - /url: /c/6ac173bf-82bc-83e9-8669-80b62d674507
+          - generic: Lyra-Brain
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Build Business Website":
+        - link "Build Business Website":
+          - /url: /g/g-2DQzU5UZl/c/6ac2bfec-f60c-83e9-85bc-797597536ea2
+          - generic: Build Business Website
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Get Your Ass Back To Work Alex!!! — Auto update":
+        - link "Get Your Ass Back To Work Alex!!! — Auto update":
+          - /url: /c/6ac0ea12-13f8-83ea-89bc-cce30904463d
+          - generic: Get Your Ass Back To Work Alex!!! — Auto update
+        - link:
+          - /url: /c/6ac0ea12-13f8-83ea-89bc-cce30904463d
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "✅ To-do list — Morning reconciliation":
+        - link "✅ To-do list — Morning reconciliation":
+          - /url: /c/6ac0dfac-50ac-83e9-9261-7d3f8d564e54
+          - generic: ✅ To-do list — Morning reconciliation
+        - link:
+          - /url: /c/6ac0dfac-50ac-83e9-9261-7d3f8d564e54
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Compare Vault Layouts":
+        - link "Compare Vault Layouts":
+          - /url: /c/6ac15829-17dc-83e9-9a39-0ad9d06080bc
+          - generic: Compare Vault Layouts
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Epistemic Bounds for Models":
+        - link "Epistemic Bounds for Models":
+          - /url: /c/6ac15d17-3848-83ea-9937-17c8d8055321
+          - generic: Epistemic Bounds for Models
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Epistemic Bounds for Models":
+        - link "Epistemic Bounds for Models":
+          - /url: /g/g-kZ0eYXlJe/c/6abf064b-b318-83ea-83b1-6fea7b5c98b2
+          - generic: Epistemic Bounds for Models
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "DigitalOcean Hosting Plan":
+        - link "DigitalOcean Hosting Plan":
+          - /url: /c/6abea848-e820-83ea-a08c-c9e2b91b3203
+          - generic: DigitalOcean Hosting Plan
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Architecture advice":
+        - link "Architecture advice":
+          - /url: /g/g-J0FYgDhN5/c/6ac10f02-f480-83ea-aa29-1e3a0042d70e
+          - generic: Architecture advice
+        - button "Chat actions":
+        - button "Pin chat":
+      - status:
+        - generic: Loading chats
+  - separator
+- main:
+  - button "Share":
+    - text: Share
+  - button "More":
+  - button "Toggle pinned summary":
+  - status:
+    - generic: Loading older messages…
+  - heading "You said:" [level=4]
+  - button "Pasted text(20261004-205322).txt"
+  - generic "Pasted text(20261004-205322).txt"
+  - generic: Document
+  - button "Edit message":
+  - button "Worked for 28s"
+  - generic: Worked for 28s
+  - button "Analysis paused"
+  - generic: Analysis paused
+  - button "Analyzed"
+  - generic: Analyzed
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - strong: Bounded acceptance granted for the frozen-pack projection and actual local delivery path in this successor.
+    - text: The customer-facing evidence boundary is substantially stronger now.
+  - paragraph:
+    - text: I independently measured the uploaded packet at
+    - strong: 166,074 bytes / 3,240 physical lines / SHA-256 c88a1f7aa6947f625edb9e644ab674bbea5db4b3e4f7598316c9b170b5ea442c
+    - text: .
+  - paragraph:
+    - strong: Production remains unapproved.
+    - text: "The new full-suite result is still failed:"
+    - strong: 1,715 passed / 4 failed / 1 skipped
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - heading "What I’m closing" [level=2]
+  - paragraph:
+    - text: For the
+    - strong: exact frozen-pack v1 projection represented here
+    - text: ", I’m closing:"
+  - list:
+    - listitem: worker-only frozen projection retrieval;
+    - listitem: exact frozen manifest/snapshot binding;
+    - listitem: exact selected Decision Desk event binding;
+    - listitem: later live Decision Desk history excluded from the frozen pack;
+    - listitem: frozen proposal/event hash validation;
+    - listitem: owner-statement semantics preserved as unverified;
+    - listitem: actual Chromium rendering of the frozen pack;
+    - listitem: local private-storage readback followed by atomic PackCompletion;
+    - listitem: renderer rejection of missing decisions, changed proposal, live-decision substitution, and forged resolution_verified=true;
+    - listitem: inert rendering of owner notes and evidence references;
+    - listitem: owner-only read visibility for review-pack reports while preserving ordinary report behavior;
+    - listitem: factory/resolver wiring requiring a real worker identity before review rendering.
+  - paragraph:
+    - text: The worker projection is now appropriately strict. It begins from the lease-scoped review job target and revalidates the pack, cycle, snapshot, report, job, manifest digest, snapshot hashes, and every selected decision against the frozen manifest. It then rechecks worker authority after assembling the projection.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is a good boundary.
+  - heading "Frozen decision rendering now proves the right thing" [level=2]
+  - paragraph: "The important behavior from the last review is demonstrated end to end:"
+  - list:
+    - text: an owner records decision
+    - strong: A
+    - text: ;
+    - text: the review pack freezes
+    - strong: A
+    - text: ;
+    - text: the owner later records superseding decision
+    - strong: B
+    - text: ;
+    - text: projection still contains
+    - strong: A
+    - text: ", not B;"
+    - listitem: the rendered PDF contains A;
+    - listitem: B is absent;
+    - text: PackCompletion remains bound to the frozen manifest digest.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That closes the customer-visible version of the frozen-selection invariant.
+  - paragraph: "It is no longer just:"
+  - blockquote:
+    - paragraph: “the database says we froze this event.”
+  - paragraph: "It is now:"
+  - blockquote:
+    - paragraph:
+      - strong: “the actual rendered artifact was constructed from that frozen event and excluded the later live event.”
+  - paragraph: That is the proof we were missing.
+  - heading "Renderer authority semantics are good" [level=2]
+  - paragraph: The render contract is quite deliberately hostile to authority inflation.
+  - paragraph: "For review packs it verifies:"
+  - list:
+    - listitem: exact manifest schema and digest;
+    - listitem: exact snapshot metadata;
+    - listitem: decision ordering;
+    - listitem: event/proposal hashes;
+    - listitem: owner-statement-only status;
+    - listitem: resolution_verified=false;
+    - listitem: proposal authority equal to proposal_only;
+    - listitem: bounded decision states;
+    - listitem: exposure schema/digest;
+    - listitem: exposure authority proposal_only;
+    - listitem: exposure verification not_established;
+    - text: PASS / CONCERN / UNKNOWN / NOT_APPLICABLE only.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The tamper matrix is particularly useful because it includes self-consistent attempts, not merely broken hashes. Among the rejected cases are provider-write authority, verified resolution, changed proposal, live substitution, altered exposure semantics, foreign snapshot/org/cycle identities, duplicate selections and unsupported decision states.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: That supports a bounded closure for
+    - strong: presentation authority integrity
+    - text: .
+  - heading "Privacy/read isolation also closes in this scope" [level=2]
+  - paragraph: Review packs no longer inherit ordinary report-viewer access.
+  - paragraph:
+    - text: The restrictive RLS policy checks whether a report belongs to a review artifact request and, if so, requires the current app user to be an owner of the same organization.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The actual app-role tests show:"
+  - list:
+    - listitem: viewers/assessors cannot discover the review report row;
+    - listitem: cannot discover its artifact row;
+    - listitem: cannot see it in report history;
+    - listitem: receive 404 for review detail/download;
+    - listitem: denied requests do not reach object storage;
+    - listitem: ordinary reports remain visible under the pre-existing rules;
+    - listitem: owner can read the pack;
+    - text: same owner in another tenant context cannot read the original pack.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is exactly the privacy distinction I wanted.
+  - heading "Customer content remains inert" [level=2]
+  - paragraph: This is also worth explicitly accepting.
+  - paragraph:
+    - text: Owner notes containing <script> and an <img src=...> are HTML-escaped. The evidence references render as text rather than active links, JavaScript is disabled, service workers are blocked, all requests are aborted, and the browser test observed
+    - strong: zero outbound requests
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The template itself labels references as:"
+  - blockquote:
+    - paragraph: owner-supplied reference; not fetched or independently verified
+  - paragraph:
+    - text: and labels completion/evidence-reviewed states as owner statements rather than verified remediation.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: Good. Keep that language.
+  - separator
+  - heading "One new architectural gap remains OPEN" [level=1]
+  - paragraph: "Codex already called this out, and I agree strongly enough to give it a gate name:"
+  - heading "EXPOSURE-PROJECTION-VERSION-01 OPEN" [level=2]
+  - paragraph:
+    - text: The exposure review is currently
+    - strong: derived at render time
+    - text: "from frozen inventory bytes using:"
+  - paragraph: core.exposure.declarations.v1
+  - paragraph:
+    - text: That function is deterministic today, but the frozen review_pack.v2 manifest does
+    - strong: not pin that derivation version
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The rendered document is commendably honest about this:"
+  - blockquote:
+    - paragraph:
+      - text: the questions were not selected at freeze.
+      - button "Open preview of Pasted text.txt":
+        - generic: Pasted text
+  - paragraph: So this is not a false representation in the current artifact.
+  - paragraph: "But historical reproducibility has a real boundary:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: frozen inventory bytes + today's review_record() = today's exposure section
+  - paragraph: If review_record() later becomes v2, an old PackIdentity could regenerate different exposure questions/results despite having the same frozen manifest identity.
+  - paragraph:
+    - text: That means the current PackIdentity does
+    - strong: not yet uniquely identify all rendered review semantics
+    - text: .
+  - heading "Acceptable fixes" [level=3]
+  - paragraph: "Either:"
+  - paragraph:
+    - strong: A. Pin exposure derivation at freeze
+  - paragraph: "Include something like:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: "exposure_contract: id: core.exposure.declarations version: 1 implementation/config digest: ..."
+  - paragraph: in the frozen manifest.
+  - paragraph: "or:"
+  - paragraph:
+    - strong: B. Freeze the actual exposure results
+  - paragraph: Store their identities/digests in the manifest.
+  - paragraph: "or, minimally for this release:"
+  - paragraph:
+    - strong: C. Make historical v1 packs permanently dispatch to v1
+  - paragraph: and require a new PackIdentity/manifest schema before another derivation version can be used.
+  - paragraph:
+    - text: I do
+    - strong: not
+    - text: require B. A is probably the cleaner Stewardence architecture.
+  - paragraph: "Until one of those exists:"
+  - paragraph:
+    - strong: current v1 rendering = accepted
+  - paragraph:
+    - strong: cross-version historical regeneration = not qualified
+  - paragraph: That distinction should remain explicit.
+  - separator
+  - heading "One presentation note, not a blocker" [level=1]
+  - paragraph: "The review pack's top-level context becomes:"
+  - paragraph: AL-REVIEW-PACK-CONTEXT-1
+  - paragraph: "but the inherited legacy methodology inside the artifact still contains:"
+  - paragraph:
+    - text: "report_context_version: AL-REPORT-CONTEXT-2."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is technically defensible because one describes the underlying assessment report context and one describes the new frozen-pack rendering envelope.
+  - paragraph: But a customer may reasonably read “Report context AL-REPORT-CONTEXT-2” and “Frozen pack rendering contract AL-REVIEW-PACK-CONTEXT-1” as competing versions.
+  - paragraph: "I would eventually label them more explicitly:"
+  - list:
+    - strong: Underlying assessment context
+    - strong: Frozen review-pack render contract
+  - paragraph: No release block from this packet.
+  - separator
+  - heading "Evidence disposition" [level=1]
+  - paragraph: "The exact frozen runtime/render qualification reports:"
+  - paragraph:
+    - strong: 101 / 101 passed
+    - text: ", image 26d7f7c2…."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The owner UI + renderer focused run reports:"
+  - paragraph:
+    - strong: 86 / 86 passed
+    - text: ", image 76b0de2c…."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The review-pack privacy run reports:"
+  - paragraph:
+    - strong: 6 / 6 passed
+    - text: ", image 3c21ae8d…."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The later current-style lifecycle slice reports:"
+  - paragraph:
+    - strong: 84 / 84 passed
+    - text: ", image afd7c85b…."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: These are
+    - strong: different source snapshots
+    - text: . Correctly, they must not be summed or transferred casually.
+  - paragraph: "The full run is:"
+  - paragraph:
+    - strong: 1,720 cases = 1,715 passed / 4 failed / 1 skipped, exit 1
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: Therefore there is still
+    - strong: no current full-source green candidate
+    - text: .
+  - paragraph:
+    - text: The packet also says the two historical Chromium/identity nodes happened to pass in later failed runs without causal closure, and that another honest proposal identity rejection has reproduced intermittently. That means the stability/root-cause ledger remains open.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: Correct.
+  - separator
+  - heading "The next customer-journey slice" [level=1]
+  - paragraph:
+    - text: At this point I would
+    - strong: stop building deeper review machinery
+    - text: .
+  - paragraph: You now have enough internal architecture to turn toward the thing a paying human actually experiences.
+  - paragraph: "The next bounded slice should be:"
+  - heading "Core First Review Journey" [level=2]:
+    - strong: Core First Review Journey
+  - paragraph: Not retention yet. Not LocalAI. Not Enterprise.
+  - paragraph: "The path:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: Paid owner ↓ Create / edit one tool or workflow record ↓ Capture a deliberate immutable snapshot ↓ See Exposure Review ↓ Generate proposals where applicable ↓ Record Decision Desk statement ↓ Freeze review ↓ See frozen browser pack ↓ Request PDF ↓ Worker renders exact frozen pack ↓ Private PDF becomes downloadable
+  - heading "The critical new part is deliberate snapshot capture" [level=3]
+  - paragraph:
+    - text: Your own packet still lists
+    - strong: “deliberate unknown-aware snapshot capture” as open
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That should be next.
+  - paragraph: "Right now the review layer is excellent at preserving whatever snapshot it receives. The customer journey still needs a clean, explicit contract for creating that snapshot from current records without:"
+  - list:
+    - listitem: turning defaults into declarations;
+    - listitem: silently replacing unknown with zero/false/empty;
+    - listitem: accidentally applying accounting-specific meaning to another audience;
+    - listitem: making a GET mutate anything;
+    - listitem: claiming continuous/live observation.
+  - heading "Acceptance tests I want for that slice" [level=3]
+  - list:
+    - paragraph: New customer can deliberately capture a review snapshot from current inventory.
+    - paragraph: Missing fields remain explicitly unknown.
+    - paragraph: Legacy 0, False, empty strings/lists only become declarations when provenance says they were actually declared.
+    - paragraph: Customer is shown what will be captured before final admission.
+    - paragraph: Snapshot creation is POST-only and CSRF protected.
+    - paragraph: Duplicate/lost-response retry produces one logical snapshot or a clearly versioned successor according to the chosen contract.
+    - paragraph: Snapshot integrity is immutable afterward.
+    - paragraph:
+      - text: Industry/accounting pack runs
+      - strong: only
+      - text: when its applicability contract is satisfied.
+    - paragraph: Non-accounting Core still gets generic exposure review without inheriting accounting certification.
+    - paragraph: First-review browser journey can reach the existing frozen-pack flow without admin fixtures.
+  - paragraph: That unlocks the first genuinely self-service value loop.
+  - separator
+  - heading "Funnel can keep moving beside it" [level=1]
+  - paragraph: The public funnel may continue in parallel, because nothing in this packet changes my earlier boundary.
+  - paragraph: "Safe parallel work:"
+  - list:
+    - listitem: scenario pages;
+    - listitem: deterministic samples;
+    - listitem: audience-specific copy blocks;
+    - listitem: ExperienceBundle identities;
+    - listitem: accessibility;
+    - listitem: consent-minimal analytics.
+  - paragraph: But don't let it outrun actual delivery claims.
+  - paragraph: "If a scenario says:"
+  - blockquote:
+    - paragraph: “Record your tools, review exposure, assign decisions, and save a frozen evidence pack”
+  - paragraph: we're now getting close to having the actual product substrate behind that statement.
+  - paragraph: That's good progress.
+  - separator
+  - heading "Current ledger" [level=2]
+  - paragraph:
+    - strong: CLOSED for exact submitted projection/delivery scope
+  - list:
+    - listitem: worker frozen-pack projection
+    - listitem: exact frozen decision rendering
+    - listitem: later-live-decision exclusion
+    - listitem: review render schema/tamper rejection
+    - listitem: actual Chromium frozen-pack rendering
+    - listitem: local readback + PackCompletion
+    - listitem: customer HTML/reference inertness
+    - listitem: review-pack owner-only privacy
+    - listitem: worker resolver identity requirement
+    - listitem: review UI bounded owner journey shown by focused evidence
+  - paragraph:
+    - strong: PARTIAL
+  - list:
+    - listitem: exposure rendering, because v1 is derived from frozen input but not pinned into PackIdentity for future-version regeneration
+  - paragraph:
+    - strong: OPEN
+  - list:
+    - listitem: EXPOSURE-PROJECTION-VERSION-01
+    - listitem: deliberate unknown-aware snapshot capture
+    - listitem: industry applicability
+    - listitem: admitted baseline comparison
+    - listitem: physical retention
+    - listitem: all-writer capacity accounting
+    - listitem: fresh-generation resubscription
+    - listitem: real Stripe test-mode lifecycle
+    - listitem: current full-suite green/stability
+    - listitem: intermittent proposal/workflow identity root cause
+    - listitem: off-site restore
+    - listitem: deployment credential isolation
+    - listitem: rollback/cutover
+    - listitem: production approval
+  - paragraph:
+    - text: The architecture has basically reached the point where
+    - strong: the biggest useful question is no longer “can Stewardence preserve an authoritative review?” It can, within this bounded path. The useful question now is “can a normal owner get from their messy real-world records to that review without us cheating on unknowns?”
+  - paragraph:
+    - text: That's the next bridge. 🌉
+    - button "View analysis":
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - button "Sources":
+  - heading "You said:" [level=4]
+  - button "Pasted text(20261004-211746).txt"
+  - generic "Pasted text(20261004-211746).txt"
+  - generic: Document
+  - button "Edit message":
+  - button "Worked for 16s"
+  - generic: Worked for 16s
+  - button "Analyzed"
+  - generic: Analyzed
+  - button "Analyzed"
+  - generic: Analyzed
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - strong: Both narrow successors are accepted within their submitted scope.
+    - text: I independently measured the uploaded packet at
+    - strong: 44,304 bytes / 993 lines / SHA-256 303b061d8fc6186b6e8c9c448a878e65ebe2a87771663d03246414c29a5b47dc
+    - text: .
+  - paragraph: Production remains unapproved.
+  - heading "EXPOSURE-PROJECTION-VERSION-01 CLOSED" [level=2]
+  - paragraph: Your minimal option C is sufficient for the currently admitted stewardence.review_pack.v2 contract.
+  - paragraph:
+    - text: The historical dispatcher now explicitly refuses unknown pack schemas and resolves v2 packs directly to the permanent exposure_v1 implementation rather than through the mutable public alias.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "That means a future change such as:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: review_record → v2
+  - paragraph: cannot silently alter the exposure semantics of an already frozen v2 PackIdentity.
+  - paragraph:
+    - text: The permanent implementation also hard-codes the historical "Declared" provenance literal rather than importing a future-mutating alias, which matters because otherwise a seemingly innocent provenance rename could reinterpret old snapshots.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Most importantly, the actual render-context path calls:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: historical_review_record(row, manifest["schema"])
+  - paragraph:
+    - text: so the historical dispatch is in the customer artifact path, not merely a helper sitting unused in the repository.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The regression tests directly exercise the intended counterexample:"
+  - list:
+    - listitem: public alias changed to v2;
+    - listitem: current review_record() deliberately replaced;
+    - listitem: historical v2 still reproduces permanent v1 output;
+    - text: actual worker context still produces exact canonical v1 semantics.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That closes the finding.
+  - heading "Scope of closure" [level=3]
+  - paragraph: "This means:"
+  - blockquote:
+    - paragraph: review_pack.v2 permanently means core.exposure.declarations.v1.
+  - paragraph:
+    - text: It does
+    - strong: not
+    - text: authorize changing exposure_v1.py later.
+  - paragraph:
+    - text: Treat that module as historical protocol code. A semantic change needs a new exposure implementation
+    - strong: and new admitted pack schema
+    - text: ", exactly as documented."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is now a good reconstructability invariant.
+  - separator
+  - 'heading "Workflow-profile handoff: ACCEPTED" [level=1]'
+  - paragraph: The first-profile handoff is appropriately modest.
+  - paragraph:
+    - text: The review history page checks whether a profile exists and, when absent, explains why one is needed and links to explicit setup. Merely opening the review page does not choose a profile or start work.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: After the owner records a profile, the setup page offers a static route back into reviews only if review navigation is enabled. If the review workspace flag remains closed, it does
+    - strong: not
+    - text: advertise an unavailable workflow.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The tests establish both supported profile types and verify that the handoff creates neither jobs nor ReviewCycles. They also verify the closed review workspace is not advertised.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "So I accept:"
+  - blockquote:
+    - paragraph:
+      - strong: profile setup handoff is explicit navigation, not implicit review admission.
+  - paragraph:
+    - text: No capture closure follows from this. Correctly, the history page still says snapshot capture is not available in this candidate.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - separator
+  - heading "Focused successor evidence accepted" [level=1]
+  - paragraph:
+    - text: The exact successor reports
+    - strong: 28 / 28 passing
+    - text: "across:"
+  - list:
+    - listitem: historical exposure versioning;
+    - listitem: review-pack projection;
+    - text: profile handoff.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The earlier 86-case predecessor failure was retained and attributed to a test representation mismatch between Python tuple-bearing structures and their JSON-normalized list representation. The successor switched to comparing canonical RFC 8785 bytes rather than weakening the semantic contract. That is an appropriate test repair based on the packet’s account.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: No problem with preserving that predecessor as failed evidence.
+  - separator
+  - 'heading "Clock diagnosis: causal finding strengthened, root cause still OPEN" [level=1]'
+  - paragraph: This is important.
+  - paragraph:
+    - text: The instrumentation has now isolated the intermittent proposal rejection to
+    - strong: one predicate only
+    - text: ":"
+  - paragraph: effective_future = true
+  - paragraph:
+    - text: All other identity predicates were false. The PostgreSQL timestamp round-trip was exact, which argues against conversion/serialization corruption.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: And the three observed failures show both Python and PostgreSQL clocks later reading roughly
+    - strong: 0.73–0.77 seconds earlier
+    - text: than an already captured request/effective timestamp.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That materially changes the diagnosis.
+  - paragraph: The intermittent proposal failure is no longer best described as an unexplained proposal identity mismatch.
+  - paragraph: "The bounded source-supported conclusion is:"
+  - blockquote:
+    - paragraph:
+      - strong: The proposal issuer correctly rejected a request whose effective timestamp appeared to be in the future because the shared wall clock stepped backward after that timestamp had already been captured.
+  - paragraph:
+    - text: That closes the
+    - strong: logical issuer ambiguity
+    - text: .
+  - paragraph:
+    - text: It does
+    - strong: not
+    - text: close the underlying infrastructure defect.
+  - paragraph: "I would rename the open gate:"
+  - heading "HOST-CLOCK-DISCONTINUITY-01 OPEN" [level=3]
+  - paragraph: Do not weaken or subtract from the future-time guard.
+  - paragraph: Do not add an arbitrary ±1 second fudge factor.
+  - paragraph: The authority function is doing the safe thing.
+  - paragraph: "The next question belongs to host/time discipline:"
+  - list:
+    - listitem: Windows time service,
+    - listitem: WSL clock,
+    - listitem: Docker VM clock,
+    - listitem: chrony,
+    - listitem: mail time-sync interaction,
+    - listitem: suspend/resume or virtualization correction.
+  - paragraph:
+    - text: The authorized reversible 64s before/stopped/restored trial is exactly the right direction because it tests causality without touching product authority.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: If disabling AnarchI-Mail time-sync eliminates the backward steps and restoring it causes them to return, that is useful causal evidence. If not, keep drilling downward.
+  - heading "What closes this infrastructure gate" [level=3]
+  - paragraph: "I’d want either:"
+  - list:
+    - listitem: identified time-sync component/configuration causing backward wall-clock steps, repaired, plus repeated stress with no regression;
+  - paragraph: or
+  - list:
+    - listitem: a lower-level VM/host clock explanation and qualified mitigation that ensures timestamps used by the application remain monotonic enough for these authority contracts.
+  - paragraph: Until then, preserve the future veto.
+  - separator
+  - 'heading "Renderer stability: useful, but no timeout closure" [level=1]'
+  - paragraph: "The renderer stability campaign is good bounded evidence:"
+  - list:
+    - listitem: 20 sequential actual Chromium renders;
+    - listitem: 100 records/exposure reviews;
+    - listitem: one maximal-bound decision note;
+    - listitem: ten maximal-bound references;
+    - listitem: 353,472-byte context;
+    - listitem: network none;
+    - listitem: 1 GiB memory;
+    - listitem: 512 PID limit;
+    - listitem: concurrency 1;
+    - listitem: unchanged 60-second render budget;
+    - listitem: 3.055 to 15.628 seconds;
+    - listitem: identical normalized PDF bytes;
+    - listitem: zero zombie Chromium processes;
+    - text: no OOM.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "That is strong evidence against a simple claim like:"
+  - blockquote:
+    - paragraph: “the renderer always needs more than 60 seconds under a moderately large review pack.”
+  - paragraph: It also demonstrates deterministic output for this specimen.
+  - paragraph: "But I agree with the packet:"
+  - paragraph:
+    - strong: the historical full-suite Chromium timeout remains OPEN.
+  - paragraph: "Why? Because this campaign does not reproduce:"
+  - list:
+    - listitem: the full test-suite contention environment;
+    - listitem: whatever test ordering triggered the failure;
+    - listitem: concurrency >1;
+    - listitem: the maximum admitted customer payload;
+    - listitem: a hard-hung Chromium process.
+  - paragraph:
+    - text: The earlier extractor failures are also appropriately retained. Discovering pdftotext dehyphenation/page-footer behavior and then strengthening the semantic checker is a valid harness improvement, not evidence erasure.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - separator
+  - heading "Open release ledger after these closures" [level=1]
+  - heading "CLOSED" [level=2]
+  - list:
+    - listitem: BILLING-REPLAY-01
+    - listitem: frozen Decision Desk selection
+    - listitem: ReviewCycle artifact completion/baseline CAS
+    - listitem: frozen-pack actual projection/delivery
+    - listitem: review-pack owner-only privacy
+    - listitem: EXPOSURE-PROJECTION-VERSION-01
+    - listitem: explicit workflow-profile handoff
+  - heading "CAUSALLY NARROWED, INFRASTRUCTURE OPEN" [level=2]
+  - list:
+    - text: "proposal effective-time intermittent failure:"
+    - list:
+      - listitem: product guard behavior explained,
+      - listitem: shared backward clock step observed,
+      - text: underlying cause still
+      - strong: HOST-CLOCK-DISCONTINUITY-01 OPEN
+  - heading "OPEN" [level=2]
+  - list:
+    - listitem: deliberate unknown-aware snapshot capture
+    - listitem: applicability boundary for accounting vs generic audiences
+    - listitem: admitted baseline comparison
+    - listitem: physical retention
+    - listitem: all-writer capacity enforcement
+    - listitem: fresh-generation resubscription
+    - listitem: real Stripe test-mode lifecycle
+    - listitem: current full-suite green/stability
+    - listitem: historical Chromium timeout root cause
+    - listitem: off-site restore/device-loss recovery
+    - listitem: production credential isolation
+    - listitem: rollback/cutover
+    - listitem: production approval
+  - separator
+  - heading "Next slice remains Core capture" [level=1]
+  - paragraph:
+    - text: I would
+    - strong: not change course
+    - text: because of these two successors.
+  - paragraph: Codex should now build the deliberate capture contract that bridges live editable inventory to a frozen review snapshot.
+  - paragraph: "The target is still:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: editable current records ↓ owner reviews exactly what will be captured ↓ explicit POST ↓ canonical unknown-aware snapshot ↓ immutable snapshot identity ↓ existing ReviewCycle path
+  - heading "The next implementation must answer one semantic question precisely" [level=3]
+  - paragraph: "For every captured field:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: declared value unknown not applicable derived value
+  - paragraph: must remain distinguishable.
+  - paragraph: "Do not convert:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: 0 false "" []
+  - paragraph: into declarations merely because the database column has that value.
+  - paragraph: The capture layer must carry provenance deliberately.
+  - paragraph: And accounting applicability must be established before the accounting pack can claim accounting-specific findings. Generic Core exposure must remain available without inheriting those claims.
+  - paragraph: That is the next customer-value bridge.
+  - heading "What I want in the next packet" [level=2]
+  - list:
+    - listitem: snapshot-capture contract/schema
+    - listitem: current inventory → capture normalization source
+    - listitem: provenance handling
+    - listitem: applicability selector
+    - listitem: preview-before-capture UI
+    - listitem: POST-only admission path
+    - listitem: idempotency/lost-response behavior
+    - listitem: exact actual-role tests
+    - listitem: tests for false/zero/empty/default ambiguity
+    - listitem: generic vs accounting applicability negatives
+    - listitem: one complete journey from manually entered record → snapshot → ReviewCycle freeze
+    - listitem: clock trial result separately, not mixed into product acceptance
+    - listitem: current full-suite status if available
+  - paragraph: No reason to reopen the closed exposure/lifecycle machinery.
+  - paragraph:
+    - strong: "So: both requested successors get a green light."
+    - text: "The epistemic chain is getting pleasantly stubborn now: future code cannot quietly rewrite what an old pack meant, and missing setup cannot quietly choose what a workspace means. That’s exactly the kind of boring rigidity we want in the foundation. 🔩"
+  - paragraph:
+    - strong: Production remains unapproved.
+    - button "View analysis":
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - button "Sources":
+  - heading "You said:" [level=4]
+  - generic: "Separate clock gate update; no production approval requested. Authorized extended reversible trial evidence clock-controller-trial/20261004T213056.326301Z: initial64s mail-active four backward steps, maximum1.951s; stopped only AnarchI-Mail systemd-timesyncd for six64s sampling windows, step counts2,2,3,2,2,2 (residual jumps roughly0.43–1.55s), then restored64s three steps. Script finally restored service, independent subsequent systemctl is-active returned active. Mail and LocalAI remained running. Ubuntu chronyd is -x without SYS_TIME; it is an observer, not proven setter. Shared boot/kernel across Ubuntu/Mail/Docker. Hidden PHC0 daemon setter unknown; no other services/configurations changed. This rejects stopping mail-timesync alone as sufficient mitigation. HOST-CLOCK-DISCONTINUITY-01 stays OPEN; future-time guards unchanged. Remote Droplet read-only timedatectl reports UTC/NTPyes/synchronizedyes, not proof of remote clock stability. Core capture development continues with gates false. Please disposition this bounded negative causal result separately and suggest the narrowest read-only next diagnosis; no authority relaxation."
+  - button "Copy message":
+  - button "Edit message":
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - strong: "Bounded disposition: ACCEPTED as negative causal evidence."
+    - text: HOST-CLOCK-DISCONTINUITY-01 remains
+    - strong: OPEN
+    - text: ", and the future-time guards should remain exactly as they are."
+  - paragraph: "The trial materially rejects the hypothesis:"
+  - blockquote:
+    - paragraph:
+      - strong: “AnarchI-Mail’s systemd-timesyncd is the sole cause of the backward wall-clock steps.”
+  - paragraph:
+    - text: It does
+    - strong: not
+    - text: prove Mail time-sync is irrelevant or non-contributing. The important observation is that backward steps continued repeatedly while that service alone was stopped, including jumps on the order of roughly 0.43–1.55 seconds. Since the initial mail-active window also showed jumps, stopping that one setter was clearly insufficient as a mitigation.
+  - paragraph: "The restore behavior is cleanly bounded too: the script restored the service in finally, and an independent later systemctl is-active reported it active. Mail and LocalAI continued running, so this was not a broad workload shutdown masquerading as a clock experiment."
+  - paragraph:
+    - text: "The remote Droplet timedatectl observation should stay exactly where you put it:"
+    - strong: remote synchronized=yes is not evidence about local WSL/Docker clock stability.
+  - heading "Narrowest next read-only diagnosis" [level=3]
+  - paragraph:
+    - text: I would
+    - strong: not stop or reconfigure anything else yet
+    - text: . The next move should be a
+    - strong: correlation capture
+    - text: around the next backward step.
+  - paragraph: "The specific question is:"
+  - blockquote:
+    - paragraph:
+      - strong: When CLOCK_REALTIME jumps backward, what other local clock authority or synchronization component reports activity at the same moment?
+  - paragraph: "Capture, read-only, from the same WSL boot:"
+  - list:
+    - paragraph:
+      - strong: Kernel clock source and timekeeping messages
+    - list:
+      - listitem: current Linux clocksource
+      - listitem: Hyper-V/WSL clock messages
+      - listitem: kernel time adjustments
+    - paragraph:
+      - strong: All plausible local time actors
+    - list:
+      - listitem: chronyd
+      - listitem: systemd-timesyncd
+      - listitem: phc2sys
+      - listitem: ptp4l
+      - listitem: anything with phc, ptp, ntp, timesync, chrony, clock, or time-sync in its process/unit name
+    - paragraph:
+      - strong: Chrony observer state
+    - list:
+      - listitem: chronyc tracking
+      - listitem: chronyc sources -v
+      - listitem: confirm chronyd -x
+    - paragraph:
+      - strong: Windows host time state
+    - list:
+      - listitem: w32tm /query /status /verbose
+      - listitem: w32tm /query /peers
+      - listitem: Windows Time-Service events around the exact discontinuity timestamps
+    - paragraph:
+      - strong: Simultaneous clock pair
+    - list:
+      - text: record Linux realtime
+      - strong: and monotonic
+      - text: timestamps frequently
+      - listitem: when realtime goes backward but monotonic continues forward, freeze the surrounding diagnostics
+  - paragraph: "The most valuable discriminator is:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: CLOCK_MONOTONIC continues normally CLOCK_REALTIME steps backward
+  - paragraph: If that holds, we know this is a wall-clock correction rather than process scheduling or timer weirdness.
+  - paragraph: I would also specifically inventory PHC/PTP processes before touching them. Your note about an unknown PHC0 setter is now the most interesting thread. chronyd -x means chrony itself should not be setting system time, so a separate PHC/PTP or host-synchronization path deserves scrutiny.
+  - heading "What I would not do yet" [level=3]:
+    - text: What I would
+    - emphasis: not
+    - text: do yet
+  - list:
+    - listitem: no ±1 second tolerance;
+    - listitem: no future-veto weakening;
+    - listitem: no replacing wall-clock checks with monotonic time without a broader authority review;
+    - listitem: no disabling random services one by one;
+    - listitem: no production changes.
+  - paragraph: "So the ledger becomes:"
+  - paragraph:
+    - strong: CLOSED / rejected hypothesis
+  - list:
+    - text: AnarchI-Mail systemd-timesyncd as the
+    - strong: sole
+    - text: source of the discontinuity.
+  - paragraph:
+    - strong: OPEN
+  - list:
+    - listitem: whether Mail time-sync contributes;
+    - listitem: hidden PHC/PTP setter;
+    - listitem: Windows/WSL host correction path;
+    - listitem: Docker/WSL time resynchronization mechanism;
+    - listitem: actual root cause of the backward steps.
+  - paragraph:
+    - strong: Core capture work can continue independently with its gates false.
+    - text: This clock problem has now been narrowed enough that I would keep it as an infrastructure investigation lane rather than let it block unrelated implementation.
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - heading "You said:" [level=4]
+  - generic: "Core next semantic slice — PROPOSED ONLY, request scrutiny before implementation. New explicitinventory/capture2/packv3 rolloutflags remain false; scoped SQL/render results are qualification, not production approval. Packv3 initial contract has empty selected decisions and must remain historically unchanged. To finish the owner loop for generic audiences, propose successor core.exposure.proposals.v1 deriving review items only from permanent exposure_v1 UNKNOWN/CONCERN questions, plus qualified accounting FAIL rows only for applicable accounting capture. Each generic proposal names exact snapshot/result hash, record hash, question ID/outcome/sourcefields; asks to record responsible person/purpose, review declared action/approval boundary, or request missing account/removal evidence. Unknown is an evidence request, never a failed control; no severity/risk score fabricated. Declared PASS and NOT_APPLICABLE do not emit concern cards. Account identity/access removal remain unsupported captured fields: proposals may record owner statement/evidence reference but cannot make capture knowledge verified or erase original unknown. Existing DecisionDesk states/events/CAS and owner_statement_only/resolution_verified:false can be reused only through narrow actual-role issuance that recomputes/binds exact source effects; raw app insertion remains denied. New pack schema v4 is required to freeze selected decisions with these semantics; v2/v3 historical dispatch remains permanent. No provider writes, account management, monitoring, scheduling, or automatic risk resolution. No recurring-work mandate invented. Does this preserve the distinction between unknown, declaration and verified evidence, and what minimal contract changes would you require before this next Core build? Capture first-journey/full-suite receipts will arrive in a separate exact-source packet; do not approve production from this design."
+  - generic: …
+  - button "Show more":
+    - generic: Show more
+  - button "Copy message":
+  - button "Edit message":
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - text: Yes.
+    - strong: The proposed semantics preserve the distinction between unknown, declaration, and verified evidence, provided a few contracts are made explicit before implementation.
+  - paragraph: "My disposition is:"
+  - paragraph:
+    - strong: APPROVE FOR IMPLEMENTATION PLANNING WITH NARROW CONTRACT REVISIONS.
+  - paragraph: Not production approval.
+  - paragraph: "The direction is sound because it keeps three different epistemic states separate:"
+  - list:
+    - strong: UNKNOWN
+    - text: means the capture lacks evidence.
+    - strong: DECLARED
+    - text: means a person has stated something.
+    - strong: VERIFIED
+    - text: remains unavailable unless a separately qualified mechanism actually establishes it.
+  - paragraph: Your proposal correctly avoids converting an evidence gap into a control failure, a risk score, or a verified fact.
+  - heading "What is already right" [level=2]
+  - paragraph: "The most important decision is this:"
+  - blockquote:
+    - paragraph: generic proposals derive only from permanent exposure_v1 UNKNOWN / CONCERN outcomes.
+  - paragraph: "That means:"
+  - list:
+    - listitem: PASS does not generate busywork;
+    - listitem: NOT_APPLICABLE does not generate fake remediation;
+    - listitem: UNKNOWN becomes an evidence request;
+    - listitem: CONCERN becomes a request to review or clarify a declared boundary;
+    - listitem: no generic risk score is invented.
+  - paragraph: That is the right semantic shape.
+  - paragraph:
+    - text: Likewise, using accounting FAIL rows
+    - strong: only when the capture is qualified for accounting applicability
+    - text: preserves the existing accounting authority boundary rather than laundering accounting semantics into the freelancer/small-business path.
+  - paragraph: "And yes, I strongly agree that:"
+  - blockquote:
+    - paragraph: account identity and access-removal gaps may lead to an owner statement or evidence reference, but neither should rewrite the original frozen unknown into verified knowledge.
+  - paragraph: That is exactly the invariant to keep.
+  - heading "Minimal contract changes I would require" [level=1]
+  - heading "1. Introduce an explicit proposal-source class" [level=2]
+  - paragraph: Do not let all review cards look equivalent.
+  - paragraph: "Every emitted proposal should carry one of:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code:
+    - generic: "source_class: exposure_unknown exposure_concern accounting_fail"
+  - paragraph: or equivalent.
+  - paragraph: Why?
+  - paragraph: Because these mean materially different things.
+  - paragraph: "For example:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: exposure_unknown
+  - paragraph: "means:"
+  - blockquote:
+    - paragraph: “Stewardence does not have enough captured evidence to answer this.”
+  - paragraph: "Whereas:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: accounting_fail
+  - paragraph: "means:"
+  - blockquote:
+    - paragraph: “A qualified accounting rule deterministically failed against this frozen snapshot.”
+  - paragraph: Those must never collapse into one generic “issue” label later.
+  - paragraph: "I would also bind:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: source_contract source_contract_version source_identity source_digest
+  - paragraph: so the proposal can be reconstructed from the exact upstream semantics.
+  - separator
+  - heading "2. Each generic proposal must bind to the exact question result" [level=2]
+  - paragraph: "Your proposed fields are good, but I would require the full immutable source tuple:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: snapshot_id snapshot_result_sha256 inventory_item_id record_sha256 exposure_contract question_id question_outcome question_source_fields question_digest proposal_contract_version
+  - paragraph: "The extra field I care about most is:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: question_digest
+  - paragraph: because question_id="account_identity" alone does not prove what the original explanation/basis/source-fields actually were.
+  - paragraph: The proposal issuer should recompute the exposure question from the frozen record and reject unless the exact source result matches.
+  - paragraph: That prevents client-supplied “question metadata” from becoming authority.
+  - separator
+  - heading "3. Proposal meaning needs a closed action vocabulary" [level=2]
+  - paragraph: Do not store only arbitrary proposal text.
+  - paragraph: "Give each proposal a semantic action, something like:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: "action_kind: request_declaration review_declared_boundary request_evidence address_qualified_failure"
+  - paragraph: Then human-readable text is derived from that.
+  - paragraph: "Examples:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: business_owner UNKNOWN → request_declaration
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: approval CONCERN → review_declared_boundary
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: account_identity UNKNOWN → request_evidence
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: ACC-* FAIL → address_qualified_failure
+  - paragraph: This will matter later when UI, comparison, and Decision Desk need to reason about what the proposal actually means without parsing prose.
+  - separator
+  - heading "4. Unknown-derived proposals must explicitly forbid “resolution by statement”" [level=2]
+  - paragraph: This is the biggest semantic trap.
+  - paragraph: "Suppose:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code:
+    - generic: account_identity = UNKNOWN
+  - paragraph: "Then the owner records:"
+  - blockquote:
+    - paragraph: “Jane owns this account.”
+  - paragraph: That is a new owner declaration.
+  - paragraph:
+    - text: It does
+    - strong: not
+    - text: make the frozen review's original UNKNOWN become false.
+  - paragraph: "So for unknown-derived proposals, require an explicit field such as:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code:
+    - generic: "original_outcome: UNKNOWN resolution_effect: none"
+  - paragraph: "or:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code:
+    - generic: "source_state_immutable: true"
+  - paragraph: "The Decision Desk event can say:"
+  - blockquote:
+    - paragraph: completion_recorded
+  - paragraph: "but the source review remains:"
+  - blockquote:
+    - paragraph: UNKNOWN in the captured snapshot
+  - paragraph:
+    - text: until a
+    - strong: new snapshot
+    - text: captures additional evidence.
+  - paragraph: That is crucial.
+  - paragraph: "I would encode the rule:"
+  - blockquote:
+    - paragraph:
+      - strong: Decision events never mutate the source review outcome. They only record what the owner decided or reported after that review.
+  - paragraph: Then the next capture/review may produce PASS, CONCERN, UNKNOWN, or N/A independently.
+  - separator
+  - heading "5. “Evidence reviewed” must remain a human statement" [level=2]
+  - paragraph: "You already want to reuse the existing Decision Desk states:"
+  - list:
+    - listitem: completion_recorded
+    - listitem: evidence_reviewed
+  - paragraph:
+    - text: That is okay
+    - strong: only if
+    - text: "the existing invariant survives unchanged:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: owner_statement_only = true resolution_verified = false
+  - paragraph: "Even evidence_reviewed must mean:"
+  - blockquote:
+    - paragraph: “the owner says evidence was reviewed”
+  - paragraph: "not:"
+  - blockquote:
+    - paragraph: “Stewardence verified the evidence.”
+  - paragraph: The proposal contract should state this explicitly.
+  - paragraph: "No generic proposal should ever produce:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: verified=true resolved=true safe=true compliant=true
+  - paragraph: from an owner event.
+  - separator
+  - heading "Pack v4 is the right move" [level=1]
+  - paragraph:
+    - text: I agree you need a
+    - strong: new pack schema v4
+    - text: if the new proposals are going to be frozen into a review with decisions.
+  - paragraph: Do not retrofit v3.
+  - paragraph: "If v3 was admitted with:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: selected_decisions = []
+  - paragraph: then keep that historical meaning forever.
+  - paragraph: "For v4, freeze at minimum:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: proposal_contract_version selected_proposals[] selected_decisions[]
+  - paragraph: And each selected decision should point to one exact selected proposal identity.
+  - paragraph: "I would prefer:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: "selected_proposals: - proposal_id proposal_sha256 source_class source_identity source_digest"
+  - paragraph: "Then decisions bind to:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: proposal_id proposal_sha256
+  - paragraph: instead of relying only on card index.
+  - paragraph: That will make v4 much more stable.
+  - heading "Accounting applicability needs one explicit frozen proof" [level=1]
+  - paragraph: For qualified accounting FAIL proposals, I would require the pack/snapshot to freeze the exact applicability basis used.
+  - paragraph: "Not just:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: industry = accounting
+  - paragraph: but the exact qualified applicability identity/version.
+  - paragraph: "Something like:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: "applicability: profile: accounting_and_bookkeeping contract_version: ... qualification_sha256: ..."
+  - paragraph: "Then the proposal issuer can prove:"
+  - blockquote:
+    - paragraph: this accounting FAIL was allowed to exist for this frozen snapshot.
+  - paragraph: Otherwise a future profile reinterpretation could accidentally make an old accounting rule appear generically valid.
+  - separator
+  - heading "Generic proposal contract should stay deliberately boring" [level=1]
+  - paragraph: "I would keep v1 to only a few deterministic proposal templates:"
+  - heading "UNKNOWN" [level=3]
+  - list:
+    - listitem: record responsible person
+    - listitem: record business purpose
+    - listitem: provide account/principal evidence
+    - listitem: provide access-removal/offboarding evidence
+  - heading "CONCERN" [level=3]
+  - list:
+    - listitem: review declared action/approval boundary
+  - heading "Qualified accounting FAIL" [level=3]
+  - list:
+    - listitem: address the exact failed rule's proposed remediation
+  - paragraph: That’s enough.
+  - paragraph: "Do not add:"
+  - list:
+    - listitem: severity for generic unknowns;
+    - listitem: generic risk score;
+    - listitem: inferred urgency;
+    - listitem: “recommended by AI” language;
+    - listitem: automatic due dates;
+    - listitem: recurring task creation;
+    - listitem: provider-action suggestions.
+  - paragraph: The more boring this contract is, the more trustworthy it becomes.
+  - heading "Actual-role issuance boundary" [level=1]
+  - paragraph:
+    - text: Yes, reuse Decision Desk only through a
+    - strong: new narrow issuer that recomputes the proposal source
+    - text: .
+  - paragraph: "I would require:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: issue_core_exposure_proposals(...)
+  - paragraph: "or equivalent to:"
+  - list:
+    - listitem: lock/recheck tenant + owner + paid/work authority;
+    - listitem: load exact frozen snapshot;
+    - listitem: recompute permanent exposure v1;
+    - listitem: apply accounting rules only if applicability qualifies;
+    - listitem: build deterministic closed proposal objects;
+    - listitem: hash them canonically;
+    - listitem: issue immutable proposal revision;
+    - listitem: expose no arbitrary client proposal text/authority fields.
+  - paragraph: App can request proposal generation.
+  - paragraph: App cannot insert proposal rows.
+  - paragraph: Worker should not gain proposal issuance authority.
+  - paragraph: That matches the current system design.
+  - heading "One important naming recommendation" [level=1]
+  - paragraph: I would avoid calling generic UNKNOWN-derived cards “findings.”
+  - paragraph: "Call them:"
+  - list:
+    - listitem: review items,
+    - listitem: evidence gaps,
+    - listitem: proposals,
+    - listitem: evidence requests.
+  - paragraph: Reserve “finding” for something that actually arose from a qualified rule/result.
+  - paragraph: That will help keep the UX honest.
+  - heading "Minimal acceptance tests before I’d approve the implementation slice" [level=1]
+  - paragraph: "I’d want these exact classes of tests:"
+  - list:
+    - listitem: UNKNOWN -> evidence-request proposal
+    - listitem: CONCERN -> review-boundary proposal
+    - listitem: PASS -> no proposal
+    - listitem: NOT_APPLICABLE -> no proposal
+    - listitem: generic proposal contains no severity/risk score
+    - listitem: accounting FAIL only emits when applicability qualifies
+    - listitem: same accounting FAIL under non-accounting capture emits nothing
+    - listitem: proposal recomputation rejects client-supplied altered question/outcome/source fields
+    - listitem: changed record hash rejects
+    - listitem: changed snapshot/result hash rejects
+    - listitem: unknown-derived Decision Desk completion_recorded does not change source UNKNOWN
+    - listitem: evidence_reviewed remains resolution_verified=false
+    - listitem: later capture may independently change UNKNOWN to another outcome
+    - listitem: frozen v4 keeps old proposal/decision even if live proposal generation later changes
+    - listitem: v2/v3 historical packs still dispatch exactly as before
+    - listitem: app raw proposal insertion denied
+    - listitem: worker proposal issuance denied
+    - listitem: concurrent issuance produces one canonical proposal revision
+  - paragraph: That is enough for this slice.
+  - heading "Recommended v1 proposal object" [level=1]
+  - paragraph: "Something like:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code:
+    - text: "schema: stewardence.core_review_proposal.v1 proposal_id organization_id snapshot_id snapshot_result_sha256 inventory_item_id record_sha256"
+    - text: "source: class contract contract_version identity digest outcome source_fields"
+    - text: action_kind
+    - text: proposal_text
+    - text: "authority: proposal_only severity: null # unless qualified accounting FAIL risk_score: null verification: not_established created_at sha256"
+  - paragraph: For accounting FAIL, severity may be copied from the exact qualified rule result.
+  - paragraph: For generic exposure proposals, severity should be absent/null.
+  - heading "Bottom line" [level=2]
+  - paragraph:
+    - strong: Yes, the design preserves unknown vs declaration vs verified evidence.
+  - paragraph: "The minimal revisions I require before implementation are:"
+  - list:
+    - listitem: explicit proposal source class;
+    - listitem: exact source-question digest binding;
+    - listitem: closed semantic action vocabulary;
+    - listitem: immutable original source outcome;
+    - listitem: Decision Desk events cannot resolve/verify source truth;
+    - listitem: v4 freezes proposal identities separately from decision identities;
+    - listitem: accounting applicability identity/version frozen;
+    - listitem: deterministic server-side recomputation before issuance.
+  - paragraph: "With those additions:"
+  - paragraph:
+    - strong: APPROVE FOR IMPLEMENTATION PLANNING.
+  - paragraph: "And I would keep this slice intentionally narrow. You do not need a new risk engine. You need a very honest bridge from:"
+  - blockquote:
+    - paragraph: “we don't know this”
+  - paragraph: to
+  - blockquote:
+    - paragraph: “here is the exact thing the owner should decide, declare, or investigate next.”
+  - paragraph: That is much more useful than manufacturing red badges everywhere. 🧭
+  - paragraph:
+    - strong: Production remains unapproved.
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - heading "You said:" [level=4]
+  - button "Pasted text(20261004-225357).txt"
+  - generic "Pasted text(20261004-225357).txt"
+  - generic: Document
+  - button "Edit message":
+  - button "Worked for 29s"
+  - generic: Worked for 29s
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - strong: "Source-level disposition: ACCEPTABLE DESIGN, with one required compatibility/authority proof before I’ll close the legacy fence."
+    - text: The wrapper itself is pointed in the right direction, and I do
+    - strong: not
+    - text: see a reason to redesign it.
+  - paragraph:
+    - text: Production remains unapproved, and the current
+    - strong: 1,892 pass / 11 fail / 1 skip
+    - text: integrated run remains failed until the successor repairs are qualified.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - heading "What the fence gets right" [level=2]
+  - paragraph: "The migration preserves the old implementation rather than editing its semantics:"
+  - list:
+    - listitem: rename the existing issue_action_cards(...) implementation to issue_action_cards_schema1(...);
+    - listitem: revoke direct runtime access to that helper;
+    - listitem: put a new function at the original public name;
+    - listitem: have that wrapper check the current app identity/tenant context;
+    - listitem: require both input and result snapshots to explicitly declare schema 1;
+    - text: only then delegate to the untouched legacy body.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is exactly the right compatibility shape.
+  - paragraph: "It means:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: schema 1 snapshot ↓ legacy public name ↓ schema fence ↓ original legacy semantics capture2 / unknown schema ↓ legacy public name ↓ DENY
+  - paragraph: rather than teaching the legacy issuer how to understand a new capture universe.
+  - paragraph:
+    - text: I also like that the app context check occurs
+    - strong: before the SECURITY DEFINER snapshot lookup
+    - text: ", so a caller cannot deliberately supply a foreign organization and use privileged lookup behavior as an existence oracle."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The planned negative test for that exact ordering is useful.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - heading "Compatibility behavior is correct" [level=2]
+  - paragraph: "The schema-1 compatibility test has the right expectations:"
+  - list:
+    - listitem: same snapshot replays to the same revision;
+    - listitem: input_sha256 remains bound to the snapshot result;
+    - listitem: cards remain proposal_only;
+    - text: the old card shape does not sprout new source_class semantics.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: And verifying the renamed helper's prosrc, search path and owner against the predecessor migration is a strong guard against accidentally rewriting history while claiming merely to rename it.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "So the intended rule is sound:"
+  - blockquote:
+    - paragraph:
+      - strong: legacy schema-1 behavior stays legacy schema-1 behavior forever. New capture semantics get a new issuer.
+  - paragraph: Good.
+  - heading "One required check before closure" [level=1]
+  - paragraph: "There is a subtle PostgreSQL compatibility issue the current tests do not yet prove away:"
+  - heading "LEGACY-ISSUER-DEPENDENCY-BYPASS-01" [level=2]
+  - paragraph:
+    - text: Renaming a PostgreSQL function preserves its
+    - strong: OID
+    - text: .
+  - paragraph: That means any existing database object already dependent on that exact original function may remain bound to the renamed helper instead of magically routing through the newly created wrapper.
+  - paragraph: "Examples worth checking include:"
+  - list:
+    - listitem: another SECURITY DEFINER function;
+    - listitem: a stored SQL function;
+    - listitem: a view/rule/trigger expression;
+    - listitem: any other DB-side object with a dependency on the original function OID.
+  - paragraph:
+    - text: If such an object is callable by agentledger_app or another runtime principal, it could theoretically continue reaching the old helper
+    - strong: without traversing the new schema fence
+    - text: ", even though direct app EXECUTE on the helper is revoked."
+  - paragraph:
+    - text: I am
+    - strong: not saying such a bypass exists
+    - text: .
+  - paragraph: I am saying the migration pattern requires proving it does not.
+  - heading "Minimal closure evidence" [level=3]
+  - paragraph: "Add one test/audit that establishes:"
+  - blockquote:
+    - paragraph: No executable database dependency reachable by a runtime principal invokes issue_action_cards_schema1 except the new fenced wrapper.
+  - paragraph: "I would check both:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: pg_depend / pg_proc dependency inventory
+  - paragraph: and runtime authority.
+  - paragraph: "The simplest robust qualification would assert:"
+  - list:
+    - listitem: renamed helper OID;
+    - listitem: its dependent database objects;
+    - listitem: no unexpected dependent functions/views/triggers;
+    - listitem: exact ACL of the helper;
+    - listitem: only the owner/admin authority can execute it directly;
+    - listitem: app, worker, billing-admission, and every other runtime login cannot;
+    - listitem: the only supported app path resolves through the new issue_action_cards(...) wrapper.
+  - paragraph:
+    - text: Your existing planned privilege test already covers app and worker direct EXECUTE denial.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: I would broaden that from two named roles to
+    - strong: the complete provisioned runtime-role set
+    - text: rather than assuming there will never be another role.
+  - paragraph: That is the only required source-level addition I see before closing this fence.
+  - heading "ACL nuance" [level=2]
+  - paragraph: "Related but smaller: this statement:"
+  - generic: SQL
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: REVOKE ALL ... FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+  - paragraph: removes those grants, but it does not revoke some hypothetical historical grant to an unrelated role.
+  - paragraph: Again, there may be no such grant.
+  - paragraph: So rather than rewriting the migration unnecessarily, qualify the resulting proacl against the expected role allowlist.
+  - paragraph: If the resulting ACL is owner-only, fine.
+  - heading "The predecessor counterexample is valuable" [level=1]
+  - paragraph:
+    - text: The packet reports that the unfenced predecessor allowed direct app SQL to issue legacy action cards both for an admitted capture2 snapshot and for unresolved schema input.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is exactly the counterexample the successor should preserve in evidence.
+  - paragraph: Do not discard it after the new tests pass.
+  - paragraph: "The ideal evidence pair is:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: predecessor capture2 → legacy issuer accepts ❌ successor capture2 → wrapper rejects ✅ schema1 → original semantics ✅
+  - paragraph: That proves the fence changes precisely the intended boundary rather than merely adding tests that were always green.
+  - heading "Pending tests look sufficient otherwise" [level=2]
+  - paragraph: "The nine-case successor set is aimed at the right places:"
+  - list:
+    - listitem: capture2 denied;
+    - listitem: unresolved schema denied;
+    - listitem: schema1 compatibility preserved;
+    - listitem: exact replay preserved;
+    - listitem: renamed helper unavailable to app and worker;
+    - listitem: worker cannot use public wrapper;
+    - listitem: legacy body/search path/owner unchanged;
+    - text: wrong app context rejected before privileged lookup.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: Once those are green
+    - strong: plus the dependency/ACL proof above
+    - text: ", I would expect to close the legacy issuer fence."
+  - paragraph: No need to add more product behavior to this migration.
+  - heading "Historical capture compatibility" [level=1]
+  - paragraph:
+    - text: The separate report that capture_v1 is now copied/pinned against its original policy/profile/field semantics is directionally correct, but this packet does not provide that source or its golden receipts, so I am carrying it as
+    - strong: reported qualification work, not independently adjudicated closure
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That can arrive with its own exact delta.
+  - heading "Full-suite failures remain honest failures" [level=1]
+  - paragraph: "The 11 current failures sound plausibly attributable to successor fixture/authority mismatches:"
+  - list:
+    - listitem: five unversioned legacy snapshot fixtures;
+    - listitem: CSRF journey job-count expectation;
+    - listitem: reused-client middleware state;
+    - listitem: archive bootstrap ownership;
+    - listitem: renderer error-message expectation.
+  - paragraph:
+    - text: But until the corrected exact-source run actually passes, those are diagnoses and repairs, not closures.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: Good that Codex is not asking us to pretend otherwise.
+  - heading "Clock lane remains separate" [level=2]
+  - paragraph:
+    - text: The new raw/monotonic correlation does not change the previous disposition. The host-clock setter/cause is still unresolved, and no tolerance or authority relaxation is warranted.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: Keep that investigation separate from this migration.
+  - separator
+  - heading "Disposition ledger" [level=2]
+  - paragraph:
+    - strong: SOURCE DESIGN ACCEPTED
+  - list:
+    - listitem: rename old issuer instead of rewriting it;
+    - listitem: wrapper retains original public name;
+    - listitem: schema-1 input/result fence;
+    - listitem: tenant/user context check before privileged lookup;
+    - listitem: schema1 compatibility/replay expectations;
+    - listitem: app/worker direct helper denial.
+  - paragraph:
+    - strong: REQUIRED BEFORE CLOSURE
+  - list:
+    - text: LEGACY-ISSUER-DEPENDENCY-BYPASS-01
+    - list:
+      - listitem: dependency inventory for the renamed function OID;
+      - listitem: exact helper ACL/runtime-role allowlist;
+      - listitem: proof no runtime-reachable DB object bypasses the wrapper.
+  - paragraph:
+    - strong: PENDING EXECUTED EVIDENCE
+  - list:
+    - listitem: nine proposed fence tests;
+    - listitem: corrected successor full-suite run.
+  - paragraph:
+    - strong: UNCHANGED OPEN
+  - list:
+    - listitem: Core proposal v1 DB/UI issuer integration;
+    - listitem: capture journey qualification;
+    - listitem: host clock root cause;
+    - listitem: real Stripe lifecycle;
+    - listitem: retention/capacity/restore/credential isolation;
+    - listitem: production release.
+  - paragraph:
+    - text: So Codex can continue the fence qualification without changing its architecture.
+    - strong: Add the dependency/ACL proof, run the nine tests, and if those are clean, this should be a pleasantly small closure.
+    - text: 🔒
+  - paragraph: "And importantly, this keeps schema generations from bleeding into each other: old issuer, old meaning; new capture, new proposal contract. That's the seam we want."
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - button "Sources":
+  - generic: ChatGPT can make mistakes. Check important info.
+  - button "Scroll to bottom":
+  - heading "Latest response" [level=4]
+  - status
+  - button "Add files and more":
+  - textbox "Ask ChatGPT":
+    - paragraph: Ask ChatGPT
+  - button "Select ChatGPT model":
+    - generic: Medium
+  - button "Dictate":
+  - button "Start Voice":
+- status
+- status: Response complete
+- status
+- status
+- status
+- status

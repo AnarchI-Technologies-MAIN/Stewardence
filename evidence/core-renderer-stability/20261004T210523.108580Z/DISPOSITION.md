@@ -1,0 +1,11 @@
+# Bounded offline renderer stability
+
+20 sequential actual Chromium renders passed on frozen image `afd7c85b5339b47489a927c86dd036f893bc54d2e9c602dffcf1bc3edc292f1a`, tied to original source/qualification manifests copied here. Container: network none, Docker init, 1 GiB memory, 512 PID limit, concurrency one, unchanged 60-second budget.
+
+Synthetic closed-contract specimen: 100 distinct inventory records and matching exposure reviews; one selected owner decision with 4,096-character note and ten 2,048-character references. Payload 353,472 bytes, SHA-256 `dbe2babf6b1c868ba1b02c73b612c1113766994348e73c2bda28693dabac88e7`. This is not a proven maximum full customer pack or an admitted/stored customer workflow.
+
+Per-request elapsed 3.055–15.628 seconds; total render time 156.721 seconds. Every PDF is 361,131 bytes and has identical normalized SHA-256 `3e6226926ffdf623c6bb7a81b639ba7d8b802de6a9c9931b8cf864e01f2e715d`. All complete references, the full note and first/last inventory identifiers are present. Zero Chromium zombies after every request. Memory peak 367,906,816 bytes; no memory max/OOM/OOM-kill events. Full per-request timings/resources reside in `stability.json`; PDF and extracted text are retained.
+
+Earlier attempts remain preserved in sibling directories: `205906.160145Z` and `205921.804910Z` failed harness setup before rendering; `205947.748592Z` passed schema validation; `210011.524575Z` and `210132.868609Z` stopped after semantic-extractor assertions. Diagnostic retained PDF established that default pdftotext dehyphenates line-end hyphens, and pagination inserts Page N of M into references crossing pages. Raw/layout extraction preserved the prefixes; after recognizing and removing pagination footers, all ten complete references and the full note were verified. The successor checker requires full fields, exceeding the original prefix-only checks. Diagnostic comparison and scripts remain under `210132.868609Z`.
+
+This evidence qualifies this renderer-only specimen at concurrency one on this image. It does not explain the old full-run Chromium timeout, prove capacity at greater concurrency, authorize a maximum-size offer, qualify admission/storage/access/restore, or demonstrate hard termination of a hung renderer. No database or provider was accessed and production was unchanged.

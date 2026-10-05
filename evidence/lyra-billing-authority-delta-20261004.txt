@@ -1,0 +1,1222 @@
+STEWARDENCE successor billing authority source review. Scope-qualified source review only, NOT production approval. AGENTS.md remains byte-preserved because Alexander expressly prohibited modifying an existing guide; your required expanded authority wording is adopted as an operational release rule and recorded separately. No production changes, provider calls, real payment, live keys or release activation. Historical 1325/2failed/1skipped full run remains failed.
+
+This packet is limited to paid authority + trusted ingester. ReviewCycle33 separate actual-role cases passed; artifact completion/baseline advancement/DecisionDesk selection still absent, not asserted complete. Exact committed replay repair now qualifying separately; this frozen20-service snapshot predates that successor. Resubscription canceled→fresh generation still requires explicit qualified checkout-intent transition. Paid ledger alone is not end-to-end launch.
+
+Evidence: separate issuer29 cases 20261004T190603.447642Z, dedicated service20 cases20261004T192215.698199Z. Provider retrievals mocked, original StripeSDK signature real. SQL issuer necessarily trusts separately credentialed ingester; digests do not prove external payment. Ordinary app/worker cannot insert coverage/receipt or call ingester issuers. Past_due projection retains access only if separately issued current interval. Server clock VOLATILE. Current generation/customer/account/mode exact.90day export separate predicate. No backfill from status.
+
+FILE apps/billing/migrations/0006_paid_coverage.py SHA256 5eb3af8bf4c48611508f3b5521f5f9d7b6b62aa119e5487d68dd5b0059894a48
+"""Separately admitted payment intervals; no inferred historical coverage."""
+import uuid
+
+from django.db import migrations, models
+import django.db.models.deletion
+
+
+SQL = r"""
+ALTER TABLE billing_paid_coverage OWNER TO agentledger_owner;
+ALTER TABLE billing_paid_coverage_authority OWNER TO agentledger_owner;
+REVOKE ALL ON billing_paid_coverage, billing_paid_coverage_authority FROM PUBLIC, agentledger_app, agentledger_worker, agentledger_billing_admission;
+ALTER TABLE billing_paid_coverage ENABLE ROW LEVEL SECURITY;
+ALTER TABLE billing_paid_coverage FORCE ROW LEVEL SECURITY;
+ALTER TABLE billing_paid_coverage_authority ENABLE ROW LEVEL SECURITY;
+ALTER TABLE billing_paid_coverage_authority FORCE ROW LEVEL SECURITY;
+CREATE POLICY coverage_owner ON billing_paid_coverage TO agentledger_owner USING(true) WITH CHECK(true);
+CREATE POLICY coverage_authority_owner ON billing_paid_coverage_authority TO agentledger_owner USING(true) WITH CHECK(true);
+CREATE POLICY coverage_authority_read ON billing_paid_coverage_authority FOR SELECT TO agentledger_app,agentledger_worker USING(true);
+CREATE POLICY coverage_app_read ON billing_paid_coverage FOR SELECT TO agentledger_app
+ USING(EXISTS(SELECT 1 FROM billing_subscription s WHERE s.id=subscription_id));
+CREATE POLICY coverage_worker_read ON billing_paid_coverage FOR SELECT TO agentledger_worker
+ USING(EXISTS(SELECT 1 FROM billing_subscription s WHERE s.id=subscription_id));
+GRANT SELECT ON billing_paid_coverage, billing_paid_coverage_authority TO agentledger_app,agentledger_worker;
+GRANT SELECT ON billing_billingcustomer TO agentledger_worker;
+CREATE POLICY coverage_worker_customer_read ON billing_billingcustomer FOR SELECT TO agentledger_worker
+ USING(EXISTS(SELECT 1 FROM billing_subscription s WHERE s.billing_customer_id=billing_billingcustomer.id));
+
+CREATE FUNCTION app_private.prevent_paid_coverage_mutation() RETURNS trigger LANGUAGE plpgsql AS $fn$
+BEGIN RAISE EXCEPTION 'Paid coverage is immutable'; END;$fn$;
+ALTER FUNCTION app_private.prevent_paid_coverage_mutation() OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.prevent_paid_coverage_mutation() FROM PUBLIC;
+CREATE TRIGGER immutable_paid_coverage BEFORE UPDATE OR DELETE ON billing_paid_coverage
+ FOR EACH ROW EXECUTE FUNCTION app_private.prevent_paid_coverage_mutation();
+
+CREATE FUNCTION app_private.issue_paid_coverage(e jsonb) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE s public.billing_subscription%ROWTYPE; c public.billing_billingcustomer%ROWTYPE;
+ a public.billing_paid_coverage_authority%ROWTYPE; existing public.billing_paid_coverage%ROWTYPE;
+ receipt uuid; starts timestamptz; ends timestamptz; paid timestamptz; amount integer;
+ required text[]:=ARRAY['schema','subscription_id','stripe_subscription_id','stripe_customer_id',
+ 'stripe_account_id','livemode','stripe_invoice_id','stripe_event_id','contract_version','phase',
+ 'stripe_price_id','amount_cents','currency','service_start','service_end','paid_at','evidence_sha256'];
+ key text; contract jsonb;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' THEN RAISE EXCEPTION 'Read committed admission required'; END IF;
+ IF jsonb_typeof(e)<>'object' OR octet_length(e::text)>8192 OR NOT e ?& required
+  OR EXISTS(SELECT 1 FROM jsonb_object_keys(e) k WHERE NOT k=ANY(required)) THEN
+  RAISE EXCEPTION 'Invalid coverage envelope'; END IF;
+ FOREACH key IN ARRAY required LOOP
+  IF key NOT IN ('livemode','amount_cents','service_start','service_end','paid_at')
+   AND (jsonb_typeof(e->key)<>'string' OR length(e->>key)<1 OR length(e->>key)>255) THEN
+   RAISE EXCEPTION 'Invalid coverage identity'; END IF;
+ END LOOP;
+ IF e->>'schema'<>'stewardence.paid_coverage.v1' OR e->>'contract_version'<>'core.monthly.v1'
+  OR e->>'currency'<>'usd' OR jsonb_typeof(e->'livemode')<>'boolean'
+  OR e->>'evidence_sha256' !~ '^[0-9a-f]{64}$'
+  OR e->>'stripe_subscription_id' !~ '^sub_[A-Za-z0-9_]+$'
+  OR e->>'stripe_customer_id' !~ '^cus_[A-Za-z0-9_]+$'
+  OR e->>'stripe_account_id' !~ '^acct_[A-Za-z0-9_]+$'
+  OR e->>'stripe_invoice_id' !~ '^in_[A-Za-z0-9_]+$'
+  OR e->>'stripe_event_id' !~ '^evt_[A-Za-z0-9_]+$'
+  OR e->>'stripe_price_id' !~ '^price_[A-Za-z0-9_]+$' THEN RAISE EXCEPTION 'Unsupported payment identity'; END IF;
+ FOREACH key IN ARRAY ARRAY['amount_cents','service_start','service_end','paid_at'] LOOP
+  IF jsonb_typeof(e->key)<>'number' OR e->>key !~ '^[0-9]{1,12}$' THEN
+   RAISE EXCEPTION 'Coverage quantities must be exact positive integers'; END IF;
+ END LOOP;
+ amount:=(e->>'amount_cents')::integer;
+ starts:=to_timestamp((e->>'service_start')::bigint);
+ ends:=to_timestamp((e->>'service_end')::bigint);
+ paid:=to_timestamp((e->>'paid_at')::bigint);
+ IF starts<=to_timestamp(0) OR ends<=starts OR ends-starts>interval '32 days'
+  OR paid<starts OR paid>clock_timestamp() OR paid>=ends THEN RAISE EXCEPTION 'Invalid paid interval'; END IF;
+ SELECT * INTO a FROM public.billing_paid_coverage_authority WHERE id=1 FOR SHARE;
+ IF NOT FOUND OR a.stripe_account_id<>e->>'stripe_account_id' OR a.livemode<>(e->>'livemode')::boolean THEN
+  RAISE EXCEPTION 'Unconfigured or mismatched payment authority'; END IF;
+ contract:=a.contracts->(e->>'phase');
+ IF contract IS NULL OR jsonb_typeof(contract)<>'object'
+  OR contract->>'price_id' IS DISTINCT FROM e->>'stripe_price_id'
+  OR contract->>'contract_version' IS DISTINCT FROM e->>'contract_version'
+  OR contract->'amount_cents' IS DISTINCT FROM e->'amount_cents' THEN
+  RAISE EXCEPTION 'Unregistered payment price contract'; END IF;
+ SELECT * INTO s FROM public.billing_subscription WHERE id=(e->>'subscription_id')::uuid FOR UPDATE;
+ IF NOT FOUND OR s.portfolio<>'core' OR s.stripe_subscription_id IS DISTINCT FROM e->>'stripe_subscription_id'
+  OR s.status='canceled' THEN RAISE EXCEPTION 'Payment subscription generation mismatch'; END IF;
+ SELECT * INTO c FROM public.billing_billingcustomer WHERE id=s.billing_customer_id;
+ IF c.stripe_customer_id IS DISTINCT FROM e->>'stripe_customer_id' THEN RAISE EXCEPTION 'Payment customer mismatch'; END IF;
+ IF NOT ((e->>'phase'='standard' AND amount=9900 AND NOT s.is_founder)
+  OR (e->>'phase'='founder_intro' AND amount=4900 AND s.is_founder AND s.founder_sequence IS NOT NULL
+   AND s.founder_intro_ends_at IS NOT NULL AND starts<s.founder_intro_ends_at AND ends<=s.founder_intro_ends_at)
+  OR (e->>'phase'='founder_ongoing' AND amount=7500 AND s.is_founder AND s.founder_sequence IS NOT NULL
+   AND s.founder_intro_ends_at IS NOT NULL AND starts>=s.founder_intro_ends_at)) THEN
+  RAISE EXCEPTION 'Unsupported paid contract'; END IF;
+ SELECT * INTO existing FROM public.billing_paid_coverage WHERE stripe_account_id=a.stripe_account_id
+  AND livemode=a.livemode AND stripe_invoice_id=e->>'stripe_invoice_id';
+ IF FOUND THEN
+  IF existing.admission_payload - 'stripe_event_id' IS DISTINCT FROM e - 'stripe_event_id' THEN
+   RAISE EXCEPTION 'Conflicting invoice admission'; END IF;
+  RETURN existing.id;
+ END IF;
+ receipt:=gen_random_uuid();
+ INSERT INTO public.billing_paid_coverage(id,subscription_id,stripe_subscription_id,stripe_customer_id,
+  stripe_account_id,livemode,stripe_invoice_id,stripe_event_id,contract_version,phase,stripe_price_id,
+  amount_cents,currency,service_start,service_end,paid_at,evidence_sha256,admitted_at,admission_payload)
+ VALUES(receipt,s.id,s.stripe_subscription_id,c.stripe_customer_id,a.stripe_account_id,a.livemode,
+  e->>'stripe_invoice_id',e->>'stripe_event_id',e->>'contract_version',e->>'phase',e->>'stripe_price_id',
+  amount,'usd',starts,ends,paid,e->>'evidence_sha256',clock_timestamp(),e);
+ RETURN receipt;
+END;$fn$;
+ALTER FUNCTION app_private.issue_paid_coverage(jsonb) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.issue_paid_coverage(jsonb) FROM PUBLIC,agentledger_app,agentledger_worker;
+GRANT EXECUTE ON FUNCTION app_private.issue_paid_coverage(jsonb) TO agentledger_billing_admission;
+GRANT USAGE ON SCHEMA app_private TO agentledger_billing_admission;
+
+CREATE FUNCTION app_private.paid_subscription_access(sid uuid) RETURNS boolean
+LANGUAGE sql VOLATILE SECURITY INVOKER SET search_path=pg_catalog,public AS $fn$
+ SELECT EXISTS(SELECT 1 FROM public.billing_subscription s
+  JOIN public.billing_billingcustomer c ON c.id=s.billing_customer_id
+  JOIN public.billing_paid_coverage p ON p.subscription_id=s.id AND p.stripe_subscription_id=s.stripe_subscription_id
+   AND p.stripe_customer_id=c.stripe_customer_id
+  JOIN public.billing_paid_coverage_authority a ON a.id=1 AND a.stripe_account_id=p.stripe_account_id AND a.livemode=p.livemode
+  WHERE s.id=sid AND s.portfolio='core' AND s.status IN ('active','canceling','past_due')
+   AND p.service_start<=clock_timestamp() AND p.service_end>clock_timestamp())
+$fn$;
+ALTER FUNCTION app_private.paid_subscription_access(uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.paid_subscription_access(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION app_private.paid_subscription_access(uuid) TO agentledger_app,agentledger_worker;
+
+CREATE FUNCTION app_private.paid_subscription_export_access(sid uuid) RETURNS boolean
+LANGUAGE sql VOLATILE SECURITY INVOKER SET search_path=pg_catalog,public AS $fn$
+ SELECT EXISTS(SELECT 1 FROM public.billing_subscription s
+  JOIN public.billing_billingcustomer c ON c.id=s.billing_customer_id
+  JOIN public.billing_paid_coverage p ON p.subscription_id=s.id AND p.stripe_customer_id=c.stripe_customer_id
+  JOIN public.billing_paid_coverage_authority a ON a.id=1 AND a.stripe_account_id=p.stripe_account_id AND a.livemode=p.livemode
+  WHERE s.id=sid AND s.portfolio='core' AND p.service_start<=clock_timestamp()
+   AND p.service_end+interval '90 days'>clock_timestamp())
+$fn$;
+ALTER FUNCTION app_private.paid_subscription_export_access(uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.paid_subscription_export_access(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION app_private.paid_subscription_export_access(uuid) TO agentledger_app,agentledger_worker;
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies = [("billing", "0005_billing_security"), ("jobs", "0012_core_authority_successor")]
+    operations = [
+        migrations.CreateModel(name="PaidCoverageAuthority", fields=[
+            ("id", models.PositiveSmallIntegerField(default=1, editable=False, primary_key=True, serialize=False)),
+            ("stripe_account_id", models.CharField(max_length=255)), ("livemode", models.BooleanField()),
+            ("contracts", models.JSONField(default=dict)),
+        ], options={"db_table": "billing_paid_coverage_authority", "constraints": [models.CheckConstraint(condition=models.Q(id=1), name="paid_authority_singleton")]}),
+        migrations.CreateModel(name="PaidCoverage", fields=[
+            ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+            *[(name, models.CharField(max_length=255)) for name in ("stripe_subscription_id", "stripe_customer_id", "stripe_account_id", "stripe_invoice_id", "stripe_event_id", "stripe_price_id")],
+            ("livemode", models.BooleanField()), ("contract_version", models.CharField(max_length=64)),
+            ("phase", models.CharField(max_length=32)), ("amount_cents", models.PositiveIntegerField()),
+            ("currency", models.CharField(max_length=3)),
+            *[(name, models.DateTimeField()) for name in ("service_start", "service_end", "paid_at")],
+            ("evidence_sha256", models.CharField(max_length=64)),
+            ("admitted_at", models.DateTimeField(editable=False)), ("admission_payload", models.JSONField(editable=False)),
+            ("subscription", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to="billing.subscription")),
+        ], options={"db_table": "billing_paid_coverage", "constraints": [
+            models.UniqueConstraint(fields=("stripe_account_id", "livemode", "stripe_invoice_id"), name="paid_coverage_invoice_unique"),
+            models.CheckConstraint(condition=models.Q(service_end__gt=models.F("service_start")), name="paid_coverage_positive_interval"),
+        ]}),
+        migrations.RunSQL(SQL),
+    ]
+
+
+FILE apps/billing/migrations/0007_ingester_effects.py SHA256 06d8733765406bdc5a159b5510651350cdd494b37360ca07169a0faf77fca534
+"""Exact payment-ingester effects, unavailable to app/worker runtime roles."""
+import uuid
+from django.db import migrations, models
+import django.db.models.deletion
+import django.utils.timezone
+
+SQL = r"""
+ALTER TABLE public.billing_admission_receipt ALTER COLUMN id SET DEFAULT gen_random_uuid();
+ALTER TABLE public.billing_admission_receipt ALTER COLUMN committed_at SET DEFAULT clock_timestamp();
+ALTER TABLE public.billing_admission_receipt OWNER TO agentledger_owner;
+REVOKE ALL ON public.billing_admission_receipt FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+ALTER TABLE public.billing_admission_receipt ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.billing_admission_receipt FORCE ROW LEVEL SECURITY;
+CREATE POLICY admission_receipt_owner ON public.billing_admission_receipt TO agentledger_owner USING(true) WITH CHECK(true);
+CREATE TRIGGER immutable_admission_receipt BEFORE UPDATE OR DELETE ON public.billing_admission_receipt
+ FOR EACH ROW EXECUTE FUNCTION app_private.prevent_paid_coverage_mutation();
+
+CREATE FUNCTION app_private.paid_admission_authority_ready(account_external text,mode boolean) RETURNS boolean
+LANGUAGE sql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+ SELECT EXISTS(SELECT 1 FROM public.billing_paid_coverage_authority WHERE id=1
+  AND stripe_account_id=account_external AND livemode=mode)
+$fn$;
+ALTER FUNCTION app_private.paid_admission_authority_ready(text,boolean) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.paid_admission_authority_ready(text,boolean) FROM PUBLIC,agentledger_app,agentledger_worker;
+GRANT EXECUTE ON FUNCTION app_private.paid_admission_authority_ready(text,boolean) TO agentledger_billing_admission;
+
+CREATE FUNCTION app_private.begin_paid_admission(customer_external text,sub_external text,account_external text,
+ mode boolean,owner_external text,portfolio_external text,phase_external text) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE c public.billing_billingcustomer%ROWTYPE; s public.billing_subscription%ROWTYPE;
+ a public.billing_paid_coverage_authority%ROWTYPE; sid uuid;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' THEN RAISE EXCEPTION 'Read committed admission required'; END IF;
+ IF customer_external IS NULL OR sub_external IS NULL OR length(customer_external)>255 OR length(sub_external)>255
+  OR customer_external !~ '^cus_[A-Za-z0-9_]+$' OR sub_external !~ '^sub_[A-Za-z0-9_]+$'
+  OR portfolio_external IS DISTINCT FROM 'core' OR owner_external IS NULL OR mode IS NULL
+  OR phase_external NOT IN ('standard','founder_intro','founder_ongoing') OR phase_external IS NULL THEN
+  RAISE EXCEPTION 'Unsupported initial payment identity'; END IF;
+ SELECT * INTO a FROM public.billing_paid_coverage_authority WHERE id=1 FOR SHARE;
+ IF NOT FOUND OR a.stripe_account_id IS DISTINCT FROM account_external OR a.livemode IS DISTINCT FROM mode THEN
+  RAISE EXCEPTION 'Payment authority mismatch'; END IF;
+ SELECT * INTO c FROM public.billing_billingcustomer WHERE stripe_customer_id=customer_external FOR UPDATE;
+ IF NOT FOUND OR c.user_id::text IS DISTINCT FROM owner_external THEN RAISE EXCEPTION 'Unknown payment owner'; END IF;
+ SELECT * INTO s FROM public.billing_subscription WHERE billing_customer_id=c.id FOR UPDATE;
+ IF FOUND THEN
+  IF s.portfolio<>'core' OR s.status='canceled' OR s.stripe_subscription_id IS DISTINCT FROM sub_external THEN
+   RAISE EXCEPTION 'Payment generation mismatch'; END IF;
+  IF (phase_external='standard' AND s.is_founder) OR (phase_external<>'standard' AND NOT s.is_founder) THEN
+   RAISE EXCEPTION 'Payment founder contract mismatch'; END IF;
+  RETURN s.id;
+ END IF;
+ IF phase_external<>'standard' THEN RAISE EXCEPTION 'New founder allocations are not admitted'; END IF;
+ sid:=gen_random_uuid();
+ INSERT INTO public.billing_subscription(id,billing_customer_id,portfolio,stripe_subscription_id,status,is_founder,
+ founder_entitlement_ends_on_cancel,cancel_at_period_end,created_at,updated_at)
+ VALUES(sid,c.id,'core',sub_external,'pending',false,true,false,clock_timestamp(),clock_timestamp());
+ RETURN sid;
+END;$fn$;
+ALTER FUNCTION app_private.begin_paid_admission(text,text,text,boolean,text,text,text) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.begin_paid_admission(text,text,text,boolean,text,text,text) FROM PUBLIC,agentledger_app,agentledger_worker;
+GRANT EXECUTE ON FUNCTION app_private.begin_paid_admission(text,text,text,boolean,text,text,text) TO agentledger_billing_admission;
+
+CREATE FUNCTION app_private.finish_paid_admission(e jsonb,event_kind text,payload_hash text) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE receipt public.billing_admission_receipt%ROWTYPE; coverage uuid; effects text;
+ s public.billing_subscription%ROWTYPE; a public.billing_paid_coverage_authority%ROWTYPE;
+ latest_paid_end timestamptz; incoming_end timestamptz;
+BEGIN
+ IF event_kind IS DISTINCT FROM 'invoice.paid' OR payload_hash IS NULL OR payload_hash !~ '^[0-9a-f]{64}$' THEN
+  RAISE EXCEPTION 'Unsupported admission event'; END IF;
+ SELECT * INTO a FROM public.billing_paid_coverage_authority WHERE id=1 FOR SHARE;
+ IF NOT FOUND OR a.stripe_account_id IS DISTINCT FROM e->>'stripe_account_id'
+  OR a.livemode IS DISTINCT FROM (e->>'livemode')::boolean THEN
+  RAISE EXCEPTION 'Payment authority mismatch'; END IF;
+ SELECT * INTO s FROM public.billing_subscription WHERE id=(e->>'subscription_id')::uuid FOR UPDATE;
+ IF NOT FOUND OR s.status='canceled' OR s.stripe_subscription_id IS DISTINCT FROM e->>'stripe_subscription_id' THEN
+  RAISE EXCEPTION 'Terminal or mismatched generation'; END IF;
+ incoming_end:=to_timestamp((e->>'service_end')::bigint);
+ SELECT max(service_end) INTO latest_paid_end FROM public.billing_paid_coverage
+  WHERE subscription_id=s.id AND stripe_subscription_id=s.stripe_subscription_id;
+ IF EXISTS(SELECT 1 FROM public.billing_paid_coverage p WHERE p.subscription_id=s.id
+  AND p.stripe_subscription_id=s.stripe_subscription_id AND p.service_end=incoming_end
+  AND (p.phase IS DISTINCT FROM e->>'phase' OR p.stripe_price_id IS DISTINCT FROM e->>'stripe_price_id'
+   OR p.amount_cents IS DISTINCT FROM (e->>'amount_cents')::integer)) THEN
+  RAISE EXCEPTION 'Conflicting contract at the same service boundary'; END IF;
+ effects:=encode(sha256(convert_to(e::text,'UTF8')),'hex');
+ SELECT * INTO receipt FROM public.billing_admission_receipt WHERE stripe_account_id=e->>'stripe_account_id'
+  AND livemode=(e->>'livemode')::boolean AND stripe_event_id=e->>'stripe_event_id';
+ IF FOUND THEN
+  IF receipt.event_type IS DISTINCT FROM event_kind OR receipt.payload_sha256 IS DISTINCT FROM payload_hash
+   OR receipt.effect_sha256 IS DISTINCT FROM effects OR receipt.envelope IS DISTINCT FROM e THEN
+   RAISE EXCEPTION 'Conflicting committed admission event'; END IF;
+  RETURN receipt.coverage_id;
+ END IF;
+ coverage:=app_private.issue_paid_coverage(e);
+ UPDATE public.billing_subscription SET
+  status=CASE WHEN status IN ('pending','past_due') AND to_timestamp((e->>'service_end')::bigint)>clock_timestamp()
+   THEN 'active' ELSE status END,
+  current_period_end=GREATEST(current_period_end,to_timestamp((e->>'service_end')::bigint)),
+  current_price_cents=CASE WHEN latest_paid_end IS NULL OR incoming_end>=latest_paid_end
+   THEN (e->>'amount_cents')::integer ELSE current_price_cents END,updated_at=clock_timestamp()
+ WHERE id=s.id;
+ INSERT INTO public.billing_admission_receipt(stripe_account_id,livemode,stripe_event_id,event_type,payload_sha256,
+ effect_sha256,envelope,coverage_id) VALUES(e->>'stripe_account_id',(e->>'livemode')::boolean,
+ e->>'stripe_event_id',event_kind,payload_hash,effects,e,coverage);
+ RETURN coverage;
+END;$fn$;
+ALTER FUNCTION app_private.finish_paid_admission(jsonb,text,text) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.finish_paid_admission(jsonb,text,text) FROM PUBLIC,agentledger_app,agentledger_worker;
+GRANT EXECUTE ON FUNCTION app_private.finish_paid_admission(jsonb,text,text) TO agentledger_billing_admission;
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies = [("billing", "0006_paid_coverage")]
+    operations = [
+        migrations.CreateModel(name="BillingAdmissionReceipt", fields=[
+            ("id", models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False, serialize=False)),
+            *[(name, models.CharField(max_length=255)) for name in ("stripe_account_id", "stripe_event_id")],
+            ("livemode", models.BooleanField()), ("event_type", models.CharField(max_length=64)),
+            ("payload_sha256", models.CharField(max_length=64)), ("effect_sha256", models.CharField(max_length=64)),
+            ("envelope", models.JSONField(editable=False)),
+            ("coverage", models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to="billing.paidcoverage")),
+            ("committed_at", models.DateTimeField(default=django.utils.timezone.now, editable=False)),
+        ], options={"db_table":"billing_admission_receipt", "constraints":[
+            models.UniqueConstraint(fields=("stripe_account_id","livemode","stripe_event_id"), name="billing_admission_event_unique"),
+            models.CheckConstraint(condition=models.Q(event_type="invoice.paid"), name="billing_admission_event_type"),
+        ]}),
+        migrations.RunSQL(SQL),
+    ]
+
+
+FILE apps/billing/entitlements.py SHA256 609550fe764b5ba4b3d77cb7be3cd109b433dd8c73f47950292a9d865938d4b3
+"""Payment admission is trusted ingestion; PostgreSQL does not verify Stripe.
+
+The separately credentialed ingester must authenticate provider evidence and
+validate the supported contract before calling the narrow issuer. Ordinary app
+and worker connections cannot issue coverage. Account pinning and clock checks
+are enforced again by the database. No historical payment is synthesized here.
+"""
+
+import json
+
+from django.db import connections
+
+
+def issue_paid_coverage(evidence, *, using="billing_admission"):
+    """Issue one already-verified evidence envelope; return its receipt UUID.
+
+An independent admission connection does not share an app transaction. Callers
+must use a durable staged workflow or an admission-owned transaction; do not
+claim atomicity across two connections.
+"""
+    with connections[using].cursor() as cursor:
+        cursor.execute("SELECT app_private.issue_paid_coverage(%s::jsonb)", [json.dumps(evidence, allow_nan=False)])
+        return cursor.fetchone()[0]
+
+
+def paid_subscription_access(subscription_id, *, using="default"):
+    """Check issued current coverage using database time and caller visibility."""
+    with connections[using].cursor() as cursor:
+        cursor.execute("SELECT app_private.paid_subscription_access(%s)", [subscription_id])
+        return bool(cursor.fetchone()[0])
+
+
+def paid_subscription_export_access(subscription_id, *, using="default"):
+    """Read/export eligibility only; never authorizes additional paid work."""
+    with connections[using].cursor() as cursor:
+        cursor.execute("SELECT app_private.paid_subscription_export_access(%s)", [subscription_id])
+        return bool(cursor.fetchone()[0])
+
+
+FILE apps/billing/paid_evidence.py SHA256 270df75e46b2f2ad87bf91e81592839ad1bb9bba308008ea565c13ba24a7b13d
+"""Normalize an authenticated invoice observation, never authenticate payment.
+
+Only the separately credentialed billing ingester may issue the resulting
+envelope. A correct digest is not proof that an observation came from Stripe.
+The supported renewal shape is deliberately narrower than arbitrary invoices.
+"""
+
+import hashlib
+
+import rfc8785
+from django.utils import timezone
+
+from .pricing import subscription_price_contract, validate_price_object
+
+
+class UnsupportedPaidEvidence(ValueError):
+    """Evidence cannot issue the supported monthly Core contract."""
+
+
+def _identity(value, prefix):
+    if type(value) is not str or not value.startswith(prefix) or len(value) > 255:
+        raise UnsupportedPaidEvidence("Invalid paid-evidence identity")
+    if len(value) == len(prefix) or any(character.isspace() for character in value):
+        raise UnsupportedPaidEvidence("Invalid paid-evidence identity")
+    return value
+
+
+def normalize_paid_invoice(
+    invoice,
+    authoritative_subscription,
+    *,
+    subscription_id,
+    account_id,
+    livemode,
+    event_id,
+):
+    """Admit an exact retrieved invoice without inventing Checkout fields.
+
+    Historical service intervals may be recorded, but cannot grant current access.
+    Tax, discounts, credits, prorations and multiple lines require reconciliation.
+    Caller authenticates the event/account and retrieves these exact observations.
+    """
+    if type(invoice) is not dict or type(authoritative_subscription) is not dict:
+        raise UnsupportedPaidEvidence("Plain invoice and subscription required")
+    if type(livemode) is not bool or invoice.get("livemode") is not livemode:
+        raise UnsupportedPaidEvidence("Invoice environment does not match")
+    items = authoritative_subscription.get("items", {})
+    if (
+        type(items) is not dict
+        or items.get("has_more") is not False
+        or type(items.get("data")) is not list
+        or len(items["data"]) != 1
+    ):
+        raise UnsupportedPaidEvidence("Complete subscription items required")
+    item = items["data"][0]
+    if (
+        type(item) is not dict
+        or type(item.get("price")) is not dict
+        or type(item.get("quantity")) is not int
+        or item["quantity"] != 1
+    ):
+        raise UnsupportedPaidEvidence("Invalid subscription item")
+    contract = subscription_price_contract(authoritative_subscription)
+    if contract is None or contract.portfolio != "core":
+        raise UnsupportedPaidEvidence("Registered Core price contract required")
+    validate_price_object(item["price"], contract)
+    customer = _identity(authoritative_subscription.get("customer"), "cus_")
+    external_subscription = _identity(authoritative_subscription.get("id"), "sub_")
+    invoice_id = _identity(invoice.get("id"), "in_")
+    item_id = _identity(item.get("id"), "si_")
+    price_id = _identity(item["price"].get("id"), "price_")
+    if authoritative_subscription.get("livemode") is not livemode:
+        raise UnsupportedPaidEvidence("Subscription environment does not match")
+    parent = invoice.get("parent")
+    lines = invoice.get("lines")
+    transitions = invoice.get("status_transitions")
+    if any(type(value) is not dict for value in (parent, lines, transitions)):
+        raise UnsupportedPaidEvidence("Complete invoice evidence required")
+    details = parent.get("subscription_details")
+    data = lines.get("data")
+    if (
+        parent.get("type") != "subscription_details"
+        or type(details) is not dict
+        or details.get("subscription") != external_subscription
+        or type(data) is not list
+        or len(data) != 1
+        or lines.get("has_more") is not False
+    ):
+        raise UnsupportedPaidEvidence("One complete bound invoice line required")
+    line = data[0]
+    if type(line) is not dict:
+        raise UnsupportedPaidEvidence("Invalid invoice line")
+    line_parent = line.get("parent")
+    pricing = line.get("pricing")
+    period = line.get("period")
+    if any(type(value) is not dict for value in (line_parent, pricing, period)):
+        raise UnsupportedPaidEvidence("Complete invoice line evidence required")
+    line_details = line_parent.get("subscription_item_details")
+    price_details = pricing.get("price_details")
+    if type(line_details) is not dict or type(price_details) is not dict:
+        raise UnsupportedPaidEvidence("Bound invoice pricing required")
+    start, end, paid = (
+        period.get("start"),
+        period.get("end"),
+        transitions.get("paid_at"),
+    )
+    amounts = [
+        invoice.get("amount_due"),
+        invoice.get("amount_paid"),
+        invoice.get("amount_remaining"),
+        line.get("amount"),
+        line.get("quantity"),
+        start,
+        end,
+        paid,
+    ]
+    if any(type(value) is not int for value in amounts):
+        raise UnsupportedPaidEvidence("Integer money and service times required")
+    now = int(timezone.now().timestamp())
+    if (
+        invoice.get("object") != "invoice"
+        or invoice.get("status") != "paid"
+        or invoice.get("customer") != customer
+        or invoice.get("currency") != "usd"
+        or invoice["amount_due"] != contract.cents
+        or invoice["amount_paid"] != contract.cents
+        or invoice["amount_remaining"] != 0
+        or line.get("currency") != "usd"
+        or line["amount"] != contract.cents
+        or line["quantity"] != 1
+        or line_parent.get("type") != "subscription_item_details"
+        or line_details.get("subscription") != external_subscription
+        or line_details.get("subscription_item") != item_id
+        or line_details.get("proration") is not False
+        or pricing.get("type") != "price_details"
+        or price_details.get("price") != price_id
+        or not 0 < start <= paid < end
+        or paid > now
+        or end - start > 32 * 86400
+        or (line.get("invoice") is not None and line["invoice"] != invoice_id)
+        or ("object" in line and line["object"] != "line_item")
+    ):
+        raise UnsupportedPaidEvidence("Invoice does not prove supported Core coverage")
+    observation = {
+        "invoice": invoice_id,
+        "customer": customer,
+        "subscription": external_subscription,
+        "item": item_id,
+        "price": price_id,
+        "phase": contract.phase,
+        "amount": contract.cents,
+        "currency": "usd",
+        "start": start,
+        "end": end,
+        "paid": paid,
+        "account": _identity(account_id, "acct_"),
+        "livemode": livemode,
+    }
+    # Exclude delivery event ID: duplicate invoice delivery may use another event.
+    evidence_digest = hashlib.sha256(rfc8785.dumps(observation)).hexdigest()
+    return {
+        "schema": "stewardence.paid_coverage.v1",
+        "subscription_id": str(subscription_id),
+        "stripe_subscription_id": external_subscription,
+        "stripe_customer_id": customer,
+        "stripe_account_id": observation["account"],
+        "livemode": livemode,
+        "stripe_invoice_id": invoice_id,
+        "stripe_event_id": _identity(event_id, "evt_"),
+        "contract_version": "core.monthly.v1",
+        "phase": contract.phase,
+        "stripe_price_id": price_id,
+        "amount_cents": contract.cents,
+        "currency": "usd",
+        "service_start": start,
+        "service_end": end,
+        "paid_at": paid,
+        "evidence_sha256": evidence_digest,
+    }
+
+
+FILE apps/billing/admission.py SHA256 ec3ba441ec4bf6b43bd87c0fa0d7ea56bffeca0ee859b930c62e1c48a870e4a3
+"""Separate credentialed process: no ordinary app connection may issue payment."""
+import hashlib
+import json
+import re
+
+import stripe
+from django.conf import settings
+from django.db import connection, transaction
+
+from .paid_evidence import UnsupportedPaidEvidence, normalize_paid_invoice
+from .pricing import subscription_price_contract
+
+
+class AdmissionConfigurationError(RuntimeError):
+    pass
+
+
+def configuration():
+    secret = getattr(settings, "BILLING_ADMISSION_WEBHOOK_SECRET", "")
+    key = getattr(settings, "BILLING_ADMISSION_STRIPE_KEY", "")
+    account = getattr(settings, "BILLING_ADMISSION_ACCOUNT_ID", "")
+    mode = getattr(settings, "BILLING_ADMISSION_LIVEMODE", None)
+    if (type(secret) is not str or not secret.startswith("whsec_") or secret.strip() != secret
+        or not secret[6:].strip() or type(mode) is not bool or type(account) is not str
+        or re.fullmatch(r"acct_[A-Za-z0-9_]+", account) is None or type(key) is not str
+        or not key.startswith("rk_live_" if mode else "rk_test_") or len(key) <= 8):
+        raise AdmissionConfigurationError("Payment admission is not configured")
+    return secret, key, account, mode
+
+
+def enforce_connection():
+    if connection.vendor != "postgresql":
+        raise AdmissionConfigurationError("Dedicated admission PostgreSQL required")
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT current_user,rolsuper,rolbypassrls,current_setting('transaction_isolation') FROM pg_roles WHERE rolname=current_user")
+        if cursor.fetchone() != ("agentledger_billing_admission", False, False, "read committed"):
+            raise AdmissionConfigurationError("Dedicated admission role required")
+
+
+def _plain(value):
+    if isinstance(value, stripe.StripeObject):
+        value = value.to_dict()
+    if type(value) is not dict:
+        raise UnsupportedPaidEvidence("Unrecognized provider response")
+    return value
+
+
+def ingest_verified_event(event, raw_body, *, key, account_id, livemode):
+    """Caller authenticates original raw signature; all effects use default only."""
+    if event.get("type") != "invoice.paid" or event.get("livemode") is not livemode:
+        raise UnsupportedPaidEvidence("Unsupported event or environment")
+    if event.get("account") not in (None, account_id):
+        raise UnsupportedPaidEvidence("Event account mismatch")
+    invoice_id = event.get("data", {}).get("object", {}).get("id")
+    event_id = event.get("id")
+    if (type(invoice_id) is not str or re.fullmatch(r"in_[A-Za-z0-9_]+", invoice_id) is None
+        or type(event_id) is not str or re.fullmatch(r"evt_[A-Za-z0-9_]+", event_id) is None):
+        raise UnsupportedPaidEvidence("Unsupported event identity")
+    enforce_connection()
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT app_private.paid_admission_authority_ready(%s,%s)", [account_id, livemode])
+        if cursor.fetchone()[0] is not True:
+            raise AdmissionConfigurationError("Payment authority is not admitted")
+    client = stripe.StripeClient(key, max_network_retries=0, http_client=stripe.RequestsClient(timeout=10))
+    account = _plain(client.v1.accounts.retrieve_current())
+    if account.get("id") != account_id:
+        raise UnsupportedPaidEvidence("Retrieved account mismatch")
+    invoice = _plain(client.v1.invoices.retrieve(invoice_id))
+    if invoice.get("id") != invoice_id:
+        raise UnsupportedPaidEvidence("Retrieved invoice mismatch")
+    external = invoice.get("parent", {}).get("subscription_details", {}).get("subscription")
+    if type(external) is not str or re.fullmatch(r"sub_[A-Za-z0-9_]+", external) is None:
+        raise UnsupportedPaidEvidence("Missing invoice subscription")
+    subscription = _plain(client.v1.subscriptions.retrieve(external))
+    if subscription.get("id") != external or subscription.get("status") not in ("active", "past_due"):
+        raise UnsupportedPaidEvidence("Unadmitted subscription state")
+    contract = subscription_price_contract(subscription)
+    if contract is None or contract.portfolio != "core":
+        raise UnsupportedPaidEvidence("Unregistered Core contract")
+    metadata = subscription.get("metadata", {})
+    if type(metadata) is not dict or metadata.get("portfolio") != "core":
+        raise UnsupportedPaidEvidence("Missing Core identity")
+    with transaction.atomic():
+        enforce_connection()
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT app_private.begin_paid_admission(%s,%s,%s,%s,%s,%s,%s)",
+                [subscription.get("customer"), external, account_id, livemode,
+                 metadata.get("stewardence_user_id"), "core", contract.phase])
+            subscription_id = cursor.fetchone()[0]
+            envelope = normalize_paid_invoice(invoice, subscription, subscription_id=subscription_id,
+                account_id=account_id, livemode=livemode, event_id=event_id)
+            cursor.execute("SELECT app_private.finish_paid_admission(%s::jsonb,%s,%s)",
+                [json.dumps(envelope), "invoice.paid", hashlib.sha256(raw_body).hexdigest()])
+            return cursor.fetchone()[0]
+
+
+FILE apps/billing/admission_views.py SHA256 daa410af86a6a19c0892a1238a2b2d6114e2b8ef7f0a070048d723b9c293a84f
+import stripe
+from django.http import HttpResponse
+from django.db import DatabaseError
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+from .admission import AdmissionConfigurationError, configuration, ingest_verified_event
+from .paid_evidence import UnsupportedPaidEvidence
+
+
+@csrf_exempt
+@require_POST
+def paid_webhook(request):
+    try:
+        secret, key, account, mode = configuration()
+    except AdmissionConfigurationError:
+        return HttpResponse(status=503)
+    body = request.body
+    if len(body) > 512 * 1024:
+        return HttpResponse(status=413)
+    try:
+        event = stripe.Webhook.construct_event(body, request.headers.get("Stripe-Signature", ""), secret)
+        if isinstance(event, stripe.StripeObject):
+            event = event.to_dict()
+    except (ValueError, stripe.SignatureVerificationError):
+        return HttpResponse(status=400)
+    try:
+        ingest_verified_event(event, body, key=key, account_id=account, livemode=mode)
+    except AdmissionConfigurationError:
+        return HttpResponse(status=503)
+    except (UnsupportedPaidEvidence, ValueError):
+        return HttpResponse(status=422)
+    except (stripe.StripeError, DatabaseError):
+        return HttpResponse(status=503)
+    return HttpResponse(status=200)
+
+
+FILE src/agentledger/settings/billing_admission.py SHA256 2ebc280c28b6222a1719d03fea6902b5fd657c9e02424c8cf7b590ae7539b490
+"""Isolated process settings: one admission-owned database, no webapp aliases."""
+import os
+from django.core.exceptions import ImproperlyConfigured
+from .base import *  # noqa: F403
+from .base import database_from_url, env_list
+
+DEBUG = False
+ROOT_URLCONF = "agentledger.billing_urls"
+MIDDLEWARE = ["django.middleware.security.SecurityMiddleware"]
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "")
+if len(SECRET_KEY) < 50 or len(set(SECRET_KEY)) < 5 or SECRET_KEY.startswith("django-insecure-"):
+    raise ImproperlyConfigured("Dedicated service secret required")
+service_database = os.getenv("BILLING_ADMISSION_DATABASE_URL", "")
+if not service_database:
+    raise ImproperlyConfigured("Dedicated admission database required")
+DATABASES = {"default": database_from_url(service_database)}
+if DATABASES["default"]["USER"] != "agentledger_billing_admission":
+    raise ImproperlyConfigured("Dedicated admission login required")
+ALLOWED_HOSTS = env_list("BILLING_ADMISSION_ALLOWED_HOSTS")
+if not ALLOWED_HOSTS or "*" in ALLOWED_HOSTS:
+    raise ImproperlyConfigured("Explicit admission hosts required")
+BILLING_ADMISSION_WEBHOOK_SECRET = os.getenv("BILLING_ADMISSION_WEBHOOK_SECRET", "")
+BILLING_ADMISSION_STRIPE_KEY = os.getenv("BILLING_ADMISSION_STRIPE_KEY", "")
+BILLING_ADMISSION_ACCOUNT_ID = os.getenv("BILLING_ADMISSION_ACCOUNT_ID", "")
+service_mode = os.getenv("BILLING_ADMISSION_MODE", "")
+BILLING_ADMISSION_LIVEMODE = {"test": False, "live": True}.get(service_mode)
+STRIPE_SECRET_KEY = ""
+STRIPE_WEBHOOK_SECRET = ""
+AUTOMATION_ENABLED = False
+FOUNDER_OFFER_ENABLED = False
+
+
+FILE scripts/provision_database_roles.py SHA256 2c88db64a1bb76b3301ff43fc14e75c3b6c25dc2af33e4618aa40e4742dda344
+from __future__ import annotations
+
+import os
+from collections.abc import Mapping
+
+import psycopg
+from psycopg import sql
+
+ROLE_NAMES = (
+    "agentledger_owner",
+    "agentledger_app",
+    "agentledger_worker",
+    "agentledger_billing_admission",
+)
+
+
+def provision_database_roles(
+    admin_database_url: str,
+    passwords: Mapping[str, str],
+) -> None:
+    if set(passwords) != set(ROLE_NAMES):
+        raise ValueError(
+            "Passwords must be supplied for every AgentLedger database role"
+        )
+    if any(len(passwords[name]) < 32 for name in ROLE_NAMES):
+        raise ValueError("Database role passwords must contain at least 32 characters")
+
+    with psycopg.connect(admin_database_url, autocommit=True) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT current_user")
+            administrator = cursor.fetchone()[0]
+
+            for role_name in ROLE_NAMES:
+                cursor.execute(
+                    sql.SQL(
+                        "DO $$ BEGIN "
+                        "IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = {}) "
+                        "THEN CREATE ROLE {} LOGIN; END IF; END $$"
+                    ).format(sql.Literal(role_name), sql.Identifier(role_name))
+                )
+                cursor.execute(
+                    sql.SQL(
+                        "ALTER ROLE {} WITH LOGIN NOSUPERUSER NOCREATEDB "
+                        "NOCREATEROLE NOINHERIT NOBYPASSRLS PASSWORD {}"
+                    ).format(
+                        sql.Identifier(role_name),
+                        sql.Literal(passwords[role_name]),
+                    )
+                )
+
+            cursor.execute(
+                sql.SQL("GRANT {} TO {} WITH ADMIN OPTION").format(
+                    sql.Identifier("agentledger_owner"),
+                    sql.Identifier(administrator),
+                )
+            )
+            cursor.execute("SELECT current_database()")
+            database_name = cursor.fetchone()[0]
+            cursor.execute(
+                sql.SQL("ALTER DATABASE {} OWNER TO {}").format(
+                    sql.Identifier(database_name),
+                    sql.Identifier("agentledger_owner"),
+                )
+            )
+
+
+def main() -> int:
+    admin_database_url = os.environ.get("DATABASE_ADMIN_URL", "")
+    passwords = {
+        "agentledger_owner": os.environ.get("AGENTLEDGER_OWNER_DB_PASSWORD", ""),
+        "agentledger_app": os.environ.get("AGENTLEDGER_APP_DB_PASSWORD", ""),
+        "agentledger_worker": os.environ.get("AGENTLEDGER_WORKER_DB_PASSWORD", ""),
+        "agentledger_billing_admission": os.environ.get(
+            "AGENTLEDGER_BILLING_ADMISSION_DB_PASSWORD", ""
+        ),
+    }
+    if not admin_database_url:
+        raise SystemExit("DATABASE_ADMIN_URL is required")
+    provision_database_roles(admin_database_url, passwords)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
+FILE tests/test_billing_admission_service.py SHA256 e6ae507524ca2617ccfe566a3ea20cef3da130a812c9a96e7e09e9480fe4e149
+"""Original-signature ingester and exact effects on one real admission login."""
+from contextlib import contextmanager
+from copy import deepcopy
+import hashlib
+import hmac
+import json
+import time
+from types import SimpleNamespace
+from unittest.mock import Mock
+
+import pytest
+from django.contrib.auth import get_user_model
+from django.db import connections, DatabaseError, transaction
+from django.test import RequestFactory
+
+from apps.billing.admission_views import paid_webhook
+from apps.billing.models import BillingCustomer, PaidCoverage, PaidCoverageAuthority, Subscription
+from tests.test_paid_evidence_contracts import paid_observations
+
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+
+
+@contextmanager
+def dedicated_default():
+    original = connections["default"]
+    dedicated = connections["billing_admission"]
+    connections["default"] = dedicated
+    try:
+        yield
+    finally:
+        dedicated.close()
+        connections["default"] = original
+
+
+@pytest.fixture
+def service(settings, monkeypatch, paid_observations):
+    settings.BILLING_ADMISSION_WEBHOOK_SECRET = "whsec_synthetic_qualification"
+    settings.BILLING_ADMISSION_STRIPE_KEY = "rk_test_synthetic_qualification"
+    settings.BILLING_ADMISSION_ACCOUNT_ID = "acct_qualified"
+    settings.BILLING_ADMISSION_LIVEMODE = False
+    invoice, provider_subscription = paid_observations
+    user = get_user_model().objects.create_user(email="admission-service@example.invalid")
+    customer = BillingCustomer.objects.create(user=user, stripe_customer_id="cus_qualified")
+    provider_subscription.update(status="active",metadata={"portfolio":"core","stewardence_user_id":str(user.id)})
+    PaidCoverageAuthority.objects.create(stripe_account_id="acct_qualified",livemode=False,
+        contracts={"standard":{"price_id":"price_core_99","amount_cents":9900,"contract_version":"core.monthly.v1"}})
+    account_read = Mock(return_value={"id":"acct_qualified"})
+    invoice_read = Mock(return_value=invoice)
+    subscription_read = Mock(return_value=provider_subscription)
+    sdk = SimpleNamespace(v1=SimpleNamespace(
+        accounts=SimpleNamespace(retrieve_current=account_read),
+        invoices=SimpleNamespace(retrieve=invoice_read),
+        subscriptions=SimpleNamespace(retrieve=subscription_read)))
+    client = Mock(return_value=sdk)
+    monkeypatch.setattr("apps.billing.admission.stripe.StripeClient",client)
+    return customer, invoice, provider_subscription, client, account_read
+
+
+def delivery(settings, *, event_id="evt_ingester", invoice_id="in_qualified", mode=False, changes=None, secret=None):
+    event={"id":event_id,"object":"event","type":"invoice.paid","livemode":mode,
+           "data":{"object":{"id":invoice_id,"object":"invoice"}}}
+    event.update(changes or {})
+    raw=json.dumps(event,separators=(",",":")).encode()
+    timestamp=int(time.time())
+    signing=secret if secret is not None else settings.BILLING_ADMISSION_WEBHOOK_SECRET
+    signature=hmac.new(signing.encode(),str(timestamp).encode()+b"."+raw,hashlib.sha256).hexdigest()
+    return RequestFactory().post("/billing/paid-webhook/",raw,content_type="application/json",
+        HTTP_STRIPE_SIGNATURE=f"t={timestamp},v1={signature}")
+
+
+def count_receipts():
+    with connections["default"].cursor() as cursor:
+        cursor.execute("SELECT count(*) FROM billing_admission_receipt")
+        return cursor.fetchone()[0]
+
+
+def test_original_signed_invoice_creates_standard_generation_and_atomic_receipt(service,settings):
+    customer,_,_,client,account = service
+    with dedicated_default():
+        response=paid_webhook(delivery(settings))
+        duplicate=paid_webhook(delivery(settings))
+    assert response.status_code == duplicate.status_code == 200
+    subscription=Subscription.objects.get(billing_customer=customer)
+    assert subscription.status == "active" and not subscription.is_founder
+    assert subscription.stripe_subscription_id == "sub_qualified"
+    assert PaidCoverage.objects.count() == count_receipts() == 1
+    assert account.call_count == 2
+    assert client.call_args.args == ("rk_test_synthetic_qualification",)
+
+
+@pytest.mark.parametrize("secret",["","whsec_","  ","wrong"])
+def test_bad_service_secret_fails_before_signature_or_provider(service,settings,secret):
+    req=delivery(settings)
+    settings.BILLING_ADMISSION_WEBHOOK_SECRET=secret
+    with dedicated_default():
+        assert paid_webhook(req).status_code == 503
+    service[3].assert_not_called()
+    assert not Subscription.objects.exists()
+
+
+def test_forged_signature_and_wrong_role_never_call_provider(service,settings):
+    with dedicated_default():
+        assert paid_webhook(delivery(settings,secret="whsec_forged")).status_code == 400
+    # Normal default is owner qualification connection, not the service role.
+    assert paid_webhook(delivery(settings)).status_code == 503
+    service[3].assert_not_called()
+
+
+@pytest.mark.parametrize("changes",[{"livemode":True},{"account":"acct_other"},{"type":"customer.updated"}])
+def test_unadmitted_event_environment_account_and_type(service,settings,changes):
+    with dedicated_default():
+        assert paid_webhook(delivery(settings,changes=changes)).status_code == 422
+    service[3].assert_not_called()
+    assert count_receipts() == 0
+
+
+def test_invalid_coverage_rolls_back_new_generation_and_receipt(service,settings):
+    service[1]["amount_remaining"]=1
+    with dedicated_default():
+        assert paid_webhook(delivery(settings)).status_code == 422
+    assert not Subscription.objects.exists()
+    assert not PaidCoverage.objects.exists()
+    assert count_receipts() == 0
+
+
+def test_same_event_conflicting_body_does_not_commit_new_effect(service,settings):
+    with dedicated_default():
+        assert paid_webhook(delivery(settings)).status_code == 200
+        assert paid_webhook(delivery(settings,changes={"metadata":{"conflicting":"body"}})).status_code == 503
+    assert PaidCoverage.objects.count() == count_receipts() == 1
+
+
+def test_canceled_generation_remains_terminal(service,settings):
+    customer=service[0]
+    Subscription.objects.create(billing_customer=customer,portfolio="core",status="canceled",stripe_subscription_id="sub_qualified")
+    with dedicated_default():
+        assert paid_webhook(delivery(settings)).status_code == 503
+    assert Subscription.objects.get(billing_customer=customer).status == "canceled"
+    assert not PaidCoverage.objects.exists()
+    assert count_receipts() == 0
+
+
+def test_app_and_worker_cannot_execute_ingester_or_write_receipts(service):
+    for alias in ("app_runtime","worker_runtime"):
+        with pytest.raises(DatabaseError), transaction.atomic(using=alias):
+            with connections[alias].cursor() as cursor:
+                cursor.execute("SELECT app_private.begin_paid_admission('cus_qualified','sub_qualified','acct_qualified',false,'no-owner','core','standard')")
+    with connections["billing_admission"].cursor() as cursor:
+        cursor.execute("SELECT current_user,has_table_privilege(current_user,'billing_subscription','UPDATE'),has_table_privilege(current_user,'billing_admission_receipt','INSERT')")
+        assert cursor.fetchone()==("agentledger_billing_admission",False,False)
+
+
+def test_missing_database_authority_stops_before_account_access(service,settings):
+    PaidCoverageAuthority.objects.all().delete()
+    with dedicated_default():
+        assert paid_webhook(delivery(settings)).status_code == 503
+    service[3].assert_not_called()
+    assert not Subscription.objects.exists()
+
+
+def test_provider_network_failure_commits_no_receipt(service,settings):
+    import stripe
+    service[4].side_effect=stripe.APIConnectionError("Synthetic connection uncertainty")
+    with dedicated_default():
+        assert paid_webhook(delivery(settings)).status_code == 503
+    assert not Subscription.objects.exists()
+    assert not PaidCoverage.objects.exists()
+    assert count_receipts()==0
+
+
+def test_paid_historical_interval_does_not_activate_new_subscription(service,settings):
+    now=int(time.time())
+    service[1]["lines"]["data"][0]["period"]={"start":now-3600,"end":now-600}
+    service[1]["status_transitions"]["paid_at"]=now-3000
+    with dedicated_default():
+        assert paid_webhook(delivery(settings)).status_code == 200
+    assert Subscription.objects.get(billing_customer=service[0]).status == "pending"
+    assert PaidCoverage.objects.count()==count_receipts()==1
+
+
+def test_existing_canceling_state_is_preserved_by_paid_receipt(service,settings):
+    Subscription.objects.create(billing_customer=service[0],portfolio="core",status="canceling",
+        stripe_subscription_id="sub_qualified",cancel_at_period_end=True)
+    with dedicated_default():
+        assert paid_webhook(delivery(settings)).status_code==200
+    subscription=Subscription.objects.get(billing_customer=service[0])
+    assert subscription.status=="canceling" and subscription.cancel_at_period_end
+    assert PaidCoverage.objects.count()==count_receipts()==1
+
+
+def test_distinct_event_delivery_same_invoice_records_one_coverage(service,settings):
+    with dedicated_default():
+        assert paid_webhook(delivery(settings)).status_code==200
+        assert paid_webhook(delivery(settings,event_id="evt_second_delivery")).status_code==200
+    assert PaidCoverage.objects.count()==1
+    assert count_receipts()==2
+
+
+def test_historical_founder_intro_arrival_cannot_overwrite_ongoing_price(service,settings):
+    from datetime import datetime, UTC
+    customer,invoice,provider_subscription,_,_=service
+    now=int(time.time())
+    boundary=now-86400
+    settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID="price_core_intro"
+    settings.STRIPE_CORE_FOUNDER_ONGOING_PRICE_ID="price_core_ongoing"
+    authority=PaidCoverageAuthority.objects.get()
+    authority.contracts.update({phase:{"price_id":price,"amount_cents":amount,"contract_version":"core.monthly.v1"}
+        for phase,price,amount in (("founder_intro","price_core_intro",4900),("founder_ongoing","price_core_ongoing",7500))})
+    authority.save()
+    subscription=Subscription.objects.create(billing_customer=customer,portfolio="core",status="active",
+        stripe_subscription_id="sub_qualified",is_founder=True,founder_sequence=1,
+        founder_intro_ends_at=datetime.fromtimestamp(boundary,UTC),current_price_cents=4900)
+
+    def observations(invoice_id,price_id,amount,start,end):
+        invoice["id"]=invoice_id
+        invoice["amount_due"]=invoice["amount_paid"]=amount
+        invoice["status_transitions"]["paid_at"]=start+10
+        line=invoice["lines"]["data"][0]
+        line["amount"]=amount
+        line["period"]={"start":start,"end":end}
+        line["pricing"]["price_details"]["price"]=price_id
+        provider_subscription["items"]["data"][0]["price"].update(id=price_id,unit_amount=amount)
+
+    observations("in_ongoing","price_core_ongoing",7500,now-60,now+30*86400)
+    with dedicated_default():
+        assert paid_webhook(delivery(settings,event_id="evt_ongoing",invoice_id="in_ongoing")).status_code==200
+    subscription.refresh_from_db()
+    ongoing_end=subscription.current_period_end
+    assert subscription.current_price_cents==7500
+    observations("in_intro_history","price_core_intro",4900,now-31*86400,boundary)
+    with dedicated_default():
+        assert paid_webhook(delivery(settings,event_id="evt_intro_history",invoice_id="in_intro_history")).status_code==200
+    subscription.refresh_from_db()
+    assert subscription.current_price_cents==7500
+    assert subscription.current_period_end==ongoing_end
+    assert subscription.is_founder and subscription.status=="active"
+    assert PaidCoverage.objects.count()==count_receipts()==2
+
+
+def test_same_service_boundary_different_price_contract_requires_review(service,settings):
+    with dedicated_default():
+        assert paid_webhook(delivery(settings)).status_code==200
+    subscription=Subscription.objects.get(billing_customer=service[0])
+    before=Subscription.objects.filter(pk=subscription.pk).values().get()
+    authority=PaidCoverageAuthority.objects.get()
+    authority.contracts["standard"]["price_id"]="price_core_revised"
+    authority.save()
+    settings.STRIPE_CORE_STANDARD_PRICE_ID="price_core_revised"
+    service[1]["id"]="in_revised_contract"
+    service[1]["lines"]["data"][0]["pricing"]["price_details"]["price"]="price_core_revised"
+    service[2]["items"]["data"][0]["price"]["id"]="price_core_revised"
+    with dedicated_default():
+        assert paid_webhook(delivery(settings,event_id="evt_revised_contract",invoice_id="in_revised_contract")).status_code==503
+    assert Subscription.objects.filter(pk=subscription.pk).values().get()==before
+    assert PaidCoverage.objects.count()==count_receipts()==1
+
+
+QUALIFICATION 20261004T190603.447642Z
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-8d564a2ae8",
+  "image_id": "sha256:62ed5046b3fc1910968010a43166c2426f0e97a1c1453cce978e3cb2256b98ef",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T190603.447642Z",
+  "test_arguments": [
+    "tests/test_paid_coverage_authority.py"
+  ],
+  "test_result_counts": {
+    "cases": 29,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "d5c39596fe031f7c2c13b6000fc464c4b1827ff1ac9044178b7780e7989f662c"
+}
+RAW LOG
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+.............................                                            [100%]
+29 passed in 15.77s
+
+QUALIFICATION 20261004T192215.698199Z
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-cca07d9af5",
+  "image_id": "sha256:03494aca3118bc1ec62cf226d82570b873a0b563d095f58b9f2024f28029f834",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T192215.698199Z",
+  "test_arguments": [
+    "tests/test_billing_admission_service.py"
+  ],
+  "test_result_counts": {
+    "cases": 20,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "181b85e2f8c10a53f8424660ce631b028530b8397cc430ee7806bab782d76cb1"
+}
+RAW LOG
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+....................                                                     [100%]
+20 passed in 23.69s
+
+Please scrutinize exact authority/SQL/runtime service semantics and identify bounded acceptance or remaining flaws. Do not promote focused evidence to production approval. I will continue remaining cycle kernel/full qualification and bring the next successor delta. No credentials in this packet.

@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="13.451" timestamp="2026-10-04T20:03:01.266690+00:00" hostname="b327180ae86f"><testcase classname="tests.test_standard_checkout_route_durability" name="test_routed_post_commits_frozen_requests_before_provider_write[None]" time="10.710"><failure message="django.urls.exceptions.NoReverseMatch: Reverse for 'start-core-checkout' not found. 'start-core-checkout' is not a valid view function or pattern name.">client = &lt;django.test.client.Client object at 0x79fa7fd7a490&gt;
+setup = (&lt;User: flow@example.invalid&gt;, {'customer': [], 'session': [], 'retrieve': []}, {}, {})
+settings = &lt;pytest_django.fixtures.Settings object at 0x79fa7f6f2f90&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x79fa7f74f5c0&gt;
+lost_stage = None
+
+    @pytest.mark.parametrize('lost_stage',[None,'customer','session'])
+    def test_routed_post_commits_frozen_requests_before_provider_write(client,setup,settings,monkeypatch,lost_stage):
+        settings.FOUNDER_OFFER_ENABLED=False
+        settings.ALLOWED_HOSTS=['testserver']
+        client.force_login(setup[0])
+        observed=observe_before_writes(setup,monkeypatch)
+        if lost_stage:setup[2][lost_stage]=True
+        with actual_app_default():
+&gt;           first=client.post(reverse('billing:start-core-checkout'))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_standard_checkout_route_durability.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/urls/base.py:98: in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;URLResolver &lt;URLResolver list&gt; (None:None) '^/'&gt;
+lookup_view = 'start-core-checkout', _prefix = '/', args = (), kwargs = {}
+
+    def _reverse_with_prefix(self, lookup_view, _prefix, *args, **kwargs):
+        if args and kwargs:
+            raise ValueError("Don't mix *args and **kwargs in call to reverse()!")
+    
+        if not self._populated:
+            self._populate()
+    
+        possibilities = self.reverse_dict.getlist(lookup_view)
+    
+        for possibility, pattern, defaults, converters in possibilities:
+            for result, params in possibility:
+                if args:
+                    if len(args) != len(params):
+                        continue
+                    candidate_subs = dict(zip(params, args))
+                else:
+                    if set(kwargs).symmetric_difference(params).difference(defaults):
+                        continue
+                    matches = True
+                    for k, v in defaults.items():
+                        if k in params:
+                            continue
+                        if kwargs.get(k, v) != v:
+                            matches = False
+                            break
+                    if not matches:
+                        continue
+                    candidate_subs = kwargs
+                # Convert the candidate subs to text using Converter.to_url().
+                text_candidate_subs = {}
+                match = True
+                for k, v in candidate_subs.items():
+                    if k in converters:
+                        try:
+                            text_candidate_subs[k] = converters[k].to_url(v)
+                        except ValueError:
+                            match = False
+                            break
+                    else:
+                        text_candidate_subs[k] = str(v)
+                if not match:
+                    continue
+                # WSGI provides decoded URLs, without %xx escapes, and the URL
+                # resolver operates on such URLs. First substitute arguments
+                # without quoting to build a decoded URL and look for a match.
+                # Then, if we have a match, redo the substitution with quoted
+                # arguments in order to return a properly encoded URL.
+                candidate_pat = _prefix.replace("%", "%%") + result
+                if re.search(
+                    "^%s%s" % (re.escape(_prefix), pattern),
+                    candidate_pat % text_candidate_subs,
+                ):
+                    # safe characters from `pchar` definition of RFC 3986
+                    url = quote(
+                        candidate_pat % text_candidate_subs,
+                        safe=RFC3986_SUBDELIMS + "/~:@",
+                    )
+                    # Don't allow construction of scheme relative urls.
+                    return escape_leading_slashes(url)
+        # lookup_view can be URL name or callable, but callables are not
+        # friendly in error messages.
+        m = getattr(lookup_view, "__module__", None)
+        n = getattr(lookup_view, "__name__", None)
+        if m is not None and n is not None:
+            lookup_view_s = "%s.%s" % (m, n)
+        else:
+            lookup_view_s = lookup_view
+    
+        patterns = [pattern for (_, pattern, _, _) in possibilities]
+        if patterns:
+            if args:
+                arg_msg = "arguments '%s'" % (args,)
+            elif kwargs:
+                arg_msg = "keyword arguments '%s'" % kwargs
+            else:
+                arg_msg = "no arguments"
+            msg = "Reverse for '%s' with %s not found. %d pattern(s) tried: %s" % (
+                lookup_view_s,
+                arg_msg,
+                len(patterns),
+                patterns,
+            )
+        else:
+            msg = (
+                "Reverse for '%(view)s' not found. '%(view)s' is not "
+                "a valid view function or pattern name." % {"view": lookup_view_s}
+            )
+&gt;       raise NoReverseMatch(msg)
+E       django.urls.exceptions.NoReverseMatch: Reverse for 'start-core-checkout' not found. 'start-core-checkout' is not a valid view function or pattern name.
+
+.venv/lib/python3.14/site-packages/django/urls/resolvers.py:831: NoReverseMatch</failure></testcase><testcase classname="tests.test_standard_checkout_route_durability" name="test_routed_post_commits_frozen_requests_before_provider_write[customer]" time="0.462"><failure message="django.urls.exceptions.NoReverseMatch: Reverse for 'start-core-checkout' not found. 'start-core-checkout' is not a valid view function or pattern name.">client = &lt;django.test.client.Client object at 0x79fa7f74e780&gt;
+setup = (&lt;User: flow@example.invalid&gt;, {'customer': [], 'session': [], 'retrieve': []}, {'customer': True}, {})
+settings = &lt;pytest_django.fixtures.Settings object at 0x79fa7f140a50&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x79fa7f089130&gt;
+lost_stage = 'customer'
+
+    @pytest.mark.parametrize('lost_stage',[None,'customer','session'])
+    def test_routed_post_commits_frozen_requests_before_provider_write(client,setup,settings,monkeypatch,lost_stage):
+        settings.FOUNDER_OFFER_ENABLED=False
+        settings.ALLOWED_HOSTS=['testserver']
+        client.force_login(setup[0])
+        observed=observe_before_writes(setup,monkeypatch)
+        if lost_stage:setup[2][lost_stage]=True
+        with actual_app_default():
+&gt;           first=client.post(reverse('billing:start-core-checkout'))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_standard_checkout_route_durability.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/urls/base.py:98: in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;URLResolver &lt;URLResolver list&gt; (None:None) '^/'&gt;
+lookup_view = 'start-core-checkout', _prefix = '/', args = (), kwargs = {}
+
+    def _reverse_with_prefix(self, lookup_view, _prefix, *args, **kwargs):
+        if args and kwargs:
+            raise ValueError("Don't mix *args and **kwargs in call to reverse()!")
+    
+        if not self._populated:
+            self._populate()
+    
+        possibilities = self.reverse_dict.getlist(lookup_view)
+    
+        for possibility, pattern, defaults, converters in possibilities:
+            for result, params in possibility:
+                if args:
+                    if len(args) != len(params):
+                        continue
+                    candidate_subs = dict(zip(params, args))
+                else:
+                    if set(kwargs).symmetric_difference(params).difference(defaults):
+                        continue
+                    matches = True
+                    for k, v in defaults.items():
+                        if k in params:
+                            continue
+                        if kwargs.get(k, v) != v:
+                            matches = False
+                            break
+                    if not matches:
+                        continue
+                    candidate_subs = kwargs
+                # Convert the candidate subs to text using Converter.to_url().
+                text_candidate_subs = {}
+                match = True
+                for k, v in candidate_subs.items():
+                    if k in converters:
+                        try:
+                            text_candidate_subs[k] = converters[k].to_url(v)
+                        except ValueError:
+                            match = False
+                            break
+                    else:
+                        text_candidate_subs[k] = str(v)
+                if not match:
+                    continue
+                # WSGI provides decoded URLs, without %xx escapes, and the URL
+                # resolver operates on such URLs. First substitute arguments
+                # without quoting to build a decoded URL and look for a match.
+                # Then, if we have a match, redo the substitution with quoted
+                # arguments in order to return a properly encoded URL.
+                candidate_pat = _prefix.replace("%", "%%") + result
+                if re.search(
+                    "^%s%s" % (re.escape(_prefix), pattern),
+                    candidate_pat % text_candidate_subs,
+                ):
+                    # safe characters from `pchar` definition of RFC 3986
+                    url = quote(
+                        candidate_pat % text_candidate_subs,
+                        safe=RFC3986_SUBDELIMS + "/~:@",
+                    )
+                    # Don't allow construction of scheme relative urls.
+                    return escape_leading_slashes(url)
+        # lookup_view can be URL name or callable, but callables are not
+        # friendly in error messages.
+        m = getattr(lookup_view, "__module__", None)
+        n = getattr(lookup_view, "__name__", None)
+        if m is not None and n is not None:
+            lookup_view_s = "%s.%s" % (m, n)
+        else:
+            lookup_view_s = lookup_view
+    
+        patterns = [pattern for (_, pattern, _, _) in possibilities]
+        if patterns:
+            if args:
+                arg_msg = "arguments '%s'" % (args,)
+            elif kwargs:
+                arg_msg = "keyword arguments '%s'" % kwargs
+            else:
+                arg_msg = "no arguments"
+            msg = "Reverse for '%s' with %s not found. %d pattern(s) tried: %s" % (
+                lookup_view_s,
+                arg_msg,
+                len(patterns),
+                patterns,
+            )
+        else:
+            msg = (
+                "Reverse for '%(view)s' not found. '%(view)s' is not "
+                "a valid view function or pattern name." % {"view": lookup_view_s}
+            )
+&gt;       raise NoReverseMatch(msg)
+E       django.urls.exceptions.NoReverseMatch: Reverse for 'start-core-checkout' not found. 'start-core-checkout' is not a valid view function or pattern name.
+
+.venv/lib/python3.14/site-packages/django/urls/resolvers.py:831: NoReverseMatch</failure></testcase><testcase classname="tests.test_standard_checkout_route_durability" name="test_routed_post_commits_frozen_requests_before_provider_write[session]" time="0.441"><failure message="django.urls.exceptions.NoReverseMatch: Reverse for 'start-core-checkout' not found. 'start-core-checkout' is not a valid view function or pattern name.">client = &lt;django.test.client.Client object at 0x79fa7f08b2f0&gt;
+setup = (&lt;User: flow@example.invalid&gt;, {'customer': [], 'session': [], 'retrieve': []}, {'session': True}, {})
+settings = &lt;pytest_django.fixtures.Settings object at 0x79fa7f6c56d0&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x79fa7f567ac0&gt;
+lost_stage = 'session'
+
+    @pytest.mark.parametrize('lost_stage',[None,'customer','session'])
+    def test_routed_post_commits_frozen_requests_before_provider_write(client,setup,settings,monkeypatch,lost_stage):
+        settings.FOUNDER_OFFER_ENABLED=False
+        settings.ALLOWED_HOSTS=['testserver']
+        client.force_login(setup[0])
+        observed=observe_before_writes(setup,monkeypatch)
+        if lost_stage:setup[2][lost_stage]=True
+        with actual_app_default():
+&gt;           first=client.post(reverse('billing:start-core-checkout'))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_standard_checkout_route_durability.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/urls/base.py:98: in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;URLResolver &lt;URLResolver list&gt; (None:None) '^/'&gt;
+lookup_view = 'start-core-checkout', _prefix = '/', args = (), kwargs = {}
+
+    def _reverse_with_prefix(self, lookup_view, _prefix, *args, **kwargs):
+        if args and kwargs:
+            raise ValueError("Don't mix *args and **kwargs in call to reverse()!")
+    
+        if not self._populated:
+            self._populate()
+    
+        possibilities = self.reverse_dict.getlist(lookup_view)
+    
+        for possibility, pattern, defaults, converters in possibilities:
+            for result, params in possibility:
+                if args:
+                    if len(args) != len(params):
+                        continue
+                    candidate_subs = dict(zip(params, args))
+                else:
+                    if set(kwargs).symmetric_difference(params).difference(defaults):
+                        continue
+                    matches = True
+                    for k, v in defaults.items():
+                        if k in params:
+                            continue
+                        if kwargs.get(k, v) != v:
+                            matches = False
+                            break
+                    if not matches:
+                        continue
+                    candidate_subs = kwargs
+                # Convert the candidate subs to text using Converter.to_url().
+                text_candidate_subs = {}
+                match = True
+                for k, v in candidate_subs.items():
+                    if k in converters:
+                        try:
+                            text_candidate_subs[k] = converters[k].to_url(v)
+                        except ValueError:
+                            match = False
+                            break
+                    else:
+                        text_candidate_subs[k] = str(v)
+                if not match:
+                    continue
+                # WSGI provides decoded URLs, without %xx escapes, and the URL
+                # resolver operates on such URLs. First substitute arguments
+                # without quoting to build a decoded URL and look for a match.
+                # Then, if we have a match, redo the substitution with quoted
+                # arguments in order to return a properly encoded URL.
+                candidate_pat = _prefix.replace("%", "%%") + result
+                if re.search(
+                    "^%s%s" % (re.escape(_prefix), pattern),
+                    candidate_pat % text_candidate_subs,
+                ):
+                    # safe characters from `pchar` definition of RFC 3986
+                    url = quote(
+                        candidate_pat % text_candidate_subs,
+                        safe=RFC3986_SUBDELIMS + "/~:@",
+                    )
+                    # Don't allow construction of scheme relative urls.
+                    return escape_leading_slashes(url)
+        # lookup_view can be URL name or callable, but callables are not
+        # friendly in error messages.
+        m = getattr(lookup_view, "__module__", None)
+        n = getattr(lookup_view, "__name__", None)
+        if m is not None and n is not None:
+            lookup_view_s = "%s.%s" % (m, n)
+        else:
+            lookup_view_s = lookup_view
+    
+        patterns = [pattern for (_, pattern, _, _) in possibilities]
+        if patterns:
+            if args:
+                arg_msg = "arguments '%s'" % (args,)
+            elif kwargs:
+                arg_msg = "keyword arguments '%s'" % kwargs
+            else:
+                arg_msg = "no arguments"
+            msg = "Reverse for '%s' with %s not found. %d pattern(s) tried: %s" % (
+                lookup_view_s,
+                arg_msg,
+                len(patterns),
+                patterns,
+            )
+        else:
+            msg = (
+                "Reverse for '%(view)s' not found. '%(view)s' is not "
+                "a valid view function or pattern name." % {"view": lookup_view_s}
+            )
+&gt;       raise NoReverseMatch(msg)
+E       django.urls.exceptions.NoReverseMatch: Reverse for 'start-core-checkout' not found. 'start-core-checkout' is not a valid view function or pattern name.
+
+.venv/lib/python3.14/site-packages/django/urls/resolvers.py:831: NoReverseMatch</failure></testcase><testcase classname="tests.test_standard_checkout_route_durability" name="test_routed_closed_gate_does_not_call_provider" time="0.513"><failure message="django.urls.exceptions.NoReverseMatch: Reverse for 'start-core-checkout' not found. 'start-core-checkout' is not a valid view function or pattern name.">client = &lt;django.test.client.Client object at 0x79fa7f1447c0&gt;
+setup = (&lt;User: flow@example.invalid&gt;, {'customer': [], 'session': [], 'retrieve': []}, {}, {})
+settings = &lt;pytest_django.fixtures.Settings object at 0x79fa7f100770&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x79fa7f1446b0&gt;
+
+    def test_routed_closed_gate_does_not_call_provider(client,setup,settings,monkeypatch):
+        settings.FOUNDER_OFFER_ENABLED=False
+        settings.STANDARD_CHECKOUT_INTENTS_ENABLED=False
+        client.force_login(setup[0])
+        monkeypatch.setattr(flow,'_client',lambda key:pytest.fail('Closed gate reached provider client'))
+&gt;       with actual_app_default():response=client.post(reverse('billing:start-core-checkout'))
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_standard_checkout_route_durability.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/urls/base.py:98: in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;URLResolver &lt;URLResolver list&gt; (None:None) '^/'&gt;
+lookup_view = 'start-core-checkout', _prefix = '/', args = (), kwargs = {}
+
+    def _reverse_with_prefix(self, lookup_view, _prefix, *args, **kwargs):
+        if args and kwargs:
+            raise ValueError("Don't mix *args and **kwargs in call to reverse()!")
+    
+        if not self._populated:
+            self._populate()
+    
+        possibilities = self.reverse_dict.getlist(lookup_view)
+    
+        for possibility, pattern, defaults, converters in possibilities:
+            for result, params in possibility:
+                if args:
+                    if len(args) != len(params):
+                        continue
+                    candidate_subs = dict(zip(params, args))
+                else:
+                    if set(kwargs).symmetric_difference(params).difference(defaults):
+                        continue
+                    matches = True
+                    for k, v in defaults.items():
+                        if k in params:
+                            continue
+                        if kwargs.get(k, v) != v:
+                            matches = False
+                            break
+                    if not matches:
+                        continue
+                    candidate_subs = kwargs
+                # Convert the candidate subs to text using Converter.to_url().
+                text_candidate_subs = {}
+                match = True
+                for k, v in candidate_subs.items():
+                    if k in converters:
+                        try:
+                            text_candidate_subs[k] = converters[k].to_url(v)
+                        except ValueError:
+                            match = False
+                            break
+                    else:
+                        text_candidate_subs[k] = str(v)
+                if not match:
+                    continue
+                # WSGI provides decoded URLs, without %xx escapes, and the URL
+                # resolver operates on such URLs. First substitute arguments
+                # without quoting to build a decoded URL and look for a match.
+                # Then, if we have a match, redo the substitution with quoted
+                # arguments in order to return a properly encoded URL.
+                candidate_pat = _prefix.replace("%", "%%") + result
+                if re.search(
+                    "^%s%s" % (re.escape(_prefix), pattern),
+                    candidate_pat % text_candidate_subs,
+                ):
+                    # safe characters from `pchar` definition of RFC 3986
+                    url = quote(
+                        candidate_pat % text_candidate_subs,
+                        safe=RFC3986_SUBDELIMS + "/~:@",
+                    )
+                    # Don't allow construction of scheme relative urls.
+                    return escape_leading_slashes(url)
+        # lookup_view can be URL name or callable, but callables are not
+        # friendly in error messages.
+        m = getattr(lookup_view, "__module__", None)
+        n = getattr(lookup_view, "__name__", None)
+        if m is not None and n is not None:
+            lookup_view_s = "%s.%s" % (m, n)
+        else:
+            lookup_view_s = lookup_view
+    
+        patterns = [pattern for (_, pattern, _, _) in possibilities]
+        if patterns:
+            if args:
+                arg_msg = "arguments '%s'" % (args,)
+            elif kwargs:
+                arg_msg = "keyword arguments '%s'" % kwargs
+            else:
+                arg_msg = "no arguments"
+            msg = "Reverse for '%s' with %s not found. %d pattern(s) tried: %s" % (
+                lookup_view_s,
+                arg_msg,
+                len(patterns),
+                patterns,
+            )
+        else:
+            msg = (
+                "Reverse for '%(view)s' not found. '%(view)s' is not "
+                "a valid view function or pattern name." % {"view": lookup_view_s}
+            )
+&gt;       raise NoReverseMatch(msg)
+E       django.urls.exceptions.NoReverseMatch: Reverse for 'start-core-checkout' not found. 'start-core-checkout' is not a valid view function or pattern name.
+
+.venv/lib/python3.14/site-packages/django/urls/resolvers.py:831: NoReverseMatch</failure></testcase></testsuite></testsuites>

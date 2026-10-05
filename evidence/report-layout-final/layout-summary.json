@@ -1,0 +1,29 @@
+{
+  "qualification_passed": true,
+  "geometry": {
+    "viewport": 688,
+    "document_width": 688,
+    "table_columns": [
+      137.390625,
+      137.390625,
+      137.390625,
+      137.390625,
+      137.4375
+    ]
+  },
+  "content_checks": {
+    "long-input": {
+      "pages": 5,
+      "nonempty_pages": true
+    },
+    "multi-tool": {
+      "pages": 9,
+      "nonempty_pages": true
+    },
+    "long-table": {
+      "pages": 27,
+      "nonempty_pages": true
+    }
+  },
+  "scope": "Synthetic renderer layout only; not source-derived assessment, international glyph coverage or production service proof."
+}

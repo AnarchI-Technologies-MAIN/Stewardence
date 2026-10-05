@@ -1,0 +1,13 @@
+[Unit]
+Description=Run one bounded Stewardence Core worker batch
+After=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/home/anarchi/stewardence_migration/digitalocean
+EnvironmentFile=-/etc/stewardence/core-worker-compose.env
+ExecStart=/usr/bin/flock -n /run/lock/stewardence-core-worker.lock /usr/bin/docker compose -f compose.json -f /home/anarchi/stewardence_migration/digitalocean/core-worker.compose.yaml --profile core-worker run --rm core-worker
+TimeoutStartSec=15min
+KillMode=control-group

@@ -1,0 +1,12 @@
+{
+  "checked_at": "2026-10-03T22:23:00.257Z",
+  "image_id": "sha256:41941249167fc380d1e731a6c4a31193708cff774e4e10a0efe24ebaf471920c",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "synthetic_only": true,
+  "menu_opened": true,
+  "recovery_navigation_followed": true,
+  "dom": "- link \"Skip to main content\":\n  - /url: \"#main-content\"\n- banner:\n  - paragraph: Stewardence workspace\n  - paragraph: Deterministic AI risk and ROI assessment\n  - generic \"Workspace menu\"\n- main:\n  - paragraph: Current firm\n  - heading \"Core operations\" [level=1]\n  - paragraph: Calculated from stored jobs and receipts as of Oct. 3, 2026, 10:23 p.m.. These records do not establish live service health or whether a worker is running.\n  - heading \"Recorded workflow states\" [level=2]\n  - term: Queued\n  - definition: \"2\"\n  - heading \"Operations requiring review\" [level=2]\n  - paragraph: No recorded review holds. This does not prove every service is healthy.\n  - heading \"Latest recovery receipts\" [level=2]\n  - paragraph: Showing up to 50 recorded outcomes.\n  - table:\n    - rowgroup:\n      - row \"Recorded Outcome Attempt Receipt\":\n        - columnheader \"Recorded\"\n        - columnheader \"Outcome\"\n        - columnheader \"Attempt\"\n        - columnheader \"Receipt\"\n    - rowgroup:\n      - row \"No verified receipts available\":\n        - cell \"No verified receipts available\""
+}

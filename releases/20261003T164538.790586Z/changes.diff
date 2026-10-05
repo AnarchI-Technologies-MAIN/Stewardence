@@ -1,0 +1,2610 @@
+--- baseline/apps/assessments/snapshots.py
++++ candidate/apps/assessments/snapshots.py
+@@ -33,6 +33,7 @@
+     calculate_policy_risk,
+ )
+ from apps.roi.engine import ROI_ENGINE_VERSION, ROIInputs, calculate_roi
++from apps.roi.engine_v2 import ROI_ENGINE_VERSION as ROI_V2, calculate_roi as calculate_roi_v2
+ 
+ from .models import AssessmentSnapshot
+ 
+@@ -52,8 +53,8 @@
+     return json.loads(canonical_bytes(value))
+ 
+ 
+-def _decimal(value: Decimal | int) -> str:
+-    return str(value)
++def _decimal(value: Decimal | int | None) -> str | None:
++    return None if value is None else str(value)
+ 
+ 
+ def _timestamp(value: datetime) -> str:
+@@ -210,7 +211,7 @@
+ 
+ 
+ def _roi_result_payload(result) -> dict[str, Any]:
+-    return {
++    payload = {
+         "provenance": CALCULATED,
+         "engine_version": result.engine_version,
+         "monthly_labor_value": _decimal(result.monthly_labor_value),
+@@ -223,6 +224,10 @@
+         ),
+         "arithmetic": list(result.arithmetic),
+     }
++    if result.engine_version == ROI_V2:
++        payload["unknown_inputs"] = list(result.unknown_inputs)
++        payload["roi_unavailable_reason"] = result.roi_unavailable_reason
++    return payload
+ 
+ 
+ def verify_snapshot(snapshot: AssessmentSnapshot) -> bool:
+@@ -242,7 +247,11 @@
+     captured_at: datetime,
+     evidence_references: tuple[dict[str, Any], ...] = (),
+     previous_snapshot: AssessmentSnapshot | None = None,
++    roi_engine_version: str = ROI_ENGINE_VERSION,
+ ) -> AssessmentSnapshot:
++    engines = {ROI_ENGINE_VERSION: calculate_roi, ROI_V2: calculate_roi_v2}
++    if roi_engine_version not in engines:
++        raise ValueError("Unsupported ROI engine version")
+     if previous_snapshot is not None:
+         stored_previous = (
+             AssessmentSnapshot.objects.select_for_update()
+@@ -326,7 +335,7 @@
+         "engine_versions": {
+             "policy": ENGINE_VERSION,
+             "risk": RISK_ENGINE_VERSION,
+-            "roi": ROI_ENGINE_VERSION,
++            "roi": roi_engine_version,
+         },
+     }
+ 
+@@ -353,7 +362,7 @@
+         "snapshot_schema_version": SNAPSHOT_SCHEMA_VERSION,
+         "assessment": {"id": str(assessment_id), "version": version},
+         "inventory_results": inventory_results,
+-        "roi": _roi_result_payload(calculate_roi(roi_inputs)),
++        "roi": _roi_result_payload(engines[roi_engine_version](roi_inputs)),
+     }
+     input_payload = _canonical_payload(input_payload)
+     result_payload = _canonical_payload(result_payload)
+--- baseline/apps/inventory/views.py
++++ candidate/apps/inventory/views.py
+@@ -21,7 +21,7 @@
+ from apps.policies.engine import PolicyResult, evaluate_policies
+ from apps.policies.packs.accounting import ACCOUNTING_RISK_PACK_V1
+ from apps.policies.risk import calculate_policy_risk
+-from apps.roi.engine import calculate_roi
++from apps.roi.engine_v2 import ROI_ENGINE_VERSION, calculate_roi
+ from apps.roi.forms import ROIForm
+ 
+ from .forms import InventoryItemForm
+@@ -145,6 +145,7 @@
+                     assessed_item_id=item.id,
+                     roi_inputs=form.to_inputs(),
+                     captured_at=timezone.now(),
++                    roi_engine_version=ROI_ENGINE_VERSION,
+                 )
+                 return redirect("assessments:detail", snapshot_id=snapshot.id)
+     else:
+--- baseline/apps/jobs/contracts.py
++++ candidate/apps/jobs/contracts.py
+@@ -0,0 +1,82 @@
++"""Versioned Core workflow admission; no transport or provider authority implied."""
++from dataclasses import dataclass
++from datetime import datetime
++from enum import Enum
++import hashlib
++import re
++from uuid import UUID
++import rfc8785
++
++SCHEMA = "stewardence.workflow.v1"
++
++
++class Operation(str, Enum):
++    REPORT = "report.generate_from_receipts"
++    REASSESS = "action_cards.reassess_from_signals"
++    HEALTH = "core.health_check"
++
++
++class BranchProfile(str, Enum):
++    BUSINESS = "business.v1"
++    DEVELOPMENT = "development.v1"
++
++
++def validate_branch_settings(profile, settings):
++    profile = BranchProfile(profile)
++    if not isinstance(settings, dict):
++        raise ValueError("Branch settings must be an object")
++    allowed = {BranchProfile.BUSINESS:{"name", "jurisdiction", "parent_branch_id"},
++               BranchProfile.DEVELOPMENT:{"name", "repository_ref", "environment"}}[profile]
++    if not set(settings).issubset(allowed) or "name" not in settings:
++        raise ValueError("Settings do not match selected branch profile")
++    for key, value in settings.items():
++        if not isinstance(value, str) or not 1 <= len(value) <= 200 or any(ord(c) < 32 for c in value):
++            raise ValueError("Invalid branch setting")
++        if key == "parent_branch_id":
++            UUID(value)
++        if key == "repository_ref" and not re.fullmatch(r"[A-Za-z0-9_.\-/]{1,200}", value):
++            raise ValueError("Repository reference must be an identifier without credentials")
++    # Unknown/custom profiles require a registered, versioned schema first.
++    return {"profile":profile.value, "settings":dict(settings)}
++
++
++@dataclass(frozen=True)
++class WorkflowRequest:
++    organization_id: UUID
++    operation: Operation
++    receipt_ids: tuple[UUID, ...]
++    effective_at: datetime
++    branch_profile: BranchProfile
++
++    def __post_init__(self):
++        if not isinstance(self.organization_id, UUID) or not isinstance(self.operation, Operation):
++            raise ValueError("Typed organization and operation are required")
++        if not isinstance(self.branch_profile, BranchProfile):
++            raise ValueError("Registered branch profile required")
++        if not isinstance(self.receipt_ids, tuple) or not all(isinstance(value, UUID) for value in self.receipt_ids):
++            raise ValueError("Receipt identities must be immutable UUIDs")
++        if len(self.receipt_ids) > 1000 or len(set(self.receipt_ids)) != len(self.receipt_ids):
++            raise ValueError("Receipt selection is duplicated or too large")
++        if self.operation is not Operation.HEALTH and not self.receipt_ids:
++            raise ValueError("Evidence-based operations require receipts")
++        if self.effective_at.tzinfo is None or self.effective_at.utcoffset() is None:
++            raise ValueError("Workflow time must include a timezone")
++
++    def envelope(self):
++        from datetime import UTC
++        return {"schema":SCHEMA, "organization_id":str(self.organization_id),
++            "operation":self.operation.value, "branch_profile":self.branch_profile.value,
++            "receipt_ids":sorted(str(value) for value in self.receipt_ids),
++            "effective_at":self.effective_at.astimezone(UTC).isoformat()}
++
++    @property
++    def input_sha256(self):
++        return hashlib.sha256(rfc8785.dumps(self.envelope())).hexdigest()
++
++
++def logical_evidence_directory(organization_id: UUID, category: str, record_id: UUID):
++    if category not in {"services", "branches", "ai_accounts", "agents", "employees"}:
++        raise ValueError("Unregistered evidence category")
++    if not isinstance(organization_id, UUID) or not isinstance(record_id, UUID):
++        raise ValueError("Evidence directory identities must be UUIDs")
++    return f"organizations/{organization_id}/evidence/{category}/{record_id}"
+--- baseline/apps/jobs/migrations/0003_recovery_receipts.py
++++ candidate/apps/jobs/migrations/0003_recovery_receipts.py
+@@ -0,0 +1,45 @@
++import uuid
++from django.db import migrations, models
++import django.db.models.deletion
++
++SQL = """
++ALTER TABLE job_recovery_receipts OWNER TO agentledger_owner;
++REVOKE ALL ON job_recovery_receipts FROM PUBLIC;
++GRANT SELECT, INSERT ON job_recovery_receipts TO agentledger_app, agentledger_worker;
++ALTER TABLE job_recovery_receipts ENABLE ROW LEVEL SECURITY;
++ALTER TABLE job_recovery_receipts FORCE ROW LEVEL SECURITY;
++CREATE POLICY recovery_owner ON job_recovery_receipts FOR ALL TO agentledger_owner USING (true) WITH CHECK (true);
++CREATE POLICY recovery_tenant ON job_recovery_receipts FOR ALL TO agentledger_app, agentledger_worker
++USING (organization_id = app_private.current_organization_id())
++WITH CHECK (organization_id = app_private.current_organization_id());
++CREATE FUNCTION app_private.protect_recovery_receipt() RETURNS trigger LANGUAGE plpgsql AS $body$
++BEGIN
++ IF TG_OP <> 'INSERT' THEN RAISE EXCEPTION 'Recovery receipts are append-only'; END IF;
++ IF NOT EXISTS (SELECT 1 FROM background_jobs WHERE id = NEW.job_id AND organization_id = NEW.organization_id AND attempts = NEW.attempt
++   AND ((NEW.outcome = 'completed' AND status = 'completed') OR (NEW.outcome = 'retry' AND status = 'queued') OR (NEW.outcome = 'review' AND status = 'failed'))) THEN
++  RAISE EXCEPTION 'Recovery receipt job binding is invalid';
++ END IF;
++ RETURN NEW;
++END;
++$body$;
++ALTER FUNCTION app_private.protect_recovery_receipt() OWNER TO agentledger_owner;
++REVOKE ALL ON FUNCTION app_private.protect_recovery_receipt() FROM PUBLIC;
++CREATE TRIGGER recovery_receipt_immutable BEFORE INSERT OR UPDATE OR DELETE ON job_recovery_receipts
++FOR EACH ROW EXECUTE FUNCTION app_private.protect_recovery_receipt();
++"""
++
++
++class Migration(migrations.Migration):
++    dependencies = [("jobs", "0002_job_security")]
++    operations = [
++        migrations.CreateModel(name="RecoveryReceipt", fields=[
++            ("id", models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, serialize=False)),
++            ("attempt", models.PositiveSmallIntegerField()),
++            ("outcome", models.CharField(max_length=16, choices=[("completed", "Completed"), ("retry", "Retry admitted"), ("review", "Review required")])),
++            ("payload", models.JSONField()), ("sha256", models.CharField(max_length=64)),
++            ("created_at", models.DateTimeField(auto_now_add=True)),
++            ("organization", models.ForeignKey(to="organizations.organization", on_delete=django.db.models.deletion.PROTECT)),
++            ("job", models.ForeignKey(to="jobs.backgroundjob", on_delete=django.db.models.deletion.PROTECT)),
++        ], options={"db_table":"job_recovery_receipts", "constraints":[models.UniqueConstraint(fields=("job", "attempt", "outcome"), name="recovery_receipt_attempt_unique")]}),
++        migrations.RunSQL(SQL, "DROP FUNCTION app_private.protect_recovery_receipt() CASCADE;"),
++    ]
+--- baseline/apps/jobs/models.py
++++ candidate/apps/jobs/models.py
+@@ -110,3 +110,31 @@
+ 
+     def __str__(self) -> str:
+         return f"{self.job_type} {self.id} ({self.status})"
++
++
++class RecoveryReceipt(models.Model):
++    """Append-only outcome evidence; never stores transport errors or credentials."""
++    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
++    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
++    job = models.ForeignKey(BackgroundJob, on_delete=models.PROTECT)
++    attempt = models.PositiveSmallIntegerField()
++    outcome = models.CharField(max_length=16, choices=[("completed", "Completed"),
++        ("retry", "Retry admitted"), ("review", "Review required")])
++    payload = models.JSONField()
++    sha256 = models.CharField(max_length=64)
++    created_at = models.DateTimeField(auto_now_add=True)
++
++    class Meta:
++        db_table = "job_recovery_receipts"
++        constraints = [models.UniqueConstraint(fields=("job", "attempt", "outcome"),
++            name="recovery_receipt_attempt_unique")]
++
++    def save(self, *args, **kwargs):
++        if not self._state.adding:
++            from django.core.exceptions import ValidationError
++            raise ValidationError("Recovery receipts are immutable")
++        super().save(*args, **kwargs)
++
++    def delete(self, *args, **kwargs):
++        from django.core.exceptions import ValidationError
++        raise ValidationError("Recovery receipts are immutable")
+--- baseline/apps/jobs/queue.py
++++ candidate/apps/jobs/queue.py
+@@ -145,6 +145,20 @@
+             raise LostJobLease(str(job_id))
+ 
+ 
++def lock_job_for_persistence(*, job_id, worker_id: str, claim_token, using="default"):
++    if not connections[using].in_atomic_block:
++        raise RuntimeError("Persistence fencing requires an active transaction")
++    with connections[using].cursor() as cursor:
++        cursor.execute("""
++            SELECT id FROM background_jobs
++            WHERE id = %s AND status = 'running' AND locked_by = %s
++              AND claim_token = %s AND lock_expires_at > clock_timestamp()
++            FOR UPDATE
++        """, [job_id, worker_id, claim_token])
++        if cursor.fetchone() is None:
++            raise LostJobLease(str(job_id))
++
++
+ def heartbeat_job_with_fence(
+     *,
+     job_id,
+@@ -179,6 +193,7 @@
+     safe_summary: str,
+     fingerprint: str,
+     using: str = "default",
++    retryable: bool = True,
+ ) -> None:
+     if not error_code or not safe_summary or not fingerprint:
+         raise ValueError("Safe error code, summary, and fingerprint are required")
+@@ -186,7 +201,7 @@
+         cursor.execute(
+             """
+             UPDATE background_jobs
+-            SET status = CASE WHEN attempts >= 5 THEN 'failed' ELSE 'queued' END,
++            SET status = CASE WHEN NOT %s OR attempts >= 5 THEN 'failed' ELSE 'queued' END,
+                 available_at = CASE attempts
+                     WHEN 1 THEN clock_timestamp() + interval '1 minute'
+                     WHEN 2 THEN clock_timestamp() + interval '5 minutes'
+@@ -195,7 +210,7 @@
+                     ELSE clock_timestamp()
+                 END,
+                 completed_at = CASE
+-                    WHEN attempts >= 5 THEN clock_timestamp()
++                    WHEN NOT %s OR attempts >= 5 THEN clock_timestamp()
+                     ELSE NULL
+                 END,
+                 locked_at = NULL,
+@@ -212,6 +227,8 @@
+               AND lock_expires_at > clock_timestamp()
+             """,
+             [
++                retryable,
++                retryable,
+                 error_code,
+                 safe_summary,
+                 fingerprint,
+--- baseline/apps/jobs/receipts.py
++++ candidate/apps/jobs/receipts.py
+@@ -0,0 +1,37 @@
++import hashlib
++import rfc8785
++from .models import RecoveryReceipt
++
++
++def record_recovery_receipt(job, outcome, *, reason_code="", fingerprint="", using="default"):
++    if outcome not in {"completed", "retry", "review"}:
++        raise ValueError("Unsupported recovery outcome")
++    if reason_code not in {"", "job_execution_failed", "job_requires_review"}:
++        raise ValueError("Unsupported recovery reason")
++    payload = {"schema":"stewardence.recovery.v1", "job_id":str(job.id),
++        "organization_id":str(job.organization_id), "operation":job.job_type,
++        "attempt":job.attempts, "outcome":outcome,
++        "input_sha256":hashlib.sha256(rfc8785.dumps(job.payload)).hexdigest(),
++        "reason_code":reason_code, "failure_fingerprint":fingerprint}
++    digest = hashlib.sha256(rfc8785.dumps(payload)).hexdigest()
++    receipt, created = RecoveryReceipt.objects.using(using).get_or_create(
++        organization_id=job.organization_id, job_id=job.id,
++        attempt=job.attempts, outcome=outcome, defaults={"payload":payload, "sha256":digest})
++    if not created and (receipt.payload != payload or receipt.sha256 != digest):
++        raise ValueError("Recovery receipt conflicts with recorded outcome")
++    return receipt
++
++
++def verify_recovery_receipt(receipt):
++    payload = receipt.payload
++    if not isinstance(payload, dict):
++        return False
++    expected = {"schema":"stewardence.recovery.v1", "job_id":str(receipt.job_id),
++        "organization_id":str(receipt.organization_id), "attempt":receipt.attempt,
++        "outcome":receipt.outcome}
++    if any(payload.get(key) != value for key, value in expected.items()):
++        return False
++    try:
++        return hashlib.sha256(rfc8785.dumps(payload)).hexdigest() == receipt.sha256
++    except (TypeError, ValueError):
++        return False
+--- baseline/apps/jobs/recovery.py
++++ candidate/apps/jobs/recovery.py
+@@ -0,0 +1,23 @@
++"""Admission policy for automated recovery: unknown failures require review."""
++import httpx
++from botocore.exceptions import EndpointConnectionError, ConnectionClosedError, ReadTimeoutError
++from django.core.exceptions import PermissionDenied, ValidationError, ImproperlyConfigured
++
++
++class RetryableOperationError(RuntimeError):
++    """A bounded, repeatable operation failed transiently without changing authority."""
++
++
++def permits_retry(error: Exception) -> bool:
++    if isinstance(error, (PermissionDenied, ValidationError, ImproperlyConfigured, ValueError)):
++        return False
++    seen = set()
++    current = error
++    while current is not None and id(current) not in seen:
++        seen.add(id(current))
++        if isinstance(current, (RetryableOperationError, httpx.TimeoutException,
++                                httpx.ConnectError, httpx.ReadError,
++                                EndpointConnectionError, ConnectionClosedError, ReadTimeoutError)):
++            return True
++        current = current.__cause__
++    return False
+--- baseline/apps/jobs/views.py
++++ candidate/apps/jobs/views.py
+@@ -0,0 +1,33 @@
++from django.contrib.auth.decorators import login_required
++from django.db import transaction
++from django.db.models import Count
++from django.http import Http404
++from django.shortcuts import get_object_or_404, render
++from django.utils import timezone
++from django.views.decorators.http import require_GET
++from apps.organizations.models import OrganizationMember
++from .models import BackgroundJob, RecoveryReceipt
++from .receipts import verify_recovery_receipt
++
++
++@login_required
++@require_GET
++@transaction.atomic
++def operations_dashboard(request):
++    organization_id = getattr(request, "organization_id", None)
++    if organization_id is None:
++        raise Http404("Choose a firm before viewing operations")
++    get_object_or_404(OrganizationMember, organization_id=organization_id, user_id=request.user.id)
++    counts = list(BackgroundJob.objects.filter(organization_id=organization_id)
++                  .values("status").annotate(count=Count("id")).order_by("status"))
++    receipts = list(RecoveryReceipt.objects.filter(organization_id=organization_id)
++                    .order_by("-created_at", "-id")[:50])
++    integrity_ok = all(verify_recovery_receipt(receipt) for receipt in receipts)
++    # Alerts derive from current held jobs, not historical failed attempts.
++    alerts = list(BackgroundJob.objects.filter(organization_id=organization_id,
++        status=BackgroundJob.Status.FAILED).order_by("-completed_at", "-id")[:25])
++    response = render(request, "jobs/operations.html", {"counts":counts,
++        "receipts":receipts if integrity_ok else [], "alerts":alerts,
++        "integrity_ok":integrity_ok, "as_of":timezone.now()}, status=200 if integrity_ok else 503)
++    response["Cache-Control"] = "private, no-store"
++    return response
+--- baseline/apps/jobs/worker.py
++++ candidate/apps/jobs/worker.py
+@@ -15,7 +15,10 @@
+     fail_job_with_fence,
+     heartbeat_job_with_fence,
+     recover_expired_jobs,
++    lock_job_for_persistence,
+ )
++from .recovery import permits_retry
++from .receipts import record_recovery_receipt
+ 
+ 
+ class JobHandler(Protocol):
+@@ -67,14 +70,16 @@
+             None,
+         ),
+     ):
++        lock_job_for_persistence(job_id=job.id, worker_id=execution.worker_id,
++                                claim_token=job.claim_token, using=using)
+         handler.persist(job, result)
+-
+-    complete_job_with_fence(
+-        job_id=job.id,
+-        worker_id=execution.worker_id,
+-        claim_token=job.claim_token,
+-        using=using,
+-    )
++        complete_job_with_fence(
++            job_id=job.id,
++            worker_id=execution.worker_id,
++            claim_token=job.claim_token,
++            using=using,
++        )
++        record_recovery_receipt(job, "completed", using=using)
+ 
+ 
+ def _safe_failure_fingerprint(job: ClaimedJob, error: Exception) -> str:
+@@ -118,16 +123,28 @@
+         except LostJobLease:
+             raise
+         except Exception as error:
+-            fail_job_with_fence(
+-                job_id=job.id,
+-                worker_id=worker_id,
+-                claim_token=job.claim_token,
+-                error_code="job_execution_failed",
+-                safe_summary="The background operation failed and may be retried.",
+-                fingerprint=_safe_failure_fingerprint(job, error),
+-                using=using,
+-            )
++            retryable = permits_retry(error)
++            with tenant_transaction(job.organization_id, using=using):
++                _record_failure(job, execution, error, retryable, using)
+ 
+         processed += 1
+ 
+     return processed
++
++
++def _record_failure(job, execution, error, retryable, using):
++    code = "job_execution_failed" if retryable else "job_requires_review"
++    fingerprint = _safe_failure_fingerprint(job, error)
++    fail_job_with_fence(
++                job_id=job.id,
++                worker_id=execution.worker_id,
++                claim_token=job.claim_token,
++                error_code=code,
++                safe_summary=("The operation encountered a temporary failure and will retry within its attempt limit."
++                              if retryable else "The operation stopped safely and requires review."),
++                fingerprint=fingerprint,
++                using=using,
++                retryable=retryable,
++    )
++    record_recovery_receipt(job, "retry" if retryable and job.attempts < 5 else "review",
++        reason_code=code, fingerprint=fingerprint, using=using)
+--- baseline/apps/reports/artifact_services.py
++++ candidate/apps/reports/artifact_services.py
+@@ -32,8 +32,6 @@
+         report_id=report.id,
+     )
+     digest = sha256_hex(pdf_bytes)
+-
+-    uploaded = False
+ 
+     try:
+         with transaction.atomic(using=using):
+@@ -71,8 +69,6 @@
+                 content=pdf_bytes,
+                 content_type=PDF_CONTENT_TYPE,
+             )
+-            uploaded = True
+-
+             return ReportArtifact.objects.using(using).create(
+                 organization_id=report.organization_id,
+                 report_id=report.id,
+@@ -84,8 +80,9 @@
+             )
+ 
+     except Exception:
+-        if uploaded:
+-            storage.delete(key=key)
++        # Object storage cannot participate in the database transaction. Retain
++        # an orphan for reconciliation: deleting after releasing the lock could
++        # destroy an object another successful transaction has adopted.
+         raise
+ 
+ 
+--- baseline/apps/reports/jobs.py
++++ candidate/apps/reports/jobs.py
+@@ -53,6 +53,7 @@
+                 status__in=(
+                     BackgroundJob.Status.QUEUED,
+                     BackgroundJob.Status.RUNNING,
++                    BackgroundJob.Status.FAILED,
+                 ),
+             )
+             .order_by("created_at", "id")
+--- baseline/apps/reports/render_client.py
++++ candidate/apps/reports/render_client.py
+@@ -7,11 +7,16 @@
+ from django.core.exceptions import ImproperlyConfigured
+ 
+ from .storage import PDF_CONTENT_TYPE, ReportStorageError, validate_pdf_bytes
++from apps.jobs.recovery import RetryableOperationError
+ 
+ MAX_RENDERED_PDF_BYTES = 16 * 1_048_576
+ 
+ 
+ class ReportRenderError(RuntimeError):
++    pass
++
++
++class TransientReportRenderError(ReportRenderError, RetryableOperationError):
+     pass
+ 
+ 
+@@ -50,6 +55,8 @@
+         except httpx.HTTPError as error:
+             raise ReportRenderError("Report renderer request failed") from error
+ 
++        if response.status_code in {408, 429, 502, 503, 504}:
++            raise TransientReportRenderError("Report renderer temporarily unavailable")
+         if response.status_code != 200:
+             raise ReportRenderError(
+                 f"Report renderer returned HTTP {response.status_code}"
+--- baseline/apps/reports/storage.py
++++ candidate/apps/reports/storage.py
+@@ -1,6 +1,8 @@
+ from __future__ import annotations
+ 
+ import hashlib
++import os
++import tempfile
+ import re
+ import uuid
+ from pathlib import Path
+@@ -90,10 +92,21 @@
+         path = self._path_for_key(key)
+         path.parent.mkdir(parents=True, exist_ok=True)
+ 
+-        if path.exists():
+-            raise ReportStorageError("Report object already exists")
+-
+-        path.write_bytes(content)
++        descriptor, temporary = tempfile.mkstemp(dir=path.parent, prefix=".report-")
++        try:
++            with os.fdopen(descriptor, "wb") as stream:
++                stream.write(content)
++                stream.flush()
++                os.fsync(stream.fileno())
++            try:
++                # Publish a complete private file without replacing an existing key.
++                os.link(temporary, path)
++            except FileExistsError as error:
++                if path.read_bytes() == content:
++                    return
++                raise ReportStorageError("Report object already exists") from error
++        finally:
++            Path(temporary).unlink(missing_ok=True)
+ 
+     def get(self, *, key: str) -> bytes:
+         path = self._path_for_key(key)
+@@ -212,8 +225,16 @@
+                 Key=key,
+                 Body=content,
+                 ContentType=content_type,
+-            )
+-        except (BotoCoreError, ClientError) as error:
++                IfNoneMatch="*",
++            )
++        except ClientError as error:
++            code = str(error.response.get("Error", {}).get("Code", ""))
++            if code in {"412", "PreconditionFailed", "409", "ConditionalRequestConflict"}:
++                if self._read_optional(key) == content:
++                    return
++                raise ReportStorageError("Report object creation conflict") from error
++            raise ReportStorageError("Private report object upload failed") from error
++        except BotoCoreError as error:
+             raise ReportStorageError("Private report object upload failed") from error
+ 
+     def get(self, *, key: str) -> bytes:
+--- baseline/apps/reports/urls.py
++++ candidate/apps/reports/urls.py
+@@ -4,11 +4,13 @@
+     generate_report_action,
+     report_detail_view,
+     report_download_view,
++    report_history_view,
+ )
+ 
+ app_name = "reports"
+ 
+ urlpatterns = [
++    path("", report_history_view, name="history"),
+     path(
+         "from-assessment/<uuid:snapshot_id>/",
+         generate_report_action,
+--- baseline/apps/reports/views.py
++++ candidate/apps/reports/views.py
+@@ -5,6 +5,7 @@
+ from django.conf import settings
+ from django.contrib.auth.decorators import login_required
+ from django.core.exceptions import PermissionDenied
++from django.core.paginator import Paginator
+ from django.db import transaction
+ from django.http import Http404, HttpResponse
+ from django.shortcuts import get_object_or_404, redirect, render
+@@ -12,6 +13,7 @@
+ 
+ from apps.assessments.models import AssessmentSnapshot
+ from apps.organizations.models import OrganizationMember
++from apps.jobs.models import BackgroundJob
+ 
+ from .artifact_services import read_verified_pdf_artifact
+ from .context import build_report_context
+@@ -54,6 +56,27 @@
+ 
+ 
+ @login_required
++@require_GET
++@transaction.atomic
++def report_history_view(request):
++    organization_id = _organization_id(request)
++    _require_membership(request, organization_id)
++    reports = Report.objects.filter(organization_id=organization_id).select_related(
++        "assessment_snapshot", "artifact"
++    ).order_by("-created_at", "-id")
++    page = Paginator(reports, 25).get_page(request.GET.get("page"))
++    # Materialize while the tenant transaction is active; never expose storage keys.
++    rows = [{"id": report.id, "identifier": report.report_identifier,
++             "created_at": report.created_at,
++             "assessment_version": report.assessment_snapshot.version,
++             "has_pdf": hasattr(report, "artifact")}
++            for report in page.object_list]
++    response = render(request, "reports/history.html", {"rows": rows, "page": page})
++    response["Cache-Control"] = "private, no-store"
++    return response
++
++
++@login_required
+ @require_POST
+ @transaction.atomic
+ def generate_report_action(request, snapshot_id):
+@@ -91,14 +114,32 @@
+         organization_id=organization_id,
+     )
+ 
+-    return render(
++    has_pdf = ReportArtifact.objects.filter(report_id=report.id, organization_id=organization_id).exists()
++    job = BackgroundJob.objects.filter(organization_id=organization_id,
++        job_type=BackgroundJob.Type.REPORT_GENERATION, payload={"report_id":str(report.id)}
++    ).order_by("-created_at", "-id").first()
++    status = "PDF is not stored yet."
++    if job is not None:
++        status = {
++            BackgroundJob.Status.QUEUED: "PDF preparation is queued. Your browser report remains available.",
++            BackgroundJob.Status.RUNNING: "PDF preparation is in progress. Your browser report remains available.",
++            BackgroundJob.Status.FAILED: "PDF preparation stopped safely and requires review. Your browser report remains available.",
++            BackgroundJob.Status.COMPLETED: "PDF storage needs reconciliation. Your browser report remains available.",
++        }[job.status]
++        if job.status == BackgroundJob.Status.QUEUED and job.attempts:
++            status = "PDF preparation encountered a temporary issue and is queued for another attempt."
++    response = render(
+         request,
+         "reports/detail.html",
+         {
+             "report": build_report_context(report),
+             "report_id": report.id,
++            "has_pdf": has_pdf,
++            "pdf_status": status,
+         },
+     )
++    response["Cache-Control"] = "private, no-store"
++    return response
+ 
+ 
+ @login_required
+--- baseline/apps/roi/engine_v2.py
++++ candidate/apps/roi/engine_v2.py
+@@ -0,0 +1,71 @@
++"""Unknown-aware calculations. AL-ROI-1 remains available for historical replay."""
++from dataclasses import dataclass, fields
++from decimal import Decimal
++
++from .engine import AssumptionProvenance, ROIInputs, _money, PERCENT_UNIT, ROUND_HALF_UP, calculate_roi as legacy_calculate
++
++ROI_ENGINE_VERSION = "AL-ROI-2"
++
++
++@dataclass(frozen=True)
++class ROIResult:
++    engine_version: str
++    inputs: ROIInputs
++    monthly_labor_value: Decimal | None
++    monthly_value: Decimal | None
++    amortized_implementation_cost: Decimal | None
++    monthly_total_cost: Decimal | None
++    monthly_net_value: Decimal | None
++    roi_percent: Decimal | None
++    arithmetic: tuple[str, ...]
++    unknown_inputs: tuple[str, ...]
++    roi_unavailable_reason: str | None
++
++
++def calculate_roi(inputs: ROIInputs) -> ROIResult:
++    unknown = tuple(field.name for field in fields(inputs)
++                    if getattr(inputs, field.name).provenance is AssumptionProvenance.UNKNOWN)
++
++    def admitted(name):
++        assumption = getattr(inputs, name)
++        if name in unknown:
++            return None
++        value = Decimal(assumption.value)
++        if name in {"hours_saved_per_month", "implementation_amortization_months"}:
++            return value
++        return _money(value)
++
++    def sum_known(*values):
++        if any(value is None for value in values):
++            return None
++        return _money(sum(values))
++
++    hours = admitted("hours_saved_per_month")
++    rate = admitted("loaded_hourly_rate")
++    labor = None if hours is None or rate is None else _money(hours * _money(rate))
++    implementation = admitted("implementation_cost")
++    months = admitted("implementation_amortization_months")
++    amortized = None if implementation is None or months is None else _money(_money(implementation) / months)
++    value = sum_known(labor, admitted("attributable_revenue"), admitted("avoided_monthly_cost"))
++    cost = sum_known(admitted("monthly_subscription_cost"), amortized)
++    net = None if value is None or cost is None else _money(value - cost)
++    reason = "Required assumptions are unknown" if net is None else None
++    if cost == 0 and net is not None:
++        reason = "Monthly total cost is zero"
++    percent = None if reason else (net / cost * Decimal(100)).quantize(PERCENT_UNIT, ROUND_HALF_UP)
++
++    def display(amount):
++        return "Unknown" if amount is None else f"${amount}"
++
++    arithmetic = (
++        f"Monthly labor value: {display(labor)}",
++        f"Monthly implementation cost: {display(amortized)}",
++        f"Monthly value: {display(value)}",
++        f"Monthly total cost: {display(cost)}",
++        f"Monthly net value: {display(net)}",
++        f"ROI: {reason}" if reason else f"ROI: {percent}%",
++    )
++    if not unknown:
++        arithmetic = legacy_calculate(inputs).arithmetic
++    return ROIResult(ROI_ENGINE_VERSION, inputs, labor, value, amortized, cost, net,
++                     percent, arithmetic, unknown, reason)
+--- baseline/collector/collector-profile-public.pem
++++ candidate/collector/collector-profile-public.pem
+@@ -0,0 +1,11 @@
++-----BEGIN PUBLIC KEY-----
++MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEA8KT6z0WQFAsFNv9rj/jy
++XlhNxbZb2b2L/WhsLr2LJ1CZ5u7PlZQ3dlUhOHn9Lm+NTf2q8jl8MxM+e+LcJS+E
++ljhZxqHnQQ7ktMVJW+fxUK9pwdHkdfOihCSQgtx3vKFXh0xfjhXx0SgoNQ4WSCfx
++HA0siivFfbtutoG/wnfiRtSjoAEgLzxAWzDGCNLqS14NH69YYLCr2mogaUu0pdfC
++nfun3uZ+U0GgH2uzs3nODQVbyDuomK1a8/8XFgfTlbLtkx6jBw7vf9KoFKorYYre
++DtfnA6c59qqFTjZIggrXHLV4yFcen7cP2eJAka68i7+mnrc2QZZad1dIz19In2Ce
++TETzca4sT7U9oGFthkiWtBFVmItgkT/rA8h/eBuZRXw8KgrOiHXozUOvxBqN8NzU
++xfYXaOgza8Sh42m2Wqet6/yYkM8+LDZy7a8+iQbzKF9f9dkesNIYTN5uUGZq+3ai
++JedGwpupFD61M5pJzQZajhSIUcLtEt1RUZ+plNCArwKhAgMBAAE=
++-----END PUBLIC KEY-----
+--- baseline/ops/prepare_provider_credentials.py
++++ candidate/ops/prepare_provider_credentials.py
+@@ -0,0 +1,202 @@
++"""Stage owner-preview credentials; never change running application configuration."""
++
++import base64
++import fcntl
++import getpass
++import hashlib
++import json
++import os
++from pathlib import Path
++import re
++import secrets
++import shutil
++import stat
++import subprocess
++import sys
++import tempfile
++from datetime import date
++from uuid import UUID
++import warnings
++
++
++ROOT = Path('/etc/stewardence')
++DESTINATION = ROOT / 'provider_preview'
++COMPOSE = Path('/home/anarchi/stewardence_migration/digitalocean/compose.json')
++CADDY = Path('/etc/caddy/Caddyfile')
++MICROSOFT_CLIENT = 'd6051326-8d93-4abf-b544-5bb2e9eb6e2f'
++MICROSOFT_TENANT = '9739bc34-9cd9-4775-84f4-681531b8efcf'
++MICROSOFT_EXPIRY = '2027-04-01'
++EXPECTED_IMAGE = 'stewardence-app:4deac945-qbo5-reports'
++
++
++def require(condition, message):
++    if not condition:
++        raise RuntimeError(message)
++
++
++def docker(*args):
++    result = subprocess.run(['docker', *args], capture_output=True, text=True,
++                            timeout=30, check=False)
++    require(result.returncode == 0, 'Container preflight failed; details suppressed.')
++    return result.stdout
++
++
++def protected_file(path):
++    info = path.lstat()
++    require(stat.S_ISREG(info.st_mode), 'Expected a regular configuration file.')
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def preflight():
++    web = json.loads(docker('inspect', 'stewardence-web'))[0]
++    expected = json.loads(docker('image', 'inspect', EXPECTED_IMAGE))[0]['Id']
++    require(web['State']['Running'] and web['Image'] == expected,
++            'Unexpected web image or state. Nothing changed.')
++    bindings = web['HostConfig']['PortBindings'].get('8000/tcp', [])
++    require(len(bindings) == 1 and bindings[0]['HostIp'] == '127.0.0.1'
++            and bindings[0]['HostPort'] == '8000', 'Web binding differs.')
++    env = dict(item.split('=', 1) for item in web['Config']['Env'])
++    require(env.get('AUTOMATION_ENABLED') == '0'
++            and env.get('QUICKBOOKS_SANDBOX_ENABLED') == '1',
++            'Unexpected existing feature flags.')
++    for name in ('MICROSOFT_PREVIEW_ENABLED', 'XERO_PREVIEW_ENABLED'):
++        require(env.get(name, '0') == '0', 'Provider preview is already enabled.')
++    owner = env.get('QUICKBOOKS_SANDBOX_USER_IDS', '').strip()
++    require(str(UUID(owner)) == owner, 'Expected exactly one existing preview owner.')
++    require('stewardence-worker' not in docker('ps', '--format', '{{.Names}}').splitlines(),
++            'Expected worker to remain stopped.')
++    db = json.loads(docker('inspect', 'stewardence-db'))[0]
++    require(db['State']['Running'] and not db['HostConfig'].get('PortBindings'),
++            'Database isolation differs.')
++    return (web['Id'], web['Image'], owner, protected_file(COMPOSE),
++            protected_file(CADDY), hashlib.sha256(
++                json.dumps(web['Config'], sort_keys=True).encode()).hexdigest())
++
++
++def validate_secret(value):
++    require(isinstance(value, str) and re.fullmatch(r'[\x21-\x7e]{16,4096}', value),
++            'Credential format rejected. No values printed.')
++    return value
++
++
++def confirmed_secret(label):
++    first = validate_secret(getpass.getpass(label + ' value (hidden): '))
++    second = getpass.getpass('Repeat ' + label + ' value (hidden): ')
++    require(secrets.compare_digest(first, second),
++            'The two secret entries did not match. Nothing installed.')
++    return first
++
++
++def documents(owner, microsoft_secret, xero_client, xero_secret):
++    require(str(UUID(owner)) == owner, 'Invalid preview owner.')
++    require(date.today() < date.fromisoformat(MICROSOFT_EXPIRY),
++            'Recorded Microsoft credential has expired.')
++    require(isinstance(xero_client, str)
++            and re.fullmatch(r'[A-Za-z0-9_-]{16,128}', xero_client),
++            'Invalid Xero client ID format.')
++    microsoft_secret = validate_secret(microsoft_secret)
++    xero_secret = validate_secret(xero_secret)
++    common = {'schema': 'stewardence.provider-preview-credentials.v1',
++              'enabled': False, 'owner_user_id': owner}
++    return {
++        'microsoft.json': {
++            **common, 'provider': 'microsoft', 'client_id': MICROSOFT_CLIENT,
++            'client_secret': microsoft_secret, 'tenant_id': MICROSOFT_TENANT,
++            'client_secret_expires_on': MICROSOFT_EXPIRY,
++            'redirect_uri': 'https://www.stewardence.com/integrations/microsoft/callback/',
++            'scopes': ['openid', 'profile', 'offline_access', 'User.Read', 'Directory.Read.All'],
++            'mode': 'owner_tenant_preview',
++        },
++        'xero.json': {
++            **common, 'provider': 'xero', 'client_id': xero_client,
++            'client_secret': xero_secret,
++            'redirect_uri': 'https://www.stewardence.com/integrations/xero/callback/',
++            'scopes': ['offline_access', 'accounting.settings.read',
++                       'accounting.reports.profitandloss.read'],
++            'require_demo_company': True,
++        },
++        'keyring.json': {
++            'schema': 'stewardence.provider-preview-keyring.v1',
++            'active_key_id': 'preview-v1',
++            'keys': {'preview-v1': base64.b64encode(secrets.token_bytes(32)).decode()},
++        },
++    }
++
++
++def write_documents(folder, payloads, uid=10001, gid=10001):
++    for name, payload in payloads.items():
++        require(name in ('microsoft.json', 'xero.json', 'keyring.json'),
++                'Unexpected credential filename.')
++        path = folder / name
++        with path.open('xb') as stream:
++            os.fchmod(stream.fileno(), 0o600)
++            os.fchown(stream.fileno(), uid, gid)
++            stream.write(json.dumps(payload, sort_keys=True).encode())
++            stream.flush()
++            os.fsync(stream.fileno())
++        require(json.loads(path.read_bytes()) == payload, 'Credential readback failed.')
++        info = path.lstat()
++        require(stat.S_IMODE(info.st_mode) == 0o600
++                and info.st_uid == uid and info.st_gid == gid,
++                'Credential permissions failed.')
++
++
++def main():
++    require(os.geteuid() == 0 and sys.stdin.isatty(),
++            'Run with sudo -n python3 in an interactive SSH terminal.')
++    warnings.simplefilter('error', getpass.GetPassWarning)
++    os.umask(0o077)
++    root_info = ROOT.lstat()
++    require(stat.S_ISDIR(root_info.st_mode) and root_info.st_uid == 0
++            and not root_info.st_mode & 0o022, 'Credential parent is not protected.')
++    lock_fd = os.open(ROOT / '.provider-preview.lock',
++                      os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
++    with os.fdopen(lock_fd, 'w') as lock:
++        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        require(not os.path.lexists(DESTINATION),
++                'Provider credential directory already exists; nothing overwritten.')
++        baseline = preflight()
++        print('PRIVATE_RUNTIME_PREFLIGHT=PASS', flush=True)
++        print('Inputs stay on this server. Paste credential VALUES, not secret IDs.', flush=True)
++        microsoft = confirmed_secret('Microsoft client secret')
++        xero_client = getpass.getpass('Xero client ID (hidden): ').strip()
++        xero = confirmed_secret('Xero client secret')
++        payloads = documents(baseline[2], microsoft, xero_client, xero)
++        temporary = Path(tempfile.mkdtemp(prefix='.provider-preview-', dir=ROOT))
++        try:
++            write_documents(temporary, payloads)
++            require(preflight() == baseline, 'Runtime changed during preparation.')
++            require(not os.path.lexists(DESTINATION), 'Credential destination now exists.')
++            os.rename(temporary, DESTINATION)
++            directory_fd = os.open(ROOT, os.O_DIRECTORY)
++            try:
++                os.fsync(directory_fd)
++            finally:
++                os.close(directory_fd)
++        finally:
++            if temporary.exists():
++                shutil.rmtree(temporary)
++        print('MICROSOFT_CREDENTIALS_STAGED=PASS')
++        print('XERO_CREDENTIALS_STAGED=PASS')
++        print('PRIVATE_FILE_PERMISSIONS=PASS')
++        print('EXISTING_PREVIEW_OWNER_BINDING=PASS')
++        print('APPLICATION_MOUNTS=NOT_CHANGED')
++        print('MICROSOFT_AND_XERO=STAGED_DISABLED')
++        print('LIVE_PROVIDER_AUTHENTICATION=NOT_TESTED')
++        print('AUTOMATION_PURCHASES=DISABLED')
++        print('WORKER=NOT_STARTED')
++        print('DATABASE_WRITES=NONE_REQUESTED')
++
++
++if __name__ == '__main__':
++    try:
++        main()
++    except RuntimeError as error:
++        print('PROVIDER_CREDENTIAL_SETUP=STOPPED: ' + str(error))
++        sys.exit(1)
++    except (KeyboardInterrupt, EOFError):
++        print('PROVIDER_CREDENTIAL_SETUP=CANCELLED')
++        sys.exit(1)
++    except Exception:
++        print('PROVIDER_CREDENTIAL_SETUP=FAILED; details suppressed to protect credentials.')
++        sys.exit(1)
+--- baseline/renderer/templates/report.html
++++ candidate/renderer/templates/report.html
+@@ -50,14 +50,14 @@
+     <div class="metric"><span>Tools assessed</span><strong>{{ report.executive_summary.inventory_count }}</strong></div>
+     <div class="metric"><span>Policy findings</span><strong>{{ report.executive_summary.finding_count }}</strong></div>
+     <div class="metric"><span>Monthly spend</span><strong>{{ report.executive_summary.monthly_spend_display }}</strong></div>
+-  </div>{% if report.executive_summary.highest_individual_risk %}<p>Highest individual tool risk: <strong>{{ report.executive_summary.highest_individual_risk.band }}</strong> ({{ report.executive_summary.highest_individual_risk.score }}/100) for {{ report.executive_summary.highest_individual_risk.tool_name }}.</p>{% endif %}<p>Estimated monthly net value: <strong>${{ report.executive_summary.monthly_net_value }}</strong>.</p></section>
++  </div>{% if report.executive_summary.highest_individual_risk %}<p>Highest individual tool risk: <strong>{{ report.executive_summary.highest_individual_risk.band }}</strong> ({{ report.executive_summary.highest_individual_risk.score }}/100) for {{ report.executive_summary.highest_individual_risk.tool_name }}.</p>{% endif %}<p>Estimated monthly net value: <strong>{% if report.executive_summary.monthly_net_value != None %}${{ report.executive_summary.monthly_net_value }}{% else %}Unknown{% endif %}</strong>.</p></section>
+   <section><h2>AI and software inventory</h2><table><thead><tr><th>Tool</th><th>Vendor</th><th>Department</th><th>Status</th><th>Monthly cost</th></tr></thead><tbody>{% for tool in report.inventory %}<tr><td>{{ tool.display_name }} ({{ tool.provenance.display_name }})</td><td>{{ tool.vendor_name }} ({{ tool.provenance.vendor_name }})</td><td>{{ tool.department|default:"Unknown" }} ({{ tool.provenance.department }})</td><td>{{ tool.status|title }} ({{ tool.provenance.status }})</td><td>{{ tool.monthly_cost_display }} ({{ tool.provenance.monthly_cost_cents }})</td></tr>{% endfor %}</tbody></table></section>
+   <section><h2>Overall risk overview</h2><p>Overall risk is summarized by the highest individual tool risk; it is not a compliance certification.</p><div class="grid">{% for band, count in report.risk_overview.counts_by_band.items %}<div class="metric"><span>{{ band }}</span><strong>{{ count }}</strong></div>{% endfor %}</div></section>
+   <section><h2>Individual tool risk</h2>{% for tool in report.inventory %}<article class="item"><h3>{{ tool.display_name }} - {{ tool.risk.band }} ({{ tool.risk.score }}/100, {{ tool.risk.provenance }})</h3><p>Risk engine {{ tool.risk.engine_version }}; configuration {{ tool.risk.configuration_version }}</p><ul>{% for dimension in tool.risk.dimensions %}<li>{{ dimension.dimension|title }}: {{ dimension.raw_points }} raw, {{ dimension.weight_percent }}% weight, {{ dimension.weighted_points }} weighted</li>{% endfor %}</ul></article>{% endfor %}</section>
+   <section><h2>Failed and warning policy findings</h2>{% for finding in report.policy_findings %}<article class="item"><div class="eyebrow">{{ finding.result }} - {{ finding.severity }}</div><h3>{{ finding.tool_name }}</h3><p>{{ finding.explanation }}</p><p><strong>Rule:</strong> {{ finding.rule_id }} version {{ finding.rule_version }}</p><p><strong>Recommended remediation:</strong> {{ finding.recommended_remediation }}</p></article>{% empty %}<p>No failed or warning policies were recorded.</p>{% endfor %}</section>
+   <section><h2>Recommendations</h2><ol>{% for recommendation in report.recommendations %}<li><strong>{{ recommendation.tool_name }}:</strong> {{ recommendation.remediation }} ({{ recommendation.severity }})</li>{% empty %}<li>No remediation recommendations were produced.</li>{% endfor %}</ol></section>
+   <section><h2>AI and software expenditure</h2><p><strong>{{ report.ai_expenditure.monthly_total_display }}</strong> monthly subscription cost</p><ul>{% for item in report.ai_expenditure.items %}<li>{{ item.tool_name }} - {{ item.monthly_cost_display }} ({{ item.provenance }})</li>{% endfor %}</ul></section>
+-  <section><h2>Return on investment</h2><p>Results are {{ report.roi.result.provenance }} from the captured assumptions.</p><table><tbody><tr><th>Monthly value</th><td>${{ report.roi.result.monthly_value }}</td><th>Monthly total cost</th><td>${{ report.roi.result.monthly_total_cost }}</td></tr><tr><th>Monthly net value</th><td>${{ report.roi.result.monthly_net_value }}</td><th>ROI</th><td>{% if report.roi.result.roi_percent != None %}{{ report.roi.result.roi_percent }}%{% else %}Not available{% endif %}</td></tr></tbody></table><h3>Arithmetic</h3><ul>{% for line in report.roi.result.arithmetic %}<li>{{ line }}</li>{% endfor %}</ul><h3>Assumption sources</h3><ul>{% for name, assumption in report.roi.assumptions.items %}<li>{{ name|title }}: {{ assumption.value }} - {{ assumption.provenance_class }}{% if assumption.provenance != assumption.provenance_class %} ({{ assumption.provenance }}){% endif %}</li>{% endfor %}</ul></section>
++  <section><h2>Return on investment</h2><p>Results are {{ report.roi.result.provenance }} from the captured assumptions.</p><table><tbody><tr><th>Monthly value</th><td>{% if report.roi.result.monthly_value != None %}${{ report.roi.result.monthly_value }}{% else %}Unknown{% endif %}</td><th>Monthly total cost</th><td>{% if report.roi.result.monthly_total_cost != None %}${{ report.roi.result.monthly_total_cost }}{% else %}Unknown{% endif %}</td></tr><tr><th>Monthly net value</th><td>{% if report.roi.result.monthly_net_value != None %}${{ report.roi.result.monthly_net_value }}{% else %}Unknown{% endif %}</td><th>ROI</th><td>{% if report.roi.result.roi_percent != None %}{{ report.roi.result.roi_percent }}%{% else %}Not available: {{ report.roi.result.roi_unavailable_reason|default:"monthly total cost is zero" }}{% endif %}</td></tr></tbody></table><h3>Arithmetic</h3><ul>{% for line in report.roi.result.arithmetic %}<li>{{ line }}</li>{% endfor %}</ul><h3>Assumption sources</h3><ul>{% for name, assumption in report.roi.assumptions.items %}<li>{{ name|title }}: {{ assumption.value }} - {{ assumption.provenance_class }}{% if assumption.provenance != assumption.provenance_class %} ({{ assumption.provenance }}){% endif %}</li>{% endfor %}</ul></section>
+   <section><h2>Methodology</h2><p>{{ report.methodology.summary }}</p><p>{{ report.methodology.evidence_boundary }}</p><p>Report context {{ report.methodology.report_context_version }}; snapshot schema {{ report.methodology.snapshot_schema_version }}</p><ul>{% for engine, version in report.methodology.engine_versions.items %}<li>{{ engine|title }} engine: {{ version }}</li>{% endfor %}</ul><h3>Provenance labels</h3><ul>{% for label, meaning in report.methodology.provenance_legend.items %}<li><strong>{{ label }}:</strong> {{ meaning }}</li>{% endfor %}</ul></section>
+   <section><h2>Evidence sources</h2><ul>{% for evidence in report.evidence %}<li>{% if evidence.type == "collector_observation" %}<strong>{{ evidence.raw_identifier }}</strong> - {{ evidence.provenance }} by {{ evidence.detector_id }} v{{ evidence.detector_version }} at {{ evidence.observed_at }}; exact catalog reconciliation {{ evidence.reconciliation_provenance }}; evidence SHA-256 {{ evidence.reference }}; scan SHA-256 {{ evidence.scan_hash }}{% else %}{{ evidence.type|title }} - {{ evidence.reference }} ({{ evidence.provenance }}){% endif %}</li>{% empty %}<li>No external evidence references were attached.</li>{% endfor %}</ul></section>
+   <section><h2>Assessment and report metadata</h2><table><tbody><tr><th>Report identifier</th><td>{{ report.metadata.report_identifier }}</td><th>Assessment date</th><td>{{ report.assessment_date }}</td></tr><tr><th>Assessment ID</th><td colspan="3" class="hash">{{ report.metadata.assessment_id }}</td></tr><tr><th>Snapshot ID</th><td colspan="3" class="hash">{{ report.metadata.assessment_snapshot_id }}</td></tr><tr><th>Input SHA-256</th><td colspan="3" class="hash">{{ report.metadata.input_sha256 }}</td></tr><tr><th>Result SHA-256</th><td colspan="3" class="hash">{{ report.metadata.result_sha256 }}</td></tr></tbody></table><h3>Ruleset versions</h3><ul><li>Platform: {{ report.ruleset_versions.platform }}</li><li>Industry: {{ report.ruleset_versions.industry.name }} {{ report.ruleset_versions.industry.version }}</li>{% for rule in report.ruleset_versions.organization %}<li>Organization rule: {{ rule.name }} version {{ rule.version }} - {{ rule.source_type }}{% if rule.source_type == "detector" %}; detector {{ rule.detector_id }} v{{ rule.detector_version }}; mapping {{ rule.mapping_id }} v{{ rule.mapping_version }}; source inventory {{ rule.source_inventory_item_id }}; generation fingerprint {{ rule.generation_fingerprint }}{% endif %}</li>{% empty %}<li>Organization rules: none enabled</li>{% endfor %}</ul></section>
+--- baseline/src/agentledger/urls.py
++++ candidate/src/agentledger/urls.py
+@@ -3,6 +3,7 @@
+ 
+ from .downloads import download_view
+ from .health import healthz, readyz
++from apps.jobs.views import operations_dashboard
+ 
+ 
+ def home_view(request):
+@@ -16,6 +17,7 @@
+ 
+ 
+ urlpatterns = [
++    path("core/operations/", operations_dashboard, name="core-operations"),
+     path("integrations/", include("apps.integrations.urls")),
+     path(
+         "healthz",
+--- baseline/templates/base.html
++++ candidate/templates/base.html
+@@ -53,6 +53,8 @@
+               </a>
+             {% endif %}
+ 
++            {% if request.organization_id %}<a href="{% url 'reports:history' %}"{% if request.resolver_match.namespace == 'reports' %} aria-current="page"{% endif %}><span class="nav-icon" aria-hidden="true">▤</span><span>Report history</span></a>{% endif %}
++            {% if request.organization_id %}<a href="{% url 'core-operations' %}"><span class="nav-icon" aria-hidden="true">◷</span><span>Core operations</span></a>{% endif %}
+             <p class="nav-label nav-label-spaced">Account</p>
+ 
+             <a href="{% url 'organizations:setup' %}"{% if request.resolver_match.url_name == 'setup' %} aria-current="page"{% endif %}>
+--- baseline/templates/inventory/roi.html
++++ candidate/templates/inventory/roi.html
+@@ -11,8 +11,9 @@
+   </form>
+   {% if roi_result %}<section class="card risk-summary" aria-labelledby="roi-heading">
+     <p class="eyebrow">Deterministic calculation</p>
+-    <h2 id="roi-heading">Monthly net value: ${{ roi_result.monthly_net_value }}</h2>
+-    <p><strong>ROI:</strong> {% if roi_result.roi_percent is not None %}{{ roi_result.roi_percent }}%{% else %}Not available because monthly total cost is $0.00{% endif %}</p>
++    <h2 id="roi-heading">Monthly net value: {% if roi_result.monthly_net_value is not None %}${{ roi_result.monthly_net_value }}{% else %}Unknown{% endif %}</h2>
++    <p><strong>ROI:</strong> {% if roi_result.roi_percent is not None %}{{ roi_result.roi_percent }}%{% else %}Not available: {{ roi_result.roi_unavailable_reason }}{% endif %}</p>
++    {% if roi_result.unknown_inputs %}<p>Complete the unknown assumptions before interpreting overall ROI. Known components remain available below.</p>{% endif %}
+     <h3>Arithmetic</h3><p>Money is rounded to the nearest cent after each step.</p><ol>{% for line in roi_result.arithmetic %}<li>{{ line }}</li>{% endfor %}</ol>
+     <h3>Assumption sources</h3><dl class="detail-grid">
+       <div><dt>Monthly subscription cost</dt><dd>{{ roi_result.inputs.monthly_subscription_cost.provenance.value }}</dd></div>
+--- baseline/templates/jobs/operations.html
++++ candidate/templates/jobs/operations.html
+@@ -0,0 +1,9 @@
++{% extends "base.html" %}
++{% block title %}Core operations{% endblock %}
++{% block content %}
++<section class="page-heading"><p class="eyebrow">Current firm</p><h1>Core operations</h1><p>Calculated from stored jobs and receipts as of {{ as_of }}. These records do not establish live service health or whether a worker is running.</p></section>
++{% if not integrity_ok %}<section class="card" role="alert"><h2>Receipt integrity needs review</h2><p>Receipt metrics are withheld because verification failed.</p></section>{% endif %}
++<section class="card"><h2>Recorded workflow states</h2><dl>{% for row in counts %}<dt>{{ row.status|title }}</dt><dd>{{ row.count }}</dd>{% empty %}<dt>Coverage</dt><dd>No recorded workflows</dd>{% endfor %}</dl></section>
++<section class="card"><h2>Operations requiring review</h2>{% for job in alerts %}<p role="alert">{{ job.get_job_type_display }} stopped after {{ job.attempts }} attempt{{ job.attempts|pluralize }}. Review is required before it can resume.</p>{% empty %}<p>No recorded review holds. This does not prove every service is healthy.</p>{% endfor %}</section>
++<section class="card"><h2>Latest recovery receipts</h2><p>Showing up to 50 recorded outcomes.</p><table><thead><tr><th>Recorded</th><th>Outcome</th><th>Attempt</th><th>Receipt</th></tr></thead><tbody>{% for receipt in receipts %}<tr><td>{{ receipt.created_at }}</td><td>{{ receipt.get_outcome_display }}</td><td>{{ receipt.attempt }}</td><td>{{ receipt.id }}</td></tr>{% empty %}<tr><td colspan="4">No verified receipts available</td></tr>{% endfor %}</tbody></table></section>
++{% endblock %}
+--- baseline/templates/reports/detail.html
++++ candidate/templates/reports/detail.html
+@@ -6,7 +6,7 @@
+       <p class="eyebrow">{{ report.metadata.report_identifier }}</p>
+       <h1>{{ report.title }}</h1>
+       <p class="report-organization">{{ report.metadata.organization_display_name }}</p>
+-      <p><a class="button" href="{% url 'reports:download' report_id %}">Download PDF</a></p>
++      {% if has_pdf %}<p><a class="button" href="{% url 'reports:download' report_id %}">Download PDF</a></p>{% else %}<p role="status">{{ pdf_status }}</p>{% endif %}
+       <dl class="report-meta">
+         <div><dt>Assessment date</dt><dd>{{ report.assessment_date }}</dd></div>
+         <div><dt>Assessment version</dt><dd>{{ report.metadata.assessment_version }}</dd></div>
+@@ -24,7 +24,7 @@
+       {% if report.executive_summary.highest_individual_risk %}
+         <p>The highest individual tool risk is <strong>{{ report.executive_summary.highest_individual_risk.band }}</strong> ({{ report.executive_summary.highest_individual_risk.score }}/100) for {{ report.executive_summary.highest_individual_risk.tool_name }}.</p>
+       {% endif %}
+-      <p>The selected ROI analysis estimates monthly net value of <strong>${{ report.executive_summary.monthly_net_value }}</strong>.</p>
++      <p>The selected ROI analysis estimates monthly net value of <strong>{% if report.executive_summary.monthly_net_value != None %}${{ report.executive_summary.monthly_net_value }}{% else %}Unknown{% endif %}</strong>.</p>
+     </section>
+ 
+     <section class="card report-section" id="inventory">
+@@ -106,10 +106,10 @@
+       <h2>Return on investment</h2>
+       <p class="muted">Results are {{ report.roi.result.provenance }} from the captured assumptions.</p>
+       <dl class="detail-grid">
+-        <div><dt>Monthly value</dt><dd>${{ report.roi.result.monthly_value }}</dd></div>
+-        <div><dt>Monthly total cost</dt><dd>${{ report.roi.result.monthly_total_cost }}</dd></div>
+-        <div><dt>Monthly net value</dt><dd>${{ report.roi.result.monthly_net_value }}</dd></div>
+-        <div><dt>ROI</dt><dd>{% if report.roi.result.roi_percent != None %}{{ report.roi.result.roi_percent }}%{% else %}Not available because total cost is zero{% endif %}</dd></div>
++        <div><dt>Monthly value</dt><dd>{% if report.roi.result.monthly_value != None %}${{ report.roi.result.monthly_value }}{% else %}Unknown{% endif %}</dd></div>
++        <div><dt>Monthly total cost</dt><dd>{% if report.roi.result.monthly_total_cost != None %}${{ report.roi.result.monthly_total_cost }}{% else %}Unknown{% endif %}</dd></div>
++        <div><dt>Monthly net value</dt><dd>{% if report.roi.result.monthly_net_value != None %}${{ report.roi.result.monthly_net_value }}{% else %}Unknown{% endif %}</dd></div>
++        <div><dt>ROI</dt><dd>{% if report.roi.result.roi_percent != None %}{{ report.roi.result.roi_percent }}%{% else %}Not available: {{ report.roi.result.roi_unavailable_reason|default:"monthly total cost is zero" }}{% endif %}</dd></div>
+       </dl>
+       <details><summary>Show ROI arithmetic and assumption sources</summary>
+         <ul>{% for line in report.roi.result.arithmetic %}<li>{{ line }}</li>{% endfor %}</ul>
+--- baseline/templates/reports/history.html
++++ candidate/templates/reports/history.html
+@@ -0,0 +1,13 @@
++{% extends "base.html" %}
++{% block title %}Report history{% endblock %}
++{% block content %}
++<section class="page-heading"><p class="eyebrow">Current firm</p><h1>Report history</h1><p>Reports preserve the assessment and assumptions captured when they were created.</p></section>
++<section class="card">
++{% if rows %}
++<table><thead><tr><th scope="col">Report</th><th scope="col">Created</th><th scope="col">Assessment version</th><th scope="col">PDF</th></tr></thead><tbody>
++{% for row in rows %}<tr><td><a href="{% url 'reports:detail' row.id %}">{{ row.identifier }}</a></td><td>{{ row.created_at }}</td><td>{{ row.assessment_version }}</td><td>{% if row.has_pdf %}<a href="{% url 'reports:download' row.id %}">Download stored PDF</a>{% else %}PDF not stored yet{% endif %}</td></tr>{% endfor %}
++</tbody></table>
++<nav aria-label="Report history pages">{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">Previous</a>{% endif %} <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span> {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Next</a>{% endif %}</nav>
++{% else %}<p>No reports yet. Save an assessment, then generate its report to start your history.</p><a href="{% url 'inventory:list' %}">Open inventory</a>{% endif %}
++</section>
++{% endblock %}
+--- baseline/tests/test_audit_job_handler.py
++++ candidate/tests/test_audit_job_handler.py
+@@ -313,7 +313,7 @@
+     )
+ 
+ 
+-def test_sealer_failure_uses_existing_worker_retry_semantics(
++def test_unclassified_sealer_failure_stops_for_review(
+     organization,
+     monkeypatch,
+ ):
+@@ -354,11 +354,11 @@
+         job_type=BackgroundJob.Type.AUDIT_BATCH_SEAL,
+     )
+ 
+-    assert job.status == BackgroundJob.Status.QUEUED
++    assert job.status == BackgroundJob.Status.FAILED
+     assert job.attempts == 1
+-    assert job.error_code == "job_execution_failed"
++    assert job.error_code == "job_requires_review"
+     assert job.safe_error_summary == (
+-        "The background operation failed and may be retried."
++        "The operation stopped safely and requires review."
+     )
+     assert job.error_fingerprint
+     assert "injected audit sealing failure" not in (job.safe_error_summary or "")
+--- baseline/tests/test_background_jobs.py
++++ candidate/tests/test_background_jobs.py
+@@ -394,18 +394,36 @@
+ 
+ 
+ class FailingHandler:
+-    def __init__(self, secret):
++    def __init__(self, secret, error_type=RuntimeError):
+         self.secret = secret
++        self.error_type = error_type
+ 
+     def prepare(self, job):
+         return {"job_id": str(job.id)}
+ 
+     def execute_external(self, prepared, heartbeat):
+         heartbeat()
+-        raise RuntimeError(self.secret)
++        raise self.error_type(self.secret)
+ 
+     def persist(self, job, result):
+         raise AssertionError("persist must not run after external failure")
++
++
++def test_expired_lease_cannot_publish_results(organization):
++    from django.db import connection
++    from apps.jobs.worker import execute_claimed_job, JobExecution
++    from apps.jobs.queue import claim_next_job, LostJobLease
++    queued = enqueue(organization)
++    claimed = claim_next_job("expired-worker")
++    class ExpiringHandler(RecordingHandler):
++        def execute_external(self, prepared, heartbeat):
++            with connection.cursor() as cursor:
++                cursor.execute("UPDATE background_jobs SET lock_expires_at = clock_timestamp() - interval '1 second' WHERE id = %s", [queued.id])
++            return prepared
++    handler = ExpiringHandler()
++    with pytest.raises(LostJobLease):
++        execute_claimed_job(JobExecution(claimed, "expired-worker"), handler)
++    assert handler.persisted_results == []
+ 
+ 
+ def test_drain_queue_executes_until_queue_is_empty_with_tenant_boundaries(
+@@ -451,13 +469,14 @@
+     organization,
+ ):
+     from apps.jobs.worker import drain_queue
++    from httpx import ReadTimeout
+ 
+     secret = "SECRET-CUSTOMER-DATABASE-TOKEN"
+     job = enqueue(organization)
+ 
+     def resolver(job_type):
+         assert job_type == BackgroundJob.Type.RISK_REASSESSMENT
+-        return FailingHandler(secret)
++        return FailingHandler(secret, ReadTimeout)
+ 
+     processed = drain_queue(
+         "worker-a",
+@@ -473,7 +492,7 @@
+     assert job.attempts == 1
+     assert job.error_code == "job_execution_failed"
+     assert job.safe_error_summary == (
+-        "The background operation failed and may be retried."
++        "The operation encountered a temporary failure and will retry within its attempt limit."
+     )
+     assert len(job.error_fingerprint) == 64
+ 
+@@ -519,7 +538,9 @@
+     failed_job.refresh_from_db()
+     successful_job.refresh_from_db()
+ 
+-    assert failed_job.status == BackgroundJob.Status.QUEUED
++    assert failed_job.status == BackgroundJob.Status.FAILED
++    assert failed_job.error_code == "job_requires_review"
++    assert "private failure detail" not in failed_job.safe_error_summary
+     assert failed_job.attempts == 1
+ 
+     assert successful_job.status == BackgroundJob.Status.COMPLETED
+--- baseline/tests/test_inventory.py
++++ candidate/tests/test_inventory.py
+@@ -201,7 +201,8 @@
+     }
+ 
+     response = client.post(reverse("inventory:roi", args=(item.id,)), zero_payload)
+-    assert b"Not available because monthly total cost is $0.00" in response.content
++    assert b"Required assumptions are unknown" in response.content
++    assert b"Monthly net value: Unknown" in response.content
+     assert b"Infinity" not in response.content
+ 
+     zero_payload["hours_saved_per_month"] = "2.00"
+--- baseline/tests/test_operations_dashboard.py
++++ candidate/tests/test_operations_dashboard.py
+@@ -0,0 +1,26 @@
++import pytest
++from django.urls import reverse
++from apps.jobs.models import BackgroundJob
++from apps.jobs.queue import enqueue_job, claim_next_job, fail_job_with_fence
++
++pytestmark = pytest.mark.django_db(transaction=True)
++
++
++def test_operations_requires_authentication(client):
++    assert client.get(reverse("core-operations")).status_code == 302
++
++
++def test_operations_shows_recorded_holds_without_live_health_claims(client, report_context):
++    _, organization, _, _, _ = report_context
++    job = enqueue_job(organization_id=organization.id, job_type=BackgroundJob.Type.REPORT_GENERATION,
++        payload={"report_id":"fixture-only"}, priority=-100)
++    claimed = claim_next_job("operations-test")
++    assert claimed.id == job.id
++    fail_job_with_fence(job_id=job.id, worker_id="operations-test", claim_token=claimed.claim_token,
++        error_code="job_requires_review", safe_summary="SECRET NOT FOR DISPLAY", fingerprint="safe", retryable=False)
++    response = client.get(reverse("core-operations"))
++    assert response.status_code == 200
++    assert response["Cache-Control"] == "private, no-store"
++    assert b"Review is required before it can resume" in response.content
++    assert b"SECRET NOT FOR DISPLAY" not in response.content
++    assert b"do not establish live service health" in response.content
+--- baseline/tests/test_production_security.py
++++ candidate/tests/test_production_security.py
+@@ -260,7 +260,10 @@
+                 "assert settings.SECURE_CONTENT_TYPE_NOSNIFF is True; "
+                 "assert settings.X_FRAME_OPTIONS == 'DENY'; "
+                 "assert settings.STATIC_URL == '/static/'; "
+-                "assert settings.MIDDLEWARE[1] == "
++                "assert settings.MIDDLEWARE[0] == 'apps.integrations.provider_views.ProviderBoundaryMiddleware'; "
++                "assert settings.MIDDLEWARE[1] == 'apps.integrations.quickbooks_views.QuickBooksBoundaryMiddleware'; "
++                "assert settings.MIDDLEWARE[2] == 'django.middleware.security.SecurityMiddleware'; "
++                "assert settings.MIDDLEWARE[3] == "
+                 "'whitenoise.middleware.WhiteNoiseMiddleware'; "
+                 "assert settings.STORAGES['staticfiles']['BACKEND'] == "
+                 "'whitenoise.storage.CompressedManifestStaticFilesStorage'; "
+--- baseline/tests/test_provider_boundary.py
++++ candidate/tests/test_provider_boundary.py
+@@ -0,0 +1,55 @@
++import logging
++
++import pytest
++from django.http import HttpResponse
++from django.test import RequestFactory
++
++from apps.integrations.logging import NoOAuthCallbackDiagnostics
++from apps.integrations.provider_views import ProviderBoundaryMiddleware
++
++
++@pytest.mark.parametrize("provider", ["microsoft", "xero"])
++@pytest.mark.parametrize("enabled", [True, False])
++@pytest.mark.parametrize("status", [200, 403, 500])
++def test_callback_always_private_empty_redirect(settings, provider, enabled, status):
++    setattr(settings, provider.upper() + "_PREVIEW_ENABLED", enabled)
++    request = RequestFactory().get(
++        f"/integrations/{provider}/callback/?code=private", secure=True
++    )
++    response = ProviderBoundaryMiddleware(
++        lambda req: HttpResponse("private", status=status)
++    )(request)
++    assert response.status_code == 302 and response.content == b""
++    assert response["Location"] == f"/integrations/{provider}/connect/"
++    assert response["Cache-Control"] == "no-cache, no-store"
++    assert response["Referrer-Policy"] == "no-referrer"
++
++
++@pytest.mark.parametrize("provider", ["microsoft", "xero"])
++@pytest.mark.parametrize("fault", ["slash", "http", "post"])
++def test_callback_wrong_shape_stops_before_framework(settings, provider, fault):
++    setattr(settings, provider.upper() + "_PREVIEW_ENABLED", True)
++    path = f"/integrations/{provider}/callback" + ("" if fault == "slash" else "/")
++    factory = RequestFactory()
++    request = (factory.post if fault == "post" else factory.get)(
++        path + "?code=private", secure=fault != "http"
++    )
++
++    def forbidden(request):
++        raise AssertionError("Callback reached downstream middleware")
++
++    assert ProviderBoundaryMiddleware(forbidden)(request).status_code == 302
++
++
++@pytest.mark.parametrize("provider", ["microsoft", "xero"])
++def test_callback_logs_suppressed(provider):
++    record = logging.LogRecord(
++        "django.request",
++        logging.ERROR,
++        "",
++        0,
++        f"/integrations/{provider}/callback/?code=private",
++        (),
++        None,
++    )
++    assert not NoOAuthCallbackDiagnostics().filter(record)
+--- baseline/tests/test_provider_client.py
++++ candidate/tests/test_provider_client.py
+@@ -0,0 +1,249 @@
++from dataclasses import replace
++from urllib.parse import parse_qs, urlsplit
++from uuid import uuid4
++
++import httpx
++import pytest
++
++from apps.integrations.provider_client import (
++    MS_CLIENT,
++    MS_TENANT,
++    SCOPES,
++    ProviderClient,
++    ProviderConfig,
++    strict_json,
++)
++from apps.integrations.quickbooks_client import OAuthError
++
++
++@pytest.fixture(params=["microsoft", "xero"])
++def config(request):
++    provider = request.param
++    return ProviderConfig(
++        provider,
++        MS_CLIENT if provider == "microsoft" else "X" * 32,
++        "secret-test-only",
++        str(uuid4()),
++        f"https://www.stewardence.com/integrations/{provider}/callback/",
++        MS_TENANT if provider == "microsoft" else "",
++    )
++
++
++def test_authorization_uses_fixed_host_and_microsoft_pkce(config):
++    url = ProviderClient(config).authorization_url("a" * 43, "v" * 64)
++    parsed = urlsplit(url)
++    assert parsed.hostname == (
++        "login.microsoftonline.com"
++        if config.provider == "microsoft"
++        else "login.xero.com"
++    )
++    query = parse_qs(parsed.query)
++    assert query["redirect_uri"] == [config.redirect_uri]
++    assert query["scope"] == [" ".join(SCOPES[config.provider])]
++    assert config.client_secret not in url
++    assert ("code_challenge" in query) == (config.provider == "microsoft")
++    if config.provider == "microsoft":
++        assert MS_TENANT in parsed.path and "/common/" not in parsed.path
++        assert query["code_challenge_method"] == ["S256"]
++
++
++def token_response(config):
++    return {
++        "access_token": "access-test-only",
++        "refresh_token": "refresh-test-only",
++        "expires_in": 3600,
++        "token_type": "Bearer",
++        "scope": " ".join(SCOPES[config.provider]),
++    }
++
++
++def test_tokens_use_fixed_endpoint_and_discard_id_token(config):
++    requests = []
++
++    def handle(req):
++        requests.append(req)
++        return httpx.Response(
++            200, json={**token_response(config), "id_token": "unverified-untrusted"}
++        )
++
++    result = ProviderClient(config, transport=httpx.MockTransport(handle)).tokens(
++        code="test-code", verifier="v" * 64
++    )
++    assert "id_token" not in result
++    assert len(requests) == 1 and requests[0].method == "POST"
++    assert str(requests[0].url) == ProviderClient(config).token_url
++
++
++@pytest.mark.parametrize(
++    "fault",
++    [
++        "missing_scope",
++        "bool_expiry",
++        "long_expiry",
++        "missing_refresh",
++        "bad_type",
++        "newline_token",
++    ],
++)
++def test_invalid_tokens_rejected(config, fault):
++    data = token_response(config)
++    changes = {
++        "missing_scope": {"scope": "openid"},
++        "bool_expiry": {"expires_in": True},
++        "long_expiry": {"expires_in": 86401},
++        "missing_refresh": {"refresh_token": None},
++        "bad_type": {"token_type": "Basic"},
++        "newline_token": {"access_token": "bad\nvalue"},
++    }
++    data.update(changes[fault])
++    client = ProviderClient(
++        config, transport=httpx.MockTransport(lambda r: httpx.Response(200, json=data))
++    )
++    with pytest.raises(OAuthError):
++        client.tokens(code="test-code", verifier="v" * 64)
++
++
++@pytest.mark.parametrize("status", [301, 302, 307, 400, 401, 403, 429, 500])
++def test_provider_errors_not_followed_retried_or_echoed(config, status):
++    calls = []
++
++    def handle(req):
++        calls.append(req)
++        return httpx.Response(
++            status,
++            headers={"Location": "https://evil.example/token"},
++            text="secret-response",
++        )
++
++    with pytest.raises(OAuthError) as error:
++        ProviderClient(config, transport=httpx.MockTransport(handle)).tokens(
++            code="fake", verifier="v" * 64
++        )
++    assert "secret-response" not in str(error.value) and len(calls) == 1
++
++
++@pytest.mark.parametrize("body", [b'{"x":1,"x":2}', b'{"x":NaN}', b"\xff", b"[" * 1100])
++def test_invalid_json_rejected(body):
++    with pytest.raises(OAuthError):
++        strict_json(body)
++
++
++def test_large_response_rejected(config):
++    with pytest.raises(OAuthError, match="provider_response_too_large"):
++        ProviderClient(
++            config,
++            transport=httpx.MockTransport(
++                lambda r: httpx.Response(200, content=b"x" * (2 * 1024 * 1024 + 1))
++            ),
++        ).tokens(code="test-code", verifier="v" * 64)
++
++
++def test_microsoft_binds_from_graph_not_token_claims():
++    config = ProviderConfig(
++        "microsoft", MS_CLIENT, "secret", str(uuid4()), "unused", MS_TENANT
++    )
++    client = ProviderClient(
++        config,
++        transport=httpx.MockTransport(
++            lambda r: httpx.Response(200, json={"value": [{"id": MS_TENANT}]})
++        ),
++    )
++    assert client.bind_account("opaque-access") == {"tenant_id": MS_TENANT}
++
++
++@pytest.mark.parametrize(
++    "rows", [[], [{"id": str(uuid4())}], [{"id": MS_TENANT}, {"id": MS_TENANT}]]
++)
++def test_microsoft_rejects_wrong_or_ambiguous_tenant(rows):
++    config = ProviderConfig(
++        "microsoft", MS_CLIENT, "secret", str(uuid4()), "unused", MS_TENANT
++    )
++    client = ProviderClient(
++        config,
++        transport=httpx.MockTransport(
++            lambda r: httpx.Response(200, json={"value": rows})
++        ),
++    )
++    with pytest.raises(OAuthError, match="tenant_mismatch"):
++        client.bind_account("opaque-access")
++
++
++@pytest.mark.parametrize("demo", [False, None, "true", 1])
++def test_xero_rejects_live_or_unproven_demo_company(demo):
++    tenant, conn = str(uuid4()), str(uuid4())
++    config = ProviderConfig("xero", "X" * 32, "secret", str(uuid4()), "unused")
++
++    def handle(req):
++        if req.url.path == "/connections":
++            return httpx.Response(
++                200,
++                json=[{"id": conn, "tenantId": tenant, "tenantType": "ORGANISATION"}],
++            )
++        assert req.headers["xero-tenant-id"] == tenant
++        return httpx.Response(
++            200,
++            json={"Organisations": [{"OrganisationID": tenant, "IsDemoCompany": demo}]},
++        )
++
++    with pytest.raises(OAuthError, match="demo_company_required"):
++        ProviderClient(config, transport=httpx.MockTransport(handle)).bind_account(
++            "opaque-access"
++        )
++
++
++def test_xero_demo_binding_and_disconnect_only_connections_endpoint():
++    tenant, conn = str(uuid4()), str(uuid4())
++    config = ProviderConfig("xero", "X" * 32, "secret", str(uuid4()), "unused")
++    requests = []
++
++    def handle(req):
++        requests.append(req)
++        if req.method == "DELETE":
++            assert req.url.path == "/connections/" + conn
++            return httpx.Response(204)
++        if req.url.path == "/connections":
++            return httpx.Response(
++                200,
++                json=[{"id": conn, "tenantId": tenant, "tenantType": "ORGANISATION"}],
++            )
++        return httpx.Response(
++            200,
++            json={"Organisations": [{"OrganisationID": tenant, "IsDemoCompany": True}]},
++        )
++
++    client = ProviderClient(config, transport=httpx.MockTransport(handle))
++    account = client.bind_account("opaque-access")
++    assert account == {"tenant_id": tenant, "connection_id": conn}
++    assert client.disconnect_remote("opaque-access", account) == "provider_disconnect"
++    assert [r.method for r in requests] == ["GET", "GET", "DELETE"]
++
++
++def test_xero_multiple_connections_require_explicit_future_selection():
++    config = ProviderConfig("xero", "X" * 32, "secret", str(uuid4()), "unused")
++    with pytest.raises(OAuthError, match="one_xero_connection_required"):
++        ProviderClient(
++            config,
++            transport=httpx.MockTransport(lambda r: httpx.Response(200, json=[{}, {}])),
++        ).bind_account("opaque")
++
++
++def test_microsoft_disconnect_has_no_broad_revocation_request():
++    config = ProviderConfig(
++        "microsoft", MS_CLIENT, "secret", str(uuid4()), "unused", MS_TENANT
++    )
++
++    def forbidden(req):
++        raise AssertionError("No global signout or grant write allowed")
++
++    assert (
++        ProviderClient(
++            config, transport=httpx.MockTransport(forbidden)
++        ).disconnect_remote("opaque", {})
++        == "local_disconnect"
++    )
++
++
++def test_expired_secret_blocks_new_authorization(config):
++    expired = replace(config, secret_expires_on="2000-01-01")
++    with pytest.raises(OAuthError, match="client_secret_expired"):
++        ProviderClient(expired).authorization_url("a" * 43, "v" * 64)
+--- baseline/tests/test_provider_credential_staging.py
++++ candidate/tests/test_provider_credential_staging.py
+@@ -0,0 +1,91 @@
++"""Exercise credential-file safety without Docker, providers, or production state."""
++
++import importlib.util
++import json
++import os
++import stat
++from pathlib import Path
++from uuid import uuid4
++
++import pytest
++
++spec = importlib.util.spec_from_file_location(
++    "credential_staging",
++    Path(__file__).resolve().parents[1] / "ops" / "prepare_provider_credentials.py",
++)
++staging = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(staging)
++
++
++def payloads():
++    return staging.documents(str(uuid4()), "m" * 32, "X" * 32, "x" * 32)
++
++
++@pytest.mark.parametrize(
++    "secret",
++    ["", "short", "a" * 4097, "a" * 20 + "\n", "a" * 20 + " ", "a" * 20 + "\x00", None],
++)
++def test_rejects_malformed_secret_without_echo(secret):
++    with pytest.raises(RuntimeError, match="Credential format rejected") as error:
++        staging.validate_secret(secret)
++    if isinstance(secret, str) and secret:
++        assert secret not in str(error.value)
++
++
++def test_profile_binding_and_read_scopes():
++    data = payloads()
++    microsoft, xero = data["microsoft.json"], data["xero.json"]
++    assert microsoft["owner_user_id"] == xero["owner_user_id"]
++    assert not microsoft["enabled"] and not xero["enabled"]
++    assert microsoft["tenant_id"] == staging.MICROSOFT_TENANT
++    assert xero["require_demo_company"] is True
++    assert set(xero["scopes"]) == {
++        "offline_access",
++        "accounting.settings.read",
++        "accounting.reports.profitandloss.read",
++    }
++    assert all("Write" not in scope for scope in microsoft["scopes"])
++
++
++def test_each_install_generates_distinct_key():
++    assert payloads()["keyring.json"]["keys"] != payloads()["keyring.json"]["keys"]
++
++
++def test_private_readback_and_no_overwrite(tmp_path):
++    data = payloads()
++    staging.write_documents(tmp_path, data, os.getuid(), os.getgid())
++    original = {}
++    for name, expected in data.items():
++        path = tmp_path / name
++        assert stat.S_IMODE(path.stat().st_mode) == 0o600
++        assert json.loads(path.read_bytes()) == expected
++        original[name] = path.read_bytes()
++    with pytest.raises(FileExistsError):
++        staging.write_documents(tmp_path, payloads(), os.getuid(), os.getgid())
++    assert {name: (tmp_path / name).read_bytes() for name in original} == original
++
++
++def test_symlink_cannot_overwrite_target(tmp_path):
++    target = tmp_path / "existing"
++    target.write_text("keep")
++    (tmp_path / "microsoft.json").symlink_to(target)
++    with pytest.raises(FileExistsError):
++        staging.write_documents(tmp_path, payloads(), os.getuid(), os.getgid())
++    assert target.read_text() == "keep"
++
++
++def test_nonmatching_secret_stops(monkeypatch):
++    values = iter(["a" * 32, "b" * 32])
++    monkeypatch.setattr(staging.getpass, "getpass", lambda _: next(values))
++    with pytest.raises(RuntimeError, match="did not match"):
++        staging.confirmed_secret("test")
++
++
++def test_invalid_owner_stops():
++    with pytest.raises(ValueError):
++        staging.documents("not-a-uuid", "a" * 32, "X" * 32, "b" * 32)
++
++
++def test_path_traversal_filename_rejected(tmp_path):
++    with pytest.raises(RuntimeError, match="Unexpected credential filename"):
++        staging.write_documents(tmp_path, {"../escape": {}}, os.getuid(), os.getgid())
+--- baseline/tests/test_provider_lifecycle.py
++++ candidate/tests/test_provider_lifecycle.py
+@@ -0,0 +1,296 @@
++import base64
++import json
++from datetime import timedelta
++from unittest.mock import Mock
++from urllib.parse import parse_qs, urlsplit
++from uuid import uuid4
++
++import pytest
++from django.core.exceptions import PermissionDenied
++from django.db import connection
++from django.http import QueryDict
++from django.utils import timezone
++
++from apps.accounts.models import User
++from apps.integrations import provider_services as service
++from apps.integrations.models import ProviderAttempt, ProviderConnection, ProviderEvent
++from apps.integrations.provider_client import MS_CLIENT, MS_TENANT, SCOPES
++from apps.integrations.provider_crypto import decrypt
++from apps.integrations.quickbooks_client import OAuthError
++from apps.integrations.quickbooks_crypto import CredentialError
++from apps.organizations.models import Organization, OrganizationMember
++
++pytestmark = pytest.mark.django_db(transaction=True)
++
++
++@pytest.fixture(params=["microsoft", "xero"])
++def setup(request, settings, tmp_path, monkeypatch):
++    if connection.vendor == "sqlite":
++        monkeypatch.setattr(
++            "agentledger.tenancy.context._set_local_context", lambda *a, **k: None
++        )
++    provider = request.param
++    user = User.objects.create_user("preview-owner@example.com")
++    org = Organization.objects.create(name="Provider qualification")
++    OrganizationMember.objects.create(user=user, organization=org, role="owner")
++    settings.DEBUG = False
++    settings.ALLOWED_HOSTS = ["testserver", "www.stewardence.com"]
++    setattr(settings, provider.upper() + "_PREVIEW_ENABLED", True)
++    data = {
++        "schema": "stewardence.provider-preview-credentials.v1",
++        "provider": provider,
++        "client_id": MS_CLIENT if provider == "microsoft" else "X" * 32,
++        "client_secret": "fake-secret-test-only",
++        "owner_user_id": str(user.id),
++        "redirect_uri": f"https://www.stewardence.com/integrations/{provider}/callback/",
++        "scopes": list(SCOPES[provider]),
++        "tenant_id": MS_TENANT,
++        "client_secret_expires_on": "2099-01-01",
++        "mode": "owner_tenant_preview",
++        "require_demo_company": True,
++    }
++    path = tmp_path / "config.json"
++    path.write_text(json.dumps(data))
++    path.chmod(0o600)
++    setattr(settings, provider.upper() + "_CLIENT_FILE", str(path))
++    key = tmp_path / "key.json"
++    key.write_text(
++        json.dumps(
++            {
++                "schema": "stewardence.provider-preview-keyring.v1",
++                "active_key_id": "test",
++                "keys": {"test": base64.b64encode(b"x" * 32).decode()},
++            }
++        )
++    )
++    key.chmod(0o600)
++    settings.PROVIDER_PREVIEW_KEY_FILE = str(key)
++    fake = Mock()
++    fake.authorization_url.side_effect = lambda state, verifier: (
++        "https://fixed.example/authorize?state=" + state
++    )
++    fake.tokens.return_value = {
++        "access_token": "fake-access",
++        "refresh_token": "fake-refresh",
++        "expires_in": 3600,
++    }
++    fake.bind_account.return_value = {
++        "tenant_id": MS_TENANT if provider == "microsoft" else str(uuid4()),
++        "connection_id": str(uuid4()),
++    }
++    monkeypatch.setattr(service, "ProviderClient", lambda config: fake)
++    return user, org, provider, fake
++
++
++def start(setup):
++    user, org, provider, _ = setup
++    url = service.begin(user, org.id, provider, "a" * 43)
++    state = parse_qs(urlsplit(url).query)["state"][0]
++    return QueryDict("state=" + state + "&code=fake-code")
++
++
++def connected(setup):
++    user, org, provider, _ = setup
++    service.complete(user, org.id, provider, "a" * 43, start(setup))
++    return ProviderConnection.objects.get()
++
++
++def test_connect_refresh_verify_disconnect(setup):
++    user, org, provider, fake = setup
++    obj = connected(setup)
++    assert obj.status == "connected" and "fake-access" not in obj.encrypted_credentials
++    assert ProviderAttempt.objects.get().encrypted_verifier == ""
++    assert decrypt(obj, obj.encrypted_credentials)["access_token"] == "fake-access"
++    service.verify_account(user, org.id, provider)
++    assert ProviderEvent.objects.filter(kind="account_access_verified").count() == 1
++    obj.access_expires_at = timezone.now() - timedelta(seconds=1)
++    obj.save()
++    fake.tokens.return_value = {**fake.tokens.return_value, "refresh_token": "rotated"}
++    assert service.refresh(user, org.id, provider) == "token_refreshed"
++    obj.refresh_from_db()
++    assert decrypt(obj, obj.encrypted_credentials)["refresh_token"] == "rotated"
++    outcome = service.disconnect(user, org.id, provider)
++    obj.refresh_from_db()
++    assert obj.status == "disconnected" and not obj.encrypted_credentials
++    assert outcome == (
++        "local_disconnected" if provider == "microsoft" else "provider_disconnected"
++    )
++    assert fake.disconnect_remote.call_count == (provider == "xero")
++
++
++def test_replayed_callback_never_exchanges_again(setup):
++    user, org, provider, fake = setup
++    query = start(setup)
++    service.complete(user, org.id, provider, "a" * 43, query)
++    with pytest.raises(OAuthError, match="invalid_authorization_state"):
++        service.complete(user, org.id, provider, "a" * 43, query)
++    assert fake.tokens.call_count == 1
++
++
++@pytest.mark.parametrize(
++    "fault", ["expired", "session", "state", "duplicate", "generation"]
++)
++def test_wrong_state_session_expiry_and_generation_fail_before_exchange(setup, fault):
++    user, org, provider, fake = setup
++    query = start(setup)
++    nonce = "a" * 43
++    if fault == "expired":
++        ProviderAttempt.objects.update(expires_at=timezone.now() - timedelta(seconds=1))
++    if fault == "session":
++        nonce = "b" * 43
++    if fault == "state":
++        query = QueryDict("state=" + "b" * 43 + "&code=fake")
++    if fault == "duplicate":
++        query = QueryDict(query.urlencode() + "&code=another")
++    if fault == "generation":
++        ProviderConnection.objects.update(generation=999)
++    with pytest.raises(OAuthError):
++        service.complete(user, org.id, provider, nonce, query)
++    fake.tokens.assert_not_called()
++
++
++def test_failed_exchange_consumes_state_permanently(setup):
++    user, org, provider, fake = setup
++    query = start(setup)
++    fake.tokens.side_effect = OAuthError("provider_rejected_request")
++    with pytest.raises(OAuthError):
++        service.complete(user, org.id, provider, "a" * 43, query)
++    assert ProviderAttempt.objects.get().consumed_at is not None
++    assert not ProviderConnection.objects.get().encrypted_credentials
++    with pytest.raises(OAuthError, match="invalid_authorization_state"):
++        service.complete(user, org.id, provider, "a" * 43, query)
++    assert fake.tokens.call_count == 1
++
++
++def test_wrong_provider_account_never_stored(setup):
++    user, org, provider, fake = setup
++    query = start(setup)
++    fake.bind_account.side_effect = OAuthError("tenant_mismatch")
++    with pytest.raises(OAuthError):
++        service.complete(user, org.id, provider, "a" * 43, query)
++    assert ProviderAttempt.objects.get().consumed_at is not None
++    assert ProviderConnection.objects.get().status == "disconnected"
++
++
++def test_role_removal_denies_all_provider_operations(setup):
++    user, org, provider, fake = setup
++    connected(setup)
++    OrganizationMember.objects.filter(user=user).update(role="viewer")
++    for action in (
++        service.refresh,
++        service.verify_account,
++        service.disconnect,
++        service.status,
++    ):
++        with pytest.raises(PermissionDenied):
++            action(user, org.id, provider)
++    fake.verify_account.assert_not_called()
++
++
++def test_unallowlisted_owner_and_foreign_workspace_denied(setup):
++    user, org, provider, _ = setup
++    other = User.objects.create_user("other@example.com")
++    foreign = Organization.objects.create(name="Foreign")
++    OrganizationMember.objects.create(user=other, organization=foreign, role="owner")
++    with pytest.raises(PermissionDenied):
++        service.begin(other, foreign.id, provider, "a" * 43)
++    with pytest.raises(PermissionDenied):
++        service.begin(user, foreign.id, provider, "a" * 43)
++
++
++def test_crypto_binds_provider_workspace_actor_and_purpose(setup):
++    obj = connected(setup)
++    encrypted = obj.encrypted_credentials
++    for field in ("provider", "organization_id", "connected_by_id"):
++        original = getattr(obj, field)
++        setattr(obj, field, "other" if field == "provider" else uuid4())
++        with pytest.raises(CredentialError):
++            decrypt(obj, encrypted)
++        setattr(obj, field, original)
++    with pytest.raises(CredentialError):
++        decrypt(obj, encrypted, "attempt:other")
++
++
++def test_refresh_failure_commits_reconnect_state(setup):
++    user, org, provider, fake = setup
++    obj = connected(setup)
++    obj.access_expires_at = timezone.now() - timedelta(seconds=1)
++    obj.save()
++    fake.tokens.side_effect = OAuthError("provider_temporarily_unavailable")
++    with pytest.raises(OAuthError):
++        service.refresh(user, org.id, provider)
++    obj.refresh_from_db()
++    assert obj.status == "reconnect"
++
++
++def test_xero_rotated_token_survives_failed_disconnect(setup):
++    user, org, provider, fake = setup
++    if provider != "xero":
++        pytest.skip("Xero remote disconnection only")
++    obj = connected(setup)
++    obj.access_expires_at = timezone.now() - timedelta(seconds=1)
++    obj.save()
++    fake.tokens.return_value = {
++        **fake.tokens.return_value,
++        "refresh_token": "rotated-before-failure",
++    }
++    fake.disconnect_remote.side_effect = OAuthError("provider_temporarily_unavailable")
++    with pytest.raises(OAuthError):
++        service.disconnect(user, org.id, provider)
++    obj.refresh_from_db()
++    assert obj.status == "revoking"
++    assert (
++        decrypt(obj, obj.encrypted_credentials)["refresh_token"]
++        == "rotated-before-failure"
++    )
++
++
++def test_same_origin_forms_and_foreign_origin_csrf(setup):
++    from django.test import Client
++
++    user, org, provider, fake = setup
++    client = Client(enforce_csrf_checks=True)
++    client.force_login(user)
++    session = client.session
++    session["active_organization_id"] = str(org.id)
++    session.save()
++    path = f"/integrations/{provider}/connect/"
++    response = client.get(path, secure=True)
++    assert response.status_code == 200 and response["Referrer-Policy"] == "same-origin"
++    csrf = client.cookies["csrftoken"].value
++    response = client.post(
++        path,
++        {"csrfmiddlewaretoken": csrf, "action": "authorize"},
++        secure=True,
++        HTTP_ORIGIN="https://foreign.example",
++    )
++    assert response.status_code == 403
++    response = client.post(
++        path,
++        {"csrfmiddlewaretoken": csrf, "action": "authorize"},
++        secure=True,
++        HTTP_ORIGIN="https://testserver",
++    )
++    assert response.status_code == 302 and response["Location"].startswith(
++        "https://fixed.example/"
++    )
++
++
++def test_local_recovery_is_explicit_and_does_not_claim_remote_revocation(setup):
++    user, org, provider, fake = setup
++    obj = connected(setup)
++    with pytest.raises(OAuthError):
++        service.forget_failed_connection(user, org.id, provider)
++    obj.status = "revoking"
++    obj.save()
++    if provider == "microsoft":
++        with pytest.raises(OAuthError):
++            service.forget_failed_connection(user, org.id, provider)
++        return
++    service.forget_failed_connection(user, org.id, provider)
++    obj.refresh_from_db()
++    assert obj.status == "disconnected" and obj.encrypted_credentials == ""
++    fake.disconnect_remote.assert_not_called()
++    assert ProviderEvent.objects.filter(
++        connection=obj, kind="local_disconnected_consent_unverified"
++    ).exists()
+--- baseline/tests/test_provider_rls.py
++++ candidate/tests/test_provider_rls.py
+@@ -0,0 +1,188 @@
++import os
++from datetime import timedelta
++
++import pytest
++from django.db import DatabaseError, ProgrammingError, transaction
++from django.utils import timezone
++
++from agentledger.tenancy.context import (
++    activate_tenant,
++    identity_transaction,
++    tenant_transaction,
++)
++from apps.accounts.models import User
++from apps.integrations.models import (
++    ProviderAttempt,
++    ProviderConnection,
++    ProviderEvent,
++)
++from apps.organizations.models import Organization, OrganizationMember
++
++pytestmark = [
++    pytest.mark.rls,
++    pytest.mark.skipif(
++        os.getenv("AGENTLEDGER_RLS_TESTS") != "1",
++        reason="PostgreSQL restricted-role harness required",
++    ),
++    pytest.mark.django_db(
++        transaction=True, databases={"default", "app_runtime", "worker_runtime"}
++    ),
++]
++
++
++@pytest.fixture(params=["microsoft", "xero"])
++def rows(request):
++    result = []
++    for index in range(2):
++        user = User.objects.create_user(f"provider-rls-{index}@example.com")
++        org = Organization.objects.create(name=f"Provider preview {index}")
++        OrganizationMember.objects.create(user=user, organization=org, role="owner")
++        obj = ProviderConnection.objects.create(
++            organization=org, connected_by=user, provider=request.param
++        )
++        attempt = ProviderAttempt.objects.create(
++            connection=obj,
++            state_hash=str(index) * 64,
++            session_hash="a" * 64,
++            generation=0,
++            expires_at=timezone.now() + timedelta(minutes=10),
++        )
++        event = ProviderEvent.objects.create(
++            connection=obj, kind="authorization_started"
++        )
++        result.append((user, org, obj, attempt, event))
++    return result
++
++
++def test_runtime_reads_only_connecting_owner_and_active_tenant(rows):
++    user, org, obj, attempt, event = rows[0]
++    with identity_transaction(user.id, using="app_runtime"):
++        activate_tenant(org.id, using="app_runtime")
++        for model, expected in [
++            (ProviderConnection, obj),
++            (ProviderAttempt, attempt),
++            (ProviderEvent, event),
++        ]:
++            assert list(
++                model.objects.using("app_runtime").values_list("id", flat=True)
++            ) == [expected.id]
++        assert (
++            ProviderConnection.objects.using("app_runtime")
++            .filter(id=rows[1][2].id)
++            .update(status="connected")
++            == 0
++        )
++
++
++def test_foreign_tenant_context_does_not_expose_other_owner(rows):
++    with identity_transaction(rows[0][0].id, using="app_runtime"):
++        activate_tenant(rows[1][1].id, using="app_runtime")
++        assert not ProviderConnection.objects.using("app_runtime").exists()
++        assert not ProviderAttempt.objects.using("app_runtime").exists()
++        assert not ProviderEvent.objects.using("app_runtime").exists()
++
++
++def test_lost_owner_role_removes_credential_access(rows):
++    user, org, *_ = rows[0]
++    OrganizationMember.objects.filter(user=user, organization=org).update(role="viewer")
++    with identity_transaction(user.id, using="app_runtime"):
++        activate_tenant(org.id, using="app_runtime")
++        assert not ProviderConnection.objects.using("app_runtime").exists()
++
++
++def test_runtime_can_insert_and_lock_own_connection(rows):
++    user, org, obj, *_ = rows[0]
++    with identity_transaction(user.id, using="app_runtime"):
++        activate_tenant(org.id, using="app_runtime")
++        found = (
++            ProviderConnection.objects.using("app_runtime")
++            .select_for_update()
++            .get(id=obj.id)
++        )
++        found.status = "connected"
++        found.save(using="app_runtime")
++        ProviderEvent.objects.using("app_runtime").create(
++            connection_id=obj.id, kind="connected"
++        )
++    obj.refresh_from_db()
++    assert obj.status == "connected"
++
++
++def test_cross_tenant_insert_denied(rows):
++    with pytest.raises(DatabaseError):
++        with identity_transaction(rows[0][0].id, using="app_runtime"):
++            activate_tenant(rows[0][1].id, using="app_runtime")
++            ProviderAttempt.objects.using("app_runtime").create(
++                connection_id=rows[1][2].id,
++                state_hash="c" * 64,
++                session_hash="b" * 64,
++                generation=0,
++                expires_at=timezone.now(),
++            )
++
++
++def test_event_history_cannot_be_rewritten(rows):
++    with pytest.raises(DatabaseError):
++        with identity_transaction(rows[0][0].id, using="app_runtime"):
++            activate_tenant(rows[0][1].id, using="app_runtime")
++            ProviderEvent.objects.using("app_runtime").filter(id=rows[0][4].id).update(
++                kind="forged"
++            )
++
++
++@pytest.mark.parametrize("model", [ProviderConnection, ProviderAttempt, ProviderEvent])
++def test_worker_cannot_access_oauth_credentials_or_receipts(rows, model):
++    with pytest.raises(DatabaseError):
++        with tenant_transaction(rows[0][1].id, using="worker_runtime"):
++            list(model.objects.using("worker_runtime").all())
++
++
++def test_runtime_cannot_rebind_connection_identity(rows):
++    user, org, obj, *_ = rows[0]
++    second = Organization.objects.create(name="Same owner second workspace")
++    OrganizationMember.objects.create(user=user, organization=second, role="owner")
++    with pytest.raises(DatabaseError):
++        with identity_transaction(user.id, using="app_runtime"):
++            activate_tenant(org.id, using="app_runtime")
++            ProviderConnection.objects.using("app_runtime").filter(id=obj.id).update(
++                organization_id=second.id
++            )
++
++
++def test_runtime_cannot_change_provider(rows):
++    user, org, obj, *_ = rows[0]
++    with pytest.raises(DatabaseError):
++        with identity_transaction(user.id, using="app_runtime"):
++            activate_tenant(org.id, using="app_runtime")
++            ProviderConnection.objects.using("app_runtime").filter(id=obj.id).update(
++                provider="xero" if obj.provider == "microsoft" else "microsoft"
++            )
++
++
++def test_consumed_attempt_cannot_be_reopened(rows):
++    user, org, obj, attempt, *_ = rows[0]
++    with identity_transaction(user.id, using="app_runtime"):
++        activate_tenant(org.id, using="app_runtime")
++        ProviderAttempt.objects.using("app_runtime").filter(id=attempt.id).update(
++            consumed_at=timezone.now(), encrypted_verifier=""
++        )
++    with pytest.raises(DatabaseError):
++        with identity_transaction(user.id, using="app_runtime"):
++            activate_tenant(org.id, using="app_runtime")
++            ProviderAttempt.objects.using("app_runtime").filter(id=attempt.id).update(
++                consumed_at=None
++            )
++
++
++@pytest.mark.parametrize("model", [ProviderConnection, ProviderAttempt, ProviderEvent])
++def test_no_identity_cannot_read_rows(rows, model):
++    # PostgreSQL may reject the membership-policy identity lookup or filter all
++    # rows first. Neither outcome may expose data; unrelated SQL errors fail.
++    try:
++        with transaction.atomic(using="app_runtime"):
++            exposed = model.objects.using("app_runtime").exists()
++    except ProgrammingError as error:
++        assert getattr(error.__cause__, "sqlstate", None) == "42501"
++        assert "Authenticated user context is not set" in str(error)
++        return
++    assert not exposed
+--- baseline/tests/test_recovery_policy.py
++++ candidate/tests/test_recovery_policy.py
+@@ -0,0 +1,31 @@
++import httpx
++import pytest
++from django.core.exceptions import PermissionDenied, ImproperlyConfigured
++from apps.jobs.recovery import permits_retry
++from apps.reports.render_client import HTTPReportRenderer, ReportRenderError
++
++
++@pytest.mark.parametrize("error", [ValueError("bad payload"), PermissionDenied("wrong firm"),
++    ImproperlyConfigured("missing configuration"), RuntimeError("unclassified")])
++def test_unknown_or_authority_failures_require_review(error):
++    assert not permits_retry(error)
++
++
++def test_wrapped_transport_timeout_is_retryable_but_permission_denial_is_not():
++    cause = httpx.ReadTimeout("private transport details")
++    wrapped = ReportRenderError("request failed")
++    wrapped.__cause__ = cause
++    assert permits_retry(wrapped)
++    denied = PermissionDenied("scope unresolved")
++    denied.__cause__ = cause
++    assert not permits_retry(denied)
++
++
++@pytest.mark.parametrize("status,retry", [(400,False),(401,False),(403,False),(429,True),(503,True)])
++def test_renderer_status_admits_only_bounded_transient_recovery(status, retry):
++    renderer = HTTPReportRenderer(base_url="http://renderer", transport=httpx.MockTransport(
++        lambda request: httpx.Response(status, text="provider secret must never propagate")))
++    with pytest.raises(ReportRenderError) as error:
++        renderer.render({})
++    assert permits_retry(error.value) is retry
++    assert "provider secret" not in str(error.value)
+--- baseline/tests/test_recovery_receipts.py
++++ candidate/tests/test_recovery_receipts.py
+@@ -0,0 +1,38 @@
++import copy
++from uuid import uuid4
++import pytest
++from django.db import DatabaseError, transaction
++from agentledger.tenancy.context import tenant_transaction
++from apps.jobs.models import BackgroundJob, RecoveryReceipt
++from apps.jobs.queue import enqueue_job
++from apps.jobs.worker import drain_queue
++from apps.jobs.receipts import verify_recovery_receipt
++from apps.organizations.models import Organization
++
++pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
++
++
++def test_worker_completion_receipt_is_bound_immutable_and_tenant_private():
++    organization = Organization.objects.create(name="Receipt firm")
++    other = Organization.objects.create(name="Other receipt firm")
++    job = enqueue_job(organization_id=organization.id,
++        job_type=BackgroundJob.Type.REPORT_GENERATION, payload={"report_id":str(uuid4())})
++    class Handler:
++        def prepare(self, job): return None
++        def execute_external(self, prepared, heartbeat): return None
++        def persist(self, job, result): return None
++    drain_queue("receipt-worker", lambda kind: Handler(), using="worker_runtime", max_jobs=1)
++    receipt = RecoveryReceipt.objects.get(job=job)
++    assert verify_recovery_receipt(receipt)
++    assert receipt.outcome == "completed"
++    with tenant_transaction(other.id, using="app_runtime"):
++        assert not RecoveryReceipt.objects.using("app_runtime").filter(id=receipt.id).exists()
++    with tenant_transaction(organization.id, using="app_runtime"):
++        assert RecoveryReceipt.objects.using("app_runtime").filter(id=receipt.id).exists()
++    with pytest.raises(DatabaseError), transaction.atomic():
++        RecoveryReceipt.objects.filter(id=receipt.id).update(payload={})
++    with pytest.raises(DatabaseError), transaction.atomic():
++        RecoveryReceipt.objects.filter(id=receipt.id).delete()
++    changed = copy.copy(receipt)
++    changed.organization_id = other.id
++    assert not verify_recovery_receipt(changed)
+--- baseline/tests/test_renderer.py
++++ candidate/tests/test_renderer.py
+@@ -151,7 +151,7 @@
+     assert "&lt;img src=&quot;file:///etc/passwd&quot;&gt;" in html
+ 
+ 
+-def test_container_sandbox_controls_and_generated_output_path(monkeypatch):
++def test_container_sandbox_controls_and_generated_output_path(monkeypatch, tmp_path):
+     page = Mock()
+     context = Mock()
+     browser = Mock()
+@@ -170,7 +170,7 @@
+     page.pdf.side_effect = write_pdf
+     monkeypatch.setattr("renderer.render.sync_playwright", lambda: manager)
+ 
+-    output_directory = Path.cwd()
++    output_directory = tmp_path
+     rendered = render_pdf(valid_payload(), output_directory=output_directory)
+ 
+     assert rendered.startswith(b"%PDF-")
+--- baseline/tests/test_report_artifacts.py
++++ candidate/tests/test_report_artifacts.py
+@@ -134,6 +134,27 @@
+     assert second.id == first.id
+ 
+ 
++def test_metadata_failure_preserves_object_and_identical_retry_reconciles(
++    artifact_report_context, tmp_path, monkeypatch
++):
++    from apps.reports.models import ReportArtifact
++    report = artifact_report_context["report"]
++    storage = LocalPrivateReportStorage(tmp_path)
++    pdf = b"%PDF-1.7\nrecoverable original\n%%EOF\n"
++    key = build_pdf_object_key(organization_id=report.organization_id,
++        assessment_snapshot_id=report.assessment_snapshot_id, report_id=report.id)
++    with monkeypatch.context() as patch:
++        def fail_create(*args, **kwargs):
++            raise RuntimeError("simulated metadata write failure")
++        patch.setattr("django.db.models.query.QuerySet.create", fail_create)
++        with pytest.raises(RuntimeError, match="simulated metadata"):
++            persist_pdf_artifact(report=report, pdf_bytes=pdf, storage=storage)
++    assert storage.get(key=key) == pdf
++    assert not ReportArtifact.objects.filter(report_id=report.id).exists()
++    artifact = persist_pdf_artifact(report=report, pdf_bytes=pdf, storage=storage)
++    assert read_verified_pdf_artifact(artifact=artifact, storage=storage) == pdf
++
++
+ def test_existing_artifact_rejects_different_bytes(artifact_report_context, tmp_path):
+     report = artifact_report_context["report"]
+     storage = LocalPrivateReportStorage(tmp_path)
+--- baseline/tests/test_report_generation_job.py
++++ candidate/tests/test_report_generation_job.py
+@@ -248,8 +248,12 @@
+             "Body": FakeBody(self.objects[identity]),
+         }
+ 
+-    def put_object(self, *, Bucket, Key, Body, ContentType):
++    def put_object(self, *, Bucket, Key, Body, ContentType, IfNoneMatch):
+         assert ContentType == "application/pdf"
++        assert IfNoneMatch == "*"
++        if (Bucket, Key) in self.objects:
++            raise __import__("botocore.exceptions").exceptions.ClientError(
++                {"Error": {"Code": "PreconditionFailed"}}, "PutObject")
+         self.objects[(Bucket, Key)] = Body
+ 
+     def delete_object(self, *, Bucket, Key):
+--- baseline/tests/test_report_history.py
++++ candidate/tests/test_report_history.py
+@@ -0,0 +1,38 @@
++import pytest
++from django.urls import reverse
++from apps.reports.services import create_report
++from apps.organizations.models import Organization
++
++pytestmark = pytest.mark.django_db
++
++
++def test_history_requires_login(client):
++    response = client.get(reverse("reports:history"))
++    assert response.status_code == 302
++    assert "login" in response.url
++
++
++def test_history_empty_and_current_firm_only(client, report_context):
++    user, organization, _, _, snapshot = report_context
++    url = reverse("reports:history")
++    assert b"No reports yet" in client.get(url).content
++    report = create_report(organization_id=organization.id,
++        assessment_snapshot_id=snapshot.id, created_by_id=user.id)
++    response = client.get(url)
++    assert response.status_code == 200
++    assert response["Cache-Control"] == "private, no-store"
++    assert report.report_identifier.encode() in response.content
++    assert b"PDF not stored yet" in response.content
++    # Changing the active firm never grants membership or reveals the old firm.
++    other = Organization.objects.create(name="Unrelated firm")
++    session = client.session
++    session["active_organization_id"] = str(other.id)
++    session.save()
++    denied = client.get(url)
++    assert report.report_identifier.encode() not in denied.content
++    assert denied.status_code in (302, 403, 404)
++
++
++def test_history_is_read_only_and_handles_invalid_page(client, report_context):
++    assert client.post(reverse("reports:history")).status_code == 405
++    assert client.get(reverse("reports:history"), {"page":"invalid"}).status_code == 200
+--- baseline/tests/test_report_recovery_states.py
++++ candidate/tests/test_report_recovery_states.py
+@@ -0,0 +1,30 @@
++import pytest
++from django.urls import reverse
++from apps.jobs.models import BackgroundJob
++from apps.jobs.queue import claim_next_job, fail_job_with_fence
++from apps.reports.jobs import ensure_report_generation_job
++from apps.reports.services import create_report
++
++pytestmark = pytest.mark.django_db(transaction=True)
++
++
++def test_report_retry_cannot_bypass_review_hold(client, report_context):
++    user, organization, _, _, snapshot = report_context
++    report = create_report(organization_id=organization.id,
++        assessment_snapshot_id=snapshot.id, created_by_id=user.id)
++    queued = ensure_report_generation_job(report=report)
++    BackgroundJob.objects.filter(id=queued.id).update(priority=-100)
++    claimed = claim_next_job("test-recovery")
++    assert claimed.id == queued.id
++    fail_job_with_fence(job_id=claimed.id, worker_id="test-recovery",
++        claim_token=claimed.claim_token, error_code="job_requires_review",
++        safe_summary="Requires review", fingerprint="safe", retryable=False)
++    existing = ensure_report_generation_job(report=report)
++    assert existing.id == queued.id
++    assert existing.status == BackgroundJob.Status.FAILED
++    assert BackgroundJob.objects.filter(payload={"report_id":str(report.id)}).count() == 1
++    response = client.get(reverse("reports:detail", args=(report.id,)))
++    assert response.status_code == 200
++    assert response["Cache-Control"] == "private, no-store"
++    assert b"stopped safely and requires review" in response.content
++    assert b"Download PDF" not in response.content
+--- baseline/tests/test_report_storage_atomic.py
++++ candidate/tests/test_report_storage_atomic.py
+@@ -0,0 +1,51 @@
++from concurrent.futures import ThreadPoolExecutor
++from threading import Barrier
++import io
++
++import pytest
++from botocore.exceptions import ClientError
++from apps.reports.storage import LocalPrivateReportStorage, S3PrivateReportStorage, ReportStorageError
++
++
++def test_local_concurrent_publish_never_overwrites_or_leaves_partial_files(tmp_path):
++    storage = LocalPrivateReportStorage(tmp_path)
++    barrier = Barrier(2)
++    contents = [b"%PDF-first", b"%PDF-second"]
++    def publish(content):
++        barrier.wait()
++        try:
++            storage.put(key="firm/report.pdf", content=content, content_type="application/pdf")
++            return content
++        except ReportStorageError:
++            return None
++    with ThreadPoolExecutor(max_workers=2) as executor:
++        results = list(executor.map(publish, contents))
++    assert sum(result is not None for result in results) == 1
++    winner = next(result for result in results if result is not None)
++    assert storage.get(key="firm/report.pdf") == winner
++    assert list((tmp_path/"firm").glob(".report-*")) == []
++    assert (tmp_path/"firm/report.pdf").stat().st_mode & 0o077 == 0
++
++
++@pytest.mark.parametrize("code", ["PreconditionFailed", "ConditionalRequestConflict"])
++@pytest.mark.parametrize("same", [True, False])
++def test_s3_concurrent_creation_verifies_winner_without_overwriting(code, same):
++    content = b"%PDF-requested"
++    winner = content if same else b"%PDF-other"
++    class Client:
++        calls = 0
++        def get_object(self, **kwargs):
++            self.calls += 1
++            if self.calls == 1:
++                raise ClientError({"Error": {"Code":"NoSuchKey"}}, "GetObject")
++            return {"Body":io.BytesIO(winner)}
++        def put_object(self, **kwargs):
++            assert kwargs["IfNoneMatch"] == "*"
++            raise ClientError({"Error": {"Code":code}}, "PutObject")
++    storage = S3PrivateReportStorage(bucket_name="test", endpoint_url="https://example.invalid",
++        access_key_id="test", secret_access_key="test", client=Client())
++    if same:
++        storage.put(key="report.pdf", content=content, content_type="application/pdf")
++    if not same:
++        with pytest.raises(ReportStorageError, match="creation conflict"):
++            storage.put(key="report.pdf", content=content, content_type="application/pdf")
+--- baseline/tests/test_rls.py
++++ candidate/tests/test_rls.py
+@@ -192,9 +192,12 @@
+             ("background_jobs", True, True, True),
+             ("detection_evidence", True, True, True),
+             ("discovery_scans", True, True, True),
++            ("integrations_providerconnection", True, True, True),
++            ("integrations_quickbooksconnection", True, True, True),
+             ("inventory_import_batches", True, True, True),
+             ("inventory_import_rows", True, True, True),
+             ("inventory_items", True, True, True),
++            ("job_recovery_receipts", True, True, True),
+             ("organization_rules", True, True, True),
+             ("organizations_organizationmember", True, True, True),
+             ("report_artifacts", True, True, True),
+@@ -215,7 +218,7 @@
+             """
+         )
+         assert cursor.fetchall() == [
+-            ("billing_subscription", False, False, False),
++            ("billing_subscription", True, True, False),
+         ]
+         cursor.execute(
+             """
+--- baseline/tests/test_roi_engine_v2.py
++++ candidate/tests/test_roi_engine_v2.py
+@@ -0,0 +1,93 @@
++from dataclasses import replace
++from decimal import Decimal
++
++import pytest
++
++from apps.roi.engine import Assumption, AssumptionProvenance, ROIInputs, calculate_roi as legacy
++from apps.roi.engine_v2 import calculate_roi
++
++
++def inputs():
++    def declared(value):
++        return Assumption(value, AssumptionProvenance.CUSTOMER_SUPPLIED)
++    return ROIInputs(declared(100), declared(120), declared(12), declared(2),
++                     declared(50), declared(0), declared(0))
++
++
++@pytest.mark.parametrize("name", ["monthly_subscription_cost", "implementation_cost",
++    "hours_saved_per_month", "loaded_hourly_rate", "attributable_revenue", "avoided_monthly_cost"])
++def test_unknown_never_becomes_complete_roi(name):
++    value = replace(inputs(), **{name: Assumption(0, AssumptionProvenance.UNKNOWN)})
++    result = calculate_roi(value)
++    assert result.monthly_net_value is None
++    assert result.roi_percent is None
++    assert result.unknown_inputs == (name,)
++    assert result.roi_unavailable_reason == "Required assumptions are unknown"
++    assert legacy(value).monthly_net_value is not None
++
++
++def test_partial_result_retains_known_cost_and_negative_outcome():
++    result = calculate_roi(inputs())
++    assert result.monthly_total_cost == Decimal("110.00")
++    assert result.monthly_net_value == Decimal("-10.00")
++    assert result.roi_percent == Decimal("-9.09")
++    partial = calculate_roi(replace(inputs(), hours_saved_per_month=Assumption(0, AssumptionProvenance.UNKNOWN)))
++    assert partial.monthly_total_cost == Decimal("110.00")
++    assert partial.monthly_value is None
++
++
++def test_declared_zero_is_known_and_zero_denominator_is_explicit():
++    value = replace(inputs(), monthly_subscription_cost=Assumption(0, AssumptionProvenance.MEASURED),
++                    implementation_cost=Assumption(0, AssumptionProvenance.MEASURED))
++    result = calculate_roi(value)
++    assert result.monthly_net_value == Decimal("100.00")
++    assert result.unknown_inputs == ()
++    assert result.roi_percent is None
++    assert result.roi_unavailable_reason == "Monthly total cost is zero"
++
++
++def test_complete_inputs_preserve_legacy_rounding_at_each_step():
++    value = replace(inputs(), attributable_revenue=Assumption(Decimal("0.005"), AssumptionProvenance.ESTIMATED),
++                    avoided_monthly_cost=Assumption(Decimal("0.005"), AssumptionProvenance.ESTIMATED))
++    old, new = legacy(value), calculate_roi(value)
++    for name in ("monthly_labor_value", "monthly_value", "amortized_implementation_cost",
++                 "monthly_total_cost", "monthly_net_value", "roi_percent", "arithmetic"):
++        assert getattr(old, name) == getattr(new, name)
++
++
++@pytest.mark.django_db
++def test_unknown_snapshot_and_browser_report_preserve_nulls_and_legacy(client, report_context):
++    from django.urls import reverse
++    from apps.assessments.snapshots import create_assessment_snapshot, verify_snapshot
++    from apps.reports.models import Report
++    from apps.reports.context import build_report_context
++
++    user, organization, _, item, original = report_context
++    original_hash = original.result_sha256
++    candidate = create_assessment_snapshot(
++        organization_id=organization.id, created_by_id=user.id,
++        assessed_item_id=item.id, captured_at=original.captured_at,
++        roi_inputs=replace(inputs(), hours_saved_per_month=Assumption(0, AssumptionProvenance.UNKNOWN)),
++        roi_engine_version="AL-ROI-2",
++    )
++    assert candidate.input_payload["engine_versions"]["roi"] == "AL-ROI-2"
++    assert candidate.result_payload["roi"]["monthly_net_value"] is None
++    assert candidate.result_payload["roi"]["monthly_total_cost"] == "110.00"
++    assert verify_snapshot(candidate)
++    response = client.post(reverse("reports:generate", args=(candidate.id,)))
++    assert response.status_code == 302
++    report = Report.objects.get(assessment_snapshot=candidate)
++    context = build_report_context(report)
++    assert context["executive_summary"]["monthly_net_value"] is None
++    page = client.get(reverse("reports:detail", args=(report.id,)))
++    assert page.status_code == 200
++    assert b"Required assumptions are unknown" in page.content
++    assert b"$None" not in page.content
++    from renderer.template import render_report_html
++    rendered = render_report_html(context)
++    assert "Required assumptions are unknown" in rendered
++    assert "$None" not in rendered
++    original.refresh_from_db()
++    assert original.result_sha256 == original_hash
++    assert original.result_payload["roi"]["engine_version"] == "AL-ROI-1"
++    assert verify_snapshot(original)
+--- baseline/tests/test_workflow_contracts.py
++++ candidate/tests/test_workflow_contracts.py
+@@ -0,0 +1,34 @@
++from datetime import datetime, UTC
++from uuid import uuid4
++import pytest
++from apps.jobs.contracts import WorkflowRequest, Operation, BranchProfile, validate_branch_settings, logical_evidence_directory
++
++
++def test_branch_profiles_do_not_reinterpret_each_others_settings():
++    assert validate_branch_settings("business.v1", {"name":"Chicago", "jurisdiction":"US-IL"})["profile"] == "business.v1"
++    assert validate_branch_settings("development.v1", {"name":"main", "repository_ref":"firm/app", "environment":"production"})["profile"] == "development.v1"
++    with pytest.raises(ValueError):
++        validate_branch_settings("business.v1", {"name":"main", "repository_ref":"firm/app"})
++    with pytest.raises(ValueError):
++        validate_branch_settings("other", {"name":"undefined"})
++    with pytest.raises(ValueError):
++        validate_branch_settings("development.v1", {"name":"main", "repository_ref":"https://token@repo"})
++
++
++def test_workflow_hash_is_receipt_order_independent_and_tenant_bound():
++    organization = uuid4()
++    receipts = (uuid4(), uuid4())
++    def request(org, ids):
++        return WorkflowRequest(org, Operation.REPORT, ids, datetime(2026,10,3,tzinfo=UTC), BranchProfile.BUSINESS)
++    assert request(organization, receipts).input_sha256 == request(organization, receipts[::-1]).input_sha256
++    assert request(organization, receipts).input_sha256 != request(uuid4(), receipts).input_sha256
++    with pytest.raises(ValueError):
++        request(organization, ())
++    with pytest.raises(ValueError):
++        request(organization, (receipts[0], receipts[0]))
++
++
++def test_directory_taxonomy_rejects_arbitrary_paths():
++    assert "/evidence/agents/" in logical_evidence_directory(uuid4(), "agents", uuid4())
++    with pytest.raises(ValueError):
++        logical_evidence_directory(uuid4(), "../../secrets", uuid4())

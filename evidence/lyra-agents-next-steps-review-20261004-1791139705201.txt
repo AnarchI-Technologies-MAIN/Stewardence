@@ -1,0 +1,409 @@
+Review read from authorized consultation: https://chatgpt.com/c/6ac17a91-7ae0-83ea-bcc7-9abdfd2f6e97
+AGENTS.md unchanged: user instructed not to modify an existing guide. Required correction below remains unapplied.
+
+ChatGPT said:
+
+Alexander, Codex’s AGENTS.md is good and can stand as the contributor guide with one required correction and two small recommendations. The next implementation slice should start with billing-admission authority and durable paid coverage, then land the ReviewCycle kernel, while the two unexplained full-suite failures are investigated in parallel. The funnel lane can move beside that work, but only on deterministic public content and traceability, not payment authority.
+
+Production remains unapproved. I am treating the current source state, remote-history observations, and “no new full qualification run” as reported continuity, not independently reverified implementation.
+
+AGENTS.md disposition
+Required correction
+
+This line is too broad:
+
+“Production changes require qualified evidence, Lyra’s review and Alexander’s final approval.”
+
+Keep the spirit, but make the authority boundary explicit enough that a coding agent cannot interpret “production changes” as merely “deploy after review.”
+
+I recommend replacing it with:
+
+Production migration, deploy, service activation, provider-write enablement, live-payment acceptance, campaign publication, or cutover require their own qualified evidence, Lyra’s scoped production review, and Alexander’s explicit final approval. Development authorization does not imply production authority.
+
+That matches the current governance model much more precisely.
+
+Recommendation 1
+
+Under Testing Guidelines, add one sentence:
+
+A passing focused rerun does not close a prior full-suite failure unless the causal relationship is established or the exact full suite passes on the successor source.
+
+You already say “passing reruns do not explain earlier failures,” which is correct. The extra sentence makes the release implication explicit.
+
+Recommendation 2
+
+Under Project Structure, add:
+
+baseline/ is reference-only; successor implementation belongs in source/, with evidence generated separately.
+
+“Do not modify” already implies this, but coding agents benefit from knowing where successor work should go.
+
+Everything else reads correctly:
+
+deployed worktree preservation is called out;
+historical migrations stay immutable;
+the isolated qualifier is preferred for authority-sensitive checks;
+Ruff/pytest conventions are clear;
+80% is described as a configured threshold, not a claimed achieved coverage result;
+commit guidance reflects observed history instead of inventing a repo-wide Conventional Commits rule;
+strict SSH host-key checking is preserved;
+proposal cards remain non-authoritative;
+bounded test evidence is explicitly distinguished from production readiness.
+
+The guide does not need to mention Railway-versus-DigitalOcean history. That belongs in deployment documentation, not contributor instructions. Your note that source/README contains superseded Railway history is useful continuity, but I would not clutter AGENTS.md with it.
+
+So:
+
+AGENTS.md = ACCEPT WITH ONE REQUIRED WORDING CORRECTION.
+
+Next bounded implementation slice
+
+The ordering matters because ReviewCycle should consume a correct entitlement decision, not become another place where status-only access gets copied.
+
+1. First: durable paid coverage + billing-admission principal
+
+This is the authority foundation.
+
+Do not start by teaching ReviewCycle to ask the existing grants_access property whether a customer is paid. That property is still too weak for the launch contract.
+
+Implement the smallest explicit paid-entitlement substrate first.
+
+New authority boundary
+
+Create a narrowly credentialed billing-admission principal that can do exactly the operations needed to issue and advance paid coverage.
+
+It should not be:
+
+agentledger_app
+agentledger_worker
+the report worker
+a generic owner/admin role
+
+It should have narrowly scoped access to the billing evidence/entitlement tables and nothing that grants provider writes or arbitrary tenant mutation.
+
+Minimal data model
+
+I would expect something conceptually like:
+
+Plain text
+PaidCoverageInterval
+- id
+- billing_customer_id
+- organization_id
+- stripe_account_identity
+- subscription_id
+- invoice_id
+- payment_event_id
+- price_contract_id/version
+- covered_from
+- covered_through
+- issued_at
+- issuer_identity
+- source_event_digest
+- supersedes | null
+
+and an append-only or monotonic current projection:
+
+Plain text
+CurrentEntitlement
+- organization_id
+- portfolio
+- paid_through
+- coverage_interval_id
+- status_projection
+
+The exact naming can differ.
+
+The critical rule is:
+
+provider-observed subscription period is not entitlement; a qualifying paid invoice issues or advances entitlement through one exact interval.
+
+No historical backfill from status alone.
+
+Acceptance tests
+
+This first sub-slice closes when the exact-role/database tests prove:
+
+app role cannot issue or advance paid coverage;
+worker role cannot issue or advance paid coverage;
+billing-admission principal can issue only from admitted exact evidence;
+wrong customer, subscription, account, mode, price, invoice, period, currency, quantity, or event identity rejects;
+duplicate qualifying payment is idempotent;
+older payment/event cannot roll back or improperly extend newer coverage;
+observed subscription-period advance without payment does not extend paid-through;
+payment failure alone does not fabricate an earlier expiry;
+cancellation preserves only the already admitted paid-through interval;
+expired coverage makes new protected work fail closed;
+read/export/recovery surfaces remain available according to the retention contract;
+malformed/null/unsupported evidence fails before mutation;
+concurrent duplicate delivery results in one issued interval;
+transaction rollback leaves neither entitlement nor success receipt partially committed.
+Evidence I want
+
+For review, give me:
+
+migration/source for new billing authority objects;
+DB grants/role changes;
+exact app/worker/billing-admission role matrix;
+focused real PostgreSQL tests using those roles;
+negative SQL tests;
+concurrency test with deterministic barriers;
+locally signed current-SDK webhook tests;
+exact source manifest for that focused candidate;
+raw focused log;
+no production credentials.
+
+Do not wait for the full suite before showing me this boundary if it is ready. Focused evidence is useful for source review, but it will not grant release approval.
+
+2. Second: canonical ReviewCycle
+
+Once the paid-entitlement decision exists, ReviewCycle can consume it as a dependency.
+
+Build only the kernel, not every screen.
+
+Slice scope
+
+Implement:
+
+ReviewCycle
+lifecycle transition events
+baseline pack reference
+frozen manifest identity
+revision/CAS field
+exact cycle state machine
+same-tenant references
+freeze transaction
+immutable post-freeze object set
+successor-cycle opening
+baseline advancement rules
+
+Do not yet make the whole Exposure Review/Decision Desk UI polished.
+
+Required state machine
+
+At minimum:
+
+Plain text
+OPEN
+→ FINALIZATION_REQUESTED
+→ FROZEN
+→ ARTIFACT_PENDING
+→ COMPLETED
+
+ARTIFACT_PENDING
+→ FAILED_RECOVERABLE
+→ ARTIFACT_PENDING
+
+with the same frozen_manifest_sha256 on retry.
+
+No transition should silently mutate the frozen identity.
+
+Freeze transaction must prove
+paid entitlement is valid at server time;
+organization/owner identity is valid;
+workspace is not paused for protected work;
+expected cycle revision still matches;
+every referenced object belongs to same tenant;
+selected review-item and decision identities are exact;
+canonical manifest is derived server-side;
+quota reservation succeeds atomically;
+state changes to frozen in the same transaction.
+
+No renderer can choose “current” inventory after freeze.
+
+Acceptance tests
+stale client revision rejects;
+cross-tenant object reference rejects;
+changed review item after decision makes stale decision inadmissible;
+freeze twice is idempotent or explicitly conflicts according to contract;
+concurrent freezes produce one authoritative frozen generation;
+post-freeze edit cannot alter manifest;
+successor cycle receives later edits;
+old cycle completion cannot replace a newer baseline;
+same frozen retry uses same digest;
+changed frozen-manifest retry is rejected;
+entitlement expiry before freeze rejects;
+entitlement expiry during artifact persistence is rechecked and blocks protected completion;
+failed persistence leaves prior completed baseline untouched.
+3. In parallel: investigate the two existing full-suite failures
+
+This should start immediately and independently of the new feature work.
+
+Do not modify guards to make the failures disappear.
+
+There are two tracks:
+
+A. Workflow request identity invalid
+
+This is more important than the Chromium timeout.
+
+Instrument enough to establish:
+
+exact request/job identity entering the failing path;
+expected identity;
+database clock;
+transaction/isolation;
+active tenant/user/workspace context;
+relevant revision/digest;
+whether the mismatch occurs before or after any retry;
+whether instrumentation changes scheduling enough to hide it.
+
+Use deterministic barriers if timing is involved.
+
+The goal is not “rerun until green.”
+
+The goal is:
+
+a causal explanation or a deterministic reproducer.
+
+B. Chromium 60-second timeout
+
+Keep this bounded.
+
+Determine whether the failure is:
+
+resource contention,
+process startup,
+browser install/cache behavior,
+renderer workload,
+test-order interference,
+dead process cleanup,
+host contention.
+
+Do not raise the timeout as a first response.
+
+A timeout increase can be considered only after the workload envelope is understood and the current 60-second contract is shown unrealistic for the qualified resource limit.
+
+Closure standard
+
+A focused passing rerun alone does not close either failure.
+
+Closure requires one of:
+
+exact root cause + repair + regression + clean full-suite successor; or
+deterministic evidence proving the original failure was a qualification-environment defect outside the product contract, plus a clean full-suite successor.
+
+The historical 1325 pass / 2 fail / 1 skip remains failed either way.
+
+4. Funnel lane can proceed in parallel
+
+The funnel does not need to wait for paid-entitlement implementation as long as it does not claim payment readiness.
+
+Safe parallel work:
+
+ExperienceBundle model/schema;
+claim ledger;
+capability references;
+synthetic sample identities;
+publication-state machine;
+four scenario families;
+deterministic FAQ/guide;
+anonymous no-persistence interaction;
+minimal consent vocabulary;
+server-side route to a placeholder or disabled checkout destination;
+accessibility/mobile/reduced-motion work;
+editorial review tooling.
+
+Do not activate live checkout yet.
+
+The funnel may render a CTA only against a development/test offer until billing authority is qualified.
+
+Funnel acceptance tests
+unpublished bundle cannot render as published;
+withdrawn bundle cannot initiate new purchase;
+client cannot choose arbitrary offer/price;
+advertised capability must map to enabled Core capability version;
+anonymous answers are absent from persistence unless explicit save consent exists;
+analytics event vocabulary rejects arbitrary names/free text;
+browser events cannot create tenant/audit/payment truth;
+publication approval does not grant payment or product authority;
+synthetic sample is always labeled synthetic;
+no visitor-supplied URL is fetched;
+checkout remains independently reachable once the actual paid path is enabled.
+Exact implementation ordering
+
+I would give Codex this sequence:
+
+Plain text
+A1  PaidCoverage schema + billing-admission DB principal
+A2  Exact evidence admission + entitlement projection
+A3  Expiry/recovery authority checks
+A4  PostgreSQL role/concurrency tests
+
+B1  ReviewCycle schema/state machine
+B2  Freeze manifest transaction
+B3  Baseline advancement + retry semantics
+B4  Cycle authority/concurrency tests
+
+C   Existing full-suite failure investigation
+    runs in parallel with A and B
+
+D1  ExperienceBundle + publication model
+D2  Four deterministic public scenarios
+D3  Consent/minimal metrics
+    runs in parallel, but checkout stays non-live
+
+E   Integrate golden self-service journey
+    only after A+B are green
+
+F   Exact full-suite qualification
+
+The dependency graph is:
+
+Plain text
+Paid Coverage ─────┐
+                   ├── Golden Journey ── Full Qualification
+ReviewCycle ───────┘
+
+Funnel ────────────┘
+
+Failure Investigation ────────────────┐
+                                      └── required before release
+Definition of done for the next Lyra review
+
+Bring me one packet containing:
+
+AGENTS.md successor, with the production-authority wording corrected.
+PaidCoverage/billing-admission source.
+New migration(s), never edited historical migrations.
+Exact database grants and role matrix.
+ReviewCycle kernel source.
+Freeze/baseline state-machine tests.
+PostgreSQL actual-role negative tests.
+Concurrency/barrier tests.
+Focused raw logs and qualification summaries.
+Exact source manifest/digests.
+Separate failure-investigation evidence for both existing full-suite failures.
+Funnel schema/tests if that parallel lane progressed.
+A disposition document clearly separating:
+implemented,
+focused-qualified,
+still open,
+supplied-only evidence,
+not yet integrated,
+production-blocking.
+
+I do not need another giant packet containing every historical artifact again. Reference already closed evidence by identity. Give me the successor delta plus exact bindings. That will make the review much faster and keep the evidence graph sane.
+
+Bottom line
+
+AGENTS.md is accepted after one required authority-wording correction.
+
+Next implementation priority:
+
+durable paid coverage + narrow billing-admission principal,
+ReviewCycle kernel consuming that entitlement,
+unexplained full-suite failures investigated in parallel,
+public funnel built in parallel without live payment activation.
+
+That ordering gets us toward the thing you actually need: someone can discover Stewardence, pay $99, get exactly what they paid for, and keep access only for the period payment actually authorized. No architecture side quest, no new feature constellation. 🛠️
+
+Production remains unapproved.
+
+ChatGPT can make mistakes. Check important info.
+Latest response
+
+
+
+
+Medium

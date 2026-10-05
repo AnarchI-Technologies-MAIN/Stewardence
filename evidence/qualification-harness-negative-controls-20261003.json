@@ -1,0 +1,106 @@
+[
+  {
+    "script": "qualify_package_contract_rejection.py",
+    "script_sha256": "153edd7dafb75605d25c22c93595d1199a37a0702f50e43fc275f5a5599ccbbf",
+    "exit_code": 0,
+    "result": {
+      "qualification_passed": true,
+      "rejections": [
+        "missing_templates/report.html",
+        "missing_uv.lock",
+        "unexpected_source",
+        "changed_source",
+        "unreadable_source",
+        "public_network",
+        "renamed_network",
+        "public_database",
+        "foreign_database_image",
+        "runtime_ReadonlyRootfs",
+        "runtime_PortBindings",
+        "runtime_PublishAllPorts",
+        "runtime_Privileged",
+        "runtime_CapDrop",
+        "runtime_CapAdd",
+        "runtime_SecurityOpt",
+        "runtime_Memory",
+        "runtime_PidsLimit",
+        "runtime_Tmpfs",
+        "wrong_image",
+        "foreign_network_identity",
+        "already_started"
+      ],
+      "scope": "Filesystem controls and mocked inspection contracts; not daemon faults."
+    }
+  },
+  {
+    "script": "qualify_package_caller_rejection.py",
+    "script_sha256": "048b554f10be563de02d2553c6e1afe39d24a3a055def5d9a9cb5595e6a1b75e",
+    "exit_code": 0,
+    "result": {
+      "qualification_passed": true,
+      "controls": [
+        {
+          "scenario": "writable_root",
+          "start_called": false,
+          "success_receipt_written": false
+        },
+        {
+          "scenario": "public_port",
+          "start_called": false,
+          "success_receipt_written": false
+        },
+        {
+          "scenario": "foreign_image",
+          "start_called": false,
+          "success_receipt_written": false
+        },
+        {
+          "scenario": "foreign_network",
+          "start_called": false,
+          "success_receipt_written": false
+        }
+      ],
+      "scope": "Exact launcher mocked-Docker controls; no actual daemon fault."
+    }
+  },
+  {
+    "script": "qualify_layout_caller_rejection.py",
+    "script_sha256": "1c1dd2ac4cf35657fc156a203c6e82e0ba204dafe560876f0f75f2ecd2d17100",
+    "exit_code": 0,
+    "result": {
+      "qualification_passed": true,
+      "controls": [
+        {
+          "field": "nonempty_pages",
+          "success_receipt_written": false
+        },
+        {
+          "field": "inventory_section_complete",
+          "success_receipt_written": false
+        },
+        {
+          "field": "pages",
+          "success_receipt_written": false
+        }
+      ],
+      "scope": "Exact launcher mocked child receipts; not a daemon failure."
+    }
+  },
+  {
+    "script": "qualify_layout_content_rejection.py",
+    "exit_code": 0,
+    "result": {
+      "rejections": [
+        "actual_blank_page",
+        "actual_footer_only_page",
+        "actual_label_only_in_risk",
+        "receipt_false_nonempty_pages",
+        "receipt_false_inventory_section_complete",
+        "receipt_missing_specimen"
+      ],
+      "healthy_receipt_passed": true,
+      "scope": "Actual synthetic PDF controls; no customer or production data."
+    },
+    "script_sha256": "47291985f1a91c3c9a269e99936f15f4af5c0e26e7a8b55df4bddc91a0ef2c2c"
+  }
+]

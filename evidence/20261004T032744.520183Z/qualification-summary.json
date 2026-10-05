@@ -1,0 +1,11 @@
+{
+  "exit_code": 1,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-0a7e584eaa",
+  "image_id": "sha256:b5e3e213059b8b2030335321ce9d8e2ece95779cdd211c43be56b2fce79f10fe",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T032744.520183Z",
+  "test_arguments": [
+    "tests/test_billing_terminal_checkout_replay.py"
+  ]
+}

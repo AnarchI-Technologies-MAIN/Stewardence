@@ -1,0 +1,526 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reviews.0004_capture_pack_projection... OK
+  Applying jobs.0015_legacy_action_card_schema_fence... OK
+  Applying reviews.0005_capture_proposal_admission... OK
+  Applying jobs.0016_capture_decisions... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0005_review_pack_read_authority... OK
+  Applying reports.0006_capture_owner_read... OK
+  Applying reviews.0006_capture_proposal_packs... OK
+.F.F...FF............................................................... [ 27%]
+..................................................................F..... [ 54%]
+..........................................FF............................ [ 81%]
+..................................................                       [100%]
+=================================== FAILURES ===================================
+__ test_disposition_and_execution_freeze_independently_and_replay_old_history __
+
+capture_decision_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 5e8fc7f5-cde7-4cc6-8ace-c5d404fd750a v1>, <ActionCardRevision: ActionCardRevision object (8221a0b0-5622-4c15-8f73-6ebe2e4e37ce)>)
+
+    def test_disposition_and_execution_freeze_independently_and_replay_old_history(
+        capture_decision_context,
+    ):
+        first = decide(capture_decision_context, event_kind="disposition", state="defer")
+>       execution = decide(capture_decision_context, expected_previous_event=str(first.id))
+                                                                                 ^^^^^^^^
+E       AttributeError: 'UUID' object has no attribute 'id'
+
+tests/test_capture_v4_packs.py:87: AttributeError
+_ test_exact_preflight_matches_permanent_context_and_actual_worker_projection __
+
+capture_decision_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 18c915c7-9a1a-43c7-924c-89ffa106a5a0 v1>, <ActionCardRevision: ActionCardRevision object (75dd5c2f-7ed9-4c7e-aa7e-3463ccd34c09)>)
+lifecycle = None
+
+    def test_exact_preflight_matches_permanent_context_and_actual_worker_projection(
+        capture_decision_context, lifecycle
+    ):
+        decide(capture_decision_context, notes="Owner statement <script>literal</script>")
+        context = frozen(capture_decision_context)
+        request = requested(context)
+        with connections["default"].cursor() as cursor:
+            cursor.execute(
+                "SELECT app_private.capture_proposal_preflight_context(%s)", [request.id]
+            )
+            value = cursor.fetchone()[0]
+        sql_context = json.loads(value) if isinstance(value, str) else value
+        python_context = build_capture_v4_pack_context(
+            sql_context["metadata"], sql_context["projection"]
+        )
+>       assert sql_context == python_context
+E       AssertionError: assert {'title': 'Fr...NTEXT-3', ...} == {'context_ver....}, ...}, ...}
+E         
+E         Omitting 4 identical items, use -vv to show
+E         Differing items:
+E         {'exposure_reviews': [{'review': {'schema': 'core.exposure.declarations.v1', 'sha256': 'c1ac0f6984cf915fce438699123141...record': {'id': '800d7429-9878-4bea-bdfc-1588def72cc0', 'status': None, 'department': None, 'product_id': None, ...}}]} != {'exposure_reviews': [{'schema': 'core.exposure.declarations.v1', 'inventory_item_id': '800d7429-9878-4bea-bdfc-1588de... incomplete.', 'source_fields': ['human_approval', 'autonomy_level', 'capabilities', 'permissions'], ...}, ...], ...}]}
+E         Use -v to get more diff
+
+tests/test_capture_v4_packs.py:146: AssertionError
+_____ test_capture_v4_actual_worker_chromium_private_owner_delivery[other] _____
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_capture_v4_actual_worker_0')
+industry = 'other'
+client = <django.test.client.Client object at 0x7c21223212b0>
+settings = <pytest_django.fixtures.Settings object at 0x7c211f576570>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7c211f5d3b60>
+
+    @pytest.mark.parametrize("industry", ["other", "accounting_bookkeeping"])
+    def test_capture_v4_actual_worker_chromium_private_owner_delivery(
+        capture_context, enabled, tmp_path, industry, client, settings, monkeypatch
+    ):
+        user, org = capture_context
+        org.industry = industry
+        org.save(update_fields=["industry"])
+        settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+        settings.DECISION_DESK_ENABLED = True
+        CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        DecisionDeskGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        snapshot = admit(capture_context, preview(capture_context))
+        revision = issue_capture_proposals(
+            organization_id=org.id,
+            actor_id=user.id,
+            snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        prior = None
+        event_ids = []
+        for kind, state in (("disposition", "act"), ("execution", "completion_recorded")):
+            prior = record_capture_decision(
+                organization_id=org.id,
+                actor_id=user.id,
+                revision_id=revision.id,
+                proposal_id=UUID(revision.cards[0]["proposal_id"]),
+                proposal_sha256=revision.cards[0]["sha256"],
+                card_index=0,
+                event_kind=kind,
+                state=state,
+                responsible_label="Named responsible owner",
+                expected_previous_event=prior,
+                notes="Owner statement is not verified resolution.",
+                links=["https://example.invalid/reference"],
+                using="app_runtime",
+            )
+            event_ids.append(prior)
+        cycle = open_cycle(
+            organization_id=org.id,
+            actor_id=user.id,
+            input_snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        pack = freeze_cycle(
+            cycle_id=cycle.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            expected_revision=1,
+            using="app_runtime",
+        )
+        assert pack.manifest["schema"] == "stewardence.review_pack.v4"
+        assert len(pack.manifest["selected_proposals"]) == len(revision.cards)
+        assert {item["event_id"] for item in pack.manifest["selected_decisions"]} == {
+            str(value) for value in event_ids
+        }
+        assert all(
+            DecisionEvent.objects.get(id=value).payload["resolution_verified"] is False
+            for value in event_ids
+        )
+        staged = request_pack_artifact(
+            pack_id=pack.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            promote_baseline=False,
+            using="app_runtime",
+        )
+        BackgroundJob.objects.filter(id=staged.job_id).update(priority=-100)
+        with transaction.atomic(using="worker_runtime"):
+            job = claim_next_job("capture-review-qualification", using="worker_runtime")
+        assert job is not None and job.id == staged.job_id
+        with (
+            tenant_transaction(org.id, using="worker_runtime"),
+            connections["worker_runtime"].cursor() as cursor,
+        ):
+            cursor.execute("SELECT current_user,current_setting('transaction_isolation')")
+            assert cursor.fetchone() == ("agentledger_worker", "read committed")
+        renderer = ActualRenderer(tmp_path / "render")
+        delegate = ReportGenerationHandler(
+            renderer=renderer,
+            storage=LocalPrivateReportStorage(tmp_path / "private"),
+            using="worker_runtime",
+        )
+        handler = ReviewReportGenerationHandler(
+            delegate, worker_id="capture-review-qualification"
+        )
+        execute_claimed_job(
+            JobExecution(job=job, worker_id="capture-review-qualification"),
+            handler,
+            using="worker_runtime",
+        )
+        assert renderer.context["context_version"] == "AL-REVIEW-PACK-CONTEXT-3"
+        assert renderer.context["projection"]["manifest_sha256"] == pack.sha256
+        text = " ".join(
+            " ".join(
+                page.extract_text() or "" for page in PdfReader(BytesIO(renderer.pdf)).pages
+            ).split()
+        )
+        assert "Risk: not assessed" in text and "Benefit model: not supplied" in text
+        assert "Generic exposure review" in text and "Low" not in text
+        assert "disposition: act" in text and "execution: completion_recorded" in text
+        assert "Original outcome: UNKNOWN" in text
+        completion = PackCompletion.objects.get(request=staged)
+        assert completion.payload["verification"] == "trusted_handler_storage_readback"
+        assert completion.payload["baseline_outcome"] == "not_requested"
+        assert completion.payload["manifest_sha256"] == pack.sha256
+        assert completion.artifact.sha256 == completion.payload["artifact_sha256"]
+        assert not BaselineHead.objects.filter(organization=org).exists()
+        assert ReviewCycle.objects.get(id=cycle.id).state == "COMPLETED"
+        assert BackgroundJob.objects.get(id=job.id).status == "completed"
+        settings.ALLOWED_HOSTS = ["testserver"]
+        client.force_login(user)
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+    
+        def forbidden_legacy_context(report):
+            pytest.fail("Capture delivery invoked the legacy risk/ROI builder")
+    
+        monkeypatch.setattr(
+            "apps.reports.views.build_report_context", forbidden_legacy_context
+        )
+        monkeypatch.setattr("apps.reports.views._report_storage", lambda: delegate.storage)
+        with actual_app_default():
+            pack_page = client.get(
+                reverse("reviews:pack-detail", kwargs={"pack_id": pack.id})
+            )
+>           assert pack_page.status_code == 200
+E           assert 503 == 200
+E            +  where 503 = <HttpResponse status_code=503, "text/html; charset=utf-8">.status_code
+
+tests/test_capture_v4_worker.py:180: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:253 Service Unavailable: /reviews/packs/a228d52f-da3e-4813-81fe-9fac3dd7cec4/
+_ test_capture_v4_actual_worker_chromium_private_owner_delivery[accounting_bookkeeping] _
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_capture_v4_actual_worker_1')
+industry = 'accounting_bookkeeping'
+client = <django.test.client.Client object at 0x7c211f5de150>
+settings = <pytest_django.fixtures.Settings object at 0x7c211fe3dbf0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7c212028f930>
+
+    @pytest.mark.parametrize("industry", ["other", "accounting_bookkeeping"])
+    def test_capture_v4_actual_worker_chromium_private_owner_delivery(
+        capture_context, enabled, tmp_path, industry, client, settings, monkeypatch
+    ):
+        user, org = capture_context
+        org.industry = industry
+        org.save(update_fields=["industry"])
+        settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+        settings.DECISION_DESK_ENABLED = True
+        CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        DecisionDeskGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        snapshot = admit(capture_context, preview(capture_context))
+        revision = issue_capture_proposals(
+            organization_id=org.id,
+            actor_id=user.id,
+            snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        prior = None
+        event_ids = []
+        for kind, state in (("disposition", "act"), ("execution", "completion_recorded")):
+            prior = record_capture_decision(
+                organization_id=org.id,
+                actor_id=user.id,
+                revision_id=revision.id,
+                proposal_id=UUID(revision.cards[0]["proposal_id"]),
+                proposal_sha256=revision.cards[0]["sha256"],
+                card_index=0,
+                event_kind=kind,
+                state=state,
+                responsible_label="Named responsible owner",
+                expected_previous_event=prior,
+                notes="Owner statement is not verified resolution.",
+                links=["https://example.invalid/reference"],
+                using="app_runtime",
+            )
+            event_ids.append(prior)
+        cycle = open_cycle(
+            organization_id=org.id,
+            actor_id=user.id,
+            input_snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        pack = freeze_cycle(
+            cycle_id=cycle.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            expected_revision=1,
+            using="app_runtime",
+        )
+        assert pack.manifest["schema"] == "stewardence.review_pack.v4"
+        assert len(pack.manifest["selected_proposals"]) == len(revision.cards)
+        assert {item["event_id"] for item in pack.manifest["selected_decisions"]} == {
+            str(value) for value in event_ids
+        }
+        assert all(
+            DecisionEvent.objects.get(id=value).payload["resolution_verified"] is False
+            for value in event_ids
+        )
+        staged = request_pack_artifact(
+            pack_id=pack.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            promote_baseline=False,
+            using="app_runtime",
+        )
+        BackgroundJob.objects.filter(id=staged.job_id).update(priority=-100)
+        with transaction.atomic(using="worker_runtime"):
+            job = claim_next_job("capture-review-qualification", using="worker_runtime")
+        assert job is not None and job.id == staged.job_id
+        with (
+            tenant_transaction(org.id, using="worker_runtime"),
+            connections["worker_runtime"].cursor() as cursor,
+        ):
+            cursor.execute("SELECT current_user,current_setting('transaction_isolation')")
+            assert cursor.fetchone() == ("agentledger_worker", "read committed")
+        renderer = ActualRenderer(tmp_path / "render")
+        delegate = ReportGenerationHandler(
+            renderer=renderer,
+            storage=LocalPrivateReportStorage(tmp_path / "private"),
+            using="worker_runtime",
+        )
+        handler = ReviewReportGenerationHandler(
+            delegate, worker_id="capture-review-qualification"
+        )
+        execute_claimed_job(
+            JobExecution(job=job, worker_id="capture-review-qualification"),
+            handler,
+            using="worker_runtime",
+        )
+        assert renderer.context["context_version"] == "AL-REVIEW-PACK-CONTEXT-3"
+        assert renderer.context["projection"]["manifest_sha256"] == pack.sha256
+        text = " ".join(
+            " ".join(
+                page.extract_text() or "" for page in PdfReader(BytesIO(renderer.pdf)).pages
+            ).split()
+        )
+        assert "Risk: not assessed" in text and "Benefit model: not supplied" in text
+        assert "Generic exposure review" in text and "Low" not in text
+        assert "disposition: act" in text and "execution: completion_recorded" in text
+        assert "Original outcome: UNKNOWN" in text
+        completion = PackCompletion.objects.get(request=staged)
+        assert completion.payload["verification"] == "trusted_handler_storage_readback"
+        assert completion.payload["baseline_outcome"] == "not_requested"
+        assert completion.payload["manifest_sha256"] == pack.sha256
+        assert completion.artifact.sha256 == completion.payload["artifact_sha256"]
+        assert not BaselineHead.objects.filter(organization=org).exists()
+        assert ReviewCycle.objects.get(id=cycle.id).state == "COMPLETED"
+        assert BackgroundJob.objects.get(id=job.id).status == "completed"
+        settings.ALLOWED_HOSTS = ["testserver"]
+        client.force_login(user)
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+    
+        def forbidden_legacy_context(report):
+            pytest.fail("Capture delivery invoked the legacy risk/ROI builder")
+    
+        monkeypatch.setattr(
+            "apps.reports.views.build_report_context", forbidden_legacy_context
+        )
+        monkeypatch.setattr("apps.reports.views._report_storage", lambda: delegate.storage)
+        with actual_app_default():
+            pack_page = client.get(
+                reverse("reviews:pack-detail", kwargs={"pack_id": pack.id})
+            )
+>           assert pack_page.status_code == 200
+E           assert 503 == 200
+E            +  where 503 = <HttpResponse status_code=503, "text/html; charset=utf-8">.status_code
+
+tests/test_capture_v4_worker.py:180: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:253 Service Unavailable: /reviews/packs/8c1f28c0-a85d-4e53-84e0-1cd3a22ad506/
+_ test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates _
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 7abbbd7d-e8aa-4d70-81c6-2af6514e6fcc v1>, <ActionCardRevision: ActionCardRevision object (d8b1fb3b-d7b5-4124-b0fa-47f592af5bcc)>)
+client = <django.test.client.Client object at 0x7c211fb37c50>
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        for index in range(128):
+            observed = []
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+>           assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+E           AssertionError: {'index': 114, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1',...3:44:09.043330+00:00', ...}, 'bound_org': '503f378a-0e69-46cc-b4a2-e4e5cc3b053d', 'isolation': 'read committed', ...}]}
+E           assert 409 == 302
+E            +  where 409 = <HttpResponse status_code=409, "text/html; charset=utf-8">.status_code
+
+tests/test_review_workspace_views.py:603: AssertionError
+----------------------------- Captured stdout call -----------------------------
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "ffa5b0a3-c2c9-41f0-8dad-ddbbb233243e", "bound_actor": "ffa5b0a3-c2c9-41f0-8dad-ddbbb233243e", "bound_effective_pg": "2026-10-04 23:44:09.04333+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "503f378a-0e69-46cc-b4a2-e4e5cc3b053d", "clock_timestamp": "2026-10-04 23:44:07.943676+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "1099654.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 37 at RAISE", "organization_context": "503f378a-0e69-46cc-b4a2-e4e5cc3b053d", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-04T23:44:09.043330+00:00", "python_clock_before_probe": "2026-10-04T23:44:07.943067+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-04T23:44:09.043330+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "503f378a-0e69-46cc-b4a2-e4e5cc3b053d", "receipt_ids": ["4a4340e8-7108-4801-bc48-d5e82b029f41"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-04 23:44:09.04333+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-04 23:44:07.943288+00", "transaction_timestamp": "2026-10-04 23:44:09.024266+00"}
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "ffa5b0a3-c2c9-41f0-8dad-ddbbb233243e", "bound_actor": "ffa5b0a3-c2c9-41f0-8dad-ddbbb233243e", "bound_effective_pg": "2026-10-04 23:44:09.04333+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "503f378a-0e69-46cc-b4a2-e4e5cc3b053d", "clock_timestamp": "2026-10-04 23:44:07.94258+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "1100750.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 37 at RAISE", "organization_context": "503f378a-0e69-46cc-b4a2-e4e5cc3b053d", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-04T23:44:09.043330+00:00", "python_clock_before_probe": "2026-10-04T23:44:07.941747+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-04T23:44:09.043330+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "503f378a-0e69-46cc-b4a2-e4e5cc3b053d", "receipt_ids": ["4a4340e8-7108-4801-bc48-d5e82b029f41"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-04 23:44:09.04333+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-04 23:44:07.942099+00", "transaction_timestamp": "2026-10-04 23:44:09.024266+00"}
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:253 Conflict: /reviews/snapshots/4a4340e8-7108-4801-bc48-d5e82b029f41/proposals/
+________ test_standalone_qualified_accounting_failure_recomputed[False] ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7c21200baf90>
+tamper = False
+
+    @pytest.mark.parametrize("tamper", [False, True])
+    def test_standalone_qualified_accounting_failure_recomputed(monkeypatch, tamper):
+        from tests.test_capture_contract import args
+    
+        def known_args(industry):
+            pins = args(industry)
+            row = pins["inventory_records"][0]
+            for key, value in {
+                "data_categories": ["payroll"],
+                "human_approval": False,
+            }.items():
+                row[key] = value
+                row["provenance"][key] = "Declared"
+            return pins
+    
+        monkeypatch.setattr("tests.test_capture_review_renderer.args", known_args)
+        metadata, p = v4_projection("accounting_bookkeeping")
+>       assert any(
+            entry["proposal"]["source"]["class"] == "accounting_fail"
+            for entry in p["selected_proposals"]
+        )
+E       assert False
+E        +  where False = any(<generator object test_standalone_qualified_accounting_failure_recomputed.<locals>.<genexpr> at 0x7c2121f71d80>)
+
+tests/test_capture_v4_renderer.py:319: AssertionError
+________ test_standalone_qualified_accounting_failure_recomputed[True] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7c211f52b1c0>
+tamper = True
+
+    @pytest.mark.parametrize("tamper", [False, True])
+    def test_standalone_qualified_accounting_failure_recomputed(monkeypatch, tamper):
+        from tests.test_capture_contract import args
+    
+        def known_args(industry):
+            pins = args(industry)
+            row = pins["inventory_records"][0]
+            for key, value in {
+                "data_categories": ["payroll"],
+                "human_approval": False,
+            }.items():
+                row[key] = value
+                row["provenance"][key] = "Declared"
+            return pins
+    
+        monkeypatch.setattr("tests.test_capture_review_renderer.args", known_args)
+        metadata, p = v4_projection("accounting_bookkeeping")
+>       assert any(
+            entry["proposal"]["source"]["class"] == "accounting_fail"
+            for entry in p["selected_proposals"]
+        )
+E       assert False
+E        +  where False = any(<generator object test_standalone_qualified_accounting_failure_recomputed.<locals>.<genexpr> at 0x7c2121fb75e0>)
+
+tests/test_capture_v4_renderer.py:319: AssertionError
+=============================== warnings summary ===============================
+tests/test_capture_v4_worker.py: 2 warnings
+tests/test_capture_proposal_ui.py: 10 warnings
+tests/test_capture_archived_reads.py: 2 warnings
+tests/test_capture_comparison_ui.py: 2 warnings
+tests/test_review_workspace_views.py: 33 warnings
+tests/test_capture_review_worker.py: 2 warnings
+tests/test_capture_report_access.py: 2 warnings
+tests/test_core_first_capture_journey.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_capture_v4_packs.py::test_disposition_and_execution_freeze_independently_and_replay_old_history
+FAILED tests/test_capture_v4_packs.py::test_exact_preflight_matches_permanent_context_and_actual_worker_projection
+FAILED tests/test_capture_v4_worker.py::test_capture_v4_actual_worker_chromium_private_owner_delivery[other]
+FAILED tests/test_capture_v4_worker.py::test_capture_v4_actual_worker_chromium_private_owner_delivery[accounting_bookkeeping]
+FAILED tests/test_review_workspace_views.py::test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates
+FAILED tests/test_capture_v4_renderer.py::test_standalone_qualified_accounting_failure_recomputed[False]
+FAILED tests/test_capture_v4_renderer.py::test_standalone_qualified_accounting_failure_recomputed[True]
+7 failed, 259 passed, 54 warnings in 199.09s (0:03:19)

@@ -1,0 +1,25 @@
+STEWARDENCE semantic-boundary review: keep this as an undeployed candidate. The read-only scope and authority disclaimers are substantially clearer. I read the supplied 1,909-line package; the reported 74-test run was not independently rerun.
+
+Concrete repairs, using attachment line numbers:
+
+Sensitive values survive in exception context. contracts.py lines 210–221 raises a fixed SemanticContractError while handling jsonschema.ValidationError. That underlying exception retains the rejected instance and can appear in a traceback. Test a display name over 200 characters containing a private marker, then inspect formatted traceback and exception chaining. The existing test at 1894–1898 checks only the outer message on a different rejection path. Suppressing display with “from None” alone does not remove the retained context object. Narrow the documentation or redesign the boundary to avoid retaining sensitive exception context.
+
+Decimal normalization is not closed over validation. Lines 166–180 permit exact_decimal(Decimal('1e60')) to emit a 61-digit integer string. Lines 234–237 then reject that string because reparsing gives 61 coefficient digits. Define one precision/expansion limit and test normalize → validate and normalization idempotence at every boundary. This concerns the generic numeric scaffold; it is not a demonstrated failure in the two text-only descriptor adapters.
+
+Timestamp validation admits malformed offsets. Lines 246–253 permit offset minutes 60–99; Python can normalize +00:60 into +01:00. UTC conversion at year boundaries can also raise uncaught OverflowError. Explicitly validate offset components and representable UTC range, including CaptureContext conversion. The relevant standard-library behavior was checked on Python 3.12.14, not your target 3.14.7 or the supplied implementation; add target-runtime regressions.
+
+Short extreme exponents escape fixed error handling. A numeric token consisting of “1e” followed by 60 nines fits the token-length cap but can raise decimal.InvalidOperation. Lines 130–142 do not catch it. Normalize Decimal-domain failures and test the target runtime. This is a failure-classification defect, not evidence of unbounded allocation.
+
+Required review artifact missing. registry-v1.json pins schemas/read-envelope-v1.json, but its source is absent from this attachment. Supply its exact bytes and the sealing inputs. This blocks review of the actual entry schema; it does not establish that the repository file is missing.
+
+Digest derivations and inventory need verification. bundled_contract, lines 197–207, checks the file entries the registry happens to list, but does not enforce the complete required inventory or recompute artifact_digest, mapping_digest and configuration_digest from defined preimages. A changed pointer with an unchanged mapping label is an internal consistency counterexample. Define preimages, validate registry structure, require every expected file and reject metadata drift. This finding stays within your disclosed unsigned operator-bundled trust model.
+
+Additional contract limits to make explicit:
+
+Apply source type/size limits before verify_read_translation hashes source_raw (455–466).
+Replay copies supersedes from the submitted envelope. It cannot prove predecessor ownership, existence, ordering or acyclicity; admission must check those.
+The public ValidatedReadEvidence constructor is unchecked. A frozen dataclass alone does not make instances validated or deeply immutable.
+Generic assertions establish typed shape/value constraints, not admitted concept meanings, derivation correctness or provenance of source_scale.
+Output bounds checked after serialization are not preallocation bounds.
+
+The namespace separation, QBO realm-versus-object distinction, Graph id-only handling, missing/null/empty preservation and exact-source replay are useful improvements. No supplied path establishes new provider-write or admission authority. Please return the missing envelope schema, exact resealing rules and targeted regression evidence with the repairs; full Core/release qualification remains open.

@@ -1,0 +1,12 @@
+.env
+.coverage
+.pytest_cache/
+.ruff_cache/
+.venv/
+__pycache__/
+*.py[cod]
+htmlcov/
+staticfiles/
+work/
+tmp/
+node_modules/

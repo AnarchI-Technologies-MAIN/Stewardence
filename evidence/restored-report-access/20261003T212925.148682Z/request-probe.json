@@ -1,0 +1,21 @@
+{
+  "qualified": true,
+  "application_role": "agentledger_app",
+  "transaction_isolation": "read committed",
+  "objects": 6,
+  "counts": {
+    "authorized_downloads": 6,
+    "anonymous_denials": 6,
+    "cross_tenant_denials": 6,
+    "corrupt_object_denials": 6,
+    "missing_object_denials": 6,
+    "repaired_copy_downloads": 6,
+    "qualified_existing_entitlements": 0,
+    "snapshot_entitlement_denials": 6,
+    "isolated_entitlement_fixtures": 6
+  },
+  "listening_server_started": false,
+  "production_writes": false,
+  "provider_requests": false,
+  "limits": "In-process Django request pipeline with actual app role, restored existing rows/objects, explicitly synthetic clone entitlements where absent, and isolated negative tenant; no live entitlement, production HTTP or cutover proof."
+}

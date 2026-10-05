@@ -1,25 +1,15 @@
-# Stewardence
+# Stewardence development workspace
 
-Stewardence is the working name for this deterministic AI software inventory,
-risk and ROI assessment product, formerly AgentLedger.
+This workspace preserves the actual deployed worktree beyond Git HEAD before local development. Production lives on the existing DigitalOcean Droplet; no production source, migrations, services or ingress have been changed by these local scripts.
 
-Customers create an account and organization, maintain inventory manually or
-through CSV, configure rules, and produce assessments and reports. The founder's
-latest MVP amendment also requires a one-shot Windows Collector, deterministic
-evidence reconciliation, automatic applicable rules, and report provenance;
-those gates remain open in [the MVP checklist](docs/MVP_CHECKLIST.md).
+- `baseline/baseline-manifest.json`: captured revision, dirty status and SHA-256 inventory.
+- `baseline/deployed-source.tar.gz`: immutable source capture; excluded secret-shaped files are listed in the manifest.
+- `source/`: editable candidate source, including recovered qualification tests.
+- `evidence/`: local build and database-role qualification output. Tests do not establish live provider health or production readiness.
+- `docs/release-gates.md`: release sequence and evidence requirements.
+- `scripts/qualify_local.py`: disposable internal Docker network and PostgreSQL database; no published database port or production credentials. Cleanup removes only resources created by the invocation.
+- `C:/AnarchI-CLI-Toolbelt`: CLI inventory and Stewardence operation mapping. Presence, authentication and authorization are separate facts.
 
-- Repository: https://github.com/AnarchI-Technologies-MAIN/stewardence-mvp-v1.8
-- Railway project: `stewardence-production`
-- Railway workspace: `stewardence-productions`
-- Deployment and verification: [Railway runbook](docs/DEPLOYMENT_RAILWAY.md)
+Run `py -3.14 scripts/qualify_local.py` from this workspace. Docker Desktop must be running. The build uses the project's frozen dependency lock and Python 3.14.7.
 
-The rebrand preserves existing service and data identities. Python imports,
-database roles, the canonical checkout directory, static asset names, historical
-specification files, and cryptographic identifiers retain their existing
-`agentledger`/`AL-*` names for compatibility. They are implementation identifiers,
-not the customer-facing product name. The original specification remains
-hash-verified and is supplemented by the founder amendments in the checklist.
-
-Stewardence is a working name selected by the founder; this repository does not
-record an independent trademark clearance.
+Enterprise remains design backlog. Core is the first sales release; Automation requires its own qualification. Provider previews retain owner and sandbox boundaries. A release requires a reviewable image, migration/rollback package and final cutover authorization.

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Choose your Stewardence portfolio{% endblock %}
+
+{% block content %}
+<section class="portfolio-shell">
+  <header class="portfolio-heading">
+    <p class="eyebrow">Welcome to Stewardence</p>
+    <h1>Choose your subscription plan.</h1>
+    <p>
+      Compare the included capabilities and monthly rates. Core is available now;
+      Automation and Enterprise are not yet available for purchase.
+    </p>
+
+    {% if founder_offer_active %}
+      <div class="founder-banner">
+        <strong>Founding Customer Offer</strong>
+        <span>
+          {{ founder_remaining }} of {{ founder_limit }} founding memberships remain.
+        </span>
+      </div>
+    {% endif %}
+  </header>
+
+  <div class="portfolio-grid">
+
+    <article class="portfolio-card portfolio-card-featured">
+      <p class="portfolio-status">Available now</p>
+      <h2>Core</h2>
+
+      {% if founder_offer_active %}
+        <p class="portfolio-standard-price">$99 / month</p>
+        <p class="portfolio-price">$49 <span>/ month</span></p>
+        <p class="portfolio-rate-note">
+          First 6 months. Then $75/month while continuously subscribed.
+        </p>
+      {% else %}
+        <p class="portfolio-price">$99 <span>/ month</span></p>
+      {% endif %}
+
+      <p>
+        Deterministic AI inventory, risk assessment, ROI modeling,
+        evidence-backed findings, Collector workflows, and decision-ready reports.
+      </p>
+
+      <ul>
+        <li>AI system and workflow inventory</li>
+        <li>Deterministic risk assessment</li>
+        <li>Policy and rules evaluation</li>
+        <li>ROI modeling</li>
+        <li>Evidence-backed browser reports</li>
+        <li>PDF assessment reports</li>
+        <li>Collector and import workflows</li>
+      </ul>
+
+      <form method="post" action="{% url 'billing:checkout-core' %}">
+        {% csrf_token %}
+        <button class="button button-large button-full" type="submit">
+          Continue with Core
+        </button>
+      </form>
+    </article>
+
+    <article class="portfolio-card">
+      <p class="portfolio-status">Not yet available</p>
+      <h2>Automation</h2>
+      <p class="portfolio-standard-price">$149 / month standard</p>
+
+      {% if founder_offer_active %}
+        <p class="portfolio-price">$75 <span>/ month</span></p>
+        <p class="portfolio-rate-note">
+          Founding rate for 6 months, then $112/month while continuously subscribed.
+        </p>
+      {% else %}
+        <p class="portfolio-price">$149 <span>/ month</span></p>
+      {% endif %}
+
+      <p>
+        Everything in Core plus governed automated detection,
+        persistent assessment workflows, and automation capabilities as they become available.
+      </p>
+
+      <button class="button button-outline button-full" type="button" disabled>
+        Automation unavailable
+      </button>
+    </article>
+
+    <article class="portfolio-card">
+      <p class="portfolio-status">In development</p>
+      <h2>Enterprise</h2>
+      <p class="portfolio-price">$500 <span>/ month</span></p>
+      <p class="portfolio-rate-note">
+        Planned introductory rate: $375/month for the first 2 months.
+      </p>
+
+      <p>
+        Organization-scale stewardship with advanced governance,
+        persistent listeners, employee roles, audit support,
+        financial integrations, indexed knowledge, and authorized action flows.
+      </p>
+
+      <button class="button button-outline button-full" type="button" disabled>
+        Enterprise unavailable
+      </button>
+    </article>
+
+  </div>
+
+  <p class="portfolio-principles">
+    Evidence over assumption. Clarity over opacity. Judgment stays accountable.
+  </p>
+</section>
+{% endblock %}

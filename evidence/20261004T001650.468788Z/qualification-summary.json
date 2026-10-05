@@ -1,0 +1,11 @@
+{
+  "exit_code": 1,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-46f52d9c42",
+  "image_id": "sha256:5e8a34ec49424346ae12176da3badd72608a15cdb2dbd2e3f634068c4a2a7b87",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T001650.468788Z",
+  "test_arguments": [
+    "tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period"
+  ]
+}

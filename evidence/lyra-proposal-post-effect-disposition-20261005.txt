@@ -1,0 +1,175 @@
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - strong: "Bounded disposition: PROPOSAL-POST-EFFECT-AUTHORITY-01 is CLOSED for the submitted same-app-role caller-chosen-PK wait scenario."
+    - text: The successor adds the missing authority fence in the right place, and the adversarial probe now proves denial with rollback of both immutable effects.
+  - paragraph: Production remains unapproved.
+  - heading "Why this is a real closure" [level=2]
+  - paragraph:
+    - text: "The predecessor failure was concrete: a foreign app transaction staged a genuine proposal revision using the same caller-selected UUID, forcing the target issuer to wait on the primary-key conflict. While the target was blocked, its subscription was canceled and both core_owner_entitled and core_work_allowed became false. After the blocker rolled back, the predecessor still admitted the target revision."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "That exposed the exact missing invariant:"
+  - blockquote:
+    - paragraph:
+      - strong: authority observed before a persistence wait cannot authorize effects after that wait.
+  - paragraph:
+    - text: The successor preserves the issuer's existing function identity, grants, search path, lock order, recomputation and replay semantics, but adds one final authority check
+    - strong: after both INSERT statements have completed their possible waits
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Because those INSERTs and the final check live in the same PostgreSQL transaction, raising on that final check rolls back:"
+  - list:
+    - listitem: core_action_card_revisions;
+    - listitem: review_capture_proposal_receipts.
+  - paragraph: That's the correct repair.
+  - heading "The adversarial test is strong" [level=2]
+  - paragraph: This is not a synthetic counterfeit-row test.
+  - paragraph:
+    - text: The blocker uses an actual agentledger_app login and genuinely invokes the same public proposal issuer for another tenant, staging a real admitted proposal at the chosen UUID. The target then invokes the issuer using that same UUID.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The test explicitly observes the target waiting on the blocker through pg_blocking_pids, commits cancellation while that wait is active, and independently verifies:"
+  - list:
+    - listitem: entitlement = false;
+    - text: work allowed = false.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "After releasing the blocker, the successor now requires:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: outcome = denied "authority unavailable after waits"
+  - paragraph:
+    - text: and verifies
+    - strong: no target revision and no target proposal receipt survive
+    - text: . It also verifies the foreign staged revision disappeared with its rollback.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That's exactly the counterexample/repair pair I wanted.
+  - separator
+  - heading "One nuance I am explicitly accepting" [level=1]
+  - paragraph:
+    - text: The new check happens
+    - strong: after the INSERTs
+    - text: ", not before them."
+  - paragraph: At first glance that can look uncomfortable, but transactionally it's sound here.
+  - paragraph: "The reason is:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: INSERT may block ↓ wait resolves ↓ row effects tentatively exist in same transaction ↓ recheck current authority ↓ if authority lost → RAISE ↓ entire transaction rolls back
+  - paragraph: The important part is that no externally committed authoritative effect escapes between those points.
+  - paragraph: For this specific database-only issuance path, that's acceptable.
+  - paragraph: "If this function ever gained:"
+  - list:
+    - listitem: external network calls;
+    - listitem: NOTIFY consumed outside transactional guarantees;
+    - listitem: object storage writes;
+    - listitem: non-transactional side effects;
+  - paragraph: then this pattern would need re-review.
+  - paragraph: But the submitted issuer does not do that.
+  - separator
+  - heading "Focused regression evidence is sufficient" [level=1]
+  - paragraph:
+    - text: The successor reports
+    - strong: 164 / 164 passing
+    - text: across the adversarial PK-wait test plus proposal admission/replay, proposal contract, v4 renderer/worker, unused-stop UI, render bounds, recovery admission, and legacy dependency boundaries.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The packet also says:"
+  - list:
+    - listitem: unchanged adversarial probe now denies correctly;
+    - listitem: ordinary proposal issuance/replay still passes;
+    - listitem: private-role boundaries pass;
+    - listitem: historical semantic equality passes;
+    - listitem: stop UI passes;
+    - text: local HTTP worker delivery passes.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: So this doesn't look like a repair that simply broke issuance everywhere.
+  - paragraph: Good.
+  - heading "Coverage nuance" [level=2]
+  - paragraph:
+    - text: The reported coverage is
+    - strong: 96.91% for apps.reports.render_client only
+    - text: ", with line 97.18% and branch 96.15%."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: That is useful for that module but
+    - strong: does not close whole-repository coverage
+    - text: .
+  - paragraph: Carry the whole-source 80% gate as open.
+  - separator
+  - heading "What this does and does not close" [level=1]
+  - heading "CLOSED" [level=2]
+  - list:
+    - listitem: caller-selected proposal revision UUID can no longer retain stale pre-wait paid/work authority after a conflicting PK wait;
+    - listitem: target revision and proposal receipt roll back together on post-wait authority denial;
+    - listitem: same-app-role adversarial wait path.
+  - heading "Still open" [level=2]
+  - list:
+    - listitem: whole-source regression green;
+    - listitem: whole-repository coverage;
+    - listitem: any other persistence-wait sites not yet adversarially inspected;
+    - listitem: real Stripe;
+    - listitem: DO storage;
+    - listitem: retention/all-writer quota;
+    - listitem: restore;
+    - listitem: clock root cause;
+    - listitem: credential isolation;
+    - listitem: deployment/cutover;
+    - listitem: production approval.
+  - paragraph:
+    - text: I would
+    - strong: not generalize this one closure into “all post-wait authority races are solved.”
+    - text: It closes the exact proposal issuer path you tested.
+  - heading "Recommended next technical move" [level=3]
+  - paragraph: "Before adding more features, I would do a narrow audit for the same pattern elsewhere:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: authority check ↓ INSERT / UPDATE / FK / uniqueness / row-lock wait ↓ RETURN
+  - paragraph: "Search especially around:"
+  - list:
+    - listitem: capture admission;
+    - listitem: Decision Desk issuance;
+    - listitem: freeze/reservation;
+    - listitem: artifact request;
+    - listitem: completion;
+    - listitem: billing coverage issuance.
+  - paragraph:
+    - text: You already found this class once in ReviewCycle and now again in proposal issuance. It’s worth treating
+    - strong: “post-wait revalidation” as an architectural checklist item
+    - text: ", not a one-off bug."
+  - paragraph: "But for this packet:"
+  - paragraph:
+    - strong: PROPOSAL-POST-EFFECT-AUTHORITY-01 → CLOSED.
+    - text: 🔐
+  - paragraph: Production remains unapproved.
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - button "Sources":
+  - generic: ChatGPT can make mistakes. Check important info.
+  - button "Scroll to bottom":
+  - heading "Latest response" [level=4]
+  - status
+  - button "Add files and more":
+  - textbox "Ask ChatGPT":
+    - paragraph: Ask ChatGPT
+  - button "Select ChatGPT model":
+    - generic: Medium
+  - button "Dictate":
+  - button "Start Voice":
+- status
+- status: Response complete
+- status
+- status
+- status
+- status

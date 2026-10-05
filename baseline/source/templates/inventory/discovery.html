@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Collector evidence — Stewardence{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">Collector evidence</p>
+  <h1>Review your device observations</h1>
+  <p>Upload a bundle from the one-shot StewardSensors for Windows. It reads installed-program names, versions, and publishers from supported Windows registry locations.</p>
+  <p>These are Collector-reported observations. A hash checks bundle integrity; it does not independently attest the device. Installation does not prove subscription cost or granted permissions.</p>
+</section>
+<section class="card">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}{{ form.as_p }}
+    <button class="button" type="submit">Upload evidence</button>
+  </form>
+  {% if uploaded_scan %}<p role="status">Evidence received. Scan {{ uploaded_scan.scan_hash }}.</p>{% endif %}
+</section>
+<section class="card">
+  <h2>Recent scans</h2>
+  {% for summary in scan_summaries %}{% with scan=summary.scan %}
+  <article>
+    <h3>Observed {{ scan.observed_at }}</h3>
+    <p>Received {{ scan.received_at }} · {{ summary.observations|length }} observations{% if summary.is_latest %} · latest scan for this device{% endif %}</p>
+    <p>Device {{ scan.device_id }} · installed-program coverage {{ scan.bundle.coverage.windows.installed_programs }}</p>
+    {% if summary.observations %}<ul>{% for observation in summary.observations %}
+      <li><strong>{{ observation.record.raw_identifier }}</strong> — {% if observation.reconciliation_status == "reconciled" %}exact verified catalog match: <a href="{% url 'inventory:detail' observation.inventory_item_id %}">{{ observation.matched_product.name }}</a>{% elif observation.reconciliation_status == "review" %}review required; conflicting exact identifiers were not classified{% else %}unknown; no exact verified match, so no inventory item was created{% endif %}</li>
+    {% endfor %}</ul>{% endif %}
+    {% if summary.missing_items %}<p><strong>Not observed in this device's latest complete scan:</strong> {% for item in summary.missing_items %}<a href="{% url 'inventory:detail' item.id %}">{{ item.display_name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}. Historical evidence is retained.</p>{% endif %}
+  </article>
+  {% endwith %}{% empty %}<p>No scans yet. Manual inventory and CSV import remain available.</p>{% endfor %}
+</section>
+{% endblock %}

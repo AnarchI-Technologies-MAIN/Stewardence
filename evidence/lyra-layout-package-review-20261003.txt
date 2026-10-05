@@ -1,0 +1,192 @@
+You said:
+Pasted text(20261003-232237).txt
+Document
+Worked for 12m 27s
+Analyzed
+Memory updated
+ChatGPT said:
+
+Alexander, I accept the four delivered layout specimens and the successful local HTTP/static run within their demonstrated scope. The reusable qualification paths remain PARTIAL, with three concrete findings in the new qualification scripts.
+
+All prior bounded closures remain intact, including the five restore qualifications and the two presentation-probe findings. Live Stripe qualification remains deferred; this review does not expand authority or approve Core production. 
+Pasted text
+
+1. Layout successor: the delivered 45-page specimen set is accepted
+
+I decoded all four PDFs, independently measured their hashes, rasterized every page, and inspected all 45 pages using paired or individual page images.
+
+Delivered specimen	Pages	Measured bytes	SHA-256 prefix
+Baseline unknown-ROI report	4	112,967	da1b106b0ce28051…
+Long unbroken inputs	5	115,424	3d0fb8bc7af40635…
+Eight tools and 24 findings	9	132,802	f024564297342566…
+Eighty inventory rows and their risk details	27	266,183	90819109ff6001c0…
+
+All four complete hashes match their supplied receipts. The archive contains the full identities, original decoded PDFs, and all 45 native page renders. 
+Pasted text
+ 
+Pasted text
+
+My independent visual observations support the bounded layout acceptance:
+
+The long organization name, tool name, finding, and recommendation wrap within their available widths. The eight-tool report retains readable inventory, individual-risk, findings, and recommendation sections. The eighty-row table spans four pages with repeated headers, followed by its individual-risk sections. ROI and technical metadata retain deliberate page boundaries.
+
+I observed no clipping, overlapping blocks, blank page, or broken Latin glyph in these delivered specimens.
+
+I also used real PDF extraction to check more than document-wide label presence: all 80 numbered labels occur inside the inventory section itself, with four occurrences of its monthly-cost header; all eight multi-tool labels occur in that specimen’s inventory section. The requested Latin name is present.
+
+The exact fixture-building script, executed with rendering replaced by the supplied PDF bytes, reproduced all three recorded input digests. That establishes a connection between the delivered fixture-generation source and the recorded synthetic inputs; it is not an independent render rerun.
+
+The three CSS changes are supported
+
+The direct normalized-text comparison against the previously supplied template shows only:
+
+Inherited overflow-wrap: anywhere.
+min-width: 0 on the cover’s flexible text container.
+Fixed table layout.
+
+These correspond to the submitted repair. The supplied geometry record reports a 688-pixel document in a 688-pixel viewport, with approximately 137.4-pixel inventory columns. I did not independently rerun Chromium or the reported 4,822-pixel predecessor failure. 
+Pasted text
+ 
+Pasted text
+ 
+Pasted text
+
+The fixtures’ reused expenditure and risk fields remain presentation stress data, not source-derived aggregate truth. I have neither reconciled those fields into new financial claims nor treated the displayed multi-tool totals as independently calculated facts. 
+Pasted text
+
+The wrapped-ROI probe successor is accepted
+
+The current probe compares the entire primary ROI-table block after whitespace normalization. It still requires the exact known cost and unknown-value semantics; it does not revert to loose substring matching. 
+Pasted text
+
+I independently executed the supplied five-case negative-control program, whose generated receipt matched the supplied receipt. I also ran 18 additional probe controls: seventeen pass-then-fail rejection cases and one wrapped-whitespace acceptance case. The rejected cases removed both prior outputs.
+
+With real pypdf parsing of the delivered baseline, the current probe’s PDF, input, probe, asset identities, and page count matched the current receipt. The preceding physical-line probe rejected that same PDF; the normalized-block successor accepted it.
+
+The earlier presentation-probe closures therefore stand for this successor. The new layout finding below concerns a different qualification module.
+
+2. Local deployable HTTP/static evidence: accepted as supplied execution
+
+The local deployable run identifies:
+
+sha256:ec3899d389135a6f2aeb39401972fc7331b0a0e6e2cc6a41340ac2ea36107a1c
+
+Its source, receipt, and Gunicorn access log support the named local checks: health and database readiness, HTTP-to-HTTPS redirection, a successful home-page response with the simulated trusted-proxy header, manifest-addressed static requests, login-page delivery, CSRF rejection, and untrusted-host rejection. 
+Pasted text
+ 
+Pasted text
+ 
+Pasted text
+
+The static probe checks all three named assets against their collected local bytes and records their hashes. It also checks the designated response headers, cookie attributes, and disabled launch-feature settings. Those checks are supported by the supplied successful execution, not HTTP requests performed by me. 
+Pasted text
+
+I separately exercised the exact HTTP probe with thirteen mocked-response scenarios: one successful control and twelve expected rejections, including incorrect static bytes, missing security headers, an insecure cookie, admitted CSRF/host cases, and enabled prohibited settings.
+
+This advances the local package-serving evidence beyond the earlier development-preview checks. It does not establish public ingress, real TLS, correct proxy-header handling through the deployed proxy chain, renderer HTTP authentication, worker fulfillment, or payment fulfillment. The supplied receipt expressly retains that distinction. 
+Pasted text
+
+3. Three qualification-script findings remain open
+
+These findings do not demonstrate a bad delivered layout, a production exposure, or a failed supplied HTTP run. They demonstrate cases the submitted qualification scripts can accept when required conditions are false or incomplete.
+
+LAYOUT-QA-01: a failed content check does not fail layout qualification
+
+report_layout_geometry.py records nonempty_pages, but then emits qualification_passed=True without rejecting a false value. Its table-label checks also search the entire document, where the same labels can appear again in individual-risk headings. 
+Pasted text
+
+The parent launcher checks the top-level qualification flag, repeated render records, and output digests. It does not reject failed required content diagnostics. 
+Pasted text
+
+Independently reproduced using altered copies of the synthetic PDFs:
+
+Injected specimen defect	Exact qualification behavior
+A genuinely blank page appended to the long-input PDF	Reports six pages and nonempty_pages=False, but also qualification_passed=True.
+A page containing only its page footer appended	Passes the existing nonempty-text condition.
+Inventory label 001 removed from its table location, while its risk heading remains	Passes the document-wide label check.
+
+For these tests, PDF parsing was real and browser geometry was mocked to isolate the PDF checks. I then exercised the exact parent launcher with mocked Docker and the blank-page PDF’s matching hashes. It wrote an overall passing summary carrying:
+
+Plain text
+qualification_passed = true
+long-input.pages = 6
+long-input.nonempty_pages = false
+
+The original delivered PDFs were not modified. The counterexample copies are separately labeled in the review archive.
+
+Required closure: enforce nonempty body content after excluding only the known footer; bind inventory completeness to the inventory section; make every required content failure prevent a passing verdict; and require the parent to withhold its overall summary when a required subcheck fails. Retain the healthy specimens and add these negative controls.
+
+This is a repair to the new layout qualification path, not a reason to reopen the accepted baseline ROI or stale-output fixes.
+
+HTTP-QA-01: the source comparison misses deleted expected files
+
+The HTTP launcher enumerates currently present selected files and compares their hashes with the reference manifest. It does not require the expected selected manifest membership to match the current membership. A deleted file consequently disappears from the checks. 
+Pasted text
+
+I executed the exact caller with real temporary files, mocked Docker, and Windows-style relative-path selection, so this result is not an artifact of Linux path separators.
+
+Source fixture	Caller result
+Eight expected selected files present and matching	Passes with eight matches.
+A previously manifested template deleted	Passes with seven matches.
+uv.lock separately deleted	Passes with seven matches.
+A present template’s contents changed	Correctly rejects before launch.
+
+This does not establish that the submitted deployable image actually lacks either file. It establishes that the provided source-equivalence check cannot exclude that condition.
+
+Required closure: derive the expected application subset from the pinned manifest, require complete membership as well as matching hashes, and reject missing, unexpected, changed, or unreadable selected files. Bind the reference manifest to the intended source identity.
+
+The application subset should remain distinct from the deliberately excluded renderer subset. This is not a request to compare unrelated inventories as though they were identical.
+
+HTTP-QA-02: inspected runtime restrictions are recorded, not enforced
+
+The launcher requests restrictions in docker run, then records the inspected image, read-only status, and absence of public port bindings. It does not assert those inspected conditions before accepting the probe result. The preview file’s name string is checked, but this code does not reconcile the actual network and synthetic database fixture identity. 
+Pasted text
+ 
+Pasted text
+
+With external I/O mocked, the exact caller accepted each of these injected inspection states:
+
+Injected observation	Result
+Writable root	Positive summary containing runtime_read_only=False.
+Published port binding	Positive summary containing runtime_no_public_ports=False.
+Different inspected image ID	Positive summary recording that other identity.
+Different, unreconciled network supplied by the preview record	Launch attempted and positive summary emitted.
+
+The requested launch flags are present. I am not claiming Docker ignored them. These tests inject contradictory or insufficient observations and show that the qualification caller does not reject them. No real public port, unexpected network use, changed container image, or production exposure occurred in my tests.
+
+Required closure: reconcile the actual synthetic fixture/network, create the container without starting it, inspect and enforce the selected immutable image and declared restrictions, and only then start the service and execute the probe. Mismatches must withhold success and retain cleanup handling.
+
+An assertion added only after docker run would improve verdict correctness, but would still occur after the service had already started.
+
+4. Image and execution identities remain separate
+Evidence	Bounded disposition
+Full application suite: 56c6876b…	Supplied raw log supports 1,149 passed, one skipped, 123 warnings, 197.09 seconds. The warnings concern the missing static directory in that test environment. 
+Pasted text
+ 
+Pasted text
+
+Renderer-only successor: d4c73ead…	Supplied baseline and stress receipts support their named isolated executions, recorded constraints, repeated output identities, and cleanup. I independently verified the delivered output identities and inspected the specimens, but did not regenerate them with Chromium. 
+Pasted text
+ 
+Pasted text
+
+Deployable web package: ec3899d3…	Supplied local HTTP/static observations accepted. Its reported application-source comparison is against a3b11cb5…, not a claim that this package itself ran the 56c6876b… full suite. 
+Pasted text
+
+The supplied 280-product-file comparison names only renderer/templates/report.html as changed between a3b11cb5… and 56c6876b…. My direct template comparison supports the three CSS changes, but I did not independently recompute the entire 280-file manifest comparison or measure either container filesystem. No fresh browser or restored-request execution on 56c6876b… is inferred. 
+Pasted text
+
+The test-image static warnings and the deployable package’s successful local static checks can coexist. Neither result should be silently substituted for the other, and local static delivery is not public-ingress qualification.
+
+Review record and final disposition
+
+Download the layout and HTTP review archive
+
+The archive contains the four decoded originals, all 45 page renders with a local gallery, source identities and comparisons, the exact-source test harness, results and call traces, and separately labeled PDF counterexamples.
+
+Independent work included real PDF decoding, parsing, rasterization, visual inspection, synthetic counterexample construction, and source execution with blocked or mocked external I/O. I did not run Docker, Chromium generation, the Django application, PostgreSQL, a restore, an HTTP service, the full suite, provider operations, Stripe, or anything on your machines.
+
+Final disposition: the demonstrated layout successor and successful supplied local HTTP/static observations are accepted within their bounds. LAYOUT-QA-01, HTTP-QA-01, and HTTP-QA-02 remain open, so the reusable qualification paths are partial. These repairs belong in the qualification scripts; they do not justify reopening the accepted product-authority findings.
+
+Complete accessibility, arbitrary-input and glyph coverage, public HTTP/TLS delivery, renderer HTTP authentication, worker fulfillment, sales delivery, and overall release approval remain separate. Core production remains unapproved in this consultation. Live Stripe remains deferred, and worker, provider-write, and Automation-purchase restrictions remain unchanged. 
+

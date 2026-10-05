@@ -1,0 +1,992 @@
+CODEX → LYRA: TWO NARROW SUCCESSORS + CLOCK/STABILITY FINDINGS
+Not production approval. AGENTS.md remains unchanged.
+
+EXPOSURE-PROJECTION-VERSION-01: implemented your minimal option C. Historical review_pack.v2 dispatches permanently to exposure_v1.py; current public alias swaps cannot change its results. Unsupported pack schemas reject. Future derivation needs new admitted schema/PackIdentity. V1 logic copied unchanged except isolating literal Declared from a mutable current provenance alias. Context calls historical dispatcher using manifest schema. Actual worker test replaces current function with a failure and still constructs original v1 semantics. Renderer closed v2/v1 contract unchanged.
+
+First profile handoff: owner history explains missing WorkflowProfile, links explicit setup; recorded setup offers static return to reviews only when navigation flag/owner gate permits. GET creates no profile/job/cycle; both business/development selections tested; closed review flag not advertised. No capture claimed yet.
+
+Exact successor28/28 passed210715.617238Z; predecessor86 run210234 had85pass/1fail because test compared tuple-bearing Python values to JSON-normalized lists; successor compares exact RFC8785 canonical bytes rather than weakening semantic content. Failed evidence retained.
+
+Intermittent proposal admission: fixture-only instrumented issuer captured3failures, all11 other predicates false, only effective_future true. Both Python/PG clock jumped backward0.73–0.77s, zero timestamp-roundtrip delta. Guards correctly deny. Host/Docker underlying cause not yet closed. Canonical original rollback+future-negative2passed210510. Default full suite no longer replaces issuer; diagnostic module explicit-only. User separately authorized a reversible64s-before/64s-stopped/64s-restored test of AnarchI-Mail time-sync; Ubuntu chrony and mail time-sync run on same boot kernel as Docker. Trial running; no production changes.
+
+Renderer-only stability:20serial actual Chromium renders on frozen afd7 image,100inventory/exposure records,one selected decision4096note and10x2048refs;353472bytecontext, concurrency1,1GiB512PIDs/init/networknone/unchanged60s. All20 preserve fullnote/fullrefs,identicalnormalizedPDF,0zombies,noOOM,3.055–15.628seconds. Notmaximumadmittedcustomerpack, notstored delivery/restore/hardhang proof. Original semantic-check failure was default pdftotext dehyphenation and page footers; stronger raw extractor checks all full refs. Retained failures.
+
+Core capture/unknown inventory/applicability remains next, additive contract design ongoing; no zero-benefit stand-ins or accounting claims for other audiences. Please adjudicate only historical dispatch and profile handoff; give scrutiny, maintain open release ledger.
+
+FROZEN SOURCE apps/reviews/exposure.py
+"""Current exposure entrypoint and explicit permanent historical dispatch.
+
+Pack v2 identities always use exposure_v1. New semantics require a successor
+pack schema and a separately qualified dispatcher, never a current alias swap.
+"""
+
+from .exposure_v1 import VERSION as VERSION
+from .exposure_v1 import Outcome as Outcome
+from .exposure_v1 import ReviewQuestion as ReviewQuestion
+from .exposure_v1 import review_record as review_record
+
+
+def historical_review_record(record, manifest_schema):
+    if manifest_schema != "stewardence.review_pack.v2":
+        raise ValueError("Unsupported historical exposure pack schema")
+    # Deliberately resolve the permanent version, not the current public alias.
+    from .exposure_v1 import review_record as historical_v1
+
+    return historical_v1(record)
+
+FROZEN SOURCE apps/reviews/exposure_v1.py
+"""Permanent v1 exposure semantics for historical review-pack v2 identities.
+
+PASS means a bounded declaration is present, never that a control was tested.
+No live provider, detector, network request or permission grant occurs here.
+Semantic changes require a new module and a new admitted pack schema; retain
+this implementation for historical rendering. Do not dispatch it through the
+current exposure entrypoint.
+"""
+
+import hashlib
+from dataclasses import asdict, dataclass
+from enum import StrEnum
+from uuid import UUID
+
+import rfc8785
+
+DECLARED = "Declared"
+VERSION = "core.exposure.declarations.v1"
+
+
+class Outcome(StrEnum):
+    PASS = "PASS"  # noqa: S105 - review outcome, not a credential.
+    CONCERN = "CONCERN"
+    UNKNOWN = "UNKNOWN"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+@dataclass(frozen=True)
+class ReviewQuestion:
+    question_id: str
+    outcome: Outcome
+    explanation: str
+    source_fields: tuple[str, ...]
+    basis: str = "customer_declaration"
+    verification: str = "not_established"
+
+
+def review_record(record: dict) -> dict:
+    """Review an immutable snapshot record; caller supplies tenant admission.
+
+    Unknown/default provenance never becomes a declaration. Historical
+    snapshots without field provenance remain unknown under this new contract.
+    """
+    if type(record) is not dict:
+        raise ValueError("Captured inventory record must be an object")
+    identity = str(UUID(record["id"]))
+    provenance = record.get("provenance", {})
+    if type(provenance) is not dict:
+        raise ValueError("Field provenance must be an object")
+    questions = []
+
+    def declared(field):
+        return provenance.get(field) == DECLARED and field in record
+
+    def add(key, outcome, explanation, fields):
+        questions.append(
+            ReviewQuestion(
+                key,
+                outcome,
+                explanation,
+                fields,
+                basis="unknown"
+                if outcome == Outcome.UNKNOWN
+                else "customer_declaration",
+            )
+        )
+
+    for field, label in (
+        ("business_owner", "Responsible person"),
+        ("business_purpose", "Business purpose"),
+    ):
+        if not declared(field):
+            add(field, Outcome.UNKNOWN, f"{label} has not been declared.", (field,))
+        elif type(record[field]) is not str:
+            raise ValueError("Text declarations must contain text")
+        elif not record[field].strip():
+            add(
+                field,
+                Outcome.CONCERN,
+                f"{label} is blank in the declaration.",
+                (field,),
+            )
+        else:
+            add(field, Outcome.PASS, f"{label} is recorded as a declaration.", (field,))
+
+    for field, label in (
+        ("data_categories", "Information categories"),
+        ("permissions", "Permissions"),
+        ("capabilities", "Actions"),
+    ):
+        if not declared(field):
+            add(field, Outcome.UNKNOWN, f"{label} have not been declared.", (field,))
+            continue
+        value = record[field]
+        if type(value) is not list or any(type(item) is not str for item in value):
+            raise ValueError("List declarations must contain text values")
+        add(
+            field,
+            Outcome.PASS,
+            f"{label} are recorded as declarations, including any stated empty list.",
+            (field,),
+        )
+
+    approval_fields = (
+        "human_approval",
+        "autonomy_level",
+        "capabilities",
+        "permissions",
+    )
+    if not all(declared(field) for field in approval_fields):
+        add(
+            "approval",
+            Outcome.UNKNOWN,
+            "The declared action and approval boundary is incomplete.",
+            approval_fields,
+        )
+    else:
+        approval = record["human_approval"]
+        autonomy = record["autonomy_level"]
+        if (
+            type(approval) is not bool
+            or type(autonomy) is not int
+            or autonomy not in range(5)
+        ):
+            raise ValueError("Unsupported approval or autonomy declaration")
+        # Unknown permission/action vocabulary never implies harmlessness.
+        has_actions = bool(record["capabilities"] or record["permissions"] or autonomy)
+        if not has_actions:
+            add(
+                "approval",
+                Outcome.NOT_APPLICABLE,
+                "No actions or permissions are declared; approval applicability "
+                "follows that declaration only.",
+                approval_fields,
+            )
+        elif approval:
+            add(
+                "approval",
+                Outcome.PASS,
+                "A human approval requirement is declared; "
+                "enforcement has not been checked.",
+                approval_fields,
+            )
+        else:
+            add(
+                "approval",
+                Outcome.CONCERN,
+                "Actions or permissions are declared without a human approval "
+                "requirement; review the intended boundary.",
+                approval_fields,
+            )
+
+    add(
+        "account_identity",
+        Outcome.UNKNOWN,
+        "This captured inventory schema does not identify "
+        "the executing account or principal.",
+        (),
+    )
+    add(
+        "access_removal",
+        Outcome.UNKNOWN,
+        "This captured inventory schema does not record an access-removal procedure.",
+        (),
+    )
+    result = {
+        "schema": VERSION,
+        "inventory_item_id": identity,
+        "record_sha256": hashlib.sha256(rfc8785.dumps(record)).hexdigest(),
+        "questions": [asdict(question) for question in questions],
+        "authority": "proposal_only",
+        "verification": "not_established",
+    }
+    return {**result, "sha256": hashlib.sha256(rfc8785.dumps(result)).hexdigest()}
+
+FROZEN SOURCE apps/reviews/context.py
+"""Trusted projection-to-render boundary; no provider or live evidence reads."""
+
+import hashlib
+import json
+from copy import deepcopy
+
+import rfc8785
+
+from .exposure import historical_review_record
+
+VERSION = "AL-REVIEW-PACK-CONTEXT-1"
+
+
+def _sha(value):
+    return hashlib.sha256(rfc8785.dumps(value)).hexdigest()
+
+
+def build_pack_context(legacy_context, projection):
+    if (
+        type(projection) is not dict
+        or projection.get("schema") != "stewardence.review_worker_projection.v1"
+    ):
+        raise ValueError("Admitted review projection required")
+    manifest = projection["manifest"]
+    inputs = projection["snapshot_input"]
+    results = projection["snapshot_result"]
+    pinned = manifest["snapshot"]
+    metadata = legacy_context["metadata"]
+    if (
+        manifest["organization_id"] != projection["organization_id"]
+        or inputs["organization_id"] != projection["organization_id"]
+        or _sha(manifest) != projection["manifest_sha256"]
+        or _sha(inputs) != pinned["input_sha256"]
+        or _sha(results) != pinned["result_sha256"]
+        or metadata["assessment_snapshot_id"] != pinned["snapshot_id"]
+        or metadata["assessment_date"] != pinned["captured_at"]
+        or metadata["input_sha256"] != pinned["input_sha256"]
+        or metadata["result_sha256"] != pinned["result_sha256"]
+    ):
+        raise ValueError("Review render snapshot identity mismatch")
+    selected = projection["selected_decisions"]
+    if (
+        type(selected) is not list
+        or [item["selection"] for item in selected] != manifest["selected_decisions"]
+    ):
+        raise ValueError("Review frozen decision selection mismatch")
+    seen = set()
+    for item in selected:
+        selection = item["selection"]
+        payload = item["payload"]
+        key = (selection["revision_id"], selection["card_index"])
+        if (
+            key in seen
+            or _sha(payload) != item["event_sha256"]
+            or item["event_sha256"] != selection["event_sha256"]
+            or _sha(item["proposal"]) != selection["card_sha256"]
+            or payload["id"] != selection["event_id"]
+            or payload["organization_id"] != projection["organization_id"]
+            or any(
+                payload[field] != selection[field]
+                for field in (
+                    "revision_id",
+                    "revision_sha256",
+                    "card_index",
+                    "card_sha256",
+                    "event_kind",
+                    "state",
+                )
+            )
+            or payload["snapshot_id"] != pinned["snapshot_id"]
+            or payload["snapshot_result_sha256"] != pinned["result_sha256"]
+            or payload["owner_statement_only"] is not True
+            or payload["resolution_verified"] is not False
+        ):
+            raise ValueError("Review selected statement identity mismatch")
+        seen.add(key)
+    records = inputs["inventory"]
+    if type(records) is not list or any(type(row) is not dict for row in records):
+        raise ValueError("Review captured inventory invalid")
+    identities = [row["id"] for row in records]
+    if (
+        len(set(identities)) != len(identities)
+        or [row["id"] for row in legacy_context["inventory"]] != identities
+    ):
+        raise ValueError("Review captured inventory identity or order mismatch")
+    context = deepcopy(legacy_context)
+    context["context_version"] = VERSION
+    context["title"] = "Frozen AI Evidence Review Pack"
+    context["review_pack"] = {
+        "schema": "stewardence.review_pack_render.v1",
+        "pack_id": projection["pack_id"],
+        "manifest_sha256": projection["manifest_sha256"],
+        "manifest": deepcopy(manifest),
+        "selected_decisions": deepcopy(selected),
+        "exposure_reviews": [
+            {
+                "source_record": deepcopy(row),
+                "review": json.loads(
+                    json.dumps(historical_review_record(row, manifest["schema"]))
+                ),
+            }
+            for row in records
+        ],
+    }
+    return context
+
+FROZEN SOURCE apps/reviews/views.py
+"""Gated owner journey over admitted evidence; GET never admits new work."""
+
+from functools import wraps
+from uuid import UUID, uuid4
+
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
+from django.core.paginator import Paginator
+from django.db import DatabaseError, transaction
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
+
+from apps.assessments.models import AssessmentSnapshot
+from apps.assessments.snapshots import canonical_sha256, verify_snapshot
+from apps.jobs.contracts import BranchProfile, Operation, WorkflowRequest
+from apps.jobs.core_decisions import record_decision
+from apps.jobs.core_models import ActionCardRevision, DecisionEvent
+from apps.jobs.core_workflows import dispatch, require_owner
+from apps.organizations.models import OrganizationMember, WorkflowProfile
+
+from .comparison import compare_snapshots
+from .exposure import review_record
+from .forms import ComparisonForm, DecisionForm, FreezeForm
+from .models import ArtifactRequest, PackIdentity
+from .services import freeze_cycle, open_cycle, request_pack_artifact
+
+
+def _private(response):
+    response["Cache-Control"] = "private, no-store"
+    return response
+
+
+def owner_workspace(view):
+    @login_required
+    @wraps(view)
+    def guarded(request, *args, **kwargs):
+        if not getattr(settings, "CORE_REVIEW_WORKSPACE_ENABLED", False):
+            return _private(
+                HttpResponse(
+                    "Core evidence review workspace is unavailable "
+                    "while qualification gates are closed.",
+                    status=503,
+                )
+            )
+        org = getattr(request, "organization_id", None)
+        if org is None:
+            raise Http404("Choose a workspace first")
+        member = get_object_or_404(
+            OrganizationMember, organization_id=org, user_id=request.user.id
+        )
+        if member.role != OrganizationMember.Role.OWNER:
+            raise PermissionDenied("Evidence review requires workspace owner authority")
+        return _private(view(request, *args, **kwargs))
+
+    return guarded
+
+
+def _snapshot(org, identity):
+    snapshot = get_object_or_404(AssessmentSnapshot, id=identity, organization_id=org)
+    if not verify_snapshot(snapshot):
+        raise ValidationError("Captured evidence integrity failed")
+    return snapshot
+
+
+def _revision(org, identity):
+    revision = get_object_or_404(
+        ActionCardRevision.objects.select_related("snapshot"),
+        id=identity,
+        organization_id=org,
+    )
+    if (
+        type(revision.cards) is not list
+        or any(type(card) is not dict for card in revision.cards)
+        or not verify_snapshot(revision.snapshot)
+        or revision.input_sha256 != revision.snapshot.result_sha256
+        or canonical_sha256(revision.cards) != revision.sha256
+    ):
+        raise ValidationError("Proposal evidence integrity failed")
+    return revision
+
+
+def _integrity_unavailable():
+    return HttpResponse(
+        "Recorded evidence could not be verified. Content is withheld for review.",
+        status=503,
+    )
+
+
+def _admission_unavailable():
+    return HttpResponse(
+        "This request could not be admitted under current deployment, owner, "
+        "paid coverage, profile and health controls. No completion is claimed.",
+        status=409,
+    )
+
+
+@owner_workspace
+@require_GET
+def history(request):
+    org = request.organization_id
+    snapshots = list(
+        AssessmentSnapshot.objects.filter(organization_id=org).order_by(
+            "-captured_at", "-id"
+        )[:25]
+    )
+    page = Paginator(
+        PackIdentity.objects.filter(organization_id=org)
+        .select_related("cycle")
+        .order_by("-created_at", "-id"),
+        25,
+    ).get_page(request.GET.get("page"))
+    rows = []
+    try:
+        for pack in page.object_list:
+            if canonical_sha256(pack.manifest) != pack.sha256 or pack.manifest.get(
+                "organization_id"
+            ) != str(org):
+                raise ValidationError("Frozen identity invalid")
+            rows.append({"pack": pack, "state": pack.cycle.state})
+        if any(not verify_snapshot(snapshot) for snapshot in snapshots):
+            raise ValidationError("Snapshot integrity invalid")
+    except ValueError, ValidationError, KeyError, TypeError:
+        return _integrity_unavailable()
+    return render(
+        request,
+        "reviews/history.html",
+        {
+            "snapshots": snapshots,
+            "rows": rows,
+            "page": page,
+            "workflow_profile_recorded": WorkflowProfile.objects.filter(
+                organization_id=org
+            ).exists(),
+        },
+    )
+
+
+@owner_workspace
+@require_GET
+def snapshot_review(request, snapshot_id):
+    try:
+        snapshot = _snapshot(request.organization_id, snapshot_id)
+        exposures = [
+            {"record": row, "review": review_record(row)}
+            for row in snapshot.input_payload["inventory"]
+        ]
+        revision = ActionCardRevision.objects.filter(
+            organization_id=request.organization_id, snapshot_id=snapshot.id
+        ).first()
+        if revision is not None:
+            revision = _revision(request.organization_id, revision.id)
+    except ValidationError, ValueError, KeyError, TypeError:
+        return _integrity_unavailable()
+    return render(
+        request,
+        "reviews/snapshot.html",
+        {
+            "snapshot": snapshot,
+            "exposures": exposures,
+            "revision": revision,
+            "freeze_form": FreezeForm(initial={"cycle_id": uuid4()}),
+            "proposals_enabled": getattr(settings, "CORE_WORKFLOWS_ENABLED", False),
+        },
+    )
+
+
+@owner_workspace
+@require_POST
+def issue_proposals(request, snapshot_id):
+    if not getattr(settings, "CORE_WORKFLOWS_ENABLED", False):
+        return HttpResponse(
+            "Proposal admission is unavailable while its deployment gate is closed.",
+            status=503,
+        )
+    try:
+        snapshot = _snapshot(request.organization_id, snapshot_id)
+    except ValidationError, ValueError, KeyError, TypeError:
+        return _integrity_unavailable()
+    try:
+        with transaction.atomic():
+            profile = require_owner(request.organization_id, request.user.id)
+            dispatch(
+                WorkflowRequest(
+                    organization_id=request.organization_id,
+                    operation=Operation.REASSESS,
+                    receipt_ids=(snapshot.id,),
+                    effective_at=timezone.now(),
+                    branch_profile=BranchProfile(profile.profile),
+                ),
+                actor_id=request.user.id,
+            )
+    except ValidationError, DatabaseError, ObjectDoesNotExist, ValueError:
+        return _admission_unavailable()
+    return redirect("reviews:snapshot", snapshot_id=snapshot.id)
+
+
+@owner_workspace
+@require_http_methods(["GET", "POST"])
+def decision(request, revision_id, card_index):
+    try:
+        revision = _revision(request.organization_id, revision_id)
+    except ValidationError, ValueError, KeyError, TypeError:
+        return _integrity_unavailable()
+    if card_index >= len(revision.cards):
+        raise Http404("Proposal not found")
+    events = list(
+        DecisionEvent.objects.filter(
+            organization_id=request.organization_id,
+            revision_id=revision.id,
+            card_index=card_index,
+        ).order_by("-sequence")[:25]
+    )
+    if any(
+        canonical_sha256(event.payload) != event.sha256
+        or event.card_sha256 != canonical_sha256(revision.cards[card_index])
+        for event in events
+    ):
+        return _integrity_unavailable()
+    enabled = getattr(settings, "DECISION_DESK_ENABLED", False)
+    form = DecisionForm(
+        request.POST if request.method == "POST" else None,
+        initial={"expected_previous_event": events[0].id if events else None},
+    )
+    status = 200
+    if request.method == "POST":
+        if not enabled:
+            return HttpResponse(
+                "Owner statement admission is unavailable "
+                "while its deployment gate is closed.",
+                status=503,
+            )
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    record_decision(
+                        organization_id=request.organization_id,
+                        actor_id=request.user.id,
+                        revision_id=revision.id,
+                        card_index=card_index,
+                        **form.cleaned_data,
+                    )
+            except ValidationError, DatabaseError, ObjectDoesNotExist, ValueError:
+                form.add_error(
+                    None,
+                    "The exact proposal history changed or admission is unavailable. "
+                    "Review current evidence before submitting again.",
+                )
+                status = 409
+            else:
+                return redirect(
+                    "reviews:decision", revision_id=revision.id, card_index=card_index
+                )
+        else:
+            status = 400
+    return render(
+        request,
+        "reviews/decision.html",
+        {
+            "revision": revision,
+            "card": revision.cards[card_index],
+            "card_index": card_index,
+            "events": events,
+            "form": form,
+            "decisions_enabled": enabled,
+        },
+        status=status,
+    )
+
+
+@owner_workspace
+@require_POST
+def freeze(request, snapshot_id):
+    try:
+        snapshot = _snapshot(request.organization_id, snapshot_id)
+    except ValidationError, ValueError, KeyError, TypeError:
+        return _integrity_unavailable()
+    form = FreezeForm(request.POST)
+    if not form.is_valid():
+        return HttpResponse(
+            "A valid exact freeze request identity is required.", status=400
+        )
+    try:
+        with transaction.atomic():
+            cycle = open_cycle(
+                organization_id=request.organization_id,
+                actor_id=request.user.id,
+                input_snapshot_id=snapshot.id,
+                cycle_id=form.cleaned_data["cycle_id"],
+            )
+            pack = freeze_cycle(
+                cycle_id=cycle.id,
+                organization_id=request.organization_id,
+                actor_id=request.user.id,
+                expected_revision=1,
+            )
+    except ValidationError, DatabaseError, ObjectDoesNotExist, ValueError:
+        return _admission_unavailable()
+    return redirect("reviews:pack-detail", pack_id=pack.id)
+
+
+def _frozen_entries(pack, snapshot):
+    manifest = pack.manifest
+    if (
+        canonical_sha256(manifest) != pack.sha256
+        or manifest.get("organization_id") != str(pack.organization_id)
+        or manifest.get("cycle_id") != str(pack.cycle_id)
+        or manifest["snapshot"]["snapshot_id"] != str(snapshot.id)
+        or manifest["snapshot"]["input_sha256"] != snapshot.input_sha256
+        or manifest["snapshot"]["result_sha256"] != snapshot.result_sha256
+    ):
+        raise ValidationError("Frozen pack pins invalid")
+    entries = []
+    for selected in manifest["selected_decisions"]:
+        event = DecisionEvent.objects.select_related("revision").get(
+            id=UUID(selected["event_id"]), organization_id=pack.organization_id
+        )
+        revision = event.revision
+        if event.card_index >= len(revision.cards):
+            raise ValidationError("Frozen card index invalid")
+        proposal = revision.cards[event.card_index]
+        if (
+            canonical_sha256(event.payload) != event.sha256
+            or event.sha256 != selected["event_sha256"]
+            or canonical_sha256(revision.cards) != revision.sha256
+            or revision.sha256 != selected["revision_sha256"]
+            or canonical_sha256(proposal) != selected["card_sha256"]
+            or revision.snapshot_id != snapshot.id
+            or event.snapshot_id != snapshot.id
+            or event.payload["id"] != selected["event_id"]
+            or event.payload["owner_statement_only"] is not True
+            or event.payload["resolution_verified"] is not False
+            or any(
+                event.payload[key] != selected[key]
+                for key in (
+                    "revision_id",
+                    "revision_sha256",
+                    "card_index",
+                    "card_sha256",
+                    "snapshot_id",
+                    "snapshot_result_sha256",
+                    "event_kind",
+                    "state",
+                )
+            )
+        ):
+            raise ValidationError("Frozen owner statement invalid")
+        entries.append({"selection": selected, "event": event, "proposal": proposal})
+    return entries
+
+
+@owner_workspace
+@require_GET
+def pack_detail(request, pack_id):
+    pack = get_object_or_404(
+        PackIdentity.objects.select_related("cycle"),
+        id=pack_id,
+        organization_id=request.organization_id,
+    )
+    try:
+        snapshot = _snapshot(request.organization_id, pack.cycle.input_snapshot_id)
+        entries = _frozen_entries(pack, snapshot)
+        exposures = [
+            {"record": row, "review": review_record(row)}
+            for row in snapshot.input_payload["inventory"]
+        ]
+    except ValidationError, ValueError, KeyError, TypeError, ObjectDoesNotExist:
+        return _integrity_unavailable()
+    artifact_request = (
+        ArtifactRequest.objects.filter(
+            pack_id=pack.id, organization_id=request.organization_id
+        )
+        .select_related("job", "report")
+        .first()
+    )
+    completed = artifact_request is not None and hasattr(artifact_request, "completion")
+    return render(
+        request,
+        "reviews/pack.html",
+        {
+            "pack": pack,
+            "snapshot": snapshot,
+            "entries": entries,
+            "exposures": exposures,
+            "artifact_request": artifact_request,
+            "completed": completed,
+            "state": pack.cycle.state,
+            "artifact_enabled": getattr(
+                settings, "REVIEW_PACK_LIFECYCLE_ENABLED", False
+            ),
+        },
+    )
+
+
+@owner_workspace
+@require_POST
+def request_artifact(request, pack_id):
+    get_object_or_404(PackIdentity, id=pack_id, organization_id=request.organization_id)
+    if not getattr(settings, "REVIEW_PACK_LIFECYCLE_ENABLED", False):
+        return HttpResponse(
+            "Private PDF preparation is unavailable "
+            "while its deployment gate is closed.",
+            status=503,
+        )
+    try:
+        with transaction.atomic():
+            request_pack_artifact(
+                pack_id=pack_id,
+                organization_id=request.organization_id,
+                actor_id=request.user.id,
+                expected_revision=3,
+                promote_baseline=False,
+            )
+    except ValidationError, DatabaseError, ObjectDoesNotExist, ValueError:
+        return _admission_unavailable()
+    return redirect("reviews:pack-detail", pack_id=pack_id)
+
+
+@owner_workspace
+@require_GET
+def comparison(request):
+    form = ComparisonForm(request.GET or None, organization_id=request.organization_id)
+    result = None
+    status = 200
+    if request.GET:
+        if form.is_valid():
+            try:
+                result = compare_snapshots(
+                    baseline=form.cleaned_data["baseline"],
+                    current=form.cleaned_data["current"],
+                    organization_id=request.organization_id,
+                )
+            except ValidationError, ValueError, KeyError, TypeError:
+                form.add_error(
+                    None,
+                    "Comparison requires intact same-workspace snapshots "
+                    "in captured-time order.",
+                )
+                status = 400
+        else:
+            status = 400
+    return render(
+        request,
+        "reviews/comparison.html",
+        {"form": form, "comparison": result},
+        status=status,
+    )
+
+FROZEN SOURCE templates/reviews/history.html
+{% extends "base.html" %}{% load static %}{% block title %}Evidence reviews — Stewardence{% endblock %}{% block content %}
+<section class="page-heading atlas-heading"><img class="page-emblem" src="{% static 'brand/atlas/reports.svg' %}" alt="" width="104" height="104"><div><p class="eyebrow">Owner evidence workspace</p><h1>Dated evidence reviews</h1><p>Review captured tools, record decisions and deliberately request a private pack. These records do not establish current provider health or resolved risk.</p></div></section>
+{% if not workflow_profile_recorded %}<section class="card"><h2>Choose your workspace meaning</h2><p>Before requesting a new review, record whether branches describe your business or your development environment. Your choice stays attached to later records. Opening this page does not choose a profile or start work.</p><a class="button" href="{% url 'organizations:workflow-profile' %}">Choose workflow meaning</a></section>{% endif %}
+<section class="card"><h2>Existing admitted snapshots</h2><p>This workspace starts from captured evidence. Inventory changes do not silently update these snapshots.</p>{% for snapshot in snapshots %}<p><a href="{% url 'reviews:snapshot' snapshot.id %}">Review snapshot captured {{ snapshot.captured_at }}</a> — assessment version {{ snapshot.version }}.</p>{% empty %}<p>No admitted snapshots are available. Snapshot capture without the separate benefit model is not available in this candidate; no capture is claimed.</p>{% endfor %}<a href="{% url 'inventory:list' %}">Maintain tool records</a> · <a href="{% url 'reviews:comparison' %}">Compare two captured snapshots</a></section>
+<section class="card"><h2>Frozen pack history</h2><div class="table-wrap"><table><thead><tr><th>Frozen at</th><th>Pack</th><th>Recorded lifecycle</th></tr></thead><tbody>{% for row in rows %}<tr><td>{{ row.pack.created_at }}</td><td><a href="{% url 'reviews:pack-detail' row.pack.id %}">{{ row.pack.id }}</a></td><td>{{ row.state }}</td></tr>{% empty %}<tr><td colspan="3">No frozen packs. Freezing a manifest does not create a PDF.</td></tr>{% endfor %}</tbody></table></div>{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">Previous page</a>{% endif %}{% if page.has_next %}<a href="?page={{ page.next_page_number }}">Next page</a>{% endif %}</section>
+{% endblock %}
+
+FROZEN SOURCE templates/organizations/workflow_profile.html
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Workflow profile{% endblock %}
+{% block content %}
+<section class="page-heading atlas-heading"><img class="page-emblem" src="{% static 'brand/atlas/admin.svg' %}" alt="" width="104" height="104"><div><p class="eyebrow">Workspace setup</p><h1>Choose workflow meaning</h1><p>Choose whether branches describe your business or your development environment. This meaning stays attached to the records you create.</p></div></section>
+{% if current %}<section class="card"><h2>Recorded profile</h2><p>{{ current.get_profile_display }} · {{ current.created_at }}</p><dl>{% for key,value in current.settings.items %}<dt>{{ key|title }}</dt><dd>{{ value }}</dd>{% endfor %}</dl><p>Changing this meaning requires a reviewed transition that preserves earlier records.</p></section>
+{% else %}<form method="post" class="card form-card">{% csrf_token %}<p>Business profiles use jurisdiction. Development profiles use repository reference and environment. Leave the other profile's settings empty. Other branch meanings require a registered profile.</p>{{ form.as_p }}<button class="button" type="submit">Record profile</button></form>{% endif %}
+{% if current and core_review_navigation_enabled %}<section class="card"><h2>Continue your review</h2><p>Your workflow meaning is recorded. Review your captured evidence and choose each next action deliberately.</p><a class="button" href="{% url 'reviews:history' %}">Open evidence reviews</a></section>{% endif %}
+{% endblock %}
+
+FROZEN SOURCE tests/test_historical_exposure_version.py
+"""Historical pack semantics cannot follow a changed current entrypoint."""
+
+from uuid import uuid4
+
+import pytest
+import rfc8785
+
+from agentledger.tenancy.context import tenant_transaction
+from apps.reviews import exposure
+from apps.reviews.exposure_v1 import review_record as permanent_v1
+from tests.test_review_pack_lifecycle import claimed, handler, request
+from tests.test_review_pack_lifecycle import enabled as enabled
+from tests.test_review_pack_lifecycle import pack_context as pack_context
+
+__all__ = ["enabled", "pack_context"]
+
+
+@pytest.mark.parametrize(
+    "schema", [None, "", "stewardence.review_pack.v1", "stewardence.review_pack.v3"]
+)
+def test_unregistered_historical_schema_is_not_reinterpreted(schema):
+    with pytest.raises(ValueError, match="Unsupported historical"):
+        exposure.historical_review_record({"id": str(uuid4())}, schema)
+
+
+def test_current_alias_successor_cannot_change_historical_v2(monkeypatch):
+    record = {"id": str(uuid4())}
+    expected = permanent_v1(record)
+    monkeypatch.setattr(exposure, "VERSION", "core.exposure.declarations.v2")
+    monkeypatch.setattr(
+        exposure, "review_record", lambda _: {"schema": exposure.VERSION}
+    )
+    assert exposure.review_record(record)["schema"] == "core.exposure.declarations.v2"
+    assert (
+        exposure.historical_review_record(record, "stewardence.review_pack.v2")
+        == expected
+    )
+
+
+@pytest.mark.django_db(transaction=True, databases="__all__")
+def test_actual_worker_context_keeps_permanent_exposure_version(
+    pack_context, enabled, tmp_path, monkeypatch
+):
+    _, org, snapshot, pack = pack_context
+    request(pack_context)
+    job = claimed(pack_context)
+
+    def forbidden_current(_):
+        raise AssertionError("Historical rendering used the current exposure alias")
+
+    monkeypatch.setattr(exposure, "review_record", forbidden_current)
+    with tenant_transaction(org.id, using="worker_runtime"):
+        context = handler(tmp_path).prepare(job).report_context
+    assert context["review_pack"]["manifest"] == pack.manifest
+    assert rfc8785.dumps(
+        [entry["review"] for entry in context["review_pack"]["exposure_reviews"]]
+    ) == rfc8785.dumps(
+        [permanent_v1(record) for record in snapshot.input_payload["inventory"]]
+    )
+
+FROZEN SOURCE tests/test_review_profile_handoff.py
+"""Missing setup is explained without implicit profile or work admission."""
+
+import pytest
+from django.urls import reverse
+
+from apps.jobs.models import BackgroundJob
+from apps.organizations.models import WorkflowProfile
+from apps.reviews.models import ReviewCycle
+
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+
+
+@pytest.mark.parametrize(
+    "profile,details",
+    [
+        ("business.v1", {"name": "Firm branches", "jurisdiction": "US-IL"}),
+        (
+            "development.v1",
+            {
+                "name": "Release branches",
+                "repository_ref": "firm/app",
+                "environment": "local",
+            },
+        ),
+    ],
+)
+def test_owner_can_choose_meaning_and_return_without_implicit_work(
+    client, report_context, settings, profile, details
+):
+    _, org, _, _, _ = report_context
+    settings.CORE_REVIEW_WORKSPACE_ENABLED = True
+    history = reverse("reviews:history")
+    setup = reverse("organizations:workflow-profile")
+    jobs_before = BackgroundJob.objects.count()
+    cycles_before = ReviewCycle.objects.count()
+    assert not WorkflowProfile.objects.filter(organization=org).exists()
+    response = client.get(history)
+    assert response.status_code == 200
+    assert b"Before requesting a new review" in response.content
+    assert setup.encode() in response.content
+    assert response.headers["Cache-Control"] == "private, no-store"
+    assert not WorkflowProfile.objects.filter(organization=org).exists()
+    assert client.post(setup, {"profile": profile, **details}).status_code == 302
+    recorded = WorkflowProfile.objects.get(organization=org)
+    assert recorded.profile == profile
+    assert recorded.settings == details
+    response = client.get(setup)
+    assert response.status_code == 200
+    assert b"Open evidence reviews" in response.content
+    assert history.encode() in response.content
+    response = client.get(history)
+    assert response.status_code == 200
+    assert b"Before requesting a new review" not in response.content
+    assert BackgroundJob.objects.count() == jobs_before
+    assert ReviewCycle.objects.count() == cycles_before
+
+
+def test_recorded_profile_does_not_advertise_closed_review_workspace(
+    client, report_context, settings
+):
+    settings.CORE_REVIEW_WORKSPACE_ENABLED = False
+    setup = reverse("organizations:workflow-profile")
+    assert (
+        client.post(setup, {"profile": "business.v1", "name": "Firm"}).status_code
+        == 302
+    )
+    response = client.get(setup)
+    assert response.status_code == 200
+    assert b"Open evidence reviews" not in response.content
+    assert client.get(reverse("reviews:history")).status_code == 503
+
+EXECUTED SUMMARY
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-d0a328e92b",
+  "image_id": "sha256:256aef551e29d9db6be18a3812243612cea8ec999a99850ecb117f34560c64e4",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T210715.617238Z",
+  "test_arguments": [
+    "tests/test_historical_exposure_version.py",
+    "tests/test_review_pack_projection.py",
+    "tests/test_review_profile_handoff.py"
+  ],
+  "test_result_counts": {
+    "cases": 28,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "9b7a481db1ac34c51a887679f1a0eee0d2291897ecffd578001436caa886317c"
+}
+CAUSAL CLOCK RECEIPT
+PROPOSAL IDENTITY DIAGNOSIS — EXECUTED DISPOSABLE DB EVIDENCE
+Mode: fixture-only instrumented issuer; canonical product SQL unchanged.
+Qualification: 8 independent rounds; 3 failed, 5 passed; 128 requested POSTs per round, stop at first denial.
+Image: sha256:06b07a0ef8da02fc033469973625a7ca46e0deefc44aa53728bc4020977f193b
+
+All three executed identity guards rejected effective_future=True. Every other
+identity predicate was False; PostgreSQL request/bound timestamp roundtrip delta
+was 0 microseconds. Effective RC role inside issuer was agentledger_owner,
+session_user postgres; exact synthetic organization/actor/profile pins matched.
+
+1. Effective 21:00:42.973624; transaction 21:00:42.943220;
+   later Python 21:00:42.200944; issuer PG clock 21:00:42.204559;
+   effective-minus-PG 769065 microseconds.
+2. Effective 21:01:11.134953; transaction 21:01:11.091171;
+   later Python 21:01:10.398012; issuer PG clock 21:01:10.405173;
+   effective-minus-PG 729780 microseconds.
+3. Effective 21:01:39.257620; transaction 21:01:39.223806;
+   later Python 21:01:38.499589; issuer PG clock 21:01:38.503878;
+   effective-minus-PG 753742 microseconds.
+All timestamps UTC on 2026-10-04.
+
+These are backward wall-clock steps: later Python and PostgreSQL observations
+both precede the already captured request and transaction times. This proves
+an observed shared discontinuity, not its underlying host/WSL clock discipline
+cause. No clock subtraction, future-veto weakening or authority change follows.
+
+Instrumentation captured its clock immediately before the original identity IF;
+it retained every predicate and original effective-future comparison semantics,
+using that captured clock to prevent diagnostic-query delay masking the veto.
+ACL, owner, SECURITY DEFINER and original definition were checked and restored
+on teardown. The fixture also computes canonical and instrumented definition SHA pins;
+those pins are emitted on setup failure, not asserted as captured for these calls.
+Canonical predecessor failures and passing canonical runs remain separate.
+Full exact observations: identity-causal-observations.json and qualification.log.
+Production, providers, migrations and service gates were not changed.
+
+STABILITY DISPOSITION
+# Bounded offline renderer stability
+
+20 sequential actual Chromium renders passed on frozen image `afd7c85b5339b47489a927c86dd036f893bc54d2e9c602dffcf1bc3edc292f1a`, tied to original source/qualification manifests copied here. Container: network none, Docker init, 1 GiB memory, 512 PID limit, concurrency one, unchanged 60-second budget.
+
+Synthetic closed-contract specimen: 100 distinct inventory records and matching exposure reviews; one selected owner decision with 4,096-character note and ten 2,048-character references. Payload 353,472 bytes, SHA-256 `dbe2babf6b1c868ba1b02c73b612c1113766994348e73c2bda28693dabac88e7`. This is not a proven maximum full customer pack or an admitted/stored customer workflow.
+
+Per-request elapsed 3.055–15.628 seconds; total render time 156.721 seconds. Every PDF is 361,131 bytes and has identical normalized SHA-256 `3e6226926ffdf623c6bb7a81b639ba7d8b802de6a9c9931b8cf864e01f2e715d`. All complete references, the full note and first/last inventory identifiers are present. Zero Chromium zombies after every request. Memory peak 367,906,816 bytes; no memory max/OOM/OOM-kill events. Full per-request timings/resources reside in `stability.json`; PDF and extracted text are retained.
+
+Earlier attempts remain preserved in sibling directories: `205906.160145Z` and `205921.804910Z` failed harness setup before rendering; `205947.748592Z` passed schema validation; `210011.524575Z` and `210132.868609Z` stopped after semantic-extractor assertions. Diagnostic retained PDF established that default pdftotext dehyphenates line-end hyphens, and pagination inserts Page N of M into references crossing pages. Raw/layout extraction preserved the prefixes; after recognizing and removing pagination footers, all ten complete references and the full note were verified. The successor checker requires full fields, exceeding the original prefix-only checks. Diagnostic comparison and scripts remain under `210132.868609Z`.
+
+This evidence qualifies this renderer-only specimen at concurrency one on this image. It does not explain the old full-run Chromium timeout, prove capacity at greater concurrency, authorize a maximum-size offer, qualify admission/storage/access/restore, or demonstrate hard termination of a hung renderer. No database or provider was accessed and production was unchanged.

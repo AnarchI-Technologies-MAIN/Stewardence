@@ -1,0 +1,1721 @@
+Please adjudicate TWO bounded closures only, not production: legacy issuer fence/dependency ACL and permanent historical capture-v1 interpretation.
+
+Executed successor231415.463975Z image71781ca4ee2a4d44a5a155194cc1f35195e4e2b2f80f27a5b101c4fe5929ad0e:147PASS5FAIL152cases. All9legacyissuerfence +2dependency/ACL/effectiveSET ROLE tests passed. Full provisioned nonsuperuser LOGIN role set owner/app/worker/billing inspected, helper ACL ownerEXEC only, app/worker/billing noexecute/noSET owner/noCREATEROLE/noBYPASSRLS; helper OID differs wrapper, incoming pg_depend onlyallowedwrapper (actualnone ifempty), every app_private/public prosrc reference to renamedhelper resolves onlynewfencedwrapper. Runtime negative app/worker calls, context-beforelookup, exactold prosrc/searchpath/owner/replay preserved. Predecessor224536 directcapture2 accepted preserved. Do not claim universal absence of arbitrary future dynamically constructed calls: this proof covers the frozen installed catalog/current published procedures, requires sameaudit forfuture DBobjects.
+
+Two permanentcapture goldens and4coldcontext/standalone/currentaliasdrift tests passed; static extraction receipt below compares meaningfulAST engine/rule definitions/registryclass/profilevalidator/capturefunctions unchanged from frozenpredecessor d3c7519. Permanentapp modules pinAL-POLICY-1/accounting1.1.0/profilev1/literalprovenancefieldcatalog; context2 imports directcapture_v1/exposure_v1. Remainingfuture obligations include changes to permanentfiles/canonicalserializer/template/Chromium/fonts; no assertion byteidentical acrossplatforms ortrueinputs.
+
+The5failedcases are elsewhere:2accountingfixture expectation mistakenly neverselected accountingindustry (SQL/Pythoncardequalitypassed, noFAILappropriatelyemitted);2decisionpost-readfixture missedtenantGUC;1missingprofile fixture attemptedimmutableDELETE. Correctedcasesawaitfreshqualification. Archive2nowPASSlegalqueued/claimed/completedprivilegedsyntheticfixture+genuinepastpaidcoverage+actualappHTTP90day/readexpiry/viewerbeforestorage; NOT historicalissuance orrealartifactrestoreproof. Ownercomparison2+purecomparison7passed. CurrentnewUI/v4developmentnotqualified by thisreceipt. Newproposal21/decision32 notfullygreen; no closure requested there.
+
+Static extraction receipt:
+{
+  "scope": "Static extraction comparison plus separately executed golden tests; no production or input-truth claim",
+  "predecessor_image": "d3c7519316bb54216db079f37addc03db87194e3b3c56136223e220cb216fc59",
+  "checks": {
+    "policy_engine_ast_equal": true,
+    "accounting_definitions_ast_equal": true,
+    "published_ruleset_ast_equal": true,
+    "workflow_validator_ast_equal": true,
+    "capture_functions_ast_equal": true
+  },
+  "candidate_hashes": {
+    "source\\apps\\assessments\\capture_v1.py": "7cfb021f706aa3248ed46e01082f4dfcd0ec6f20d81a37fc968da603c4956c4d",
+    "source\\apps\\assessments\\policy_engine_v1.py": "d6956f72efa2122a0bef1cc8ea8c8048377077af3d2459e23f944a1bc9582f2f",
+    "source\\apps\\assessments\\accounting_pack_v1.py": "8bfd4364f9d6443809b6ac4582b636add77db02aab99cfec78204dac823e5000",
+    "source\\apps\\assessments\\workflow_profile_v1.py": "bc40ea4f558fbf9360c934f36f7f5257c30bba7b114bae9b873c791d3c6b88f8",
+    "source\\apps\\assessments\\capture_contract.py": "081f1c163f8f6055a150c558b0d2f833d8df99bebb173c35ac7fe3291b5be4cc"
+  },
+  "runtime_goldens_receipt": "20261004T225131.635655Z",
+  "historical_context_receipt": "20261004T230604.575162Z",
+  "all_ast_equal": true
+}
+
+Every source below matches executed231415 manifest SHA exactly.
+
+
+FILE apps/jobs/migrations/0015_legacy_action_card_schema_fence.py SHA256 ba6900e6d245fa8cf35793215789f46a0bcb56e8d81fb84268eb8e179adaa750
+"""Fence the legacy action-card entrypoint to its immutable schema-1 contract."""
+
+from django.db import migrations
+
+SQL = r"""
+ALTER FUNCTION app_private.issue_action_cards(uuid,uuid,uuid,uuid)
+ RENAME TO issue_action_cards_schema1;
+REVOKE ALL ON FUNCTION app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)
+ FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.issue_action_cards(rid uuid,org uuid,actor uuid,snapshot uuid)
+RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER
+SET search_path=pg_catalog,public AS $fn$
+DECLARE s public.assessment_snapshots%ROWTYPE;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' THEN
+  RAISE EXCEPTION 'Core authority requires read committed admission';
+ END IF;
+ IF session_user='agentledger_app' AND (org IS DISTINCT FROM app_private.current_organization_id()
+  OR actor IS DISTINCT FROM app_private.current_user_id()) THEN
+  RAISE EXCEPTION 'Action-card context binding invalid';
+ END IF;
+ SELECT * INTO s FROM public.assessment_snapshots WHERE id=snapshot AND organization_id=org;
+ IF s.id IS NULL OR s.input_payload->'snapshot_schema_version' IS DISTINCT FROM '1'::jsonb
+  OR s.result_payload->'snapshot_schema_version' IS DISTINCT FROM '1'::jsonb THEN
+  RAISE EXCEPTION 'Legacy action cards require snapshot schema one';
+ END IF;
+ RETURN app_private.issue_action_cards_schema1(rid,org,actor,snapshot);
+END;$fn$;
+ALTER FUNCTION app_private.issue_action_cards(uuid,uuid,uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.issue_action_cards(uuid,uuid,uuid,uuid)
+ FROM PUBLIC,agentledger_worker,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.issue_action_cards(uuid,uuid,uuid,uuid)
+ TO agentledger_app;
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies = [("jobs", "0014_decision_desk")]
+    operations = [migrations.RunSQL(SQL)]
+
+
+FILE tests/test_legacy_action_card_schema_fence.py SHA256 541300d88a3eb34e098f9e16cb31fe4031b628638ad2f9e5b0d3ea490f015eed
+"""Proposed actual-role successor tests; pending artifact, not executed evidence.
+
+The capture denial is expected to fail against the unfenced predecessor and
+pass after jobs0015. Run both pinned candidates to preserve the counterexample.
+"""
+
+import importlib
+from uuid import uuid4
+
+import pytest
+from django.db import DatabaseError, connections
+
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+from apps.jobs.core_models import ActionCardRevision
+from apps.organizations.models import WorkflowProfile
+from tests.test_capture_admission import admit, preview
+from tests.test_capture_admission import capture_context as capture_context
+from tests.test_explicit_inventory import explicit_context as explicit_context
+
+__all__ = ["capture_context", "explicit_context"]
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+
+
+def issue_raw(context, snapshot_id, *, using="app_runtime"):
+    user, org = context[:2]
+    with (
+        identity_transaction(user.id, using=using),
+        tenant_transaction(org.id, using=using),
+        connections[using].cursor() as cursor,
+    ):
+        cursor.execute(
+            "SELECT app_private.issue_action_cards(%s,%s,%s,%s)",
+            [uuid4(), org.id, user.id, snapshot_id],
+        )
+        return cursor.fetchone()[0]
+
+
+def test_direct_app_sql_cannot_issue_legacy_cards_for_admitted_capture2(
+    capture_context,
+):
+    snapshot = admit(capture_context, preview(capture_context))
+    with pytest.raises(DatabaseError, match="snapshot schema one"):
+        issue_raw(capture_context, snapshot.id)
+    assert not ActionCardRevision.objects.filter(snapshot=snapshot).exists()
+
+
+def test_direct_app_sql_unresolved_snapshot_cannot_bypass_schema_dispatch(
+    capture_context,
+):
+    with pytest.raises(DatabaseError, match="snapshot schema one"):
+        issue_raw(capture_context, uuid4())
+    assert ActionCardRevision.objects.count() == 0
+
+
+def test_schema1_issuance_and_exact_replay_keep_legacy_meaning(report_context):
+    user, org, _, _, snapshot = report_context
+    WorkflowProfile.objects.get_or_create(
+        organization=org,
+        defaults={
+            "created_by": user,
+            "profile": "business.v1",
+            "settings": {"name": "Legacy comparison"},
+        },
+    )
+    first = issue_raw(report_context, snapshot.id)
+    second = issue_raw(report_context, snapshot.id)
+    assert first == second
+    revision = ActionCardRevision.objects.get(id=first)
+    assert revision.input_sha256 == snapshot.result_sha256
+    assert all(card["authority"] == "proposal_only" for card in revision.cards)
+    assert not any("source_class" in card for card in revision.cards)
+
+
+@pytest.mark.parametrize("using", ["app_runtime", "worker_runtime"])
+def test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass(using):
+    with connections[using].cursor() as cursor:
+        cursor.execute(
+            "SELECT has_function_privilege(current_user,%s,'EXECUTE')",
+            ["app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)"],
+        )
+        assert cursor.fetchone() == (False,)
+
+
+def test_worker_cannot_execute_public_legacy_issuer(capture_context):
+    snapshot = admit(capture_context, preview(capture_context))
+    with pytest.raises(DatabaseError, match="permission denied"):
+        issue_raw(capture_context, snapshot.id, using="worker_runtime")
+    assert not ActionCardRevision.objects.filter(snapshot=snapshot).exists()
+
+
+def test_renamed_schema1_delegate_body_and_searchpath_are_preserved():
+    predecessor = importlib.import_module(
+        "apps.jobs.migrations.0012_core_authority_successor"
+    ).SQL
+    start = predecessor.index(
+        "CREATE OR REPLACE FUNCTION app_private.issue_action_cards"
+    )
+    start = predecessor.index("AS $fn$", start) + len("AS $fn$")
+    end = predecessor.index("$fn$;", start)
+    expected_body = predecessor[start:end]
+    with connections["default"].cursor() as cursor:
+        cursor.execute(
+            "SELECT p.prosrc,p.proconfig,r.rolname FROM pg_proc p "
+            "JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid=%s::regprocedure",
+            ["app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)"],
+        )
+        body, configuration, owner = cursor.fetchone()
+    assert body == expected_body
+    assert configuration == ["search_path=pg_catalog, public"]
+    assert owner == "agentledger_owner"
+
+
+@pytest.mark.parametrize("lookup", ["existing_capture", "unresolved"])
+def test_wrong_app_context_is_rejected_before_definer_snapshot_lookup(
+    capture_context, lookup
+):
+    user, org = capture_context
+    snapshot = admit(capture_context, preview(capture_context))
+    selected_snapshot = snapshot.id if lookup == "existing_capture" else uuid4()
+    with pytest.raises(DatabaseError, match="Action-card context binding invalid"):
+        with (
+            identity_transaction(user.id, using="app_runtime"),
+            tenant_transaction(org.id, using="app_runtime"),
+            connections["app_runtime"].cursor() as cursor,
+        ):
+            cursor.execute(
+                "SELECT app_private.issue_action_cards(%s,%s,%s,%s)",
+                [uuid4(), uuid4(), user.id, selected_snapshot],
+            )
+    assert not ActionCardRevision.objects.filter(snapshot=snapshot).exists()
+
+
+FILE tests/test_legacy_issuer_dependency_boundary.py SHA256 2844d5f90a2705f0b8950c43bbd502ce5cb4d422aaa9bc561c96ca7087b9f491
+"""Catalog and effective-role proof for the renamed legacy issuer boundary."""
+
+import pytest
+from django.db import connections
+
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+HELPER = "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)"
+WRAPPER = "app_private.issue_action_cards(uuid,uuid,uuid,uuid)"
+
+
+def test_legacy_helper_exact_acl_and_all_provisioned_login_authority():
+    with connections["default"].cursor() as cursor:
+        cursor.execute(
+            "SELECT r.rolname,has_function_privilege(r.oid,%s,'EXECUTE') "
+            "FROM pg_roles r WHERE r.rolcanlogin AND NOT r.rolsuper "
+            "ORDER BY r.rolname",
+            [HELPER],
+        )
+        assert dict(cursor.fetchall()) == {
+            "agentledger_owner": True,
+            "agentledger_app": False,
+            "agentledger_worker": False,
+            "agentledger_billing_admission": False,
+        }
+        cursor.execute(
+            "SELECT rolname,pg_has_role(oid,'agentledger_owner','SET'),"
+            "rolcreaterole,rolbypassrls FROM pg_roles "
+            "WHERE rolcanlogin AND NOT rolsuper AND rolname<>'agentledger_owner' "
+            "ORDER BY rolname"
+        )
+        assert cursor.fetchall() == [
+            ("agentledger_app", False, False, False),
+            ("agentledger_billing_admission", False, False, False),
+            ("agentledger_worker", False, False, False),
+        ]
+        cursor.execute(
+            "SELECT a.grantee,a.privilege_type,a.is_grantable "
+            "FROM pg_proc p CROSS JOIN LATERAL "
+            "aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a "
+            "WHERE p.oid=%s::regprocedure",
+            [HELPER],
+        )
+        acl = cursor.fetchall()
+        cursor.execute("SELECT oid FROM pg_roles WHERE rolname='agentledger_owner'")
+        owner_oid = cursor.fetchone()[0]
+    assert acl == [(owner_oid, "EXECUTE", False)]
+
+
+def test_no_stored_dependency_or_procedure_body_bypasses_legacy_fence():
+    with connections["default"].cursor() as cursor:
+        cursor.execute(
+            "SELECT %s::regprocedure::oid,%s::regprocedure::oid", [HELPER, WRAPPER]
+        )
+        helper_oid, wrapper_oid = cursor.fetchone()
+        assert helper_oid != wrapper_oid
+        cursor.execute(
+            "SELECT d.classid::regclass::text,d.objid,"
+            "pg_describe_object(d.classid,d.objid,d.objsubid) "
+            "FROM pg_depend d WHERE d.refclassid='pg_proc'::regclass "
+            "AND d.refobjid=%s ORDER BY d.classid,d.objid,d.objsubid",
+            [helper_oid],
+        )
+        dependencies = cursor.fetchall()
+        assert all(
+            catalog == "pg_proc" and object_oid == wrapper_oid
+            for catalog, object_oid, description in dependencies
+        ), dependencies
+        # PL/pgSQL textual calls need not register an OID dependency. Audit
+        # procedure source separately; stored SQL/view/trigger OIDs are above.
+        cursor.execute(
+            "SELECT p.oid,p.oid::regprocedure::text FROM pg_proc p "
+            "JOIN pg_namespace n ON n.oid=p.pronamespace "
+            "WHERE n.nspname IN ('app_private','public') "
+            "AND p.prosrc LIKE '%%issue_action_cards_schema1%%' ORDER BY p.oid"
+        )
+        references = cursor.fetchall()
+        assert references == [(wrapper_oid, WRAPPER)]
+
+
+FILE apps/assessments/capture_contract.py SHA256 081f1c163f8f6055a150c558b0d2f833d8df99bebb173c35ac7fe3291b5be4cc
+"""Compatibility entrypoint pinned to permanent capture v1.
+
+A successor capture contract requires explicit version dispatch, never changing
+the implementation selected for existing schema-2 snapshots and pack v3.
+"""
+
+from .capture_v1 import (
+    CONTRACT,
+    DECLARATION_CONTRACT,
+    EXPOSURE_VERSION,
+    INDUSTRIES,
+    INT_FIELDS,
+    LIST_FIELDS,
+    POLICY_CONTRACT,
+    RECORD_KEYS,
+    build_capture_payloads,
+    validate_capture_payloads,
+)
+
+__all__ = [
+    "CONTRACT",
+    "POLICY_CONTRACT",
+    "EXPOSURE_VERSION",
+    "DECLARATION_CONTRACT",
+    "INDUSTRIES",
+    "LIST_FIELDS",
+    "INT_FIELDS",
+    "RECORD_KEYS",
+    "build_capture_payloads",
+    "validate_capture_payloads",
+]
+
+
+FILE apps/assessments/capture_v1.py SHA256 7cfb021f706aa3248ed46e01082f4dfcd0ec6f20d81a37fc968da603c4956c4d
+"""Pure schema-2 capture: declarations are inputs, never proof of their truth.
+
+Every accounting premise must be known, even when another premise is false.
+Unknown auxiliary vendor/retention/training facts never become legacy defaults.
+SQL issuance must separately bind server identity, reviewed input and authority.
+"""
+
+import hashlib
+import json
+from dataclasses import asdict
+from datetime import UTC, date, datetime
+from uuid import UUID
+
+import rfc8785
+
+from .accounting_pack_v1 import ACCOUNTING_RISK_PACK_V1
+from .policy_engine_v1 import ENGINE_VERSION, evaluate_rule
+from .workflow_profile_v1 import validate_branch_settings
+
+DECLARED = "Declared"
+UNKNOWN = "Unknown"
+INVENTORY_FACT_FIELDS = (
+    "display_name",
+    "vendor_name",
+    "business_owner",
+    "department",
+    "user_count",
+    "business_purpose",
+    "monthly_cost_cents",
+    "seat_count",
+    "connected_systems",
+    "data_categories",
+    "permissions",
+    "capabilities",
+    "autonomy_level",
+    "human_approval",
+    "status",
+)
+
+CONTRACT = "core.capture.declarations.v1"
+POLICY_CONTRACT = "core.capture.known_policy.v1"
+EXPOSURE_VERSION = "core.exposure.declarations.v1"
+DECLARATION_CONTRACT = "core.inventory.declarations.v1"
+INDUSTRIES = frozenset(
+    {"accounting_bookkeeping", "legal", "healthcare", "construction", "agency", "other"}
+)
+LIST_FIELDS = frozenset(
+    {"connected_systems", "data_categories", "permissions", "capabilities"}
+)
+INT_FIELDS = frozenset(
+    {"user_count", "monthly_cost_cents", "seat_count", "autonomy_level"}
+)
+RECORD_KEYS = frozenset(INVENTORY_FACT_FIELDS) | {
+    "id",
+    "product_id",
+    "source_type",
+    "declaration_contract",
+    "declaration_as_of",
+    "provenance",
+    "archived_at",
+}
+
+
+def _canonical(value):
+    return json.loads(rfc8785.dumps(value))
+
+
+def _sha(value):
+    return hashlib.sha256(rfc8785.dumps(value)).hexdigest()
+
+
+def _uuid(value):
+    if type(value) is not UUID:
+        raise ValueError("Typed UUID required")
+    return str(value)
+
+
+def _timestamp(value):
+    if type(value) is not datetime or value.tzinfo is None or value.utcoffset() is None:
+        raise ValueError("Aware capture time required")
+    return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
+
+
+def _parse_time(value):
+    if type(value) is not str:
+        raise ValueError("Declaration time required")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise ValueError("Invalid declaration time") from error
+    _timestamp(parsed)
+    return parsed
+
+
+def _record(record, captured_at):
+    if type(record) is not dict or set(record) != RECORD_KEYS:
+        raise ValueError("Exact normalized declaration record required")
+    identity = record["id"]
+    if type(identity) is not str or str(UUID(identity)) != identity:
+        raise ValueError("Canonical inventory UUID required")
+    if (
+        record["declaration_contract"] != DECLARATION_CONTRACT
+        or record["archived_at"] is not None
+    ):
+        raise ValueError("Current explicit declaration required")
+    if type(record["declaration_as_of"]) is not str:
+        raise ValueError("Declaration date required")
+    declared_date = date.fromisoformat(record["declaration_as_of"])
+    if (
+        declared_date.isoformat() != record["declaration_as_of"]
+        or declared_date > captured_at.astimezone(UTC).date()
+    ):
+        raise ValueError("Declaration cannot postdate capture")
+    provenance = record["provenance"]
+    if type(provenance) is not dict or set(provenance) != set(INVENTORY_FACT_FIELDS) | {
+        "product_id",
+        "source_type",
+    }:
+        raise ValueError("Exact declaration provenance required")
+    if record["product_id"] is not None or provenance["product_id"] != UNKNOWN:
+        raise ValueError("Capture establishes no catalog authority")
+    if record["source_type"] != "manual" or provenance["source_type"] != DECLARED:
+        raise ValueError("Source declaration invalid")
+    for field in INVENTORY_FACT_FIELDS:
+        value, basis = record[field], provenance[field]
+        if basis == UNKNOWN:
+            if value is not None:
+                raise ValueError("Unknown declaration must be null")
+        elif basis == DECLARED:
+            if field in LIST_FIELDS:
+                if (
+                    type(value) is not list
+                    or any(type(v) is not str or not v or len(v) > 200 for v in value)
+                    or len(value) != len(set(value))
+                ):
+                    raise ValueError("Declared list invalid")
+            elif field in INT_FIELDS:
+                if type(value) is not int or not 0 <= value <= (
+                    4 if field == "autonomy_level" else 2_147_483_647
+                ):
+                    raise ValueError("Declared integer invalid")
+            elif field == "human_approval":
+                if type(value) is not bool:
+                    raise ValueError("Declared approval invalid")
+            elif type(value) is not str or len(value) > (
+                4096 if field == "business_purpose" else 255
+            ):
+                raise ValueError("Declared text invalid")
+        else:
+            raise ValueError("Explicit declaration basis required")
+    if provenance["display_name"] != DECLARED or not record["display_name"].strip():
+        raise ValueError("Reviewed tool name required")
+    return _canonical(record)
+
+
+def _rules():
+    return _canonical([asdict(rule) for rule in ACCOUNTING_RISK_PACK_V1.rules])
+
+
+def _policy_results(record):
+    results = []
+    for rule in ACCOUNTING_RISK_PACK_V1.rules:
+        missing = sorted(
+            {
+                condition.field
+                for condition in rule.conditions
+                if record["provenance"].get(condition.field) != DECLARED
+                or record.get(condition.field) is None
+            }
+        )
+        if missing:
+            result = {
+                "rule_id": rule.rule_id,
+                "rule_version": rule.version,
+                "result": "UNKNOWN",
+                "severity": None,
+                "explanation": "Required declarations are not established.",
+                "recommended_remediation": None,
+                "effects": [],
+                "missing_fields": missing,
+            }
+        else:
+            evaluated = evaluate_rule(rule, record)
+            result = {
+                "rule_id": rule.rule_id,
+                "rule_version": rule.version,
+                "result": evaluated.result.value,
+                "severity": evaluated.severity.name,
+                "explanation": evaluated.explanation,
+                "recommended_remediation": evaluated.recommended_remediation,
+                "effects": [asdict(effect) for effect in evaluated.effects],
+                "missing_fields": [],
+            }
+        results.append(result)
+    return _canonical(results)
+
+
+def build_capture_payloads(
+    *,
+    organization_id,
+    created_by_id,
+    assessment_id,
+    assessment_version,
+    captured_at,
+    industry,
+    workflow_profile_id,
+    workflow_profile,
+    workflow_settings,
+    inventory_records,
+):
+    """Build deterministic payloads; caller-provided identities are not authority."""
+    org, actor, assessment, profile_id = map(
+        _uuid, (organization_id, created_by_id, assessment_id, workflow_profile_id)
+    )
+    if type(assessment_version) is not int or assessment_version != 1:
+        raise ValueError("New capture assessment version must be one")
+    stamp = _timestamp(captured_at)
+    if type(industry) is not str or industry not in INDUSTRIES:
+        raise ValueError("Supported server industry required")
+    if type(workflow_profile) is not str or type(workflow_settings) is not dict:
+        raise ValueError("Explicit workflow profile required")
+    profile = validate_branch_settings(workflow_profile, workflow_settings)
+    if type(inventory_records) is not list or not 1 <= len(inventory_records) <= 100:
+        raise ValueError("Capture requires one to one hundred records")
+    records = sorted(
+        (_record(record, captured_at) for record in inventory_records),
+        key=lambda item: UUID(item["id"]).int,
+    )
+    if len({record["id"] for record in records}) != len(records):
+        raise ValueError("Duplicate inventory identity")
+    accounting = industry == "accounting_bookkeeping"
+    applicability = {
+        "industry": industry,
+        "policy_state": "applicable" if accounting else "not_assessed",
+        "reason": "accounting_pack_selected"
+        if accounting
+        else "no_qualified_industry_pack",
+        "generic_exposure": EXPOSURE_VERSION,
+    }
+    ruleset = (
+        {
+            "name": ACCOUNTING_RISK_PACK_V1.name,
+            "version": ACCOUNTING_RISK_PACK_V1.version,
+            "definitions": _rules(),
+            "definitions_sha256": _sha(_rules()),
+        }
+        if accounting
+        else None
+    )
+    engines = {"capture": CONTRACT, "exposure": EXPOSURE_VERSION}
+    if accounting:
+        engines.update(policy=ENGINE_VERSION, policy_admission=POLICY_CONTRACT)
+    identity = {"id": assessment, "version": 1}
+    benefit = {"state": "not_supplied"}
+    inputs = {
+        "snapshot_schema_version": 2,
+        "capture_contract": CONTRACT,
+        "assessment": identity,
+        "organization_id": org,
+        "created_by_id": actor,
+        "captured_at": stamp,
+        "industry_applicability": applicability,
+        "workflow_profile": {
+            "id": profile_id,
+            **profile,
+            "settings_sha256": _sha(profile["settings"]),
+        },
+        "inventory": records,
+        "evidence_references": [],
+        "benefit_model": benefit,
+        "rulesets": {"industry": ruleset, "organization": []},
+        "risk_configuration": {"state": "not_assessed"},
+        "engine_versions": engines,
+    }
+    results = {
+        "snapshot_schema_version": 2,
+        "capture_contract": CONTRACT,
+        "assessment": identity,
+        "industry_applicability": applicability,
+        "benefit_model": benefit,
+        "inventory_results": [
+            {
+                "inventory_item_id": record["id"],
+                "policy_results": _policy_results(record) if accounting else [],
+                "risk": {"state": "not_assessed", "score": None, "band": None},
+            }
+            for record in records
+        ],
+    }
+    inputs, results = _canonical(inputs), _canonical(results)
+    return {
+        "input_payload": inputs,
+        "result_payload": results,
+        "input_sha256": _sha(inputs),
+        "result_sha256": _sha(results),
+    }
+
+
+def validate_capture_payloads(
+    envelope, *, organization_id, created_by_id, workflow_profile_id
+):
+    """Recompute exact contract and pins; this does not admit database issuance."""
+    if type(envelope) is not dict or set(envelope) != {
+        "input_payload",
+        "result_payload",
+        "input_sha256",
+        "result_sha256",
+    }:
+        raise ValueError("Exact capture envelope required")
+    inputs = envelope["input_payload"]
+    if type(inputs) is not dict:
+        raise ValueError("Capture input required")
+    try:
+        expected = build_capture_payloads(
+            organization_id=organization_id,
+            created_by_id=created_by_id,
+            workflow_profile_id=workflow_profile_id,
+            assessment_id=UUID(inputs["assessment"]["id"]),
+            assessment_version=inputs["assessment"]["version"],
+            captured_at=_parse_time(inputs["captured_at"]),
+            industry=inputs["industry_applicability"]["industry"],
+            workflow_profile=inputs["workflow_profile"]["profile"],
+            workflow_settings=inputs["workflow_profile"]["settings"],
+            inventory_records=inputs["inventory"],
+        )
+    except (KeyError, TypeError, AttributeError) as error:
+        raise ValueError("Malformed capture contract") from error
+    if rfc8785.dumps(envelope) != rfc8785.dumps(expected):
+        raise ValueError("Capture contract identity or content changed")
+    return expected
+
+
+FILE apps/assessments/policy_engine_v1.py SHA256 d6956f72efa2122a0bef1cc8ea8c8048377077af3d2459e23f944a1bc9582f2f
+"""Permanent AL-POLICY-1 for capture v1. Changes require a successor version."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import Enum, IntEnum
+from typing import Any
+
+ENGINE_VERSION = "AL-POLICY-1"
+
+SUPPORTED_OPERATORS = frozenset(
+    {
+        "equals",
+        "not_equals",
+        "contains",
+        "not_contains",
+        "greater_than",
+        "greater_than_or_equal",
+        "less_than",
+        "less_than_or_equal",
+        "is_true",
+        "is_false",
+        "is_empty",
+        "is_not_empty",
+    }
+)
+
+SUPPORTED_EFFECTS = frozenset(
+    {
+        "risk_points",
+        "severity_floor",
+        "require_control",
+        "create_finding",
+        "recommend_review",
+    }
+)
+
+SUPPORTED_RISK_DIMENSIONS = frozenset(
+    {
+        "data_sensitivity",
+        "system_privilege",
+        "external_connectivity",
+        "autonomy",
+        "financial_impact",
+        "human_oversight",
+        "vendor_risk",
+        "regulatory_relevance",
+    }
+)
+
+ALLOWED_CONTEXT_FIELDS = frozenset(
+    {
+        "autonomy_level",
+        "business_owner",
+        "catalog_product_id",
+        "capabilities",
+        "connected_systems",
+        "data_categories",
+        "department",
+        "human_approval",
+        "monthly_cost_cents",
+        "permissions",
+        "retention_status",
+        "seat_count",
+        "status",
+        "training_behavior",
+        "user_count",
+        "vendor_name",
+        "vendor_review_status",
+    }
+)
+
+
+class PolicyDefinitionError(ValueError):
+    pass
+
+
+class PolicyEvaluationError(ValueError):
+    pass
+
+
+class RuleLayer(IntEnum):
+    MANDATORY_PLATFORM = 1
+    INDUSTRY = 2
+    ORGANIZATION = 3
+    PLATFORM_RECOMMENDATION = 4
+
+
+class PolicyResult(str, Enum):
+    PASS = "PASS"  # noqa: S105 - policy result, not a credential
+    FAIL = "FAIL"
+    WARNING = "WARNING"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+class Severity(IntEnum):
+    NONE = 0
+    LOW = 1
+    MODERATE = 2
+    HIGH = 3
+    CRITICAL = 4
+
+
+def _is_immutable_definition_value(value: Any) -> bool:
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return True
+    if isinstance(value, tuple):
+        return all(_is_immutable_definition_value(item) for item in value)
+    if isinstance(value, frozenset):
+        return all(_is_immutable_definition_value(item) for item in value)
+    return False
+
+
+@dataclass(frozen=True)
+class Condition:
+    field: str
+    operator: str
+    value: Any = None
+
+    def __post_init__(self):
+        if self.field not in ALLOWED_CONTEXT_FIELDS:
+            raise PolicyDefinitionError(f"Unsupported policy field: {self.field}")
+        if self.operator not in SUPPORTED_OPERATORS:
+            raise PolicyDefinitionError(f"Unsupported policy operator: {self.operator}")
+        if not _is_immutable_definition_value(self.value):
+            raise PolicyDefinitionError(
+                "Policy condition values must be deeply immutable"
+            )
+        if self.operator in {"is_true", "is_false", "is_empty", "is_not_empty"}:
+            if self.value is not None:
+                raise PolicyDefinitionError(
+                    f"{self.operator} does not accept a comparison value"
+                )
+
+
+@dataclass(frozen=True)
+class Effect:
+    type: str
+    dimension: str | None = None
+    value: int | str | None = None
+    control: str | None = None
+    message: str | None = None
+
+    def __post_init__(self):
+        if self.type not in SUPPORTED_EFFECTS:
+            raise PolicyDefinitionError(f"Unsupported policy effect: {self.type}")
+        if self.type == "risk_points" and (
+            not isinstance(self.value, int) or isinstance(self.value, bool)
+        ):
+            raise PolicyDefinitionError("risk_points requires an integer value")
+        if self.type == "risk_points" and self.dimension not in (
+            SUPPORTED_RISK_DIMENSIONS
+        ):
+            raise PolicyDefinitionError("risk_points requires a supported dimension")
+        if self.type == "severity_floor" and self.value not in {
+            "LOW",
+            "MODERATE",
+            "HIGH",
+            "CRITICAL",
+        }:
+            raise PolicyDefinitionError("severity_floor requires a named severity")
+        if self.type == "require_control" and not self.control:
+            raise PolicyDefinitionError("require_control requires a control name")
+        if self.type in {"create_finding", "recommend_review"} and not self.message:
+            raise PolicyDefinitionError(
+                f"{self.type} requires a plain-language message"
+            )
+
+
+@dataclass(frozen=True)
+class Rule:
+    rule_id: str
+    version: str
+    layer: RuleLayer
+    conditions: tuple[Condition, ...]
+    effects: tuple[Effect, ...]
+    result_on_match: PolicyResult
+    explanation: str
+    severity: Severity
+    remediation: str
+    overridable: bool = False
+
+    def __post_init__(self):
+        if not self.rule_id or not self.version:
+            raise PolicyDefinitionError("A rule ID and version are required")
+        if not isinstance(self.layer, RuleLayer):
+            raise PolicyDefinitionError("A rule requires a recognized precedence layer")
+        if not isinstance(self.conditions, tuple) or not all(
+            isinstance(condition, Condition) for condition in self.conditions
+        ):
+            raise PolicyDefinitionError("Rule conditions must be an immutable tuple")
+        if not isinstance(self.effects, tuple) or not all(
+            isinstance(effect, Effect) for effect in self.effects
+        ):
+            raise PolicyDefinitionError("Rule effects must be an immutable tuple")
+        if not isinstance(self.result_on_match, PolicyResult):
+            raise PolicyDefinitionError("A rule requires a recognized result")
+        if not isinstance(self.severity, Severity):
+            raise PolicyDefinitionError("A rule requires a recognized severity")
+        if not self.conditions:
+            raise PolicyDefinitionError("A rule requires at least one condition")
+        if not self.explanation or not self.remediation:
+            raise PolicyDefinitionError("Explanation and remediation are required")
+
+
+@dataclass(frozen=True)
+class RuleEvaluation:
+    rule_id: str
+    rule_version: str
+    evidence: tuple[tuple[str, Any], ...]
+    result: PolicyResult
+    explanation: str
+    severity: Severity
+    recommended_remediation: str
+    effects: tuple[Effect, ...]
+
+
+@dataclass(frozen=True)
+class PolicyEvaluation:
+    engine_version: str
+    results: tuple[RuleEvaluation, ...]
+
+
+def _is_empty(value: Any) -> bool:
+    return value is None or value == "" or value == () or value == [] or value == {}
+
+
+def _ordered_comparison(actual: Any, expected: Any, operator: str) -> bool:
+    if isinstance(actual, bool) or isinstance(expected, bool):
+        raise PolicyEvaluationError("Boolean values cannot use ordered comparisons")
+    if not isinstance(actual, type(expected)) or not isinstance(
+        actual, (int, float, str)
+    ):
+        raise PolicyEvaluationError(
+            "Ordered comparison values must have matching types"
+        )
+    operations = {
+        "greater_than": actual > expected,
+        "greater_than_or_equal": actual >= expected,
+        "less_than": actual < expected,
+        "less_than_or_equal": actual <= expected,
+    }
+    return operations[operator]
+
+
+def evaluate_condition(condition: Condition, context: dict[str, Any]) -> bool:
+    actual = context.get(condition.field)
+    operator = condition.operator
+    if operator == "equals":
+        return actual == condition.value
+    if operator == "not_equals":
+        return actual != condition.value
+    if operator in {"contains", "not_contains"}:
+        if not isinstance(actual, (str, list, tuple, set, frozenset)):
+            raise PolicyEvaluationError("contains requires text or a collection")
+        contains = condition.value in actual
+        return contains if operator == "contains" else not contains
+    if operator in {
+        "greater_than",
+        "greater_than_or_equal",
+        "less_than",
+        "less_than_or_equal",
+    }:
+        return _ordered_comparison(actual, condition.value, operator)
+    if operator == "is_true":
+        return actual is True
+    if operator == "is_false":
+        return actual is False
+    if operator == "is_empty":
+        return _is_empty(actual)
+    if operator == "is_not_empty":
+        return not _is_empty(actual)
+    raise PolicyEvaluationError("Unsupported policy operator")
+
+
+def evaluate_rule(rule: Rule, context: dict[str, Any]) -> RuleEvaluation:
+    evidence = tuple(
+        (condition.field, context.get(condition.field)) for condition in rule.conditions
+    )
+    matched = all(
+        evaluate_condition(condition, context) for condition in rule.conditions
+    )
+    return RuleEvaluation(
+        rule_id=rule.rule_id,
+        rule_version=rule.version,
+        evidence=evidence,
+        result=rule.result_on_match if matched else PolicyResult.NOT_APPLICABLE,
+        explanation=rule.explanation,
+        severity=rule.severity if matched else Severity.NONE,
+        recommended_remediation=rule.remediation,
+        effects=rule.effects if matched else (),
+    )
+
+
+def evaluate_policies(
+    rules: tuple[Rule, ...],
+    context: dict[str, Any],
+) -> PolicyEvaluation:
+    ordered_rules = sorted(
+        rules, key=lambda rule: (rule.layer, rule.rule_id, rule.version)
+    )
+    return PolicyEvaluation(
+        engine_version=ENGINE_VERSION,
+        results=tuple(evaluate_rule(rule, context) for rule in ordered_rules),
+    )
+
+
+FILE apps/assessments/accounting_pack_v1.py SHA256 8bfd4364f9d6443809b6ac4582b636add77db02aab99cfec78204dac823e5000
+"""Permanent accounting 1.1.0 definitions for capture v1; never edit in place."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from .policy_engine_v1 import (
+    Condition,
+    Effect,
+    PolicyResult,
+    Rule,
+    RuleLayer,
+    Severity,
+)
+
+
+@dataclass(frozen=True)
+class PublishedRuleSet:
+    name: str
+    version: str
+    rules: tuple[Rule, ...]
+
+    def __post_init__(self):
+        if not self.name or not self.version or not self.rules:
+            raise ValueError("Published rule sets require a name, version, and rules")
+        if not isinstance(self.rules, tuple) or not all(
+            isinstance(rule, Rule) for rule in self.rules
+        ):
+            raise ValueError("Published rule sets require an immutable tuple of rules")
+
+
+ACCOUNTING_RISK_PACK_NAME = "accounting_and_bookkeeping"
+ACCOUNTING_RISK_PACK_VERSION = "1.1.0"
+
+
+ACCOUNTING_RISK_PACK_V1 = PublishedRuleSet(
+    name=ACCOUNTING_RISK_PACK_NAME,
+    version=ACCOUNTING_RISK_PACK_VERSION,
+    rules=(
+        Rule(
+            rule_id="ACC-PAYROLL-EXT",
+            version=ACCOUNTING_RISK_PACK_VERSION,
+            layer=RuleLayer.INDUSTRY,
+            conditions=(
+                Condition("data_categories", "contains", "payroll"),
+                Condition("capabilities", "contains", "external_transfer"),
+            ),
+            effects=(
+                Effect("risk_points", dimension="data_sensitivity", value=25),
+                Effect("require_control", control="human_approval"),
+                Effect("severity_floor", value="HIGH"),
+            ),
+            result_on_match=PolicyResult.FAIL,
+            explanation=(
+                "This software can access payroll information and send information "
+                "outside the firm."
+            ),
+            severity=Severity.HIGH,
+            remediation=(
+                "Document and configure a human approval step in the source system "
+                "or business process before payroll information is sent."
+            ),
+        ),
+        Rule(
+            rule_id="ACC-PAYROLL-EXT-NO-APPROVAL",
+            version=ACCOUNTING_RISK_PACK_VERSION,
+            layer=RuleLayer.INDUSTRY,
+            conditions=(
+                Condition("data_categories", "contains", "payroll"),
+                Condition("capabilities", "contains", "external_transfer"),
+                Condition("human_approval", "is_false"),
+            ),
+            effects=(Effect("severity_floor", value="CRITICAL"),),
+            result_on_match=PolicyResult.FAIL,
+            explanation=(
+                "Payroll information can leave the firm without a recorded human "
+                "approval step."
+            ),
+            severity=Severity.CRITICAL,
+            remediation=(
+                "Add an approval step in the source application or operating "
+                "procedure, then record that step in AgentLedger."
+            ),
+        ),
+        Rule(
+            rule_id="ACC-BANK-WRITE",
+            version=ACCOUNTING_RISK_PACK_VERSION,
+            layer=RuleLayer.INDUSTRY,
+            conditions=(
+                Condition("connected_systems", "contains", "banking"),
+                Condition("permissions", "contains", "write"),
+            ),
+            effects=(
+                Effect("risk_points", dimension="system_privilege", value=30),
+                Effect("recommend_review", message="Review banking write access."),
+                Effect("severity_floor", value="HIGH"),
+            ),
+            result_on_match=PolicyResult.WARNING,
+            explanation=(
+                "This software has permission to change information in a banking "
+                "system."
+            ),
+            severity=Severity.HIGH,
+            remediation=(
+                "Confirm that banking write access is necessary and document who "
+                "reviews changes."
+            ),
+        ),
+        Rule(
+            rule_id="ACC-BANK-TRANSACTION-NO-APPROVAL",
+            version=ACCOUNTING_RISK_PACK_VERSION,
+            layer=RuleLayer.INDUSTRY,
+            conditions=(
+                Condition("connected_systems", "contains", "banking"),
+                Condition("capabilities", "contains", "financial_transaction"),
+                Condition("human_approval", "is_false"),
+            ),
+            effects=(
+                Effect("risk_points", dimension="financial_impact", value=40),
+                Effect("risk_points", dimension="human_oversight", value=30),
+                Effect("severity_floor", value="CRITICAL"),
+                Effect("require_control", control="human_approval"),
+            ),
+            result_on_match=PolicyResult.FAIL,
+            explanation=(
+                "This software can initiate financial activity without a recorded "
+                "approval step."
+            ),
+            severity=Severity.CRITICAL,
+            remediation=(
+                "Require transaction approval in the banking or payment system "
+                "before continued autonomous use."
+            ),
+        ),
+        Rule(
+            rule_id="ACC-TAX-EXT",
+            version=ACCOUNTING_RISK_PACK_VERSION,
+            layer=RuleLayer.INDUSTRY,
+            conditions=(
+                Condition("data_categories", "contains", "tax_records"),
+                Condition("capabilities", "contains", "external_transfer"),
+            ),
+            effects=(
+                Effect("risk_points", dimension="data_sensitivity", value=25),
+                Effect("require_control", control="human_approval"),
+                Effect("severity_floor", value="HIGH"),
+            ),
+            result_on_match=PolicyResult.FAIL,
+            explanation=("This software can send tax records outside the firm."),
+            severity=Severity.HIGH,
+            remediation=(
+                "Document who approves tax-record transfers and how recipients are "
+                "checked before information is sent."
+            ),
+        ),
+        Rule(
+            rule_id="ACC-CLIENT-FINANCIAL-EXPORT",
+            version=ACCOUNTING_RISK_PACK_VERSION,
+            layer=RuleLayer.INDUSTRY,
+            conditions=(
+                Condition("data_categories", "contains", "financial_records"),
+                Condition("capabilities", "contains", "data_export"),
+            ),
+            effects=(
+                Effect("risk_points", dimension="data_sensitivity", value=20),
+                Effect("recommend_review", message="Review client export controls."),
+            ),
+            result_on_match=PolicyResult.WARNING,
+            explanation=("This software can export a client's financial records."),
+            severity=Severity.HIGH,
+            remediation=(
+                "Confirm who may export client records and document how each export "
+                "is reviewed and delivered."
+            ),
+        ),
+        Rule(
+            rule_id="ACC-CLIENT-EXTERNAL-COMMUNICATION",
+            version=ACCOUNTING_RISK_PACK_VERSION,
+            layer=RuleLayer.INDUSTRY,
+            conditions=(
+                Condition("data_categories", "contains", "financial_records"),
+                Condition("capabilities", "contains", "communication"),
+            ),
+            effects=(
+                Effect("risk_points", dimension="external_connectivity", value=20),
+                Effect("require_control", control="recipient_review"),
+            ),
+            result_on_match=PolicyResult.WARNING,
+            explanation=(
+                "This software can include client financial information in messages "
+                "sent outside the firm."
+            ),
+            severity=Severity.HIGH,
+            remediation=(
+                "Require a person to check the recipient and message before client "
+                "financial information is sent."
+            ),
+        ),
+        Rule(
+            rule_id="ACC-AUTONOMOUS-ACCOUNTING-MODIFICATION",
+            version=ACCOUNTING_RISK_PACK_VERSION,
+            layer=RuleLayer.INDUSTRY,
+            conditions=(
+                Condition("capabilities", "contains", "record_modification"),
+                Condition("autonomy_level", "greater_than_or_equal", 3),
+            ),
+            effects=(
+                Effect("risk_points", dimension="autonomy", value=30),
+                Effect("require_control", control="change_review"),
+                Effect("severity_floor", value="HIGH"),
+            ),
+            result_on_match=PolicyResult.FAIL,
+            explanation=(
+                "This software can change accounting records while performing some "
+                "tasks on its own."
+            ),
+            severity=Severity.HIGH,
+            remediation=(
+                "Require a person to review accounting changes and document how "
+                "incorrect changes are corrected."
+            ),
+        ),
+        Rule(
+            rule_id="ACC-VENDOR-REVIEW-INCOMPLETE",
+            version=ACCOUNTING_RISK_PACK_VERSION,
+            layer=RuleLayer.INDUSTRY,
+            conditions=(Condition("vendor_review_status", "not_equals", "complete"),),
+            effects=(
+                Effect("risk_points", dimension="vendor_risk", value=15),
+                Effect("recommend_review", message="Complete the vendor review."),
+            ),
+            result_on_match=PolicyResult.WARNING,
+            explanation=(
+                "The vendor review is incomplete, so the firm's review of this "
+                "software is not yet documented."
+            ),
+            severity=Severity.MODERATE,
+            remediation=(
+                "Complete and record the vendor review, including data handling, "
+                "security, and contract terms."
+            ),
+        ),
+        Rule(
+            rule_id="ACC-RETENTION-UNKNOWN",
+            version=ACCOUNTING_RISK_PACK_VERSION,
+            layer=RuleLayer.INDUSTRY,
+            conditions=(Condition("retention_status", "equals", "unknown"),),
+            effects=(
+                Effect("risk_points", dimension="regulatory_relevance", value=10),
+                Effect("recommend_review", message="Confirm the retention terms."),
+            ),
+            result_on_match=PolicyResult.WARNING,
+            explanation=(
+                "The firm has not recorded how long this software keeps its data."
+            ),
+            severity=Severity.MODERATE,
+            remediation=(
+                "Confirm the vendor's retention and deletion terms and record the "
+                "review."
+            ),
+        ),
+        Rule(
+            rule_id="ACC-TRAINING-BEHAVIOR-UNKNOWN",
+            version=ACCOUNTING_RISK_PACK_VERSION,
+            layer=RuleLayer.INDUSTRY,
+            conditions=(Condition("training_behavior", "equals", "unknown"),),
+            effects=(
+                Effect("risk_points", dimension="vendor_risk", value=10),
+                Effect(
+                    "recommend_review",
+                    message="Confirm whether customer data is used for training.",
+                ),
+            ),
+            result_on_match=PolicyResult.WARNING,
+            explanation=(
+                "The firm has not recorded whether the vendor uses customer data to "
+                "train models."
+            ),
+            severity=Severity.MODERATE,
+            remediation=(
+                "Confirm the vendor's model-training terms and record whether firm "
+                "or client data is used."
+            ),
+        ),
+    ),
+)
+
+
+FILE apps/assessments/workflow_profile_v1.py SHA256 bc40ea4f558fbf9360c934f36f7f5257c30bba7b114bae9b873c791d3c6b88f8
+"""Permanent profile vocabulary and normalization admitted by capture v1."""
+
+import re
+import unicodedata
+from enum import Enum
+from uuid import UUID
+
+
+class BranchProfile(str, Enum):
+    BUSINESS = "business.v1"
+    DEVELOPMENT = "development.v1"
+
+
+def validate_branch_settings(profile, settings):
+    profile = BranchProfile(profile)
+    if not isinstance(settings, dict):
+        raise ValueError("Branch settings must be an object")
+    allowed = {
+        BranchProfile.BUSINESS: {"name", "jurisdiction", "parent_branch_id"},
+        BranchProfile.DEVELOPMENT: {"name", "repository_ref", "environment"},
+    }[profile]
+    if not set(settings).issubset(allowed) or "name" not in settings:
+        raise ValueError("Settings do not match selected branch profile")
+    for key, value in settings.items():
+        if (
+            not isinstance(value, str)
+            or not value.strip()
+            or not 1 <= len(value) <= 200
+            or any(unicodedata.category(c) in {"Cc", "Cf", "Cs"} for c in value)
+        ):
+            raise ValueError("Invalid branch setting")
+        if key == "parent_branch_id":
+            UUID(value)
+        if key == "repository_ref" and not re.fullmatch(
+            r"[A-Za-z0-9_.\-/]{1,200}", value
+        ):
+            raise ValueError(
+                "Repository reference must be an identifier without credentials"
+            )
+        if key == "repository_ref" and (
+            value.startswith("/")
+            or any(part in {"", ".", ".."} for part in value.split("/"))
+        ):
+            raise ValueError("Repository reference cannot be a filesystem path")
+    # Unknown/custom profiles require a registered, versioned schema first.
+    return {"profile": profile.value, "settings": dict(settings)}
+
+
+FILE apps/reviews/capture_context.py SHA256 f00e870554724737801735b0b6c05400b02cfc54c327f3a25510db56ef084b6d
+"""Closed capture2 render projection; deterministic content is not issuance proof."""
+
+import hashlib
+import json
+from copy import deepcopy
+from uuid import UUID
+
+import rfc8785
+
+from apps.assessments.capture_v1 import CONTRACT, validate_capture_payloads
+
+from .exposure_v1 import review_record
+
+VERSION = "AL-REVIEW-PACK-CONTEXT-2"
+TITLE = "Frozen Tool Exposure Evidence Pack"
+PROJECTION_KEYS = frozenset(
+    {
+        "schema",
+        "request_id",
+        "job_id",
+        "report_id",
+        "organization_id",
+        "pack_id",
+        "manifest",
+        "manifest_sha256",
+        "snapshot_input",
+        "snapshot_result",
+        "selected_decisions",
+    }
+)
+MANIFEST_KEYS = frozenset(
+    {
+        "schema",
+        "cycle_id",
+        "organization_id",
+        "baseline_pack_id",
+        "snapshot",
+        "selected_decisions",
+        "selection_scope",
+        "artifact_state",
+        "baseline_promotion",
+        "capture",
+    }
+)
+PIN_KEYS = frozenset(
+    {
+        "snapshot_id",
+        "assessment_id",
+        "assessment_version",
+        "input_sha256",
+        "result_sha256",
+        "captured_at",
+        "snapshot_schema",
+        "workflow_profile_id",
+        "workflow_profile",
+        "workflow_settings_sha256",
+        "rules_sha256",
+        "configuration_sha256",
+        "engine_versions",
+        "capture_contract",
+    }
+)
+
+
+def digest(value):
+    return hashlib.sha256(rfc8785.dumps(value)).hexdigest()
+
+
+def closed(value, keys):
+    if type(value) is not dict or set(value) != set(keys):
+        raise ValueError("Capture review fields do not match closed contract")
+
+
+def canonical_uuid(value):
+    if type(value) is not str or str(UUID(value)) != value:
+        raise ValueError("Canonical capture review identity required")
+    return UUID(value)
+
+
+def validate_capture_projection(projection):
+    closed(projection, PROJECTION_KEYS)
+    if projection["schema"] != "stewardence.review_worker_projection.v2":
+        raise ValueError("Capture review projection version invalid")
+    for key in ("request_id", "job_id", "report_id", "organization_id", "pack_id"):
+        canonical_uuid(projection[key])
+    manifest = projection["manifest"]
+    closed(manifest, MANIFEST_KEYS)
+    capture = manifest["capture"]
+    closed(capture, {"receipt_id", "request_sha256", "contract", "exposure_contract"})
+    canonical_uuid(capture["receipt_id"])
+    if (
+        type(capture["request_sha256"]) is not str
+        or len(capture["request_sha256"]) != 64
+        or any(ch not in "0123456789abcdef" for ch in capture["request_sha256"])
+        or capture["contract"] != CONTRACT
+        or capture["exposure_contract"] != "core.exposure.declarations.v1"
+    ):
+        raise ValueError("Capture issuance receipt binding invalid")
+    pinned = manifest["snapshot"]
+    closed(pinned, PIN_KEYS)
+    if (
+        capture["receipt_id"] != pinned["snapshot_id"]
+        or pinned["snapshot_id"] != pinned["assessment_id"]
+    ):
+        raise ValueError("Capture receipt snapshot identity mismatch")
+    for key in ("snapshot_id", "assessment_id", "workflow_profile_id"):
+        canonical_uuid(pinned[key])
+    canonical_uuid(manifest["cycle_id"])
+    if manifest["baseline_pack_id"] is not None:
+        raise ValueError("Initial capture pack has no admitted baseline")
+    if (
+        manifest["schema"] != "stewardence.review_pack.v3"
+        or manifest["organization_id"] != projection["organization_id"]
+        or manifest["selected_decisions"] != []
+        or projection["selected_decisions"] != []
+        or manifest["selection_scope"] != "empty_capture_kernel"
+        or manifest["artifact_state"] != "not_created"
+        or manifest["baseline_promotion"] != "blocked"
+        or pinned["snapshot_schema"] != 2
+        or type(pinned["snapshot_schema"]) is not int
+        or pinned["capture_contract"] != CONTRACT
+        or digest(manifest) != projection["manifest_sha256"]
+    ):
+        raise ValueError(
+            "Capture review manifest identity or initial selection invalid"
+        )
+    inputs, results = projection["snapshot_input"], projection["snapshot_result"]
+    validate_capture_payloads(
+        {
+            "input_payload": inputs,
+            "result_payload": results,
+            "input_sha256": pinned["input_sha256"],
+            "result_sha256": pinned["result_sha256"],
+        },
+        organization_id=canonical_uuid(projection["organization_id"]),
+        created_by_id=canonical_uuid(inputs["created_by_id"]),
+        workflow_profile_id=canonical_uuid(pinned["workflow_profile_id"]),
+    )
+    if (
+        inputs["assessment"]
+        != {"id": pinned["assessment_id"], "version": pinned["assessment_version"]}
+        or type(pinned["assessment_version"]) is not int
+        or inputs["captured_at"] != pinned["captured_at"]
+        or inputs["workflow_profile"]["profile"] != pinned["workflow_profile"]
+        or inputs["workflow_profile"]["settings_sha256"]
+        != pinned["workflow_settings_sha256"]
+        or digest(inputs["rulesets"]) != pinned["rules_sha256"]
+        or digest(inputs["risk_configuration"]) != pinned["configuration_sha256"]
+        or inputs["engine_versions"] != pinned["engine_versions"]
+    ):
+        raise ValueError("Capture review frozen meaning mismatch")
+    return projection
+
+
+def build_capture_pack_context(metadata, projection):
+    validate_capture_projection(projection)
+    pinned = projection["manifest"]["snapshot"]
+    closed(
+        metadata,
+        {
+            "report_identifier",
+            "organization_display_name",
+            "assessment_date",
+            "assessment_id",
+            "assessment_version",
+            "assessment_snapshot_id",
+            "input_sha256",
+            "result_sha256",
+        },
+    )
+    if (
+        type(metadata["assessment_version"]) is not int
+        or metadata["assessment_version"] != 1
+    ):
+        raise ValueError("Capture metadata assessment version must be integer one")
+    for source, target in (
+        ("snapshot_id", "assessment_snapshot_id"),
+        ("assessment_id", "assessment_id"),
+        ("assessment_version", "assessment_version"),
+        ("captured_at", "assessment_date"),
+        ("input_sha256", "input_sha256"),
+        ("result_sha256", "result_sha256"),
+    ):
+        if pinned[source] != metadata[target]:
+            raise ValueError("Capture report metadata binding mismatch")
+    return deepcopy(
+        {
+            "context_version": VERSION,
+            "title": TITLE,
+            "metadata": metadata,
+            "projection": projection,
+            "exposure_reviews": [
+                json.loads(json.dumps(review_record(row)))
+                for row in projection["snapshot_input"]["inventory"]
+            ],
+        }
+    )
+
+
+FILE tests/test_capture_historical_semantics.py SHA256 0534a185668abc90d9fd26632908af4a7422304ee570d143cc56867eeb26316f
+"""Permanent capture v1 survives changes to current aliases.
+
+Golden hashes were computed from frozen image d3c7519 source, before extraction.
+These tests establish interpretation compatibility, not admission or truth.
+"""
+
+from uuid import UUID
+
+import pytest
+
+from apps.assessments.capture_v1 import (
+    build_capture_payloads,
+    validate_capture_payloads,
+)
+from tests.test_capture_contract import args, record
+
+
+@pytest.mark.parametrize(
+    "industry,input_sha,result_sha",
+    [
+        (
+            "other",
+            "dac2763c822baaf708fbb22c46f09ea14917b35991504d89d94a56f6bce54fd8",
+            "89370962075734b9dab03348d7aa4d5bf40515f6e58e788b7e33741cbba581c1",
+        ),
+        (
+            "accounting_bookkeeping",
+            "fc510a466bb56099dcfa42e86882ef2bb7ffd18b591a439b5a6a3f10e7389eca",
+            "77de47e4506d81b034f9faac31d1c446d1acde7902f9dc0b0ded382915281365",
+        ),
+    ],
+)
+def test_permanent_capture_ignores_current_semantic_aliases(
+    industry, input_sha, result_sha, monkeypatch
+):
+    item = record(UUID(int=5))
+    pins = args(industry, [item])
+    pins.update(
+        organization_id=UUID(int=1),
+        created_by_id=UUID(int=2),
+        assessment_id=UUID(int=3),
+        workflow_profile_id=UUID(int=4),
+    )
+    for field, value in (
+        ("business_owner", "Owner"),
+        ("data_categories", ["payroll"]),
+        ("capabilities", ["external_transfer"]),
+        ("human_approval", False),
+    ):
+        item[field] = value
+        item["provenance"][field] = "Declared"
+
+    def forbidden(*arguments, **keywords):
+        pytest.fail("Historical capture touched current semantic implementation")
+
+    monkeypatch.setattr("apps.inventory.provenance.INVENTORY_FACT_FIELDS", ())
+    monkeypatch.setattr("apps.inventory.provenance.DECLARED", "Future declaration")
+    monkeypatch.setattr("apps.inventory.provenance.UNKNOWN", "Future unknown")
+    monkeypatch.setattr("apps.jobs.contracts.validate_branch_settings", forbidden)
+    monkeypatch.setattr("apps.policies.engine.evaluate_rule", forbidden)
+    monkeypatch.setattr("apps.policies.engine.ENGINE_VERSION", "AL-POLICY-FUTURE")
+    monkeypatch.setattr("apps.policies.packs.accounting.ACCOUNTING_RISK_PACK_V1", None)
+    envelope = build_capture_payloads(**pins)
+    assert envelope["input_sha256"] == input_sha
+    assert envelope["result_sha256"] == result_sha
+    assert (
+        validate_capture_payloads(
+            envelope,
+            **{
+                key: pins[key]
+                for key in ("organization_id", "created_by_id", "workflow_profile_id")
+            },
+        )
+        == envelope
+    )
+
+
+FILE tests/test_capture_context_history.py SHA256 e6ee28ba9965876d3f3180b8121143658eb7d28ef8961a2616471573cc79af36
+"""Historical interpretation compatibility; synthetic projections are not issuance.
+
+These tests exercise a cold context import after mutable aliases change. They
+do not promise byte-identical PDFs across Chromium/font/library upgrades.
+"""
+
+import builtins
+import importlib
+from copy import deepcopy
+from datetime import datetime
+from uuid import UUID
+
+import pytest
+import rfc8785
+
+from apps.assessments.capture_v1 import build_capture_payloads
+from apps.reviews import capture_context
+from renderer import capture_schema
+from renderer.schema import validate_report_render_payload
+from renderer.template import render_report_html
+from tests.test_capture_review_renderer import capture_projection
+
+
+def known_projection(industry):
+    metadata, projection = capture_projection(industry)
+    inputs = projection["snapshot_input"]
+    row = inputs["inventory"][0]
+    for field, value in (
+        ("business_owner", "Owner"),
+        ("data_categories", ["payroll"]),
+        ("capabilities", ["external_transfer"]),
+        ("human_approval", False),
+    ):
+        row[field] = value
+        row["provenance"][field] = "Declared"
+    profile = inputs["workflow_profile"]
+    value = build_capture_payloads(
+        organization_id=UUID(inputs["organization_id"]),
+        created_by_id=UUID(inputs["created_by_id"]),
+        assessment_id=UUID(inputs["assessment"]["id"]),
+        assessment_version=1,
+        captured_at=datetime.fromisoformat(
+            inputs["captured_at"].replace("Z", "+00:00")
+        ),
+        industry=industry,
+        workflow_profile_id=UUID(profile["id"]),
+        workflow_profile=profile["profile"],
+        workflow_settings=profile["settings"],
+        inventory_records=inputs["inventory"],
+    )
+    projection["snapshot_input"] = value["input_payload"]
+    projection["snapshot_result"] = value["result_payload"]
+    for field in ("input_sha256", "result_sha256"):
+        metadata[field] = value[field]
+        projection["manifest"]["snapshot"][field] = value[field]
+    projection["manifest_sha256"] = capture_context.digest(projection["manifest"])
+    return metadata, projection
+
+
+def drift_current_aliases(monkeypatch):
+    def forbidden(*args, **kwargs):
+        pytest.fail("Historical context touched mutable current semantics")
+
+    monkeypatch.setattr(
+        "apps.assessments.capture_contract.CONTRACT", "core.capture.future.v99"
+    )
+    monkeypatch.setattr(
+        "apps.assessments.capture_contract.validate_capture_payloads", forbidden
+    )
+    monkeypatch.setattr(
+        "apps.assessments.capture_contract.build_capture_payloads", forbidden
+    )
+    monkeypatch.setattr("apps.inventory.provenance.INVENTORY_FACT_FIELDS", ())
+    monkeypatch.setattr("apps.inventory.provenance.DECLARED", "Future declaration")
+    monkeypatch.setattr("apps.inventory.provenance.UNKNOWN", "Future unknown")
+    monkeypatch.setattr("apps.jobs.contracts.validate_branch_settings", forbidden)
+    monkeypatch.setattr("apps.policies.engine.evaluate_rule", forbidden)
+    monkeypatch.setattr("apps.policies.engine.ENGINE_VERSION", "AL-POLICY-FUTURE")
+    monkeypatch.setattr("apps.policies.packs.accounting.ACCOUNTING_RISK_PACK_V1", None)
+    monkeypatch.setattr("apps.reviews.exposure.review_record", forbidden)
+    monkeypatch.setattr("apps.reviews.exposure.VERSION", "core.exposure.future.v99")
+
+
+@pytest.mark.parametrize("industry", ["other", "accounting_bookkeeping"])
+def test_cold_historical_context_keeps_meaning_after_current_alias_drift(
+    industry, monkeypatch
+):
+    metadata, projection = known_projection(industry)
+    expected = capture_context.build_capture_pack_context(metadata, projection)
+    expected_bytes = rfc8785.dumps(expected)
+    expected_html = render_report_html(expected)
+    if industry == "accounting_bookkeeping":
+        assert any(
+            p["result"] == "FAIL"
+            for p in projection["snapshot_result"]["inventory_results"][0][
+                "policy_results"
+            ]
+        )
+    with monkeypatch.context() as patch:
+        drift_current_aliases(patch)
+        try:
+            importlib.reload(capture_context)
+            replay = capture_context.build_capture_pack_context(metadata, projection)
+            assert rfc8785.dumps(replay) == expected_bytes
+            assert validate_report_render_payload(replay) == expected
+            assert render_report_html(replay) == expected_html
+            assert replay["projection"]["manifest"]["selected_decisions"] == []
+            assert replay["projection"]["manifest"]["baseline_promotion"] == "blocked"
+        finally:
+            patch.undo()
+            importlib.reload(capture_context)
+
+
+def test_cold_standalone_renderer_never_imports_application_semantics(monkeypatch):
+    payload = capture_context.build_capture_pack_context(*known_projection("other"))
+    original_import = builtins.__import__
+
+    def guarded_import(name, *args, **kwargs):
+        if name == "apps" or name.startswith("apps."):
+            pytest.fail(f"Standalone renderer imported application semantics: {name}")
+        return original_import(name, *args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(builtins, "__import__", guarded_import)
+        importlib.reload(capture_schema)
+        assert capture_schema.validate_capture_render_payload(payload) == payload
+        assert "Risk: not assessed" in render_report_html(payload)
+
+
+def test_alias_drift_does_not_open_v3_decision_selection(monkeypatch):
+    metadata, projection = known_projection("other")
+    changed = deepcopy(projection)
+    changed["manifest"]["selected_decisions"] = [{"proposal_id": str(UUID(int=777))}]
+    changed["selected_decisions"] = changed["manifest"]["selected_decisions"]
+    changed["manifest_sha256"] = capture_context.digest(changed["manifest"])
+    with monkeypatch.context() as patch:
+        drift_current_aliases(patch)
+        with pytest.raises(ValueError, match="initial selection"):
+            capture_context.build_capture_pack_context(metadata, changed)

@@ -1,0 +1,474 @@
+Separate report-presentation review candidate. This does NOT reopen closed semantic/Core authority/restore findings. Atlas/schema alignment preceded presentation changes. The final full suite is still running; prior full run 20261003T223829.697018Z had1146pass1skip and precedes ONLY the metadata appendix page break. Latest final focused run20261003T224123.550152Z had36pass realChromium + repeated-byte qualification. Separate renderer image45e9b2c15b940d94f9d8bd60ce4127d394fc6813223cd063b87ce2a2c75895a2 packaged probe passed nonroot10001 readonly no-network/capdrop bounded-memory actualChromium repeat equality. Its PDF bytes EXACTLY match the visually inspected qualification specimen SHAfe606ca0ea3d2e2368228d61ad575f9b53a4587106b40a40a79b382a2f3147a6. Four pages have deliberate ROI and technical appendix boundaries; all four inspected after Poppler render. Browser menu fixed at390px, report width constrained at390/768/1280; synthetic only. Full long-table/accessibility/productionHTTP and salesdelivery gates remain open. Please review presentation source and bounded evidence; withhold release approval.
+
+FILE docs/report-atlas-schema-alignment.md
+# Atlas report alignment before presentation changes
+
+Atlas screen 38 is a partially implemented design reference. It supplies the
+Reports continuity emblem, navy typography, blue information panels, white
+surfaces, section hierarchy and progressive disclosure. It supplies no new
+authority or financial facts. Screen 37 supplies report history rows; the
+candidate uses immutable report identities and actual artifact metadata.
+
+| Atlas concept | Existing context | Admission and presentation boundary |
+| --- | --- | --- |
+| Executive summary | executive_summary | Captured inventory count, rule findings, declared known spend and modeled value; unknown ROI remains unknown |
+| Sources and methodology | methodology, evidence, ruleset_versions | Captured engine/rule versions and provenance; deterministic output does not prove the inputs true |
+| Software costs | inventory, ai_expenditure | Declared known amounts and coverage; inventory defaults do not prove paid subscriptions |
+| Insufficient ROI evidence | roi.result, roi.assumptions | AL-ROI-2 preserves required unknowns and known cost components; original AL-ROI-1 snapshots remain historical |
+| Artifact availability | ReportArtifact and stored job status | Browser report is separate from a verified stored PDF; no renderer/worker health inferred from existence |
+| Technical receipt | metadata | Immutable report/assessment/snapshot IDs and input/result digests; signatures and issuance authority are not inferred from hashes |
+
+The atlas synthetic provider sidebar is not report data. Historical connection
+failures, sandbox statuses, proposed integrations and collection promises are
+not copied into reports. Current provider connection evidence cannot establish
+permission inventories, financial payload admission or production readiness.
+
+The scoped printable successor changes styling and the supplied decorative
+Reports emblem only. It keeps the report context schema and deterministic
+calculation engines intact and does not overwrite existing PDFs. Real Chromium
+rendering, repeated-byte comparison, text checks and rendered-page inspection
+must qualify the successor before release. Long tables and multi-page findings
+require their own specimens; a single-page screenshot cannot qualify them.
+
+FILE docs/report-presentation-qualification.md
+# Report presentation successor
+
+Atlas/schema reconciliation precedes this change; see
+`report-atlas-schema-alignment.md`. The successor keeps calculation engines,
+context schema, original snapshots and existing artifact bytes intact. Browser
+styling now restores the phone-width workspace menu and constrains report grid
+width so only wide tables scroll. Phone (390), tablet (768) and desktop (1280)
+browser measurements show no page-wide horizontal overflow in the synthetic
+report. The menu opened and navigated to recovery controls. Evidence is under
+`evidence/visual-qa`.
+
+The printable report uses the supplied decorative Reports emblem, navy text,
+blue information panels and white/light-blue tables. ROI starts on its own page;
+immutable technical metadata occupies a deliberate appendix page. All four pages
+of the final single-tool unknown-ROI specimen were rendered with Poppler and
+visually inspected. No clipping, broken glyphs or orphaned final ruleset line
+was observed in that specimen. Unknown value and net value remain unknown while
+the known cost component remains visible. This does not qualify every possible
+long-table or customer-input layout.
+
+The final layout's 36 focused checks passed in
+`20261003T224123.550152Z`, image
+`sha256:89d7868be0b9be2f92281d03919d3fec7289bebb65bca353ef5535d030358938`.
+The test exercised actual Chromium and independent renders with identical bytes.
+Earlier full run `20261003T223829.697018Z` passed 1,146 with one inapplicable skip
+but precedes the appendix page-break adjustment. A final full-source run is in
+progress; do not transfer that earlier count to the appendix successor.
+
+The separate renderer-only image is
+`sha256:45e9b2c15b940d94f9d8bd60ce4127d394fc6813223cd063b87ce2a2c75895a2`.
+It contains the required SVG. Direct actual Chromium qualification used UID
+10001, read-only root, dropped capabilities, no new privileges, no network and
+bounded tmpfs/memory/pids. Its synthetic specimen rendered twice identically;
+unknown values, the known cost and appendix heading checks passed. The first
+probe failed because pypdf extracted the footer before the visible heading. The
+diagnostic established that order; the corrected check excludes only that exact
+footer and still requires the appendix heading first among body lines.
+
+`renderer-package-summary.json` in the focused run records the passing result.
+This is renderer execution evidence, not renderer HTTP authentication, end-to-end
+worker delivery, live provider admission or production deployment evidence.
+
+FILE source/static/atlas.css
+/* Atlas v3 continuity: supplied semantic assets, system font, edged rows. */
+:root{font-family:"Segoe UI",system-ui,sans-serif;--ink-900:#14243b;--slate-600:#52647c;--blue-600:#1d55cf;--slate-200:#d5deea;--slate-50:#fff;background:#fff}
+body,.app-body{background:#fff}
+.app-frame{display:grid;grid-template-columns:205px minmax(0,1fr)}
+.app-sidebar{padding:22px 14px;background:#0a1b2e;overflow-y:auto}
+.sidebar-brand{gap:8px;padding:0 0 30px}.sidebar-brand strong{font-size:18px}.sidebar-brand small{font-size:10px}
+.brand-mark{width:44px;height:44px;object-fit:contain}
+.sidebar-nav a{padding:11px 14px;border-radius:5px;min-height:44px}.sidebar-nav .nav-icon{display:none}
+.sidebar-nav a[aria-current=page]{background:#1d55cf;color:#fff}.sidebar-footer{padding-top:16px}
+.app-topbar{min-height:76px;padding:0 38px;background:#fff;backdrop-filter:none}.topbar-title{font-weight:600}
+.page-shell{width:100%;max-width:1240px;margin:0;padding:30px 38px 48px}
+.page-heading{margin:12px 0 22px}.page-heading h1,.report-cover h1{font-size:34px;line-height:1.15;letter-spacing:-.7px}
+.atlas-heading{display:flex;gap:20px;align-items:center}.atlas-heading>div{min-width:0}.atlas-heading h1{margin:0 0 12px}
+.page-emblem{width:104px;height:104px;flex:0 0 104px;object-fit:contain}
+.card{margin:28px 0;padding:0 0 24px;border:0;border-bottom:1px solid #d5deea;border-radius:0;box-shadow:none;background:#fff}
+.card:hover{border-color:#d5deea}.workspace-grid .card,.inventory-grid .card{padding:16px 0}
+h2{font-size:20px;line-height:1.35}h3{font-size:15px}.eyebrow{font-size:12px;letter-spacing:1.2px}
+.notice{padding:14px 16px;border:0;border-left:3px solid #1d55cf;border-radius:0;background:#edf3ff;color:#21417b}
+.notice-error{background:#fff0ef;border-color:#b33434;color:#7b2424}.notice-warning{background:#fff8e9;border-color:#986112;color:#674512}
+button,.button{min-height:44px;border-radius:5px;font-family:"Segoe UI",system-ui,sans-serif}
+button:not(.sidebar-logout):not(.button){padding:11px 18px;border:1px solid #1d55cf;background:#1d55cf;color:white;font-weight:600;cursor:pointer}
+input:not([type=checkbox]):not([type=radio]),select,textarea{min-height:44px;border-radius:5px;font-family:inherit}
+table{width:100%;border-collapse:collapse;font-size:14px}th{background:#f5f8fc;color:#52647c;font-size:12px;padding:12px}td{padding:15px 12px;border-bottom:1px solid #d5deea;vertical-align:top;overflow-wrap:anywhere}
+.table-wrap{width:100%;overflow-x:auto}.table-wrap table{min-width:560px}
+.report-cover{background:white;color:#14243b}.report-cover .muted,.report-cover .eyebrow{color:#52647c}
+.report-emblem{float:left;margin:0 20px 16px 0}.report-meta{clear:both}
+.mobile-workspace-nav{display:none}
+.app-topbar{display:flex}
+.report{grid-template-columns:minmax(0,1fr)}
+.recorded-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:24px}.recorded-metrics>div{padding:16px 0;border-top:2px solid #adc1df}.recorded-metrics dd{margin:9px 0;font-size:24px;line-height:1.3}.recorded-metrics dt{font-size:13px;color:#52647c}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #1d55cf;outline-offset:3px}
+@media(max-width:700px){.app-frame{display:block}.app-sidebar{display:none}.app-topbar{padding:16px 20px;min-height:65px;flex-wrap:wrap;gap:12px}.page-shell{padding:24px 20px}.page-heading h1,.report-cover h1{font-size:28px}.atlas-heading{gap:12px;align-items:flex-start}.page-emblem{width:68px;height:68px;flex-basis:68px}.mobile-workspace-nav{display:block;width:100%;border:0}.mobile-workspace-nav summary{min-height:44px;padding:11px 0;color:#1d55cf;font-weight:600;cursor:pointer}.mobile-workspace-nav nav{display:flex;flex-direction:column}.mobile-workspace-nav a{min-height:44px;padding:11px 14px;color:#14243b;text-decoration:none}.mobile-workspace-nav a:focus-visible{outline-offset:-3px}.card{margin-top:24px}.report-emblem{margin-right:12px}.user-chip{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+FILE source/renderer/template.py
+from __future__ import annotations
+
+import base64
+from pathlib import Path
+from typing import Any
+
+from django.template import Context, Engine
+
+TEMPLATE_DIRECTORY = Path(__file__).resolve().parent / "templates"
+BRAND_LOGO_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "static"
+    / "brand"
+    / "atlas"
+    / "reports.svg"
+)
+_ENGINE = Engine(dirs=(TEMPLATE_DIRECTORY,), autoescape=True, debug=False)
+
+
+def render_report_html(payload: dict[str, Any]) -> str:
+    template = _ENGINE.get_template("report.html")
+    brand_logo_data_url = "data:image/svg+xml;base64," + base64.b64encode(
+        BRAND_LOGO_PATH.read_bytes()
+    ).decode("ascii")
+    return template.render(
+        Context(
+            {
+                "brand_logo_data_url": brand_logo_data_url,
+                "report": payload,
+            },
+            autoescape=True,
+            use_l10n=False,
+            use_tz=False,
+        )
+    )
+
+FILE source/renderer/templates/report.html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ report.metadata.report_identifier }} - {{ report.title }}</title>
+  <style>
+    @page { size: A4; margin: 16mm 14mm 18mm; @bottom-right { content: "Page " counter(page) " of " counter(pages); color: #667085; font-size: 9px; } }
+    * { box-sizing: border-box; }
+    body { color: #14243b; font-family: "Segoe UI", Arial, sans-serif; font-size: 10px; line-height: 1.45; margin: 0; }
+    h1 { color: #14243b; font-size: 27px; line-height: 1.12; margin: 6px 0 8px; }
+    h2 { border-bottom: 2px solid #d5deea; color: #14243b; font-size: 17px; margin: 0 0 10px; padding-bottom: 5px; }
+    h3 { color: #14243b; font-size: 12px; margin: 8px 0 4px; }
+    p { margin: 5px 0 8px; }
+    section { margin: 0 0 14px; }
+    .roi-section { break-before: page; }
+    .metadata-section { break-before: page; }
+    h2, h3 { break-after: avoid; }
+    .cover { border-bottom: 2px solid #d5deea; margin-bottom: 24px; padding: 22px 0; break-inside: avoid; }
+    .cover-brand { align-items: flex-start; display: flex; gap: 20px; justify-content: space-between; }
+    .brand-logo { display: block; height: auto; width: 104px; }
+    .eyebrow { color: #1d55cf; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .organization { font-size: 16px; font-weight: 700; }
+    .disclaimer { background: #edf3ff; border-left: 3px solid #1d55cf; padding: 8px 10px; }
+    .grid { display: grid; gap: 8px; grid-template-columns: repeat(3, 1fr); }
+    .metric { background: #f4f7f8; padding: 8px; }
+    .metric span { color: #667085; display: block; font-size: 8.5px; text-transform: uppercase; }
+    .metric strong { display: block; font-size: 15px; margin-top: 2px; }
+    table { border-collapse: collapse; font-size: 9px; width: 100%; }
+    th, td { border: 1px solid #d7dee2; padding: 5px; text-align: left; vertical-align: top; }
+    th { background: #f5f8fc; color: #52647c; }
+    thead { display: table-header-group; }
+    td { overflow-wrap: anywhere; }
+    tr { break-inside: avoid; }
+    .item { border-left: 3px solid #adc1df; break-inside: avoid; margin: 8px 0; padding: 3px 0 3px 9px; }
+    .muted { color: #667085; }
+    .hash { font-family: monospace; font-size: 8px; overflow-wrap: anywhere; }
+    ul, ol { margin: 5px 0 8px; padding-left: 20px; }
+    li { margin: 2px 0; }
+  </style>
+</head>
+<body>
+  <header class="cover">
+    <div class="cover-brand">
+      <div>
+        <div class="eyebrow">{{ report.metadata.report_identifier }}</div>
+        <h1>{{ report.title }}</h1>
+      </div>
+      <img class="brand-logo" src="{{ brand_logo_data_url }}" alt="" aria-hidden="true">
+    </div>
+    <p class="organization">{{ report.metadata.organization_display_name }}</p>
+    <p>Assessment date: {{ report.assessment_date }} | Assessment version: {{ report.metadata.assessment_version }}</p>
+    <p class="disclaimer">This report presents deterministic assessment findings and does not certify compliance or guarantee security.</p>
+  </header>
+  <section><h2>Executive summary</h2><div class="grid">
+    <div class="metric"><span>Tools assessed</span><strong>{{ report.executive_summary.inventory_count }}</strong></div>
+    <div class="metric"><span>Policy findings</span><strong>{{ report.executive_summary.finding_count }}</strong></div>
+    <div class="metric"><span>Monthly spend</span><strong>{{ report.executive_summary.monthly_spend_display }}</strong></div>
+  </div>{% if report.executive_summary.highest_individual_risk %}<p>Highest individual tool risk: <strong>{{ report.executive_summary.highest_individual_risk.band }}</strong> ({{ report.executive_summary.highest_individual_risk.score }}/100) for {{ report.executive_summary.highest_individual_risk.tool_name }}.</p>{% endif %}<p>Estimated monthly net value: <strong>{% if report.executive_summary.monthly_net_value != None %}${{ report.executive_summary.monthly_net_value }}{% else %}Unknown{% endif %}</strong>.</p></section>
+  <section><h2>AI and software inventory</h2><table><thead><tr><th>Tool</th><th>Vendor</th><th>Department</th><th>Status</th><th>Monthly cost</th></tr></thead><tbody>{% for tool in report.inventory %}<tr><td>{{ tool.display_name }} ({{ tool.provenance.display_name }})</td><td>{{ tool.vendor_name }} ({{ tool.provenance.vendor_name }})</td><td>{{ tool.department|default:"Unknown" }} ({{ tool.provenance.department }})</td><td>{{ tool.status|title }} ({{ tool.provenance.status }})</td><td>{{ tool.monthly_cost_display }} ({{ tool.provenance.monthly_cost_cents }})</td></tr>{% endfor %}</tbody></table></section>
+  <section><h2>Overall risk overview</h2><p>Overall risk is summarized by the highest individual tool risk; it is not a compliance certification.</p><div class="grid">{% for band, count in report.risk_overview.counts_by_band.items %}<div class="metric"><span>{{ band }}</span><strong>{{ count }}</strong></div>{% endfor %}</div></section>
+  <section><h2>Individual tool risk</h2>{% for tool in report.inventory %}<article class="item"><h3>{{ tool.display_name }} - {{ tool.risk.band }} ({{ tool.risk.score }}/100, {{ tool.risk.provenance }})</h3><p>Risk engine {{ tool.risk.engine_version }}; configuration {{ tool.risk.configuration_version }}</p><ul>{% for dimension in tool.risk.dimensions %}<li>{{ dimension.dimension|title }}: {{ dimension.raw_points }} raw, {{ dimension.weight_percent }}% weight, {{ dimension.weighted_points }} weighted</li>{% endfor %}</ul></article>{% endfor %}</section>
+  <section><h2>Failed and warning policy findings</h2>{% for finding in report.policy_findings %}<article class="item"><div class="eyebrow">{{ finding.result }} - {{ finding.severity }}</div><h3>{{ finding.tool_name }}</h3><p>{{ finding.explanation }}</p><p><strong>Rule:</strong> {{ finding.rule_id }} version {{ finding.rule_version }}</p><p><strong>Recommended remediation:</strong> {{ finding.recommended_remediation }}</p></article>{% empty %}<p>No failed or warning policies were recorded.</p>{% endfor %}</section>
+  <section><h2>Recommendations</h2><ol>{% for recommendation in report.recommendations %}<li><strong>{{ recommendation.tool_name }}:</strong> {{ recommendation.remediation }} ({{ recommendation.severity }})</li>{% empty %}<li>No remediation recommendations were produced.</li>{% endfor %}</ol></section>
+  <section><h2>AI and software expenditure</h2><p><strong>{{ report.ai_expenditure.monthly_total_display }}</strong> monthly subscription cost</p><ul>{% for item in report.ai_expenditure.items %}<li>{{ item.tool_name }} - {{ item.monthly_cost_display }} ({{ item.provenance }})</li>{% endfor %}</ul></section>
+  <section class="roi-section"><h2>Return on investment</h2><p>Results are {{ report.roi.result.provenance }} from the captured assumptions.</p><table><tbody><tr><th>Monthly value</th><td>{% if report.roi.result.monthly_value != None %}${{ report.roi.result.monthly_value }}{% else %}Unknown{% endif %}</td><th>Monthly total cost</th><td>{% if report.roi.result.monthly_total_cost != None %}${{ report.roi.result.monthly_total_cost }}{% else %}Unknown{% endif %}</td></tr><tr><th>Monthly net value</th><td>{% if report.roi.result.monthly_net_value != None %}${{ report.roi.result.monthly_net_value }}{% else %}Unknown{% endif %}</td><th>ROI</th><td>{% if report.roi.result.roi_percent != None %}{{ report.roi.result.roi_percent }}%{% else %}Not available: {{ report.roi.result.roi_unavailable_reason|default:"monthly total cost is zero" }}{% endif %}</td></tr></tbody></table><h3>Arithmetic</h3><ul>{% for line in report.roi.result.arithmetic %}<li>{{ line }}</li>{% endfor %}</ul><h3>Assumption sources</h3><ul>{% for name, assumption in report.roi.assumptions.items %}<li>{{ name|title }}: {{ assumption.value }} - {{ assumption.provenance_class }}{% if assumption.provenance != assumption.provenance_class %} ({{ assumption.provenance }}){% endif %}</li>{% endfor %}</ul></section>
+  <section><h2>Methodology</h2><p>{{ report.methodology.summary }}</p><p>{{ report.methodology.evidence_boundary }}</p><p>Report context {{ report.methodology.report_context_version }}; snapshot schema {{ report.methodology.snapshot_schema_version }}</p><ul>{% for engine, version in report.methodology.engine_versions.items %}<li>{{ engine|title }} engine: {{ version }}</li>{% endfor %}</ul><h3>Provenance labels</h3><ul>{% for label, meaning in report.methodology.provenance_legend.items %}<li><strong>{{ label }}:</strong> {{ meaning }}</li>{% endfor %}</ul></section>
+  <section><h2>Evidence sources</h2><ul>{% for evidence in report.evidence %}<li>{% if evidence.type == "collector_observation" %}<strong>{{ evidence.raw_identifier }}</strong> - {{ evidence.provenance }} by {{ evidence.detector_id }} v{{ evidence.detector_version }} at {{ evidence.observed_at }}; exact catalog reconciliation {{ evidence.reconciliation_provenance }}; evidence SHA-256 {{ evidence.reference }}; scan SHA-256 {{ evidence.scan_hash }}{% else %}{{ evidence.type|title }} - {{ evidence.reference }} ({{ evidence.provenance }}){% endif %}</li>{% empty %}<li>No external evidence references were attached.</li>{% endfor %}</ul></section>
+  <section class="metadata-section"><h2>Assessment and report metadata</h2><table><tbody><tr><th>Report identifier</th><td>{{ report.metadata.report_identifier }}</td><th>Assessment date</th><td>{{ report.assessment_date }}</td></tr><tr><th>Assessment ID</th><td colspan="3" class="hash">{{ report.metadata.assessment_id }}</td></tr><tr><th>Snapshot ID</th><td colspan="3" class="hash">{{ report.metadata.assessment_snapshot_id }}</td></tr><tr><th>Input SHA-256</th><td colspan="3" class="hash">{{ report.metadata.input_sha256 }}</td></tr><tr><th>Result SHA-256</th><td colspan="3" class="hash">{{ report.metadata.result_sha256 }}</td></tr></tbody></table><h3>Ruleset versions</h3><ul><li>Platform: {{ report.ruleset_versions.platform }}</li><li>Industry: {{ report.ruleset_versions.industry.name }} {{ report.ruleset_versions.industry.version }}</li>{% for rule in report.ruleset_versions.organization %}<li>Organization rule: {{ rule.name }} version {{ rule.version }} - {{ rule.source_type }}{% if rule.source_type == "detector" %}; detector {{ rule.detector_id }} v{{ rule.detector_version }}; mapping {{ rule.mapping_id }} v{{ rule.mapping_version }}; source inventory {{ rule.source_inventory_item_id }}; generation fingerprint {{ rule.generation_fingerprint }}{% endif %}</li>{% empty %}<li>Organization rules: none enabled</li>{% endfor %}</ul></section>
+</body>
+</html>
+
+FILE source/Dockerfile.renderer
+# syntax=docker/dockerfile:1
+FROM ghcr.io/astral-sh/uv:0.12.9 AS uv
+FROM python:3.14.7-slim AS builder
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
+    XDG_CONFIG_HOME=/tmp/chromium-config \
+    XDG_CACHE_HOME=/tmp/chromium-cache \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
+
+WORKDIR /app
+COPY --from=uv /uv /bin/uv
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --only-group renderer --no-install-project \
+    && uv run --no-sync playwright install --only-shell chromium \
+    && rm -rf /tmp/* /var/lib/apt/lists/*
+
+FROM python:3.14.7-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
+    XDG_CONFIG_HOME=/tmp/chromium-config \
+    XDG_CACHE_HOME=/tmp/chromium-cache
+
+WORKDIR /app
+COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /ms-playwright /ms-playwright
+RUN .venv/bin/playwright install-deps chromium \
+    && chmod -R a+rX /ms-playwright \
+    && rm -rf /tmp/* /var/lib/apt/lists/*
+
+RUN groupadd --gid 10001 renderer \
+    && useradd --uid 10001 --gid renderer --home-dir /app --no-create-home renderer
+
+COPY renderer ./renderer
+COPY static/brand/stewardence-helix-orbit-light.png ./static/brand/stewardence-helix-orbit-light.png
+COPY static/brand/atlas/reports.svg ./static/brand/atlas/reports.svg
+
+RUN install -d -o renderer -g renderer -m 0700 /work/output
+USER renderer
+
+EXPOSE 8080
+
+CMD [".venv/bin/python", "-m", "renderer.server"]
+
+FILE scripts/renderer_package_probe.py
+"""Execute within a credential-free renderer image using synthetic inputs only."""
+import hashlib
+import json
+import os
+import time
+from io import BytesIO
+from pathlib import Path
+from pypdf import PdfReader
+from renderer.render import render_pdf
+from renderer.template import BRAND_LOGO_PATH
+
+payload = json.loads(Path('/qa/synthetic-render-payload.json').read_bytes())
+if os.getuid() != 10001 or BRAND_LOGO_PATH.name != 'reports.svg':
+    raise RuntimeError('Renderer package identity or asset invalid')
+first = render_pdf(payload)
+time.sleep(1.1)
+second = render_pdf(payload)
+if first != second:
+    raise RuntimeError('Packaged renderer bytes are not repeatable')
+reader = PdfReader(BytesIO(first))
+Path('/qa/packaged-renderer.pdf').write_bytes(first)
+text = '\n'.join(page.extract_text() for page in reader.pages)
+if 'Required assumptions are unknown' not in text or '110.00' not in text or '$None' in text:
+    raise RuntimeError('Packaged renderer lost unknown/value semantics')
+final_lines = [line.strip() for line in reader.pages[-1].extract_text().splitlines() if line.strip()]
+footer = 'Page ' + str(len(reader.pages)) + ' of ' + str(len(reader.pages))
+final_body = [line for line in final_lines if line != footer]
+if not final_body or final_body[0] != 'Assessment and report metadata':
+    raise RuntimeError('Technical appendix is not on its deliberate page')
+Path('/qa/packaged-renderer.pdf').write_bytes(first)
+receipt = {'qualification_passed':True,'uid':os.getuid(),'actual_chromium':True,
+           'repeat_bytes_equal':True,'pages':len(reader.pages),
+           'pdf_sha256':hashlib.sha256(first).hexdigest(),
+           'decorative_asset_sha256':hashlib.sha256(BRAND_LOGO_PATH.read_bytes()).hexdigest(),
+           'synthetic_only':True,'provider_requests':False,'production_touched':False,
+           'limits':'Direct packaged renderer execution without HTTP listener; not provider admission or production service qualification.'}
+Path('/qa/renderer-package-summary.json').write_text(json.dumps(receipt,indent=2))
+print(json.dumps(receipt))
+
+FILE evidence/20261003T224123.550152Z/qualification-summary.json
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-201695c7fc",
+  "image_id": "sha256:89d7868be0b9be2f92281d03919d3fec7289bebb65bca353ef5535d030358938",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T224123.550152Z",
+  "test_arguments": [
+    "tests/test_renderer.py",
+    "tests/test_roi_engine_v2.py",
+    "tests/test_reports.py"
+  ]
+}
+FILE evidence/20261003T224123.550152Z/qualification.log
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+....................................                                     [100%]
+=============================== warnings summary ===============================
+tests/test_roi_engine_v2.py::test_unknown_snapshot_and_browser_report_preserve_nulls_and_legacy
+tests/test_reports.py::test_browser_report_uses_canonical_context_and_safe_claims
+tests/test_reports.py::test_repeated_report_generation_reuses_one_active_generation_job
+tests/test_reports.py::test_report_routes_are_tenant_scoped_and_generation_is_post_only
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+36 passed, 4 warnings in 20.46s
+
+FILE evidence/20261003T224123.550152Z/renderer-package-summary.json
+{
+  "qualification_passed": true,
+  "uid": 10001,
+  "actual_chromium": true,
+  "repeat_bytes_equal": true,
+  "pages": 4,
+  "pdf_sha256": "fe606ca0ea3d2e2368228d61ad575f9b53a4587106b40a40a79b382a2f3147a6",
+  "decorative_asset_sha256": "173afd2fa4df14b9067df281d539368b1f74e00985a2174cd7dc06a5921903f1",
+  "synthetic_only": true,
+  "provider_requests": false,
+  "production_touched": false,
+  "limits": "Direct packaged renderer execution without HTTP listener; not provider admission or production service qualification."
+}
+FILE evidence/visual-qa/report-responsive-successor.json
+{
+  "image_id": "sha256:dc394bf48f8c42167434f6a5d06800adc1d3241d0e3b9662fb48f9a599b70e11",
+  "checked_at": "2026-10-03T22:28:40.420Z",
+  "synthetic_only": true,
+  "checks": [
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 375,
+      "mobileMenuDisplay": "block",
+      "sidebarDisplay": "none",
+      "tableWidth": 560,
+      "tableWrapWidth": 335.20001220703125,
+      "topbarDisplay": "flex",
+      "width": 390
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "documentWidth": 753,
+      "mobileMenuDisplay": "none",
+      "sidebarDisplay": "flex",
+      "tableWidth": 560,
+      "tableWrapWidth": 471.8000183105469,
+      "topbarDisplay": "flex",
+      "width": 768
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "documentWidth": 1265,
+      "mobileMenuDisplay": "none",
+      "sidebarDisplay": "flex",
+      "tableWidth": 983.7999877929688,
+      "tableWrapWidth": 983.7999877929688,
+      "topbarDisplay": "flex",
+      "width": 1280
+    }
+  ]
+}
+FILE evidence/visual-qa/mobile-navigation-successor.json
+{
+  "checked_at": "2026-10-03T22:23:00.257Z",
+  "image_id": "sha256:41941249167fc380d1e731a6c4a31193708cff774e4e10a0efe24ebaf471920c",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "synthetic_only": true,
+  "menu_opened": true,
+  "recovery_navigation_followed": true,
+  "dom": "- link \"Skip to main content\":\n  - /url: \"#main-content\"\n- banner:\n  - paragraph: Stewardence workspace\n  - paragraph: Deterministic AI risk and ROI assessment\n  - generic \"Workspace menu\"\n- main:\n  - paragraph: Current firm\n  - heading \"Core operations\" [level=1]\n  - paragraph: Calculated from stored jobs and receipts as of Oct. 3, 2026, 10:23 p.m.. These records do not establish live service health or whether a worker is running.\n  - heading \"Recorded workflow states\" [level=2]\n  - term: Queued\n  - definition: \"2\"\n  - heading \"Operations requiring review\" [level=2]\n  - paragraph: No recorded review holds. This does not prove every service is healthy.\n  - heading \"Latest recovery receipts\" [level=2]\n  - paragraph: Showing up to 50 recorded outcomes.\n  - table:\n    - rowgroup:\n      - row \"Recorded Outcome Attempt Receipt\":\n        - columnheader \"Recorded\"\n        - columnheader \"Outcome\"\n        - columnheader \"Attempt\"\n        - columnheader \"Receipt\"\n    - rowgroup:\n      - row \"No verified receipts available\":\n        - cell \"No verified receipts available\""
+}

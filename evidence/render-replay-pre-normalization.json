@@ -1,0 +1,10 @@
+{
+  "scope": "Synthetic independent Chromium renders; network disabled",
+  "image": "stewardence-local-qualification:stewardence-local-17f8fd2fd9",
+  "byte_identical": false,
+  "first_sha256": "111717e6aeb7b72ba53d19e76d7bc260d46d60f8e8db1c8ac88ab03c91b97e45",
+  "second_sha256": "88b2796c83b81d44b6b66ec279726d32d9e7482ae5ab8392a9994b539cf694b5",
+  "first_bytes": 89053,
+  "second_bytes": 89053,
+  "production_modified": false
+}

@@ -1,0 +1,1 @@
+"""Email-based AgentLedger identity."""

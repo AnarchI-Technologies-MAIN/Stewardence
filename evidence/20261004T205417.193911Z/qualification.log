@@ -1,0 +1,123 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+_____________ test_instrumented_repeated_proposal_identity_inputs ______________
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: a12084f7-93f4-43e8-8129-76a57013f523 v1>, <ActionCardRevision: ActionCardRevision object (a344c1a8-8b73-4ba4-a5db-8714ed2ebaf2)>)
+client = <django.test.client.Client object at 0x70d717c35cd0>
+
+    def test_instrumented_repeated_proposal_identity_inputs(workspace, client):
+>       test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+            workspace, client
+        )
+
+tests/test_review_workspace_views.py:624: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: a12084f7-93f4-43e8-8129-76a57013f523 v1>, <ActionCardRevision: ActionCardRevision object (a344c1a8-8b73-4ba4-a5db-8714ed2ebaf2)>)
+client = <django.test.client.Client object at 0x70d717c35cd0>
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        for index in range(128):
+            observed = []
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+>           assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+E           AssertionError: {'index': 34, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', ...0:56:01.622976+00:00', ...}, 'bound_org': 'afedd07a-3d65-4d97-a0fe-ef68d681fe30', 'isolation': 'read committed', ...}]}
+E           assert 409 == 302
+E            +  where 409 = <HttpResponse status_code=409, "text/html; charset=utf-8">.status_code
+
+tests/test_review_workspace_views.py:606: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:253 Conflict: /reviews/snapshots/0ddf0ac9-3703-4c51-a5dd-02ce5cce0bf7/proposals/
+=============================== warnings summary ===============================
+tests/test_review_workspace_views.py::test_instrumented_exact_rollback_fixture
+tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs
+1 failed, 1 passed, 2 warnings in 15.23s

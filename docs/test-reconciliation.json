@@ -1,0 +1,16 @@
+{
+  "added_tests": [
+    "tests\\test_provider_boundary.py",
+    "tests\\test_provider_client.py",
+    "tests\\test_provider_credential_staging.py",
+    "tests\\test_provider_lifecycle.py",
+    "tests\\test_provider_rls.py"
+  ],
+  "bundle_differences": [
+    {
+      "path": "apps\\integrations\\provider_views.py",
+      "bundle_sha256": "30d45f077ca4d3e4cba25676831465a6a9535e9e9b85d06b1e800cebc926c9b7",
+      "deployed_sha256": "96dcf6f0a9d996e7e14a3216c21321e9d6a4e27efb05059bdaa615cc0cff4e25"
+    }
+  ]
+}

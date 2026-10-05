@@ -1,0 +1,322 @@
+- heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - text: Alexander,
+    - strong: bounded acceptance granted for the paid-coverage authority architecture and dedicated billing-ingester boundary represented in this packet.
+    - text: This is a meaningful step toward the launch-critical paid-entitlement substrate.
+  - paragraph:
+    - strong: One exact committed-replay issue remains OPEN for this frozen service snapshot
+    - text: ", and the packet already correctly warns that its replay successor is qualifying separately. Resubscription after terminal cancellation, ReviewCycle completion/baseline advancement, Decision Desk selection, the historical full-suite failures, real Stripe test-mode lifecycle, and production release all remain open."
+  - paragraph:
+    - strong: Production remains unapproved.
+  - 'heading "Paid authority: accepted within scope" [level=2]'
+  - paragraph: The database architecture now establishes the authority split we wanted.
+  - paragraph:
+    - text: billing_paid_coverage and the authority record are owner-controlled, forced-RLS tables. Ordinary app and worker roles receive read access only. Coverage rows have an immutable update/delete trigger. The actual issuance function is revoked from public/app/worker and granted only to agentledger_billing_admission.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is substantially stronger than allowing application billing rows themselves to manufacture payment authority.
+  - paragraph: "The issuer also rechecks the important facts server-side:"
+  - list:
+    - listitem: READ COMMITTED admission;
+    - listitem: closed envelope vocabulary;
+    - listitem: exact typed identities;
+    - listitem: supported schema/contract/currency;
+    - listitem: account and livemode against the configured authority record;
+    - listitem: registered price contract;
+    - listitem: current Core subscription generation;
+    - listitem: local Stripe customer binding;
+    - listitem: founder phase boundaries;
+    - listitem: positive bounded service interval;
+    - listitem: provider payment time not in the future;
+    - text: immutable invoice admission.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The current-access predicate additionally binds issued coverage to the
+    - strong: current local subscription generation
+    - text: ", current customer, configured account/mode, Core portfolio, accepted status, and database clock. A plain future current_period_end is no longer sufficient."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "I therefore accept the central invariant:"
+  - blockquote:
+    - paragraph:
+      - strong: Core paid access derives from separately issued payment coverage, not subscription status alone.
+  - paragraph: The fact that past_due may continue access while an independently issued paid interval remains current is coherent. “Past due” does not retroactively erase service already paid through.
+  - 'heading "Dedicated billing admission principal: accepted" [level=2]'
+  - paragraph: The service separation is also appropriately narrow.
+  - paragraph:
+    - text: Its Django configuration has one dedicated database connection using agentledger_billing_admission, a separate secret, explicit hosts, no ordinary Stripe application keys, Automation disabled, and new-founder purchasing disabled.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The runtime verifies that its actual PostgreSQL identity is:"
+  - list:
+    - listitem: agentledger_billing_admission
+    - listitem: non-superuser
+    - listitem: non-BYPASSRLS
+    - text: READ COMMITTED.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: It then authenticates the webhook signature, pins account/mode, retrieves the current Stripe account, exact invoice and subscription, validates the supported Core contract, and only afterward opens the admission transaction. The SQL issuer remains the final local mutation boundary.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "That is the right trust model:"
+  - blockquote:
+    - paragraph: Stripe evidence is authenticated by the separately credentialed ingester; PostgreSQL does not pretend to authenticate Stripe.
+  - paragraph:
+    - text: The packet states this boundary correctly. The evidence digest is provenance/integrity metadata,
+    - strong: not payment authentication
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - heading "The focused evidence is useful and bounded" [level=2]
+  - paragraph:
+    - text: The supplied issuer qualification reports
+    - strong: 29/29 passing
+    - text: on image 62ed5046…, and the dedicated service reports
+    - strong: 20/20 passing
+    - text: on 03494aca…. Neither touched production or live providers.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The service tests provide particularly useful bounded evidence:"
+  - list:
+    - listitem: real local Stripe SDK signature verification;
+    - listitem: invalid service configuration stopping before provider access;
+    - listitem: forged signature rejection;
+    - listitem: account/mode/type rejection before provider access;
+    - listitem: invalid coverage rolling back the newly created generation;
+    - listitem: conflicting same-event body refusing another effect;
+    - listitem: terminal canceled generation rejection;
+    - listitem: app/worker inability to execute the issuer;
+    - listitem: missing authority preventing provider access;
+    - listitem: provider read failure committing nothing;
+    - listitem: historical paid interval recorded without activating a new subscription;
+    - listitem: canceling state preserved;
+    - listitem: different event deliveries of the same invoice producing one coverage row;
+    - listitem: stale founder introductory payment not overwriting newer ongoing pricing;
+    - text: conflicting price contract at the same service boundary being held.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: Those are meaningful results.
+  - paragraph:
+    - text: They remain
+    - strong: supplied executions
+    - text: ", not runs I performed, and provider retrievals were mocked. The original webhook signature path was real SDK behavior, but this is not yet a real Stripe-account lifecycle qualification."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - separator
+  - 'heading "OPEN: BILLING-REPLAY-01 for this frozen service snapshot" [level=1]'
+  - paragraph: "The packet itself says:"
+  - blockquote:
+    - paragraph:
+      - text: “Exact committed replay repair now qualifying separately; this frozen20-service snapshot predates that successor.”
+      - button "Open preview of Pasted text.txt":
+        - generic: Pasted text
+  - paragraph: I agree this needs the successor before closure, and the current source shows why.
+  - paragraph: An exact previously committed event is not recognized until finish_paid_admission().
+  - paragraph:
+    - text: But before that can happen, the service calls begin_paid_admission(). That function explicitly rejects a locally canceled subscription generation.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: Only
+    - strong: after
+    - text: begin_paid_admission() succeeds does the code normalize the invoice and call finish_paid_admission(), where the existing committed event receipt is checked.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "So the following sequence is source-derivable:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: 1. invoice.paid event E successfully commits 2. its receipt exists 3. generation later becomes CANCELED 4. Stripe retries exact already-committed event E 5. begin_paid_admission sees CANCELED 6. request rejects before finish_paid_admission can return E's committed receipt
+  - paragraph:
+    - text: That does
+    - strong: not
+    - text: create unauthorized coverage. In fact, it fails safely with respect to mutation.
+  - paragraph: "But it breaks the stronger webhook-idempotency contract:"
+  - blockquote:
+    - paragraph:
+      - strong: an exact replay of an already committed event should be recognizable as already complete without requiring the generation to still be admissible for a new effect.
+  - paragraph: Otherwise a legitimate provider retry can be answered as a service failure forever after terminal state, despite its effect already being durably committed.
+  - paragraph: "That distinction matters:"
+  - list:
+    - strong: "new stale payment effect after cancellation:"
+    - text: reject;
+    - strong: "exact replay of an already committed payment event:"
+    - text: acknowledge without new effect.
+  - paragraph: I am not prescribing the implementation because Codex says an exact replay successor is already qualifying. Bring that source and its exact tests rather than building a second repair from my prose.
+  - heading "Closure test I want" [level=3]
+  - paragraph: "At minimum:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: commit E transition generation to canceled replay byte-identical signed E => HTTP 200 => same receipt => same coverage => zero new mutation
+  - paragraph: "And negative siblings:"
+  - list:
+    - listitem: same event ID + different body → reject;
+    - listitem: same event ID + different normalized effect → reject;
+    - listitem: new event for old canceled generation → reject;
+    - listitem: exact replay after local price/authority configuration changes → acknowledge only the already-committed effect, never reinterpret it under new authority;
+    - listitem: exact replay performs no new provider-dependent authority transition if the committed receipt is sufficient for recognition.
+  - paragraph: The last detail should be stated explicitly in the successor's contract.
+  - separator
+  - heading "Resubscription remains intentionally open" [level=1]
+  - paragraph:
+    - text: begin_paid_admission() refuses an existing canceled local generation. That is currently conservative and correct because
+    - strong: canceled → fresh subscription generation has not yet received an explicit checkout-intent transition contract
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Do not “fix” this by letting a new webhook silently overwrite:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: billing_subscription.stripe_subscription_id
+  - paragraph: on a canceled record.
+  - paragraph: A real resubscription must prove the new checkout/customer/owner/offer intent and establish how the new external generation relates to the historical local subscription identity.
+  - paragraph: "So:"
+  - paragraph:
+    - strong: terminal-generation rejection stays. Fresh-generation resubscription stays OPEN.
+  - separator
+  - heading "One authority nuance to preserve" [level=1]
+  - paragraph:
+    - text: The billing-admission database role is deliberately a
+    - strong: trusted issuer principal
+    - text: .
+  - paragraph: That means a compromise of its credential can call the SECURITY DEFINER issuance functions without Python having authenticated Stripe first. The SQL functions still impose substantial account/customer/generation/price/time constraints, but PostgreSQL cannot prove remote payment occurred.
+  - paragraph:
+    - text: That is not a defect hidden by the architecture. It is the architecture's trust boundary, and the packet says so.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Therefore deployment qualification must prove:"
+  - list:
+    - listitem: only the billing-admission service receives that DB credential;
+    - listitem: web/app/worker containers do not receive it;
+    - listitem: the credential is not inherited through shared environment bundles;
+    - listitem: its database connect path is narrowly available;
+    - listitem: its Stripe restricted key is likewise absent from app/worker;
+    - listitem: logs/evidence never expose either credential.
+  - paragraph:
+    - text: Do
+    - strong: not
+    - text: "try to claim “DB-enforced proof of payment.” The accurate claim is:"
+  - blockquote:
+    - paragraph:
+      - strong: DB-enforced admission of evidence asserted by a separately authenticated payment-ingestion principal.
+  - paragraph: That wording is much stronger epistemically.
+  - separator
+  - 'heading "Export predicate: bounded acceptance" [level=1]'
+  - paragraph:
+    - text: The separate 90-day export predicate is the correct conceptual split. It does not authorize additional paid work and can survive status transitions independently of paid_subscription_access.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "One thing to carry into the later resubscription design: current paid access binds coverage to p.stripe_subscription_id = s.stripe_subscription_id; export access deliberately does not."
+  - paragraph: That may be desirable because historical paid generations should remain exportable after the active generation changes.
+  - paragraph:
+    - text: But once resubscription is implemented,
+    - strong: make that distinction explicit in tests
+    - text: . Don't accidentally “repair” export by tying it only to the newest external generation and thereby strand historical retained packs.
+  - paragraph: No current finding from that difference.
+  - separator
+  - heading "ReviewCycle is not adjudicated here" [level=1]
+  - paragraph:
+    - text: The packet says
+    - strong: 33 separate actual-role ReviewCycle cases passed
+    - text: ", but its source and exact evidence aren't in this billing-focused packet. It also explicitly says artifact completion, baseline advancement, and Decision Desk selection remain absent."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: So I am carrying that as
+    - strong: reported progress only
+    - text: .
+  - paragraph: Do not transfer this billing acceptance onto ReviewCycle.
+  - paragraph: Bring its successor delta separately, exactly as planned.
+  - separator
+  - heading "Next Codex move" [level=1]
+  - paragraph: "The sequence I want now is very small:"
+  - list:
+    - strong: Finish and qualify the committed-replay successor.
+    - strong: Do not broaden billing further.
+    - listitem: Finish the ReviewCycle kernel, particularly artifact completion/baseline CAS and frozen Decision Desk selection.
+    - listitem: Continue root-causing the old full-suite identity/Chromium failures in parallel.
+    - text: "Then run the first exact-source integrated qualification containing:"
+    - list:
+      - listitem: paid coverage,
+      - listitem: admission service,
+      - listitem: replay repair,
+      - listitem: ReviewCycle kernel.
+  - paragraph: Do not add LocalAI, Spanish, Enterprise, additional connectors, Benefit Check, or another billing feature while doing this.
+  - heading "Next review packet" [level=3]
+  - paragraph: "I want only the delta:"
+  - list:
+    - listitem: committed-replay successor source + focused tests/log;
+    - listitem: ReviewCycle source/migrations;
+    - listitem: freeze/completion/baseline/Decision selection tests;
+    - listitem: actual role/grant matrix if it changed;
+    - listitem: source manifest linking the billing and ReviewCycle candidate;
+    - listitem: status of the two historical full-suite failures;
+    - listitem: integrated focused qualification.
+  - paragraph: No need to resend the hundreds of already closed artifacts.
+  - heading "Disposition" [level=2]
+  - paragraph:
+    - strong: "ACCEPTED within bounded scope:"
+  - list:
+    - listitem: immutable paid-coverage ledger design;
+    - listitem: narrow SQL issuance authority;
+    - listitem: app/worker inability to issue coverage;
+    - listitem: database-clock current entitlement predicate;
+    - listitem: separate export predicate;
+    - listitem: dedicated billing-admission role/service;
+    - listitem: supported invoice normalization contract;
+    - listitem: mocked-provider/local-real-signature service evidence;
+    - listitem: focused 29-case issuer and 20-case service results as supplied execution evidence.
+  - paragraph:
+    - strong: "OPEN:"
+  - list:
+    - listitem: exact committed replay on this frozen snapshot;
+    - listitem: canceled → fresh-generation resubscription;
+    - listitem: ReviewCycle completion/baseline/Decision Desk binding;
+    - listitem: real Stripe test-mode lifecycle;
+    - listitem: integrated exact-source full qualification;
+    - listitem: historical 1325 pass / 2 fail / 1 skip failures;
+    - listitem: worker intermittence;
+    - listitem: deployment credential isolation;
+    - listitem: production release.
+  - paragraph:
+    - text: This is
+    - strong: real forward motion
+    - text: . The payment authority is no longer a status flag wearing a fake mustache. It now has an actual custody boundary. 🔐
+  - paragraph:
+    - strong: Production remains unapproved.
+    - button "View analysis":
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - button "Sources":
+  - generic: ChatGPT can make mistakes. Check important info.
+  - button "Scroll to bottom":
+  - heading "Latest response" [level=4]
+  - status
+  - button "Add files and more":
+  - textbox "Ask ChatGPT":
+    - paragraph: Ask ChatGPT
+  - button "Select ChatGPT model":
+    - generic: Medium
+  - button "Dictate":
+  - button "Start Voice":
+- status
+- status: Response complete
+- status
+- status
+- status
+- status

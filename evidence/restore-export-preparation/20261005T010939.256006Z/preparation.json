@@ -1,0 +1,14 @@
+{
+  "schema": "qualification.local_restore_export_preparation.v1",
+  "prepared_only": true,
+  "qualified": false,
+  "key_path": "C:\\Users\\alexg\\.stewardence-recovery\\backup.agekey",
+  "key_copied": false,
+  "ciphertext_custody_distribution": "Ubuntu",
+  "ciphertext_custody_directory": "/home/alexg-anarchi/stewardence-backups",
+  "streamer_sha256": "28b51f5f4f292f120766480a8e7ca4c1b475acb373537b9a8a614f15dd599cfd",
+  "harness_sha256": "ae28884afbe918cc6a6ee79bf9744b197ca7959e53f8ad3de57c23aeb3026ebc",
+  "test_sha256": "9afa6de7b1b71ecec35a5422310fbf489f72f802d8703d7d7789262d65049b8b",
+  "production_touched": false,
+  "docker_executed": false
+}

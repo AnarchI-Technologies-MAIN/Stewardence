@@ -1,0 +1,142 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+FF....................F..F                                               [100%]
+=================================== FAILURES ===================================
+____________ test_exact_binding_append_only_statement_and_selection ____________
+
+decision_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 0f7f3d9f-d740-4000-8f17-2662a5c3eac7 v1>, <ActionCardRevision: ActionCardRevision object (5b1b4844-9da8-4600-a3af-5424d2398bfd)>)
+
+    def test_exact_binding_append_only_statement_and_selection(decision_context):
+        first=decide(decision_context,due_date=date(2026,12,1))
+        row=DecisionEvent.objects.get(pk=first)
+        revision=decision_context[3]
+        assert row.card_sha256==canonical_sha256(revision.cards[0])
+        assert row.revision_sha256==revision.sha256
+        assert row.snapshot_result_sha256==decision_context[2].result_sha256
+        assert row.sha256==canonical_sha256(row.payload)
+        assert row.payload['owner_statement_only'] is True
+        assert row.payload['resolution_verified'] is False
+        second=decide(decision_context,expected_previous_event=first,event_kind='execution',state='completion_recorded')
+        assert DecisionEvent.objects.get(pk=second).previous_event_id==first
+>       assert selected(decision_context)[0]['event_id']==str(second)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_core_decisions.py:79: TypeError
+_________________ test_feature_and_operator_gates_fail_closed __________________
+
+decision_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: a892fb5e-bb66-4ae4-ad8f-79a83d06eb4c v1>, <ActionCardRevision: ActionCardRevision object (41e487f1-aa4e-4810-aca3-10be61a59b02)>)
+settings = <pytest_django.fixtures.Settings object at 0x7d513d84e490>
+
+    def test_feature_and_operator_gates_fail_closed(decision_context,settings):
+        settings.CORE_DECISIONS_ENABLED=False
+        with pytest.raises(PermissionDenied):decide(decision_context)
+        settings.CORE_DECISIONS_ENABLED=True
+        DecisionDeskGate.objects.filter(pk=1).update(enabled=False)
+        with pytest.raises(DatabaseError):decide(decision_context)
+>       assert selected(decision_context)==[]
+E       AssertionError: assert '[]' == []
+E        +  where '[]' = selected((<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: a892fb5e-bb66-4ae4-ad8f-79a83d06eb4c v1>, <ActionCardRevision: ActionCardRevision object (41e487f1-aa4e-4810-aca3-10be61a59b02)>))
+
+tests/test_core_decisions.py:94: AssertionError
+_________________ test_stale_cas_and_cross_tenant_never_append _________________
+
+decision_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: a986448e-e207-47ec-918b-0a25fa58ec0c v1>, <ActionCardRevision: ActionCardRevision object (acebc542-15aa-4318-803c-fc5bc9d91104)>)
+
+    def test_stale_cas_and_cross_tenant_never_append(decision_context):
+        first=decide(decision_context)
+        with pytest.raises(DatabaseError):decide(decision_context,state='decline')
+        with pytest.raises(DatabaseError):decide(decision_context,organization_id=Organization.objects.create(name='Other tenant').id)
+        assert DecisionEvent.objects.count()==1
+>       assert selected(decision_context)[0]['event_id']==str(first)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: string indices must be integers, not 'str'
+
+tests/test_core_decisions.py:132: TypeError
+______________ test_no_carry_forward_to_other_snapshot_or_tenant _______________
+
+decision_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: c7f54647-3530-4923-aafb-fcaf95771ffb v1>, <ActionCardRevision: ActionCardRevision object (2b57eb94-ee17-4f26-93bf-c10b401754e6)>)
+
+    def test_no_carry_forward_to_other_snapshot_or_tenant(decision_context):
+        decide(decision_context)
+>       assert selected(decision_context,snapshot=uuid4())==[]
+E       AssertionError: assert '[]' == []
+E        +  where '[]' = selected((<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: c7f54647-3530-4923-aafb-fcaf95771ffb v1>, <ActionCardRevision: ActionCardRevision object (2b57eb94-ee17-4f26-93bf-c10b401754e6)>), snapshot=UUID('a22dfe1e-c0bd-42c3-9e28-9715f9f8c4f9'))
+E        +    where UUID('a22dfe1e-c0bd-42c3-9e28-9715f9f8c4f9') = uuid4()
+
+tests/test_core_decisions.py:160: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_core_decisions.py::test_exact_binding_append_only_statement_and_selection
+FAILED tests/test_core_decisions.py::test_feature_and_operator_gates_fail_closed
+FAILED tests/test_core_decisions.py::test_stale_cas_and_cross_tenant_never_append
+FAILED tests/test_core_decisions.py::test_no_carry_forward_to_other_snapshot_or_tenant
+4 failed, 22 passed in 29.07s

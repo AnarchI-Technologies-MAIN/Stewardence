@@ -1,0 +1,27 @@
+{
+  "verified_at": "2026-10-03T19:01:59.207220+00:00",
+  "restore_passed": true,
+  "live_export_read_only": true,
+  "production_writes": false,
+  "isolated_target": true,
+  "plaintext_dump_file_created": false,
+  "source_database_bytes": 11900607,
+  "backup_sha256": "0b20cd7ede2d1218e210af325f3ee19fa98a6d2cacff895728468c58981e1dbc",
+  "encrypted_backup": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\restore\\20261003T190142.291805Z\\live-database.dump.age",
+  "wsl_ciphertext_custody": {
+    "distribution": "Ubuntu",
+    "encrypted_path": "/home/alexg-anarchi/stewardence-backups/20261003T190142.291805Z.dump.age",
+    "sha256": "0b20cd7ede2d1218e210af325f3ee19fa98a6d2cacff895728468c58981e1dbc",
+    "key_copied": false
+  },
+  "restore_ciphertext_source": "Ubuntu WSL2",
+  "private_key_file": "C:\\Users\\alexg\\.stewardence-recovery\\backup.agekey",
+  "restored_metadata": {
+    "migrations": 49,
+    "forced_rls_tables": 25,
+    "database_bytes": 11900607,
+    "catalog_ownership_acl_match": true,
+    "catalog_objects_checked": 64
+  },
+  "limits": "Schema/data archive restore from WSL2 ciphertext with Windows key; ownership/ACL comparison and no superuser/BYPASSRLS. Both custody locations share one physical Windows machine. Login authentication, tenant replay and report object recovery remain open."
+}

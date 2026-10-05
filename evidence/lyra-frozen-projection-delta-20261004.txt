@@ -1,0 +1,3239 @@
+CODEX → LYRA: FROZEN-PACK PROJECTION / ACTUAL DELIVERY DELTA
+Request scoped review, not production approval. Alexander authorized parallel local candidate development and consultation. AGENTS.md remains unchanged and was already supplied. Production, services, live payments and provider writes untouched.
+
+Exact frozen 101-case runtime/render run: 20261004T203409.204974Z. Exact UI86 run: 203551.145004Z. Privacy6 run: 202335.571899Z. These are separate source snapshots; no summed full-suite claim. New full 203524.475441Z: 1715 passed,4 failed,1 skipped. Two UI browser failures predate corrected pre-render fixture; two RLS positives omitted authenticated user context (being repaired with added missing-context negatives). Separate intermittent honest proposal identity rejection reproduced in later31-case run; instrumented repeat currently passed, cause remains OPEN. New final style lifecycle84 passed204824; no full-current-source approval claimed.
+
+Evidence scope: worker factory and command identity wired, actual Chromium renders exact frozen decision while later live superseding event is absent, verified local storage readback and atomic PackCompletion; renderer rejects missing decision, wrong hash, live substitution and verified-label forgery. Operator flags false; no worker process activation. Six PDF pages visually inspected, first decision heading with card; notes/links inert. Exposure contract v1 is a versioned derivation from frozen inputs, NOT the original frozen policy assessment; manifest v2 does not pin future exposure versions. Historical regeneration must preserve v1 or require a new identity.
+
+Still OPEN: explicit baseline comparison admission, deliberate unknown-aware snapshot capture, industry applicability, physical retention/all-writer capacity, fresh resubscription, real Stripe lifecycle, full suite/stability, offsite restore/credential isolation/production release. Please review projection privacy/runtime presentation and name next concrete customer-journey slice without reopening already closed lifecycle scope.
+
+
+FILE apps/reviews/migrations/0003_worker_pack_projection.py SHA256 2944adbce964ad5d1bec89aea82f8e014883eb4ca596287f48a9532e6419ae6d
+"""Lease-scoped immutable render projection; no additional table grants."""
+from django.db import migrations
+
+SQL = r"""
+ALTER TABLE public.review_lifecycle_gate ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.review_lifecycle_gate FORCE ROW LEVEL SECURITY;
+CREATE POLICY review_lifecycle_gate_owner ON public.review_lifecycle_gate TO agentledger_owner USING(true) WITH CHECK(true);
+CREATE FUNCTION app_private.review_pack_projection(jid uuid,token uuid) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE target uuid; q public.review_artifact_requests%ROWTYPE;
+ p public.review_pack_identities%ROWTYPE; c public.review_cycles%ROWTYPE;
+ s public.assessment_snapshots%ROWTYPE; report public.reports%ROWTYPE;
+ j public.background_jobs%ROWTYPE; d public.core_decision_events%ROWTYPE;
+ revision public.core_action_card_revisions%ROWTYPE; selection jsonb;
+ selected jsonb:='[]'::jsonb; expected_selection jsonb; idx integer;
+BEGIN
+ target:=app_private.review_job_target(jid,token);
+ IF target IS NULL THEN RETURN NULL; END IF;
+ SELECT * INTO q FROM public.review_artifact_requests WHERE id=target;
+ SELECT * INTO p FROM public.review_pack_identities WHERE id=q.pack_id AND organization_id=q.organization_id;
+ SELECT * INTO c FROM public.review_cycles WHERE id=p.cycle_id AND organization_id=q.organization_id;
+ SELECT * INTO s FROM public.assessment_snapshots WHERE id=c.input_snapshot_id AND organization_id=q.organization_id;
+ SELECT * INTO report FROM public.reports WHERE id=q.report_id AND organization_id=q.organization_id;
+ SELECT * INTO j FROM public.background_jobs WHERE id=jid AND organization_id=q.organization_id;
+ IF p.id IS NULL OR c.id IS NULL OR s.id IS NULL OR report.id IS NULL OR j.id IS NULL
+  OR p.created_by_id IS DISTINCT FROM q.created_by_id OR c.created_by_id IS DISTINCT FROM q.created_by_id
+  OR report.created_by_id IS DISTINCT FROM q.created_by_id
+  OR report.assessment_snapshot_id IS DISTINCT FROM s.id OR j.job_type IS DISTINCT FROM 'report_generation'
+  OR j.payload IS DISTINCT FROM jsonb_build_object('report_id',report.id::text)
+  OR j.input_sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(j.payload),'UTF8')),'hex')
+  OR p.sha256 IS DISTINCT FROM q.manifest_sha256
+  OR p.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(p.manifest),'UTF8')),'hex')
+  OR p.manifest->>'schema' IS DISTINCT FROM 'stewardence.review_pack.v2'
+  OR p.manifest->>'cycle_id' IS DISTINCT FROM c.id::text
+  OR p.manifest->>'organization_id' IS DISTINCT FROM q.organization_id::text
+  OR p.manifest->'snapshot'->>'snapshot_id' IS DISTINCT FROM s.id::text
+  OR p.manifest->'snapshot'->>'assessment_id' IS DISTINCT FROM s.assessment_id::text
+  OR p.manifest->'snapshot'->'assessment_version' IS DISTINCT FROM to_jsonb(s.version)
+  OR p.manifest->'snapshot'->>'input_sha256' IS DISTINCT FROM s.input_sha256
+  OR p.manifest->'snapshot'->>'result_sha256' IS DISTINCT FROM s.result_sha256
+  OR p.manifest->'snapshot'->'captured_at' IS DISTINCT FROM s.input_payload->'captured_at'
+  OR jsonb_typeof(p.manifest->'selected_decisions') IS DISTINCT FROM 'array'
+  OR s.input_payload->>'organization_id' IS DISTINCT FROM q.organization_id::text
+  OR s.input_payload->'assessment' IS DISTINCT FROM jsonb_build_object('id',s.assessment_id::text,'version',s.version)
+  OR s.result_payload->'assessment' IS DISTINCT FROM jsonb_build_object('id',s.assessment_id::text,'version',s.version)
+  OR s.input_payload->'snapshot_schema_version' IS DISTINCT FROM '1'::jsonb
+  OR s.result_payload->'snapshot_schema_version' IS DISTINCT FROM '1'::jsonb
+  OR (s.input_payload->>'captured_at')::timestamptz IS DISTINCT FROM s.captured_at
+  OR s.input_sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(s.input_payload),'UTF8')),'hex')
+  OR s.result_sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(s.result_payload),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Review projection immutable binding invalid'; END IF;
+ FOR selection IN SELECT value FROM jsonb_array_elements(p.manifest->'selected_decisions') LOOP
+  SELECT * INTO d FROM public.core_decision_events WHERE id=(selection->>'event_id')::uuid AND organization_id=q.organization_id;
+  SELECT * INTO revision FROM public.core_action_card_revisions WHERE id=d.revision_id AND organization_id=q.organization_id;
+  idx:=d.card_index;
+  IF d.id IS NULL OR revision.id IS NULL OR jsonb_typeof(revision.cards) IS DISTINCT FROM 'array'
+   OR idx<0 OR idx>=jsonb_array_length(revision.cards) OR revision.snapshot_id IS DISTINCT FROM s.id
+   OR revision.input_sha256 IS DISTINCT FROM s.result_sha256 OR d.snapshot_id IS DISTINCT FROM s.id
+   OR d.snapshot_result_sha256 IS DISTINCT FROM s.result_sha256
+   OR revision.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(revision.cards),'UTF8')),'hex')
+   OR d.revision_sha256 IS DISTINCT FROM revision.sha256
+   OR d.card_sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(revision.cards->idx),'UTF8')),'hex')
+   OR d.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(d.payload),'UTF8')),'hex')
+   OR d.payload->>'id' IS DISTINCT FROM d.id::text
+   OR d.payload->>'organization_id' IS DISTINCT FROM q.organization_id::text
+   OR d.payload->>'revision_id' IS DISTINCT FROM revision.id::text
+   OR d.payload->>'revision_sha256' IS DISTINCT FROM revision.sha256
+   OR d.payload->>'snapshot_id' IS DISTINCT FROM s.id::text
+   OR d.payload->>'snapshot_result_sha256' IS DISTINCT FROM s.result_sha256
+   OR d.payload->'card_index' IS DISTINCT FROM to_jsonb(idx)
+   OR d.payload->>'card_sha256' IS DISTINCT FROM d.card_sha256
+   OR d.payload->>'event_kind' IS DISTINCT FROM d.event_kind OR d.payload->>'state' IS DISTINCT FROM d.state
+   OR d.payload->'owner_statement_only' IS DISTINCT FROM 'true'::jsonb
+   OR d.payload->'resolution_verified' IS DISTINCT FROM 'false'::jsonb THEN
+   RAISE EXCEPTION 'Review projection decision binding invalid'; END IF;
+  expected_selection:=jsonb_build_object('event_id',d.id,'event_sha256',d.sha256,'revision_id',revision.id,
+   'revision_sha256',revision.sha256,'card_index',idx,'card_sha256',d.card_sha256,'snapshot_id',s.id,
+   'snapshot_result_sha256',s.result_sha256,'event_kind',d.event_kind,'state',d.state,
+   'owner_statement_only',true,'resolution_verified',false);
+  IF selection IS DISTINCT FROM expected_selection THEN RAISE EXCEPTION 'Review projection frozen selection invalid'; END IF;
+  selected:=selected||jsonb_build_array(jsonb_build_object('selection',selection,'payload',d.payload,
+   'event_sha256',d.sha256,'proposal',revision.cards->idx));
+ END LOOP;
+ -- No waiting locks are acquired by this read projection. Current admission
+ -- is still checked again after all work; persistence later fences separately.
+ PERFORM app_private.review_job_target(jid,token);
+ RETURN jsonb_build_object('schema','stewardence.review_worker_projection.v1','request_id',q.id,
+  'job_id',j.id,'report_id',report.id,'organization_id',q.organization_id,'pack_id',p.id,
+  'manifest',p.manifest,'manifest_sha256',p.sha256,'snapshot_input',s.input_payload,
+  'snapshot_result',s.result_payload,'selected_decisions',selected);
+END;$fn$;
+ALTER FUNCTION app_private.review_pack_projection(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.review_pack_projection(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.review_pack_projection(uuid,uuid) TO agentledger_worker;
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies=[('reviews','0002_pack_lifecycle')]
+    operations=[migrations.RunSQL(SQL)]
+
+
+FILE apps/reviews/context.py SHA256 55560d5d64406281e346931ec1482e141e7d9cfad6605071e2c291f6b88910b7
+"""Trusted projection-to-render boundary; no provider or live evidence reads."""
+from copy import deepcopy
+import hashlib
+import json
+import rfc8785
+from .exposure import review_record
+
+VERSION='AL-REVIEW-PACK-CONTEXT-1'
+
+
+def _sha(value):
+    return hashlib.sha256(rfc8785.dumps(value)).hexdigest()
+
+
+def build_pack_context(legacy_context,projection):
+    if type(projection) is not dict or projection.get('schema')!='stewardence.review_worker_projection.v1':
+        raise ValueError('Admitted review projection required')
+    manifest=projection['manifest']
+    inputs=projection['snapshot_input']
+    results=projection['snapshot_result']
+    pinned=manifest['snapshot']
+    metadata=legacy_context['metadata']
+    if (manifest['organization_id']!=projection['organization_id']
+        or inputs['organization_id']!=projection['organization_id']
+        or _sha(manifest)!=projection['manifest_sha256']
+        or _sha(inputs)!=pinned['input_sha256'] or _sha(results)!=pinned['result_sha256']
+        or metadata['assessment_snapshot_id']!=pinned['snapshot_id']
+        or metadata['assessment_date']!=pinned['captured_at']
+        or metadata['input_sha256']!=pinned['input_sha256']
+        or metadata['result_sha256']!=pinned['result_sha256']):
+        raise ValueError('Review render snapshot identity mismatch')
+    selected=projection['selected_decisions']
+    if type(selected) is not list or [item['selection'] for item in selected]!=manifest['selected_decisions']:
+        raise ValueError('Review frozen decision selection mismatch')
+    seen=set()
+    for item in selected:
+        selection=item['selection']; payload=item['payload']
+        key=(selection['revision_id'],selection['card_index'])
+        if (key in seen or _sha(payload)!=item['event_sha256']
+            or item['event_sha256']!=selection['event_sha256']
+            or _sha(item['proposal'])!=selection['card_sha256']
+            or payload['id']!=selection['event_id']
+            or payload['organization_id']!=projection['organization_id']
+            or any(payload[field]!=selection[field] for field in
+                   ('revision_id','revision_sha256','card_index','card_sha256','event_kind','state'))
+            or payload['snapshot_id']!=pinned['snapshot_id']
+            or payload['snapshot_result_sha256']!=pinned['result_sha256']
+            or payload['owner_statement_only'] is not True
+            or payload['resolution_verified'] is not False):
+            raise ValueError('Review selected statement identity mismatch')
+        seen.add(key)
+    records=inputs['inventory']
+    if type(records) is not list or any(type(row) is not dict for row in records):
+        raise ValueError('Review captured inventory invalid')
+    identities=[row['id'] for row in records]
+    if len(set(identities))!=len(identities) or [row['id'] for row in legacy_context['inventory']]!=identities:
+        raise ValueError('Review captured inventory identity or order mismatch')
+    context=deepcopy(legacy_context)
+    context['context_version']=VERSION
+    context['title']='Frozen AI Evidence Review Pack'
+    context['review_pack']={
+        'schema':'stewardence.review_pack_render.v1','pack_id':projection['pack_id'],
+        'manifest_sha256':projection['manifest_sha256'],'manifest':deepcopy(manifest),
+        'selected_decisions':deepcopy(selected),
+        'exposure_reviews':[{'source_record':deepcopy(row),'review':json.loads(json.dumps(review_record(row)))} for row in records],
+    }
+    return context
+
+
+FILE apps/reviews/exposure.py SHA256 084663fb22bdaf90a6b01b22f30d2f0629f99c44d692dbab63351f145f42f376
+"""Versioned exposure questions derived only from a captured inventory record.
+
+PASS means a bounded declaration is present, never that a control was tested.
+No live provider, detector, network request or permission grant occurs here.
+"""
+
+import hashlib
+from dataclasses import asdict, dataclass
+from enum import StrEnum
+from uuid import UUID
+
+import rfc8785
+
+from apps.inventory.provenance import DECLARED
+
+VERSION = "core.exposure.declarations.v1"
+
+
+class Outcome(StrEnum):
+    PASS = "PASS"  # noqa: S105 - review outcome, not a credential.
+    CONCERN = "CONCERN"
+    UNKNOWN = "UNKNOWN"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+@dataclass(frozen=True)
+class ReviewQuestion:
+    question_id: str
+    outcome: Outcome
+    explanation: str
+    source_fields: tuple[str, ...]
+    basis: str = "customer_declaration"
+    verification: str = "not_established"
+
+
+def review_record(record: dict) -> dict:
+    """Review an immutable snapshot record; caller supplies tenant admission.
+
+    Unknown/default provenance never becomes a declaration. Historical
+    snapshots without field provenance remain unknown under this new contract.
+    """
+    if type(record) is not dict:
+        raise ValueError("Captured inventory record must be an object")
+    identity = str(UUID(record["id"]))
+    provenance = record.get("provenance", {})
+    if type(provenance) is not dict:
+        raise ValueError("Field provenance must be an object")
+    questions = []
+
+    def declared(field):
+        return provenance.get(field) == DECLARED and field in record
+
+    def add(key, outcome, explanation, fields):
+        questions.append(
+            ReviewQuestion(
+                key,
+                outcome,
+                explanation,
+                fields,
+                basis="unknown"
+                if outcome == Outcome.UNKNOWN
+                else "customer_declaration",
+            )
+        )
+
+    for field, label in (
+        ("business_owner", "Responsible person"),
+        ("business_purpose", "Business purpose"),
+    ):
+        if not declared(field):
+            add(field, Outcome.UNKNOWN, f"{label} has not been declared.", (field,))
+        elif type(record[field]) is not str:
+            raise ValueError("Text declarations must contain text")
+        elif not record[field].strip():
+            add(
+                field,
+                Outcome.CONCERN,
+                f"{label} is blank in the declaration.",
+                (field,),
+            )
+        else:
+            add(field, Outcome.PASS, f"{label} is recorded as a declaration.", (field,))
+
+    for field, label in (
+        ("data_categories", "Information categories"),
+        ("permissions", "Permissions"),
+        ("capabilities", "Actions"),
+    ):
+        if not declared(field):
+            add(field, Outcome.UNKNOWN, f"{label} have not been declared.", (field,))
+            continue
+        value = record[field]
+        if type(value) is not list or any(type(item) is not str for item in value):
+            raise ValueError("List declarations must contain text values")
+        add(
+            field,
+            Outcome.PASS,
+            f"{label} are recorded as declarations, including any stated empty list.",
+            (field,),
+        )
+
+    approval_fields = (
+        "human_approval",
+        "autonomy_level",
+        "capabilities",
+        "permissions",
+    )
+    if not all(declared(field) for field in approval_fields):
+        add(
+            "approval",
+            Outcome.UNKNOWN,
+            "The declared action and approval boundary is incomplete.",
+            approval_fields,
+        )
+    else:
+        approval = record["human_approval"]
+        autonomy = record["autonomy_level"]
+        if (
+            type(approval) is not bool
+            or type(autonomy) is not int
+            or autonomy not in range(5)
+        ):
+            raise ValueError("Unsupported approval or autonomy declaration")
+        # Unknown permission/action vocabulary never implies harmlessness.
+        has_actions = bool(record["capabilities"] or record["permissions"] or autonomy)
+        if not has_actions:
+            add(
+                "approval",
+                Outcome.NOT_APPLICABLE,
+                "No actions or permissions are declared; approval applicability "
+                "follows that declaration only.",
+                approval_fields,
+            )
+        elif approval:
+            add(
+                "approval",
+                Outcome.PASS,
+                "A human approval requirement is declared; "
+                "enforcement has not been checked.",
+                approval_fields,
+            )
+        else:
+            add(
+                "approval",
+                Outcome.CONCERN,
+                "Actions or permissions are declared without a human approval "
+                "requirement; review the intended boundary.",
+                approval_fields,
+            )
+
+    add(
+        "account_identity",
+        Outcome.UNKNOWN,
+        "This captured inventory schema does not identify "
+        "the executing account or principal.",
+        (),
+    )
+    add(
+        "access_removal",
+        Outcome.UNKNOWN,
+        "This captured inventory schema does not record an access-removal procedure.",
+        (),
+    )
+    result = {
+        "schema": VERSION,
+        "inventory_item_id": identity,
+        "record_sha256": hashlib.sha256(rfc8785.dumps(record)).hexdigest(),
+        "questions": [asdict(question) for question in questions],
+        "authority": "proposal_only",
+        "verification": "not_established",
+    }
+    return {**result, "sha256": hashlib.sha256(rfc8785.dumps(result)).hexdigest()}
+
+
+FILE apps/reviews/jobs.py SHA256 d677bdd4014d6e5ed46532d15d263740f8cf26debac99d364c9073d516077498
+"""Opt-in worker wrapper. Storage readback precedes atomic completion issuance.
+
+The resolver always installs this wrapper; deployment gates remain closed.
+Database metadata cannot independently prove the bytes; this wrapper is a
+trusted report-worker execution boundary. Identity is checked before rendering.
+"""
+from dataclasses import dataclass,replace
+import json
+from django.db import connections
+from apps.reports.artifact_services import read_verified_pdf_artifact
+
+
+@dataclass(frozen=True)
+class ReviewReportGenerationHandler:
+    delegate: object
+    worker_id: str | None = None
+
+    @property
+    def persistence_isolation(self):
+        return self.delegate.persistence_isolation
+
+    def prepare(self, job):
+        with connections[self.delegate.using].cursor() as cursor:
+            cursor.execute('SELECT app_private.review_pack_projection(%s,%s)',[job.id,job.claim_token])
+            projection=cursor.fetchone()[0]
+        prepared=self.delegate.prepare(job)
+        if projection is None:
+            return prepared
+        if type(self.worker_id) is not str or not self.worker_id.strip():
+            raise ValueError('Review worker identity required before rendering')
+        if isinstance(projection,str):
+            projection=json.loads(projection)
+        if (projection['job_id']!=str(job.id) or projection['organization_id']!=str(job.organization_id)
+            or projection['report_id']!=str(prepared.report_id)):
+            raise ValueError('Review projection job binding mismatch')
+        from .context import build_pack_context
+        return replace(prepared,report_context=build_pack_context(prepared.report_context,projection))
+
+    def execute_external(self, prepared, heartbeat):
+        return self.delegate.execute_external(prepared, heartbeat=heartbeat)
+
+    def persist(self, job, result):
+        using = self.delegate.using
+        # This runs within execute_claimed_job's existing fenced persistence
+        # transaction; completion, artifact metadata and queue completion all
+        # roll back together on any subsequent error.
+        with connections[using].cursor() as cursor:
+            cursor.execute('SELECT app_private.review_job_target(%s,%s)',[job.id,job.claim_token])
+            request_id = cursor.fetchone()[0]
+        artifact = self.delegate.persist(job,result)
+        if request_id is not None:
+            read_verified_pdf_artifact(artifact=artifact,storage=self.delegate.storage)
+            with connections[using].cursor() as cursor:
+                cursor.execute('SELECT app_private.complete_review_pack(%s,%s,%s,%s,%s)',
+                               [request_id,artifact.id,job.id,self.worker_id,job.claim_token])
+                cursor.fetchone()
+        return artifact
+
+
+FILE apps/jobs/handlers.py SHA256 5f5d2fad00986199dcd0907a571b30596e89864c41c2e7f114b7b874022de972
+from __future__ import annotations
+
+from collections.abc import Callable
+
+from apps.audit.jobs import AuditBatchSealHandler
+from apps.jobs.models import BackgroundJob
+from apps.jobs.worker import JobHandler
+from apps.reports.jobs import ReportGenerationHandler
+from apps.reviews.jobs import ReviewReportGenerationHandler
+from apps.reports.render_client import ReportRenderer, build_report_renderer
+from apps.reports.storage import (
+    PrivateReportStorage,
+    build_private_report_storage,
+)
+
+
+class UnsupportedJobHandler(ValueError):
+    pass
+
+
+def build_job_handler_resolver(
+    *,
+    using: str = "default",
+    worker_id: str | None = None,
+    report_renderer: ReportRenderer | None = None,
+    report_storage: PrivateReportStorage | None = None,
+) -> Callable[[str], JobHandler]:
+    audit_batch_seal_handler = AuditBatchSealHandler(
+        using=using,
+    )
+
+    def resolve(job_type: str) -> JobHandler:
+        if job_type == BackgroundJob.Type.AUDIT_BATCH_SEAL:
+            return audit_batch_seal_handler
+
+        if job_type == BackgroundJob.Type.REPORT_GENERATION:
+            renderer = report_renderer
+
+            if renderer is None:
+                renderer = build_report_renderer()
+
+            storage = report_storage
+
+            if storage is None:
+                storage = build_private_report_storage()
+
+            return ReviewReportGenerationHandler(worker_id=worker_id,delegate=ReportGenerationHandler(
+                renderer=renderer,
+                storage=storage,
+                using=using,
+            ))
+
+        raise UnsupportedJobHandler(f"No job handler is registered for {job_type}")
+
+    return resolve
+
+
+FILE apps/jobs/management/commands/run_worker.py SHA256 2656155fc281a20c3d7de497033466220b539f0f51144bcb58e03caaff0b17be
+from __future__ import annotations
+
+import os
+from functools import partial
+
+from django.core.management.base import BaseCommand, CommandError
+
+from apps.jobs.handlers import build_job_handler_resolver
+from apps.jobs.listener import EventDrivenJobListener
+from apps.jobs.worker import drain_queue
+
+
+class Command(BaseCommand):
+    help = "Run the event-driven AgentLedger background-job worker."
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--worker-id",
+            help=(
+                "Stable worker identity. Defaults to Railway's per-replica "
+                "RAILWAY_REPLICA_ID."
+            ),
+        )
+
+    def handle(self, *args, **options):
+        del args
+
+        worker_id = options.get("worker_id") or os.getenv("RAILWAY_REPLICA_ID", "")
+        if not worker_id:
+            raise CommandError(
+                "A worker identity is required via --worker-id or RAILWAY_REPLICA_ID."
+            )
+
+        listener_dsn = os.getenv("DATABASE_URL", "")
+        if not listener_dsn:
+            raise CommandError("DATABASE_URL is required to run the worker.")
+
+        resolver = build_job_handler_resolver(using="default",worker_id=worker_id)
+        listener = EventDrivenJobListener(
+            worker_id=worker_id,
+            listener_dsn=listener_dsn,
+        )
+        listener.run(
+            partial(
+                drain_queue,
+                handler_resolver=resolver,
+                using="default",
+            )
+        )
+
+
+FILE renderer/schema.py SHA256 7889721e000c227ddbfe1d61427ae595fe89c75346a3b16dca0f273c098c25d1
+from __future__ import annotations
+
+import json
+import hashlib
+import re
+import rfc8785
+from typing import Any
+from uuid import UUID
+
+MAX_PAYLOAD_BYTES = 1_048_576
+MAX_STRING_LENGTH = 4_096
+MAX_COLLECTION_ITEMS = 2_000
+MAX_NESTING_DEPTH = 12
+REPORT_CONTEXT_VERSION = "AL-REPORT-CONTEXT-2"
+REPORT_TITLE = "AI Risk & ROI Assessment"
+REVIEW_CONTEXT_VERSION = "AL-REVIEW-PACK-CONTEXT-1"
+REVIEW_TITLE = "Frozen AI Evidence Review Pack"
+REPORT_IDENTIFIER = re.compile(r"^AL-\d{4}-\d{6,}$")
+
+REQUIRED_TOP_LEVEL_KEYS = frozenset(
+    {
+        "context_version",
+        "title",
+        "metadata",
+        "executive_summary",
+        "inventory",
+        "risk_overview",
+        "individual_risk_findings",
+        "policy_findings",
+        "recommendations",
+        "ai_expenditure",
+        "roi",
+        "methodology",
+        "evidence",
+        "assessment_date",
+        "ruleset_versions",
+    }
+)
+FORBIDDEN_KEYS = frozenset(
+    {
+        "css",
+        "file",
+        "filesystem_path",
+        "html",
+        "href",
+        "javascript",
+        "output_path",
+        "path",
+        "script",
+        "src",
+        "url",
+    }
+)
+
+
+class InvalidReportRenderPayload(ValueError):
+    pass
+
+
+def _validate_tree(value: Any, *, depth: int = 0) -> None:
+    if depth > MAX_NESTING_DEPTH:
+        raise InvalidReportRenderPayload("Payload nesting is too deep")
+    if value is None or isinstance(value, (bool, int)):
+        return
+    if isinstance(value, str):
+        if len(value) > MAX_STRING_LENGTH:
+            raise InvalidReportRenderPayload("Payload string is too long")
+        if "\x00" in value:
+            raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+        return
+    if isinstance(value, list):
+        if len(value) > MAX_COLLECTION_ITEMS:
+            raise InvalidReportRenderPayload("Payload collection is too large")
+        for item in value:
+            _validate_tree(item, depth=depth + 1)
+        return
+    if isinstance(value, dict):
+        if len(value) > MAX_COLLECTION_ITEMS:
+            raise InvalidReportRenderPayload("Payload collection is too large")
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise InvalidReportRenderPayload("Payload keys must be strings")
+            if key.casefold() in FORBIDDEN_KEYS:
+                raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+            _validate_tree(item, depth=depth + 1)
+        return
+    raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+
+
+def _require_mapping(payload: dict[str, Any], key: str) -> dict[str, Any]:
+    value = payload.get(key)
+    if not isinstance(value, dict):
+        raise InvalidReportRenderPayload(f"{key} must be an object")
+    return value
+
+
+def _require_list(payload: dict[str, Any], key: str) -> list[Any]:
+    value = payload.get(key)
+    if not isinstance(value, list):
+        raise InvalidReportRenderPayload(f"{key} must be an array")
+    return value
+
+
+def validate_report_render_payload(payload: Any) -> dict[str, Any]:
+    if not isinstance(payload, dict):
+        raise InvalidReportRenderPayload("Payload must be an object")
+    is_review = payload.get('context_version') == REVIEW_CONTEXT_VERSION
+    expected_keys = REQUIRED_TOP_LEVEL_KEYS | {'review_pack'} if is_review else REQUIRED_TOP_LEVEL_KEYS
+    if set(payload) != expected_keys:
+        raise InvalidReportRenderPayload(
+            "Payload fields do not match the report schema"
+        )
+
+    try:
+        encoded = json.dumps(
+            payload,
+            ensure_ascii=False,
+            allow_nan=False,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    except (TypeError, ValueError) as error:
+        raise InvalidReportRenderPayload("Payload is not strict JSON") from error
+    if len(encoded) > MAX_PAYLOAD_BYTES:
+        raise InvalidReportRenderPayload("Payload is too large")
+    _validate_tree(payload)
+
+    if payload["context_version"] not in (REPORT_CONTEXT_VERSION, REVIEW_CONTEXT_VERSION):
+        raise InvalidReportRenderPayload("Unsupported report context version")
+    if payload["title"] != (REVIEW_TITLE if is_review else REPORT_TITLE):
+        raise InvalidReportRenderPayload("Unsupported report title")
+
+    metadata = _require_mapping(payload, "metadata")
+    required_metadata = {
+        "report_identifier",
+        "organization_display_name",
+        "assessment_date",
+        "assessment_id",
+        "assessment_version",
+        "assessment_snapshot_id",
+        "input_sha256",
+        "result_sha256",
+    }
+    if set(metadata) != required_metadata:
+        raise InvalidReportRenderPayload("Metadata fields do not match the schema")
+    if not REPORT_IDENTIFIER.fullmatch(metadata["report_identifier"]):
+        raise InvalidReportRenderPayload("Report identifier is invalid")
+    for field in ("assessment_id", "assessment_snapshot_id"):
+        try:
+            UUID(metadata[field])
+        except (AttributeError, TypeError, ValueError) as error:
+            raise InvalidReportRenderPayload(f"{field} must be a UUID") from error
+    for field in ("input_sha256", "result_sha256"):
+        value = metadata[field]
+        if not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value):
+            raise InvalidReportRenderPayload(f"{field} must be a SHA-256 digest")
+
+    for key in (
+        "executive_summary",
+        "risk_overview",
+        "ai_expenditure",
+        "roi",
+        "methodology",
+        "ruleset_versions",
+    ):
+        _require_mapping(payload, key)
+    for key in (
+        "inventory",
+        "individual_risk_findings",
+        "policy_findings",
+        "recommendations",
+        "evidence",
+    ):
+        _require_list(payload, key)
+
+    if is_review:
+        _validate_review_pack(payload)
+    return payload
+
+
+def _closed(value, keys):
+    if type(value) is not dict or set(value) != set(keys):
+        raise InvalidReportRenderPayload('Review fields do not match the closed schema')
+
+
+def _digest(value):
+    try:
+        return hashlib.sha256(rfc8785.dumps(value)).hexdigest()
+    except (TypeError, ValueError) as error:
+        raise InvalidReportRenderPayload('Review value is not canonical JSON') from error
+
+
+def _uuid(value):
+    try:
+        if type(value) is not str or str(UUID(value)) != value:
+            raise ValueError()
+    except (TypeError, ValueError, AttributeError) as error:
+        raise InvalidReportRenderPayload('Review identity is not a canonical UUID') from error
+
+
+def _sha(value):
+    if type(value) is not str or not re.fullmatch('[0-9a-f]{64}',value):
+        raise InvalidReportRenderPayload('Review digest is invalid')
+
+
+def _timestamp(value):
+    from datetime import datetime
+    try:
+        if type(value) is not str or datetime.fromisoformat(value).utcoffset() is None:raise ValueError()
+    except (TypeError,ValueError) as error:
+        raise InvalidReportRenderPayload('Review timestamp must include a timezone') from error
+
+
+def _validate_review_pack(report):
+    """Check render-contract consistency; origin admission remains upstream."""
+    pack=report['review_pack']
+    _closed(pack,('schema','pack_id','manifest_sha256','manifest','selected_decisions','exposure_reviews'))
+    if pack['schema']!='stewardence.review_pack_render.v1':
+        raise InvalidReportRenderPayload('Unsupported review render schema')
+    _uuid(pack['pack_id']);_sha(pack['manifest_sha256'])
+    manifest=pack['manifest']
+    _closed(manifest,('schema','cycle_id','organization_id','baseline_pack_id','snapshot','selected_decisions','selection_scope','artifact_state','baseline_promotion'))
+    if manifest['schema']!='stewardence.review_pack.v2' or _digest(manifest)!=pack['manifest_sha256']:
+        raise InvalidReportRenderPayload('Frozen manifest digest mismatch')
+    _uuid(manifest['cycle_id']);_uuid(manifest['organization_id'])
+    if manifest['baseline_pack_id'] is not None:_uuid(manifest['baseline_pack_id'])
+    if manifest['selection_scope'] not in ('empty_initial_kernel','owner_statement_events') or manifest['artifact_state']!='not_created' or manifest['baseline_promotion']!='blocked':
+        raise InvalidReportRenderPayload('Unsupported frozen manifest meaning')
+    snapshot=manifest['snapshot']
+    _closed(snapshot,('snapshot_id','assessment_id','assessment_version','input_sha256','result_sha256','captured_at','snapshot_schema','workflow_profile_id','workflow_profile','workflow_settings_sha256','rules_sha256','configuration_sha256','engine_versions'))
+    for field in ('snapshot_id','assessment_id','workflow_profile_id'):_uuid(snapshot[field])
+    for field in ('input_sha256','result_sha256','workflow_settings_sha256','rules_sha256','configuration_sha256'):_sha(snapshot[field])
+    metadata=report['metadata']
+    if report['assessment_date']!=snapshot['captured_at'] or report['methodology'].get('engine_versions')!=snapshot['engine_versions']:
+        raise InvalidReportRenderPayload('Review assessment meaning mismatch')
+    for field,target in (('snapshot_id','assessment_snapshot_id'),('assessment_id','assessment_id'),('assessment_version','assessment_version'),('input_sha256','input_sha256'),('result_sha256','result_sha256'),('captured_at','assessment_date')):
+        if snapshot[field]!=metadata[target]:raise InvalidReportRenderPayload('Review snapshot metadata mismatch')
+    _timestamp(snapshot['captured_at'])
+    if type(snapshot['assessment_version']) is not int or snapshot['assessment_version']<1 or type(snapshot['snapshot_schema']) is not int or snapshot['snapshot_schema']!=1 or snapshot['workflow_profile'] not in ('business.v1','development.v1') or type(snapshot['engine_versions']) is not dict:
+        raise InvalidReportRenderPayload('Unsupported frozen snapshot meaning')
+    if type(pack['selected_decisions']) is not list or type(manifest['selected_decisions']) is not list:
+        raise InvalidReportRenderPayload('Review decisions must be arrays')
+    if [item.get('selection') if type(item) is dict else None for item in pack['selected_decisions']] != manifest['selected_decisions']:
+        raise InvalidReportRenderPayload('Frozen decision selection changed')
+    if manifest['selection_scope']=='empty_initial_kernel' and manifest['selected_decisions']:
+        raise InvalidReportRenderPayload('Empty selection scope contains decisions')
+    seen=set()
+    for entry in pack['selected_decisions']:
+        _closed(entry,('selection','payload','event_sha256','proposal'))
+        selection=entry['selection'];event=entry['payload'];proposal=entry['proposal']
+        _closed(selection,('event_id','event_sha256','revision_id','revision_sha256','card_index','card_sha256','snapshot_id','snapshot_result_sha256','event_kind','state','owner_statement_only','resolution_verified'))
+        _closed(event,('schema','id','organization_id','created_by_id','created_at','revision_id','revision_sha256','snapshot_id','snapshot_result_sha256','card_index','card_sha256','previous_event_id','sequence','event_kind','state','responsible_label','due_date','notes','links','owner_statement_only','resolution_verified'))
+        _closed(proposal,('inventory_item_id','rule_id','rule_version','severity','proposal','authority'))
+        if event['schema']!='stewardence.core_decision_event.v1' or proposal['authority']!='proposal_only':raise InvalidReportRenderPayload('Unsupported proposal or event authority')
+        _uuid(proposal['inventory_item_id'])
+        if any(type(proposal[field]) is not str for field in ('rule_id','rule_version','severity','proposal')):
+            raise InvalidReportRenderPayload('Proposal display fields must be text')
+        _timestamp(event['created_at'])
+        for field in ('id','organization_id','created_by_id','revision_id','snapshot_id'):_uuid(event[field])
+        if event['previous_event_id'] is not None:_uuid(event['previous_event_id'])
+        if entry['event_sha256']!=selection['event_sha256'] or _digest(event)!=entry['event_sha256'] or _digest(proposal)!=selection['card_sha256']:
+            raise InvalidReportRenderPayload('Selected event or proposal digest mismatch')
+        for field in ('revision_sha256','card_sha256','snapshot_result_sha256'):_sha(event[field])
+        for field in ('revision_id','revision_sha256','card_index','card_sha256','snapshot_id','snapshot_result_sha256','event_kind','state','owner_statement_only','resolution_verified'):
+            if event[field]!=selection[field]:raise InvalidReportRenderPayload('Selected event identity mismatch')
+        if event['id']!=selection['event_id'] or event['organization_id']!=manifest['organization_id'] or event['snapshot_id']!=snapshot['snapshot_id'] or event['snapshot_result_sha256']!=snapshot['result_sha256']:
+            raise InvalidReportRenderPayload('Selected event snapshot mismatch')
+        if type(event['card_index']) is not int or event['card_index']<0 or type(event['sequence']) is not int or event['sequence']<1 or event['owner_statement_only'] is not True or event['resolution_verified'] is not False:
+            raise InvalidReportRenderPayload('Invalid owner-statement semantics')
+        key=(event['revision_id'],event['card_index'])
+        if key in seen:raise InvalidReportRenderPayload('Duplicate selected proposal')
+        seen.add(key)
+        if type(event['event_kind']) is not str or type(event['state']) is not str:raise InvalidReportRenderPayload('Decision state must be text')
+        if (event['event_kind'],event['state']) not in {('disposition','act'),('disposition','defer'),('disposition','decline'),('disposition','accept_risk'),('execution','completion_recorded'),('execution','evidence_reviewed')}:
+            raise InvalidReportRenderPayload('Unsupported decision state')
+        if type(event['responsible_label']) is not str or not 1<=len(event['responsible_label'].strip())<=200 or type(event['notes']) is not str or type(event['links']) is not list or len(event['links'])>10:
+            raise InvalidReportRenderPayload('Invalid statement bounds')
+        if event['due_date'] is not None:
+            from datetime import date
+            try:date.fromisoformat(event['due_date'])
+            except (TypeError,ValueError) as error:raise InvalidReportRenderPayload('Invalid decision due date') from error
+        for link in event['links']:
+            if type(link) is not str or len(link)>2048 or not re.fullmatch(r'https://[^\s/?#@]+(?:[/?#][^\s]*)?',link):raise InvalidReportRenderPayload('Invalid evidence link')
+    if type(pack['exposure_reviews']) is not list:raise InvalidReportRenderPayload('Exposure reviews must be an array')
+    if any(type(item) is not dict or 'id' not in item for item in report['inventory']):raise InvalidReportRenderPayload('Invalid review inventory record')
+    inventory_ids=[item['id'] for item in report['inventory']]
+    for identity in inventory_ids:_uuid(identity)
+    if len(set(inventory_ids))!=len(inventory_ids):raise InvalidReportRenderPayload('Duplicate review inventory identity')
+    for entry in pack['selected_decisions']:
+        if entry['proposal']['inventory_item_id'] not in inventory_ids:raise InvalidReportRenderPayload('Selected proposal inventory mismatch')
+    if any(type(item) is not dict for item in pack['exposure_reviews']):raise InvalidReportRenderPayload('Invalid exposure entry')
+    for item in pack['exposure_reviews']:_closed(item,('source_record','review'))
+    if any(type(item['review']) is not dict or type(item['source_record']) is not dict for item in pack['exposure_reviews']):raise InvalidReportRenderPayload('Invalid exposure record')
+    if [item['review'].get('inventory_item_id') for item in pack['exposure_reviews']]!=inventory_ids:
+        raise InvalidReportRenderPayload('Exposure inventory selection mismatch')
+    question_ids=('business_owner','business_purpose','data_categories','permissions','capabilities','approval','account_identity','access_removal')
+    for entry in pack['exposure_reviews']:
+        exposure=entry['review'];record=entry['source_record']
+        _closed(exposure,('schema','inventory_item_id','record_sha256','questions','authority','verification','sha256'))
+        _uuid(exposure['inventory_item_id']);_sha(exposure['record_sha256'])
+        if record.get('id')!=exposure['inventory_item_id'] or _digest(record)!=exposure['record_sha256']:
+            raise InvalidReportRenderPayload('Exposure source-record digest mismatch')
+        if exposure['schema']!='core.exposure.declarations.v1' or exposure['authority']!='proposal_only' or exposure['verification']!='not_established' or _digest({key:value for key,value in exposure.items() if key!='sha256'})!=exposure['sha256']:
+            raise InvalidReportRenderPayload('Exposure contract or digest mismatch')
+        if type(exposure['questions']) is not list or any(type(q) is not dict for q in exposure['questions']) or [q.get('question_id') for q in exposure['questions']]!=list(question_ids):raise InvalidReportRenderPayload('Exposure questions incomplete')
+        for question in exposure['questions']:
+            _closed(question,('question_id','outcome','explanation','source_fields','basis','verification'))
+            if question['outcome'] not in ('PASS','CONCERN','UNKNOWN','NOT_APPLICABLE') or question['basis']!=('unknown' if question['outcome']=='UNKNOWN' else 'customer_declaration') or question['verification']!='not_established' or type(question['explanation']) is not str or type(question['source_fields']) is not list or any(type(field) is not str for field in question['source_fields']):
+                raise InvalidReportRenderPayload('Unsupported exposure meaning')
+
+
+FILE renderer/template.py SHA256 7b9b5af0357cbece7dbbf25b7603635aadbbff2858be063e4c5feda229e73941
+from __future__ import annotations
+
+import base64
+from pathlib import Path
+from typing import Any
+
+from django.template import Context, Engine
+
+TEMPLATE_DIRECTORY = Path(__file__).resolve().parent / "templates"
+BRAND_LOGO_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "static"
+    / "brand"
+    / "atlas"
+    / "reports.svg"
+)
+_ENGINE = Engine(dirs=(TEMPLATE_DIRECTORY,), autoescape=True, debug=False)
+
+
+def render_report_html(payload: dict[str, Any]) -> str:
+    template = _ENGINE.get_template("report.html")
+    brand_logo_data_url = "data:image/svg+xml;base64," + base64.b64encode(
+        BRAND_LOGO_PATH.read_bytes()
+    ).decode("ascii")
+    return template.render(
+        Context(
+            {
+                "brand_logo_data_url": brand_logo_data_url,
+                "report": payload,
+            },
+            autoescape=True,
+            use_l10n=False,
+            use_tz=False,
+        )
+    )
+
+
+FILE renderer/templates/report.html SHA256 7f76cc135c6931a16bfbf8eafc03ab6bc5748e1e78b0e047a93f49dc389b9ae2
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ report.metadata.report_identifier }} - {{ report.title }}</title>
+  <style>
+    @page { size: A4; margin: 16mm 14mm 18mm; @bottom-right { content: "Page " counter(page) " of " counter(pages); color: #667085; font-size: 9px; } }
+    * { box-sizing: border-box; }
+    body { color: #14243b; font-family: "Segoe UI", Arial, sans-serif; font-size: 10px; line-height: 1.45; margin: 0; overflow-wrap: anywhere; }
+    h1 { color: #14243b; font-size: 27px; line-height: 1.12; margin: 6px 0 8px; }
+    h2 { border-bottom: 2px solid #d5deea; color: #14243b; font-size: 17px; margin: 0 0 10px; padding-bottom: 5px; }
+    h3 { color: #14243b; font-size: 12px; margin: 8px 0 4px; }
+    p { margin: 5px 0 8px; }
+    section { margin: 0 0 14px; }
+    .roi-section { break-before: page; }
+    .metadata-section { break-before: page; }
+    h2, h3 { break-after: avoid; }
+    .cover { border-bottom: 2px solid #d5deea; margin-bottom: 24px; padding: 22px 0; break-inside: avoid; }
+    .cover-brand { align-items: flex-start; display: flex; gap: 20px; justify-content: space-between; }
+    .cover-brand > div { min-width: 0; }
+    .brand-logo { display: block; height: auto; width: 104px; }
+    .eyebrow { color: #1d55cf; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .organization { font-size: 16px; font-weight: 700; }
+    .disclaimer { background: #edf3ff; border-left: 3px solid #1d55cf; padding: 8px 10px; }
+    .grid { display: grid; gap: 8px; grid-template-columns: repeat(3, 1fr); }
+    .metric { background: #f4f7f8; padding: 8px; }
+    .metric span { color: #667085; display: block; font-size: 8.5px; text-transform: uppercase; }
+    .metric strong { display: block; font-size: 15px; margin-top: 2px; }
+    table { border-collapse: collapse; font-size: 9px; table-layout: fixed; width: 100%; }
+    th, td { border: 1px solid #d7dee2; padding: 5px; text-align: left; vertical-align: top; }
+    th { background: #f5f8fc; color: #52647c; }
+    thead { display: table-header-group; }
+    td { overflow-wrap: anywhere; }
+    tr { break-inside: avoid; }
+    .item { border-left: 3px solid #adc1df; break-inside: avoid; margin: 8px 0; padding: 3px 0 3px 9px; }
+    .muted { color: #667085; }
+    .hash { font-family: monospace; font-size: 8px; overflow-wrap: anywhere; }
+    ul, ol { margin: 5px 0 8px; padding-left: 20px; }
+    li { margin: 2px 0; }
+  </style>
+</head>
+<body>
+  <header class="cover">
+    <div class="cover-brand">
+      <div>
+        <div class="eyebrow">{{ report.metadata.report_identifier }}</div>
+        <h1>{{ report.title }}</h1>
+      </div>
+      <img class="brand-logo" src="{{ brand_logo_data_url }}" alt="" aria-hidden="true">
+    </div>
+    <p class="organization">{{ report.metadata.organization_display_name }}</p>
+    <p>Assessment date: {{ report.assessment_date }} | Assessment version: {{ report.metadata.assessment_version }}</p>
+    <p class="disclaimer">This report presents deterministic assessment findings and does not certify compliance or guarantee security.</p>
+  </header>
+  <section><h2>Executive summary</h2><div class="grid">
+    <div class="metric"><span>Tools assessed</span><strong>{{ report.executive_summary.inventory_count }}</strong></div>
+    <div class="metric"><span>Policy findings</span><strong>{{ report.executive_summary.finding_count }}</strong></div>
+    <div class="metric"><span>Monthly spend</span><strong>{{ report.executive_summary.monthly_spend_display }}</strong></div>
+  </div>{% if report.executive_summary.highest_individual_risk %}<p>Highest individual tool risk: <strong>{{ report.executive_summary.highest_individual_risk.band }}</strong> ({{ report.executive_summary.highest_individual_risk.score }}/100) for {{ report.executive_summary.highest_individual_risk.tool_name }}.</p>{% endif %}<p>Estimated monthly net value: <strong>{% if report.executive_summary.monthly_net_value != None %}${{ report.executive_summary.monthly_net_value }}{% else %}Unknown{% endif %}</strong>.</p></section>
+  <section><h2>AI and software inventory</h2><table><thead><tr><th>Tool</th><th>Vendor</th><th>Department</th><th>Status</th><th>Monthly cost</th></tr></thead><tbody>{% for tool in report.inventory %}<tr><td>{{ tool.display_name }} ({{ tool.provenance.display_name }})</td><td>{{ tool.vendor_name }} ({{ tool.provenance.vendor_name }})</td><td>{{ tool.department|default:"Unknown" }} ({{ tool.provenance.department }})</td><td>{{ tool.status|title }} ({{ tool.provenance.status }})</td><td>{{ tool.monthly_cost_display }} ({{ tool.provenance.monthly_cost_cents }})</td></tr>{% endfor %}</tbody></table></section>
+  <section><h2>Overall risk overview</h2><p>Overall risk is summarized by the highest individual tool risk; it is not a compliance certification.</p><div class="grid">{% for band, count in report.risk_overview.counts_by_band.items %}<div class="metric"><span>{{ band }}</span><strong>{{ count }}</strong></div>{% endfor %}</div></section>
+  <section><h2>Individual tool risk</h2>{% for tool in report.inventory %}<article class="item"><h3>{{ tool.display_name }} - {{ tool.risk.band }} ({{ tool.risk.score }}/100, {{ tool.risk.provenance }})</h3><p>Risk engine {{ tool.risk.engine_version }}; configuration {{ tool.risk.configuration_version }}</p><ul>{% for dimension in tool.risk.dimensions %}<li>{{ dimension.dimension|title }}: {{ dimension.raw_points }} raw, {{ dimension.weight_percent }}% weight, {{ dimension.weighted_points }} weighted</li>{% endfor %}</ul></article>{% endfor %}</section>
+  <section><h2>Failed and warning policy findings</h2>{% for finding in report.policy_findings %}<article class="item"><div class="eyebrow">{{ finding.result }} - {{ finding.severity }}</div><h3>{{ finding.tool_name }}</h3><p>{{ finding.explanation }}</p><p><strong>Rule:</strong> {{ finding.rule_id }} version {{ finding.rule_version }}</p><p><strong>Recommended remediation:</strong> {{ finding.recommended_remediation }}</p></article>{% empty %}<p>No failed or warning policies were recorded.</p>{% endfor %}</section>
+  <section><h2>Recommendations</h2><ol>{% for recommendation in report.recommendations %}<li><strong>{{ recommendation.tool_name }}:</strong> {{ recommendation.remediation }} ({{ recommendation.severity }})</li>{% empty %}<li>No remediation recommendations were produced.</li>{% endfor %}</ol></section>
+  <section><h2>AI and software expenditure</h2><p><strong>{{ report.ai_expenditure.monthly_total_display }}</strong> monthly subscription cost</p><ul>{% for item in report.ai_expenditure.items %}<li>{{ item.tool_name }} - {{ item.monthly_cost_display }} ({{ item.provenance }})</li>{% endfor %}</ul></section>
+  <section class="roi-section"><h2>Return on investment</h2><p>Results are {{ report.roi.result.provenance }} from the captured assumptions.</p><table><tbody><tr><th>Monthly value</th><td>{% if report.roi.result.monthly_value != None %}${{ report.roi.result.monthly_value }}{% else %}Unknown{% endif %}</td><th>Monthly total cost</th><td>{% if report.roi.result.monthly_total_cost != None %}${{ report.roi.result.monthly_total_cost }}{% else %}Unknown{% endif %}</td></tr><tr><th>Monthly net value</th><td>{% if report.roi.result.monthly_net_value != None %}${{ report.roi.result.monthly_net_value }}{% else %}Unknown{% endif %}</td><th>ROI</th><td>{% if report.roi.result.roi_percent != None %}{{ report.roi.result.roi_percent }}%{% else %}Not available: {{ report.roi.result.roi_unavailable_reason|default:"monthly total cost is zero" }}{% endif %}</td></tr></tbody></table><h3>Arithmetic</h3><ul>{% for line in report.roi.result.arithmetic %}<li>{{ line }}</li>{% endfor %}</ul><h3>Assumption sources</h3><ul>{% for name, assumption in report.roi.assumptions.items %}<li>{{ name|title }}: {{ assumption.value }} - {{ assumption.provenance_class }}{% if assumption.provenance != assumption.provenance_class %} ({{ assumption.provenance }}){% endif %}</li>{% endfor %}</ul></section>
+  <section><h2>Methodology</h2><p>{{ report.methodology.summary }}</p><p>{{ report.methodology.evidence_boundary }}</p><p>Report context {{ report.methodology.report_context_version }}; snapshot schema {{ report.methodology.snapshot_schema_version }}</p><ul>{% for engine, version in report.methodology.engine_versions.items %}<li>{{ engine|title }} engine: {{ version }}</li>{% endfor %}</ul><h3>Provenance labels</h3><ul>{% for label, meaning in report.methodology.provenance_legend.items %}<li><strong>{{ label }}:</strong> {{ meaning }}</li>{% endfor %}</ul></section>
+  <section><h2>Evidence sources</h2><ul>{% for evidence in report.evidence %}<li>{% if evidence.type == "collector_observation" %}<strong>{{ evidence.raw_identifier }}</strong> - {{ evidence.provenance }} by {{ evidence.detector_id }} v{{ evidence.detector_version }} at {{ evidence.observed_at }}; exact catalog reconciliation {{ evidence.reconciliation_provenance }}; evidence SHA-256 {{ evidence.reference }}; scan SHA-256 {{ evidence.scan_hash }}{% else %}{{ evidence.type|title }} - {{ evidence.reference }} ({{ evidence.provenance }}){% endif %}</li>{% empty %}<li>No external evidence references were attached.</li>{% endfor %}</ul></section>
+  <section class="metadata-section"><h2>Assessment and report metadata</h2><table><tbody><tr><th>Report identifier</th><td>{{ report.metadata.report_identifier }}</td><th>Assessment date</th><td>{{ report.assessment_date }}</td></tr><tr><th>Assessment ID</th><td colspan="3" class="hash">{{ report.metadata.assessment_id }}</td></tr><tr><th>Snapshot ID</th><td colspan="3" class="hash">{{ report.metadata.assessment_snapshot_id }}</td></tr><tr><th>Input SHA-256</th><td colspan="3" class="hash">{{ report.metadata.input_sha256 }}</td></tr><tr><th>Result SHA-256</th><td colspan="3" class="hash">{{ report.metadata.result_sha256 }}</td></tr></tbody></table><h3>Ruleset versions</h3><ul><li>Platform: {{ report.ruleset_versions.platform }}</li><li>Industry: {{ report.ruleset_versions.industry.name }} {{ report.ruleset_versions.industry.version }}</li>{% for rule in report.ruleset_versions.organization %}<li>Organization rule: {{ rule.name }} version {{ rule.version }} - {{ rule.source_type }}{% if rule.source_type == "detector" %}; detector {{ rule.detector_id }} v{{ rule.detector_version }}; mapping {{ rule.mapping_id }} v{{ rule.mapping_version }}; source inventory {{ rule.source_inventory_item_id }}; generation fingerprint {{ rule.generation_fingerprint }}{% endif %}</li>{% empty %}<li>Organization rules: none enabled</li>{% endfor %}</ul></section>
+  {% if report.review_pack %}
+  <section class="metadata-section"><h2>Frozen evidence pack</h2>
+    <p>This is a dated review of captured records and owner statements. Determinism does not establish input truth. This pack records proposals and decisions; it does not authorize provider writes or certify remediation.</p>
+    <table><tbody>
+      <tr><th>Pack ID</th><td class="hash">{{ report.review_pack.pack_id }}</td></tr>
+      <tr><th>Frozen manifest SHA-256</th><td class="hash">{{ report.review_pack.manifest_sha256 }}</td></tr>
+      <tr><th>Review cycle ID</th><td class="hash">{{ report.review_pack.manifest.cycle_id }}</td></tr>
+      <tr><th>Captured at</th><td>{{ report.review_pack.manifest.snapshot.captured_at }}</td></tr>
+      <tr><th>Workflow meaning</th><td>{{ report.review_pack.manifest.snapshot.workflow_profile }}</td></tr>
+      <tr><th>Frozen pack rendering contract</th><td>{{ report.context_version }}</td></tr>
+    </tbody></table>
+  </section>
+  <section><h2>Exposure review of frozen inputs</h2>
+    <p>These versioned questions are derived at rendering from frozen inputs under contract core.exposure.declarations.v1; the questions were not selected at freeze. PASS means a bounded customer declaration is present. Enforcement, executing accounts and access removal are not established by these records.</p>
+    {% for entry in report.review_pack.exposure_reviews %}<article class="item">
+      <h3>{{ entry.source_record.display_name }}</h3>
+      <p><strong>Captured purpose:</strong> {{ entry.source_record.business_purpose|default:"Unknown" }}. <strong>Responsible person:</strong> {{ entry.source_record.business_owner|default:"Unknown" }}.</p>
+      <p><strong>Captured information categories:</strong> {{ entry.source_record.data_categories|join:", "|default:"See evidence gap below" }}. <strong>Captured permissions:</strong> {{ entry.source_record.permissions|join:", "|default:"See evidence gap below" }}. <strong>Captured actions:</strong> {{ entry.source_record.capabilities|join:", "|default:"See evidence gap below" }}. Declaration status and evidence limits are shown below.</p>
+      <table><thead><tr><th>Question</th><th>Outcome</th><th>Evidence boundary</th></tr></thead><tbody>{% for question in entry.review.questions %}<tr><td>{{ question.question_id }}</td><td>{{ question.outcome }}</td><td>{{ question.explanation }} ({{ question.basis }}; verification {{ question.verification }})</td></tr>{% endfor %}</tbody></table>
+      <p class="hash">Captured record SHA-256: {{ entry.review.record_sha256 }}. Exposure review SHA-256: {{ entry.review.sha256 }}.</p>
+    </article>{% empty %}<p>No captured inventory records were included.</p>{% endfor %}
+  </section>
+  <section class="metadata-section"><h2>Frozen owner decisions</h2>
+    <p>Completion recorded and evidence reviewed are owner statements. Resolution remains unverified; these statements do not prove that a control was enforced or a risk was resolved.</p>
+    {% for decision in report.review_pack.selected_decisions %}<article class="item">
+      <h3>{{ decision.payload.state }} — {{ decision.payload.responsible_label }}</h3>
+      <p><strong>Proposal:</strong> {{ decision.proposal.proposal }}. <strong>Authority:</strong> proposal only.</p>
+      <p><strong>Event kind:</strong> {{ decision.payload.event_kind }}. <strong>Recorded at:</strong> {{ decision.payload.created_at }}. <strong>Due date:</strong> {{ decision.payload.due_date|default:"Not set" }}.</p>
+      <p><strong>Owner rationale:</strong> {{ decision.payload.notes|default:"No rationale recorded" }}</p>
+      <ul>{% for link in decision.payload.links %}<li>{{ link }} — owner-supplied reference; not fetched or independently verified</li>{% empty %}<li>No owner-supplied evidence links.</li>{% endfor %}</ul>
+      <p class="hash">Event ID: {{ decision.selection.event_id }}. Event SHA-256: {{ decision.event_sha256 }}.</p>
+      <p class="hash">Revision ID: {{ decision.selection.revision_id }}. Revision SHA-256: {{ decision.selection.revision_sha256 }}. Exact card SHA-256: {{ decision.selection.card_sha256 }}.</p>
+    </article>{% empty %}<p>No owner decision events were selected when this pack was frozen.</p>{% endfor %}
+  </section>
+  {% endif %}
+</body>
+</html>
+
+
+FILE tests/test_review_pack_projection.py SHA256 0795b045f25449223c943cf9e6660fdfca36a71cd095fcc0be6382cee32efb20
+"""Actual-role closed render projection, independent of renderer validation."""
+from copy import deepcopy
+from uuid import uuid4
+import json
+import pytest
+from django.db import connections,DatabaseError,transaction
+from agentledger.tenancy.context import identity_transaction,tenant_transaction
+from apps.reviews.context import build_pack_context
+from apps.reports.jobs import ensure_report_generation_job
+from apps.reports.services import create_report
+from apps.jobs.queue import claim_next_job
+from apps.jobs.models import BackgroundJob
+from apps.jobs.handlers import build_job_handler_resolver
+from apps.jobs.worker import JobExecution,execute_claimed_job
+from apps.reports.jobs import ReportGenerationHandler
+from apps.reports.storage import LocalPrivateReportStorage
+from apps.reports.artifact_services import read_verified_pdf_artifact
+from apps.reviews.jobs import ReviewReportGenerationHandler
+from apps.reviews.models import PackCompletion,ReviewCycle
+from tests.test_review_pack_lifecycle import pack_context,enabled,request,claimed,handler
+from tests.test_core_decisions import decision_context,decide
+from apps.jobs.core_models import DecisionEvent
+from apps.reviews.services import open_cycle,freeze_cycle
+
+pytestmark=pytest.mark.django_db(transaction=True,databases='__all__')
+
+
+def projection(job):
+    with tenant_transaction(job.organization_id,using='worker_runtime'):
+        with connections['worker_runtime'].cursor() as cursor:
+            cursor.execute('SELECT app_private.review_pack_projection(%s,%s)',[job.id,job.claim_token])
+            value=cursor.fetchone()[0]
+    return json.loads(value) if isinstance(value,str) else value
+
+
+def test_worker_projection_prepares_same_snapshot_and_ordered_exposures(pack_context,enabled,tmp_path):
+    user,org,snapshot,pack=pack_context
+    staged=request(pack_context)
+    job=claimed(pack_context)
+    value=projection(job)
+    assert value['request_id']==str(staged.id) and value['pack_id']==str(pack.id)
+    assert value['snapshot_input']==snapshot.input_payload and value['snapshot_result']==snapshot.result_payload
+    with tenant_transaction(org.id,using='worker_runtime'):
+        prepared=handler(tmp_path).prepare(job)
+    context=prepared.report_context
+    assert context['context_version']=='AL-REVIEW-PACK-CONTEXT-1'
+    assert context['title']=='Frozen AI Evidence Review Pack'
+    assert context['review_pack']['manifest']==pack.manifest
+    assert [row['source_record'] for row in context['review_pack']['exposure_reviews']]==snapshot.input_payload['inventory']
+    assert all(row['review']['verification']=='not_established' for row in context['review_pack']['exposure_reviews'])
+    assert context['review_pack']['selected_decisions']==[]
+    assert context['metadata']['assessment_date']==pack.manifest['snapshot']['captured_at']
+
+
+def test_projection_renders_frozen_statement_and_proposal_not_later_history(decision_context,enabled,tmp_path):
+    user,org,snapshot,revision=decision_context
+    first=decide(decision_context)
+    cycle=open_cycle(organization_id=org.id,actor_id=user.id,input_snapshot_id=snapshot.id,using='app_runtime')
+    pack=freeze_cycle(cycle_id=cycle.id,organization_id=org.id,actor_id=user.id,expected_revision=1,using='app_runtime')
+    later=decide(decision_context,expected_previous_event=first,state='defer')
+    request((user,org,snapshot,pack))
+    job=claimed((user,org,snapshot,pack))
+    value=projection(job)
+    assert value['selected_decisions'][0]['selection']['event_id']==str(first)
+    assert value['selected_decisions'][0]['selection']['event_id']!=str(later)
+    assert value['selected_decisions'][0]['proposal']==revision.cards[0]
+    with tenant_transaction(org.id,using='worker_runtime'):
+        context=handler(tmp_path).prepare(job).report_context
+    statement=context['review_pack']['selected_decisions'][0]
+    assert statement['payload']['state']=='act'
+    assert statement['payload']['resolution_verified'] is False
+
+
+def test_actual_chromium_worker_projection_storage_and_completion_are_one_frozen_pack(decision_context,enabled,tmp_path):
+    from io import BytesIO
+    from pypdf import PdfReader
+    from renderer.render import render_pdf
+    from renderer.schema import validate_report_render_payload
+    from renderer.template import render_report_html
+    from pathlib import Path
+    user,org,snapshot,_=decision_context
+    unsafe='<script>UNSAFE_MARKER</script>'
+    first=decide(decision_context,notes=unsafe,links=['https://example.invalid/never-fetch'])
+    cycle=open_cycle(organization_id=org.id,actor_id=user.id,input_snapshot_id=snapshot.id,using='app_runtime')
+    pack=freeze_cycle(cycle_id=cycle.id,organization_id=org.id,actor_id=user.id,expected_revision=1,using='app_runtime')
+    later=decide(decision_context,expected_previous_event=first,state='defer',notes='LATER_EVENT_SHOULD_NOT_APPEAR')
+    staged=request((user,org,snapshot,pack),promote_baseline=True)
+    job=claimed((user,org,snapshot,pack))
+    captured=[]
+    class ActualChromium:
+        def render(self,context):
+            validate_report_render_payload(context)
+            html=render_report_html(context)
+            assert '<script>' not in html and '&lt;script&gt;UNSAFE_MARKER' in html
+            captured.append(deepcopy(context))
+            return render_pdf(context,output_directory=tmp_path/'chromium')
+    storage=LocalPrivateReportStorage(tmp_path/'objects')
+    worker=build_job_handler_resolver(using='worker_runtime',worker_id='review-qualification',report_renderer=ActualChromium(),report_storage=storage)(BackgroundJob.Type.REPORT_GENERATION)
+    execute_claimed_job(JobExecution(job=job,worker_id='review-qualification'),worker,using='worker_runtime')
+    completion=PackCompletion.objects.get(request=staged)
+    pdf=read_verified_pdf_artifact(artifact=completion.artifact,storage=storage)
+    evidence=Path('/qualification-evidence')
+    if evidence.is_dir():
+        with (evidence/'review-pack-delivery.pdf').open('xb') as exported:
+            exported.write(pdf)
+        with (evidence/'review-pack-delivery-context.json').open('x') as exported:
+            json.dump(captured[0],exported,indent=2)
+    text='\n'.join(page.extract_text() for page in PdfReader(BytesIO(pdf)).pages)
+    for exact in ('Frozen AI Evidence Review Pack','Exposure review of frozen inputs',
+                  'core.exposure.declarations.v1',str(pack.id),pack.sha256,str(first),'<script>UNSAFE_MARKER</script>'):
+        assert exact in text
+    assert str(later) not in text and 'LATER_EVENT_SHOULD_NOT_APPEAR' not in text
+    assert captured[0]['review_pack']['selected_decisions'][0]['payload']['id']==str(first)
+    assert completion.payload['manifest_sha256']==pack.sha256
+    assert ReviewCycle.objects.get(pk=cycle.id).state=='COMPLETED'
+    assert BackgroundJob.objects.get(pk=job.id).status=='completed'
+    assert list((tmp_path/'chromium').iterdir())==[]
+
+
+@pytest.mark.parametrize('attack',['missing','wrong_proposal','live_substitution','verified_label'])
+def test_actual_frozen_projection_cannot_render_changed_statement(decision_context,enabled,tmp_path,attack):
+    from renderer.schema import validate_report_render_payload,InvalidReportRenderPayload
+    user,org,snapshot,_=decision_context
+    first=decide(decision_context)
+    cycle=open_cycle(organization_id=org.id,actor_id=user.id,input_snapshot_id=snapshot.id,using='app_runtime')
+    pack=freeze_cycle(cycle_id=cycle.id,organization_id=org.id,actor_id=user.id,expected_revision=1,using='app_runtime')
+    later=decide(decision_context,expected_previous_event=first,state='defer')
+    request((user,org,snapshot,pack))
+    job=claimed((user,org,snapshot,pack))
+    with tenant_transaction(org.id,using='worker_runtime'):
+        context=handler(tmp_path).prepare(job).report_context
+    validate_report_render_payload(context)
+    altered=deepcopy(context)
+    entries=altered['review_pack']['selected_decisions']
+    if attack=='missing': altered['review_pack']['selected_decisions']=[]
+    if attack=='wrong_proposal': entries[0]['proposal']['proposal']='Changed proposal'
+    if attack=='live_substitution':
+        actual_later=DecisionEvent.objects.get(pk=later)
+        entries[0]['payload']=actual_later.payload
+        entries[0]['event_sha256']=actual_later.sha256
+        entries[0]['selection'].update(event_id=str(later),event_sha256=actual_later.sha256,state='defer')
+    if attack=='verified_label': entries[0]['payload']['resolution_verified']=True
+    with pytest.raises(InvalidReportRenderPayload):
+        validate_report_render_payload(altered)
+
+
+def test_ordinary_report_prepare_preserves_legacy_context(pack_context,tmp_path):
+    user,org,snapshot,_=pack_context
+    with identity_transaction(user.id,using='app_runtime'),tenant_transaction(org.id,using='app_runtime'):
+        report=create_report(organization_id=org.id,assessment_snapshot_id=snapshot.id,created_by_id=user.id,using='app_runtime')
+        queued=ensure_report_generation_job(report=report,using='app_runtime')
+    BackgroundJob.objects.filter(id=queued.id).update(priority=-100)
+    job=claim_next_job('review-qualification',using='worker_runtime')
+    assert job.id==queued.id and projection(job) is None
+    contexts=[]
+    class OrdinaryRenderer:
+        def render(self,context):
+            contexts.append(context)
+            return b'%PDF-1.7\nordinary resolver fixture\n%%EOF\n'
+    ordinary=build_job_handler_resolver(using='worker_runtime',report_renderer=OrdinaryRenderer(),report_storage=LocalPrivateReportStorage(tmp_path))(BackgroundJob.Type.REPORT_GENERATION)
+    with tenant_transaction(org.id,using='worker_runtime'):
+        prepared=ordinary.prepare(job)
+    assert prepared.report_context['context_version']=='AL-REPORT-CONTEXT-2'
+    assert 'review_pack' not in prepared.report_context
+    execute_claimed_job(JobExecution(job=job,worker_id='review-qualification'),ordinary,using='worker_runtime')
+    assert contexts[0]['context_version']=='AL-REPORT-CONTEXT-2' and 'review_pack' not in contexts[0]
+    assert BackgroundJob.objects.get(pk=job.id).status=='completed'
+
+
+def test_app_cannot_execute_worker_projection(pack_context,enabled):
+    user,org,_,_=pack_context
+    with pytest.raises(DatabaseError,match='permission denied'):
+        with identity_transaction(user.id,using='app_runtime'),tenant_transaction(org.id,using='app_runtime'):
+            with connections['app_runtime'].cursor() as cursor:
+                cursor.execute('SELECT app_private.review_pack_projection(%s,%s)',[uuid4(),uuid4()])
+
+
+def test_operator_gate_forces_rls_without_runtime_access():
+    with connections['default'].cursor() as cursor:
+        cursor.execute("SELECT relrowsecurity,relforcerowsecurity FROM pg_class WHERE oid='public.review_lifecycle_gate'::regclass")
+        assert cursor.fetchone()==(True,True)
+    for alias in ('app_runtime','worker_runtime'):
+        with pytest.raises(DatabaseError,match='permission denied'),transaction.atomic(using=alias):
+            with connections[alias].cursor() as cursor:
+                cursor.execute('SELECT enabled FROM review_lifecycle_gate')
+
+
+def test_worker_projection_denies_wrong_tenant(pack_context,enabled):
+    request(pack_context)
+    job=claimed(pack_context)
+    with pytest.raises(DatabaseError,match='lease authority'):
+        with tenant_transaction(uuid4(),using='worker_runtime'):
+            with connections['worker_runtime'].cursor() as cursor:
+                cursor.execute('SELECT app_private.review_pack_projection(%s,%s)',[job.id,job.claim_token])
+
+
+@pytest.mark.parametrize('change',['manifest','input','result','metadata_time','metadata_snapshot','inventory_order','inventory_missing'])
+def test_python_render_boundary_rejects_changed_admitted_projection(pack_context,enabled,tmp_path,change):
+    _,org,_,_=pack_context
+    request(pack_context)
+    job=claimed(pack_context)
+    value=projection(job)
+    with tenant_transaction(org.id,using='worker_runtime'):
+        legacy=handler(tmp_path).delegate.prepare(job).report_context
+    altered=deepcopy(value); context=deepcopy(legacy)
+    if change=='manifest': altered['manifest']['selected_decisions']=[{'forged':True}]
+    if change=='input': altered['snapshot_input']['inventory'][0]['display_name']='Changed'
+    if change=='result': altered['snapshot_result']['roi']['provenance']='claimed'
+    if change=='metadata_time': context['metadata']['assessment_date']='2000-01-01'
+    if change=='metadata_snapshot': context['metadata']['assessment_snapshot_id']=str(uuid4())
+    if change=='inventory_order': context['inventory'][0]['id']=str(uuid4())
+    if change=='inventory_missing': context['inventory']=[]
+    with pytest.raises(ValueError,match='identity|selection'):
+        build_pack_context(context,altered)
+
+
+def test_context_builder_does_not_alias_snapshot_or_manifest(pack_context,enabled,tmp_path):
+    _,org,_,_=pack_context
+    request(pack_context)
+    job=claimed(pack_context)
+    value=projection(job)
+    original=deepcopy(value)
+    with tenant_transaction(org.id,using='worker_runtime'):
+        legacy=handler(tmp_path).delegate.prepare(job).report_context
+    context=build_pack_context(legacy,value)
+    context['review_pack']['manifest']['selected_decisions'].append({'local':'mutation'})
+    context['review_pack']['exposure_reviews'][0]['source_record']['display_name']='local mutation'
+    assert value==original and 'review_pack' not in legacy
+
+
+FILE tests/test_review_worker_resolver.py SHA256 0c2690c524b7bbac9a5677e4ec61ea85ea8731f346a7939359b4ebc4f3653525
+"""Real resolver path, without starting a listener or worker service."""
+import pytest
+from agentledger.tenancy.context import tenant_transaction
+from apps.jobs.handlers import build_job_handler_resolver
+from apps.jobs.models import BackgroundJob
+from apps.jobs.worker import execute_claimed_job,JobExecution
+from apps.reports.storage import LocalPrivateReportStorage
+from apps.reviews.jobs import ReviewReportGenerationHandler
+from apps.reviews.models import PackCompletion
+from tests.test_review_pack_lifecycle import pack_context,enabled,request,claimed,Renderer
+
+pytestmark=pytest.mark.django_db(transaction=True,databases='__all__')
+
+
+@pytest.mark.parametrize('missing',[None,'','   '])
+def test_review_resolver_missing_identity_denies_before_render_or_storage(pack_context,enabled,tmp_path,missing):
+    class NeverRender:
+        def render(self,context):
+            raise AssertionError('Missing identity reached external rendering')
+    request(pack_context)
+    job=claimed(pack_context)
+    worker=build_job_handler_resolver(using='worker_runtime',worker_id=missing,report_renderer=NeverRender(),report_storage=LocalPrivateReportStorage(tmp_path))(BackgroundJob.Type.REPORT_GENERATION)
+    assert isinstance(worker,ReviewReportGenerationHandler)
+    with pytest.raises(ValueError,match='identity required'):
+        execute_claimed_job(JobExecution(job=job,worker_id='review-qualification'),worker,using='worker_runtime')
+    assert not PackCompletion.objects.exists() and list(tmp_path.iterdir())==[]
+
+
+def test_resolver_configured_identity_completes_review(pack_context,enabled,tmp_path):
+    request(pack_context)
+    job=claimed(pack_context)
+    worker=build_job_handler_resolver(using='worker_runtime',worker_id='review-qualification',report_renderer=Renderer(),report_storage=LocalPrivateReportStorage(tmp_path))(BackgroundJob.Type.REPORT_GENERATION)
+    execute_claimed_job(JobExecution(job=job,worker_id='review-qualification'),worker,using='worker_runtime')
+    assert PackCompletion.objects.count()==1
+
+
+FILE tests/test_review_renderer.py SHA256 f1d1a74898ba9314db64d3c310c88f4361711c3fb50706c4de4741a16d98c33d
+"""Closed frozen-pack contracts plus genuine offline Chromium PDF rendering.
+
+These fixtures prove render consistency, not admission or provider truth.
+"""
+from copy import deepcopy
+from io import BytesIO
+import hashlib
+import json
+from uuid import uuid4
+
+import pytest
+import rfc8785
+from pypdf import PdfReader
+from playwright.sync_api import sync_playwright
+
+from apps.reviews.exposure import review_record
+from renderer.render import render_pdf
+from renderer.schema import InvalidReportRenderPayload,validate_report_render_payload
+from renderer.template import render_report_html
+from test_renderer import valid_payload
+
+
+def digest(value):return hashlib.sha256(rfc8785.dumps(value)).hexdigest()
+
+
+def review_payload():
+    report=valid_payload()
+    report.update(context_version='AL-REVIEW-PACK-CONTEXT-1',title='Frozen AI Evidence Review Pack')
+    org,revision,event_id,cycle,pack,actor,item=[str(uuid4()) for _ in range(7)]
+    snapshot=report['metadata']['assessment_snapshot_id']
+    record={'id':item,'display_name':'Payroll review assistant','business_owner':'Alex owner',
+        'business_purpose':'Draft payroll questions','data_categories':['payroll'],
+        'permissions':['read'], 'capabilities':['draft'],'human_approval':False,'autonomy_level':1,
+        'provenance':{key:'Declared' for key in ('business_owner','business_purpose','data_categories','permissions','capabilities','human_approval','autonomy_level')}}
+    report['inventory']=[deepcopy(record)]
+    proposal={'inventory_item_id':item,'rule_id':'approval-required','rule_version':'1',
+        'severity':'high','proposal':'Review the approval boundary','authority':'proposal_only'}
+    event={'schema':'stewardence.core_decision_event.v1','id':event_id,'organization_id':org,
+        'created_by_id':actor,'created_at':'2026-10-04T12:30:00+00:00','revision_id':revision,
+        'revision_sha256':digest([proposal]),'snapshot_id':snapshot,'snapshot_result_sha256':'a'*64,
+        'card_index':0,'card_sha256':digest(proposal),'previous_event_id':None,'sequence':1,
+        'event_kind':'execution','state':'completion_recorded','responsible_label':'Alex owner',
+        'due_date':'2026-10-12','notes':'Owner statement only: approval review performed.',
+        'links':['https://example.invalid/evidence'],'owner_statement_only':True,'resolution_verified':False}
+    selection={key:event[key] for key in ('revision_id','revision_sha256','card_index','card_sha256','snapshot_id','snapshot_result_sha256','event_kind','state','owner_statement_only','resolution_verified')}
+    selection.update(event_id=event_id,event_sha256=digest(event))
+    frozen_snapshot={'snapshot_id':snapshot,'assessment_id':report['metadata']['assessment_id'],
+        'assessment_version':1,'input_sha256':'a'*64,'result_sha256':'a'*64,
+        'captured_at':report['metadata']['assessment_date'],'snapshot_schema':1,
+        'workflow_profile_id':str(uuid4()),'workflow_profile':'business.v1',
+        'workflow_settings_sha256':'b'*64,'rules_sha256':'c'*64,'configuration_sha256':'d'*64,'engine_versions':{}}
+    manifest={'schema':'stewardence.review_pack.v2','cycle_id':cycle,'organization_id':org,
+        'baseline_pack_id':None,'snapshot':frozen_snapshot,'selected_decisions':[selection],
+        'selection_scope':'owner_statement_events','artifact_state':'not_created','baseline_promotion':'blocked'}
+    report['review_pack']={'schema':'stewardence.review_pack_render.v1','pack_id':pack,
+        'manifest_sha256':digest(manifest),'manifest':manifest,
+        'selected_decisions':[{'selection':deepcopy(selection),'payload':event,'event_sha256':digest(event),'proposal':proposal}],
+        'exposure_reviews':[{'source_record':record,'review':json.loads(json.dumps(review_record(record)))}]}
+    return report
+
+
+def reseal(report):
+    pack=report['review_pack']
+    for entry in pack['selected_decisions']:
+        entry['event_sha256']=digest(entry['payload'])
+        entry['selection']['event_sha256']=entry['event_sha256']
+    pack['manifest']['selected_decisions']=[deepcopy(entry['selection']) for entry in pack['selected_decisions']]
+    pack['manifest_sha256']=digest(pack['manifest'])
+
+
+def test_legacy_contract_remains_exact_and_review_contract_is_separate():
+    assert validate_report_render_payload(valid_payload())['context_version']=='AL-REPORT-CONTEXT-2'
+    assert validate_report_render_payload(review_payload())['context_version']=='AL-REVIEW-PACK-CONTEXT-1'
+    old=valid_payload();old['review_pack']={}
+    with pytest.raises(InvalidReportRenderPayload):validate_report_render_payload(old)
+    new=review_payload();new['context_version']='AL-REPORT-CONTEXT-2'
+    with pytest.raises(InvalidReportRenderPayload):validate_report_render_payload(new)
+
+
+@pytest.mark.parametrize('attack',[
+    'extra_top','missing_pack','manifest_hash','event_hash','proposal_changed','missing_decision',
+    'foreign_snapshot','foreign_org','verified','provider_authority','unknown_state','null_label',
+    'eleven_links','http_link','userinfo_link','extra_event','card_bool','duplicate_selection',
+    'exposure_record_changed','exposure_review_changed','missing_exposure','verified_exposure',
+    'extra_exposure','unknown_question','bad_question_basis','foreign_cycle','snapshot_schema_bool',
+    'structured_card_index','structured_state','null_inventory','null_exposure',
+    'empty_scope','foreign_proposal_inventory','contradictory_date','contradictory_engines',
+])
+def test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims(attack):
+    report=review_payload();pack=report['review_pack'];entry=pack['selected_decisions'][0]
+    event=entry['payload'];exposure=pack['exposure_reviews'][0]
+    if attack=='extra_top':report['other']={}
+    if attack=='missing_pack':del report['review_pack']
+    if attack=='manifest_hash':pack['manifest_sha256']='0'*64
+    if attack=='event_hash':entry['event_sha256']='0'*64
+    if attack=='proposal_changed':entry['proposal']['proposal']='Different proposal'
+    if attack=='missing_decision':pack['selected_decisions']=[]
+    if attack=='foreign_snapshot':event['snapshot_id']=str(uuid4());entry['selection']['snapshot_id']=event['snapshot_id'];reseal(report)
+    if attack=='foreign_org':event['organization_id']=str(uuid4());reseal(report)
+    if attack=='verified':event['resolution_verified']=True;entry['selection']['resolution_verified']=True;reseal(report)
+    if attack=='provider_authority':entry['proposal']['authority']='provider_write';event['card_sha256']=digest(entry['proposal']);entry['selection']['card_sha256']=event['card_sha256'];reseal(report)
+    if attack=='unknown_state':event['state']='remediated';entry['selection']['state']='remediated';reseal(report)
+    if attack=='null_label':event['responsible_label']=None;reseal(report)
+    if attack=='eleven_links':event['links']=['https://example.invalid']*11;reseal(report)
+    if attack=='http_link':event['links']=['http://example.invalid'];reseal(report)
+    if attack=='userinfo_link':event['links']=['https://user:password@example.invalid'];reseal(report)
+    if attack=='extra_event':event['provider_writes_authorized']=True;reseal(report)
+    if attack=='card_bool':event['card_index']=False;entry['selection']['card_index']=False;reseal(report)
+    if attack=='duplicate_selection':pack['selected_decisions'].append(deepcopy(entry));reseal(report)
+    if attack=='exposure_record_changed':exposure['source_record']['business_purpose']='Changed after freeze'
+    if attack=='exposure_review_changed':exposure['review']['questions'][0]['explanation']='Changed without digest'
+    if attack=='missing_exposure':pack['exposure_reviews']=[]
+    if attack=='verified_exposure':exposure['review']['verification']='verified';exposure['review']['sha256']=digest({k:v for k,v in exposure['review'].items() if k!='sha256'})
+    if attack=='extra_exposure':exposure['network_scan']=True
+    if attack=='unknown_question':exposure['review']['questions'][0]['question_id']='security_guaranteed';exposure['review']['sha256']=digest({k:v for k,v in exposure['review'].items() if k!='sha256'})
+    if attack=='bad_question_basis':exposure['review']['questions'][0]['basis']='observed';exposure['review']['sha256']=digest({k:v for k,v in exposure['review'].items() if k!='sha256'})
+    if attack=='foreign_cycle':pack['manifest']['cycle_id']='not-a-uuid';pack['manifest_sha256']=digest(pack['manifest'])
+    if attack=='snapshot_schema_bool':pack['manifest']['snapshot']['snapshot_schema']=True;pack['manifest_sha256']=digest(pack['manifest'])
+    if attack=='structured_card_index':event['card_index']=[];entry['selection']['card_index']=[];reseal(report)
+    if attack=='structured_state':event['state']={};entry['selection']['state']={};reseal(report)
+    if attack=='null_inventory':report['inventory']=[None]
+    if attack=='null_exposure':pack['exposure_reviews']=[None]
+    if attack=='empty_scope':pack['manifest']['selection_scope']='empty_initial_kernel';pack['manifest_sha256']=digest(pack['manifest'])
+    if attack=='foreign_proposal_inventory':entry['proposal']['inventory_item_id']=str(uuid4());event['card_sha256']=digest(entry['proposal']);entry['selection']['card_sha256']=event['card_sha256'];reseal(report)
+    if attack=='contradictory_date':report['assessment_date']='2026-10-01T12:00:00Z'
+    if attack=='contradictory_engines':report['methodology']['engine_versions']={'risk':'different'}
+    with pytest.raises(InvalidReportRenderPayload):validate_report_render_payload(report)
+
+
+def test_exact_selection_order_cannot_be_changed_by_renderer_envelope():
+    report=review_payload();second=deepcopy(report['review_pack']['selected_decisions'][0])
+    second['payload'].update(id=str(uuid4()),card_index=1)
+    second['selection'].update(event_id=second['payload']['id'],card_index=1)
+    report['review_pack']['selected_decisions'].append(second);reseal(report)
+    validate_report_render_payload(report)
+    report['review_pack']['selected_decisions'].reverse()
+    with pytest.raises(InvalidReportRenderPayload):validate_report_render_payload(report)
+
+
+def test_real_chromium_pdf_contains_frozen_identity_exposure_and_owner_statement(tmp_path):
+    report=review_payload()
+    pdf=render_pdf(report,output_directory=tmp_path,timeout_seconds=30)
+    text='\n'.join(page.extract_text() for page in PdfReader(BytesIO(pdf)).pages)
+    for value in ('Frozen AI Evidence Review Pack','Exposure review of frozen inputs','Frozen owner decisions',
+        'Resolution remains unverified','completion_recorded','approval boundary',report['review_pack']['pack_id'],
+        report['review_pack']['manifest_sha256'],report['review_pack']['selected_decisions'][0]['selection']['event_id']):
+        assert value in text
+    assert pdf.startswith(b'%PDF-')
+    assert list(tmp_path.iterdir())==[]
+
+
+def test_real_chromium_customer_content_and_evidence_links_remain_inert():
+    report=review_payload();event=report['review_pack']['selected_decisions'][0]['payload']
+    event['notes']='<script>fetch("https://example.invalid/attack")</script><img src="https://example.invalid/leak">'
+    reseal(report);validate_report_render_payload(report)
+    html=render_report_html(report)
+    assert '<script>' not in html and '<img src="https:' not in html
+    with sync_playwright() as browser_driver:
+        browser=browser_driver.chromium.launch(headless=True,chromium_sandbox=False)
+        context=browser.new_context(java_script_enabled=False,service_workers='block')
+        requests=[]
+        context.on('request',lambda request:requests.append(request.url))
+        context.route('**/*',lambda route:route.abort())
+        page=context.new_page();page.set_content(html,wait_until='load')
+        assert page.locator('a[href],script').count()==0
+        assert page.locator('body').inner_text().find(event['notes'])!=-1
+        assert requests==[]
+        context.close();browser.close()
+
+
+EVIDENCE qualification-summary.json
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-2e5c642685",
+  "image_id": "sha256:26d7f7c2ae2f832cc08f219073efdcba02d1e8eb61bedc44d38a035cdaef656d",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T203409.204974Z",
+  "test_arguments": [
+    "tests/test_review_worker_resolver.py",
+    "tests/test_review_pack_projection.py",
+    "tests/test_run_worker_command.py",
+    "tests/test_report_generation_job.py",
+    "tests/test_audit_job_handler.py",
+    "tests/test_renderer.py",
+    "tests/test_review_renderer.py"
+  ],
+  "test_result_counts": {
+    "cases": 101,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "dda91e5613dc781c4f611b89a73ac8cf8feb2e06c5f81ca101e52af360433b21"
+}
+
+EVIDENCE review-pack-delivery-context.json
+{
+  "context_version": "AL-REVIEW-PACK-CONTEXT-1",
+  "title": "Frozen AI Evidence Review Pack",
+  "metadata": {
+    "report_identifier": "AL-2026-000007",
+    "organization_display_name": "Report Firm",
+    "assessment_date": "2026-09-03T12:00:00Z",
+    "assessment_id": "bb7a7608-b55c-4ba0-b3dd-eb05604a9db2",
+    "assessment_version": 1,
+    "assessment_snapshot_id": "5500fc93-df81-415d-9759-2762682ca07d",
+    "input_sha256": "3bac53d2409ed6dee19009826251d1ac25d1542f60148f2cf8f21c136a5f5034",
+    "result_sha256": "cc7fb83e352f2724b7ca6ae811b51612696b36ee1a9440238a54217b5e568e77"
+  },
+  "executive_summary": {
+    "inventory_count": 1,
+    "highest_individual_risk": {
+      "score": 75,
+      "band": "Critical",
+      "tool_name": "Payroll Assistant"
+    },
+    "monthly_spend": "100.00",
+    "monthly_spend_display": "$100.00 known",
+    "unknown_monthly_cost_count": 0,
+    "monthly_net_value": "600.00",
+    "finding_count": 5
+  },
+  "inventory": [
+    {
+      "id": "a4a0f83b-7802-499d-bb1c-1aadeacd7c10",
+      "status": "reviewing",
+      "department": "Bookkeeping",
+      "product_id": null,
+      "provenance": {
+        "status": "Declared",
+        "department": "Declared",
+        "product_id": "Unknown",
+        "seat_count": "Declared",
+        "user_count": "Declared",
+        "permissions": "Declared",
+        "source_type": "Declared",
+        "vendor_name": "Declared",
+        "capabilities": "Declared",
+        "display_name": "Declared",
+        "autonomy_level": "Declared",
+        "business_owner": "Declared",
+        "human_approval": "Declared",
+        "data_categories": "Declared",
+        "business_purpose": "Declared",
+        "connected_systems": "Declared",
+        "monthly_cost_cents": "Declared"
+      },
+      "seat_count": 0,
+      "user_count": 0,
+      "archived_at": null,
+      "permissions": [],
+      "source_type": "manual",
+      "vendor_name": "Example Vendor",
+      "capabilities": [
+        "external_transfer"
+      ],
+      "display_name": "Payroll Assistant",
+      "autonomy_level": 0,
+      "business_owner": "",
+      "human_approval": false,
+      "data_categories": [
+        "payroll"
+      ],
+      "business_purpose": "",
+      "connected_systems": [],
+      "monthly_cost_cents": 10000,
+      "monthly_cost": "100.00",
+      "monthly_cost_display": "$100.00",
+      "risk": {
+        "band": "Critical",
+        "score": 75,
+        "dimensions": [
+          {
+            "score": 25,
+            "dimension": "data_sensitivity",
+            "raw_points": 25,
+            "weight_percent": 20,
+            "weighted_points": "5"
+          },
+          {
+            "score": 0,
+            "dimension": "system_privilege",
+            "raw_points": 0,
+            "weight_percent": 20,
+            "weighted_points": "0"
+          },
+          {
+            "score": 0,
+            "dimension": "autonomy",
+            "raw_points": 0,
+            "weight_percent": 15,
+            "weighted_points": "0"
+          },
+          {
+            "score": 0,
+            "dimension": "external_connectivity",
+            "raw_points": 0,
+            "weight_percent": 15,
+            "weighted_points": "0"
+          },
+          {
+            "score": 0,
+            "dimension": "human_oversight",
+            "raw_points": 0,
+            "weight_percent": 10,
+            "weighted_points": "0"
+          },
+          {
+            "score": 0,
+            "dimension": "financial_impact",
+            "raw_points": 0,
+            "weight_percent": 10,
+            "weighted_points": "0"
+          },
+          {
+            "score": 10,
+            "dimension": "regulatory_relevance",
+            "raw_points": 10,
+            "weight_percent": 5,
+            "weighted_points": "0.5"
+          },
+          {
+            "score": 25,
+            "dimension": "vendor_risk",
+            "raw_points": 25,
+            "weight_percent": 5,
+            "weighted_points": "1.25"
+          }
+        ],
+        "provenance": "Calculated",
+        "contributions": [
+          {
+            "points": 25,
+            "reason": "This software can access payroll information and send information outside the firm.",
+            "rule_id": "ACC-PAYROLL-EXT",
+            "dimension": "data_sensitivity",
+            "rule_version": "1.1.0"
+          },
+          {
+            "points": 10,
+            "reason": "The firm has not recorded how long this software keeps its data.",
+            "rule_id": "ACC-RETENTION-UNKNOWN",
+            "dimension": "regulatory_relevance",
+            "rule_version": "1.1.0"
+          },
+          {
+            "points": 10,
+            "reason": "The firm has not recorded whether the vendor uses customer data to train models.",
+            "rule_id": "ACC-TRAINING-BEHAVIOR-UNKNOWN",
+            "dimension": "vendor_risk",
+            "rule_version": "1.1.0"
+          },
+          {
+            "points": 15,
+            "reason": "The vendor review is incomplete, so the firm's review of this software is not yet documented.",
+            "rule_id": "ACC-VENDOR-REVIEW-INCOMPLETE",
+            "dimension": "vendor_risk",
+            "rule_version": "1.1.0"
+          }
+        ],
+        "engine_version": "AL-RISK-1",
+        "severity_floor": "Critical",
+        "raw_weighted_score": "6.75",
+        "configuration_version": "AL-RISK-1"
+      }
+    }
+  ],
+  "risk_overview": {
+    "highest_individual_risk": {
+      "score": 75,
+      "band": "Critical",
+      "tool_name": "Payroll Assistant"
+    },
+    "counts_by_band": {
+      "Low": 0,
+      "Moderate": 0,
+      "High": 0,
+      "Critical": 1
+    }
+  },
+  "individual_risk_findings": [
+    {
+      "inventory_item_id": "a4a0f83b-7802-499d-bb1c-1aadeacd7c10",
+      "band": "Critical",
+      "score": 75,
+      "dimensions": [
+        {
+          "score": 25,
+          "dimension": "data_sensitivity",
+          "raw_points": 25,
+          "weight_percent": 20,
+          "weighted_points": "5"
+        },
+        {
+          "score": 0,
+          "dimension": "system_privilege",
+          "raw_points": 0,
+          "weight_percent": 20,
+          "weighted_points": "0"
+        },
+        {
+          "score": 0,
+          "dimension": "autonomy",
+          "raw_points": 0,
+          "weight_percent": 15,
+          "weighted_points": "0"
+        },
+        {
+          "score": 0,
+          "dimension": "external_connectivity",
+          "raw_points": 0,
+          "weight_percent": 15,
+          "weighted_points": "0"
+        },
+        {
+          "score": 0,
+          "dimension": "human_oversight",
+          "raw_points": 0,
+          "weight_percent": 10,
+          "weighted_points": "0"
+        },
+        {
+          "score": 0,
+          "dimension": "financial_impact",
+          "raw_points": 0,
+          "weight_percent": 10,
+          "weighted_points": "0"
+        },
+        {
+          "score": 10,
+          "dimension": "regulatory_relevance",
+          "raw_points": 10,
+          "weight_percent": 5,
+          "weighted_points": "0.5"
+        },
+        {
+          "score": 25,
+          "dimension": "vendor_risk",
+          "raw_points": 25,
+          "weight_percent": 5,
+          "weighted_points": "1.25"
+        }
+      ],
+      "provenance": "Calculated",
+      "contributions": [
+        {
+          "points": 25,
+          "reason": "This software can access payroll information and send information outside the firm.",
+          "rule_id": "ACC-PAYROLL-EXT",
+          "dimension": "data_sensitivity",
+          "rule_version": "1.1.0"
+        },
+        {
+          "points": 10,
+          "reason": "The firm has not recorded how long this software keeps its data.",
+          "rule_id": "ACC-RETENTION-UNKNOWN",
+          "dimension": "regulatory_relevance",
+          "rule_version": "1.1.0"
+        },
+        {
+          "points": 10,
+          "reason": "The firm has not recorded whether the vendor uses customer data to train models.",
+          "rule_id": "ACC-TRAINING-BEHAVIOR-UNKNOWN",
+          "dimension": "vendor_risk",
+          "rule_version": "1.1.0"
+        },
+        {
+          "points": 15,
+          "reason": "The vendor review is incomplete, so the firm's review of this software is not yet documented.",
+          "rule_id": "ACC-VENDOR-REVIEW-INCOMPLETE",
+          "dimension": "vendor_risk",
+          "rule_version": "1.1.0"
+        }
+      ],
+      "engine_version": "AL-RISK-1",
+      "severity_floor": "Critical",
+      "raw_weighted_score": "6.75",
+      "configuration_version": "AL-RISK-1"
+    }
+  ],
+  "policy_findings": [
+    {
+      "result": "FAIL",
+      "effects": [
+        {
+          "type": "risk_points",
+          "value": 25,
+          "control": null,
+          "message": null,
+          "dimension": "data_sensitivity"
+        },
+        {
+          "type": "require_control",
+          "value": null,
+          "control": "human_approval",
+          "message": null,
+          "dimension": null
+        },
+        {
+          "type": "severity_floor",
+          "value": "HIGH",
+          "control": null,
+          "message": null,
+          "dimension": null
+        }
+      ],
+      "rule_id": "ACC-PAYROLL-EXT",
+      "evidence": [
+        {
+          "field": "data_categories",
+          "value": [
+            "payroll"
+          ]
+        },
+        {
+          "field": "capabilities",
+          "value": [
+            "external_transfer"
+          ]
+        }
+      ],
+      "severity": "HIGH",
+      "explanation": "This software can access payroll information and send information outside the firm.",
+      "rule_version": "1.1.0",
+      "recommended_remediation": "Document and configure a human approval step in the source system or business process before payroll information is sent.",
+      "inventory_item_id": "a4a0f83b-7802-499d-bb1c-1aadeacd7c10",
+      "tool_name": "Payroll Assistant"
+    },
+    {
+      "result": "FAIL",
+      "effects": [
+        {
+          "type": "severity_floor",
+          "value": "CRITICAL",
+          "control": null,
+          "message": null,
+          "dimension": null
+        }
+      ],
+      "rule_id": "ACC-PAYROLL-EXT-NO-APPROVAL",
+      "evidence": [
+        {
+          "field": "data_categories",
+          "value": [
+            "payroll"
+          ]
+        },
+        {
+          "field": "capabilities",
+          "value": [
+            "external_transfer"
+          ]
+        },
+        {
+          "field": "human_approval",
+          "value": false
+        }
+      ],
+      "severity": "CRITICAL",
+      "explanation": "Payroll information can leave the firm without a recorded human approval step.",
+      "rule_version": "1.1.0",
+      "recommended_remediation": "Add an approval step in the source application or operating procedure, then record that step in AgentLedger.",
+      "inventory_item_id": "a4a0f83b-7802-499d-bb1c-1aadeacd7c10",
+      "tool_name": "Payroll Assistant"
+    },
+    {
+      "result": "WARNING",
+      "effects": [
+        {
+          "type": "risk_points",
+          "value": 10,
+          "control": null,
+          "message": null,
+          "dimension": "regulatory_relevance"
+        },
+        {
+          "type": "recommend_review",
+          "value": null,
+          "control": null,
+          "message": "Confirm the retention terms.",
+          "dimension": null
+        }
+      ],
+      "rule_id": "ACC-RETENTION-UNKNOWN",
+      "evidence": [
+        {
+          "field": "retention_status",
+          "value": "unknown"
+        }
+      ],
+      "severity": "MODERATE",
+      "explanation": "The firm has not recorded how long this software keeps its data.",
+      "rule_version": "1.1.0",
+      "recommended_remediation": "Confirm the vendor's retention and deletion terms and record the review.",
+      "inventory_item_id": "a4a0f83b-7802-499d-bb1c-1aadeacd7c10",
+      "tool_name": "Payroll Assistant"
+    },
+    {
+      "result": "WARNING",
+      "effects": [
+        {
+          "type": "risk_points",
+          "value": 10,
+          "control": null,
+          "message": null,
+          "dimension": "vendor_risk"
+        },
+        {
+          "type": "recommend_review",
+          "value": null,
+          "control": null,
+          "message": "Confirm whether customer data is used for training.",
+          "dimension": null
+        }
+      ],
+      "rule_id": "ACC-TRAINING-BEHAVIOR-UNKNOWN",
+      "evidence": [
+        {
+          "field": "training_behavior",
+          "value": "unknown"
+        }
+      ],
+      "severity": "MODERATE",
+      "explanation": "The firm has not recorded whether the vendor uses customer data to train models.",
+      "rule_version": "1.1.0",
+      "recommended_remediation": "Confirm the vendor's model-training terms and record whether firm or client data is used.",
+      "inventory_item_id": "a4a0f83b-7802-499d-bb1c-1aadeacd7c10",
+      "tool_name": "Payroll Assistant"
+    },
+    {
+      "result": "WARNING",
+      "effects": [
+        {
+          "type": "risk_points",
+          "value": 15,
+          "control": null,
+          "message": null,
+          "dimension": "vendor_risk"
+        },
+        {
+          "type": "recommend_review",
+          "value": null,
+          "control": null,
+          "message": "Complete the vendor review.",
+          "dimension": null
+        }
+      ],
+      "rule_id": "ACC-VENDOR-REVIEW-INCOMPLETE",
+      "evidence": [
+        {
+          "field": "vendor_review_status",
+          "value": "incomplete"
+        }
+      ],
+      "severity": "MODERATE",
+      "explanation": "The vendor review is incomplete, so the firm's review of this software is not yet documented.",
+      "rule_version": "1.1.0",
+      "recommended_remediation": "Complete and record the vendor review, including data handling, security, and contract terms.",
+      "inventory_item_id": "a4a0f83b-7802-499d-bb1c-1aadeacd7c10",
+      "tool_name": "Payroll Assistant"
+    }
+  ],
+  "recommendations": [
+    {
+      "tool_name": "Payroll Assistant",
+      "remediation": "Document and configure a human approval step in the source system or business process before payroll information is sent.",
+      "severity": "HIGH"
+    },
+    {
+      "tool_name": "Payroll Assistant",
+      "remediation": "Add an approval step in the source application or operating procedure, then record that step in AgentLedger.",
+      "severity": "CRITICAL"
+    },
+    {
+      "tool_name": "Payroll Assistant",
+      "remediation": "Confirm the vendor's retention and deletion terms and record the review.",
+      "severity": "MODERATE"
+    },
+    {
+      "tool_name": "Payroll Assistant",
+      "remediation": "Confirm the vendor's model-training terms and record whether firm or client data is used.",
+      "severity": "MODERATE"
+    },
+    {
+      "tool_name": "Payroll Assistant",
+      "remediation": "Complete and record the vendor review, including data handling, security, and contract terms.",
+      "severity": "MODERATE"
+    }
+  ],
+  "ai_expenditure": {
+    "monthly_total": "100.00",
+    "monthly_total_display": "$100.00 known",
+    "unknown_monthly_cost_count": 0,
+    "items": [
+      {
+        "tool_name": "Payroll Assistant",
+        "monthly_cost": "100.00",
+        "monthly_cost_display": "$100.00",
+        "provenance": "Declared"
+      }
+    ]
+  },
+  "roi": {
+    "assessed_item_id": "a4a0f83b-7802-499d-bb1c-1aadeacd7c10",
+    "assumptions": {
+      "loaded_hourly_rate": {
+        "value": "50.00",
+        "provenance": "Customer supplied",
+        "provenance_class": "Declared"
+      },
+      "implementation_cost": {
+        "value": "1200.00",
+        "provenance": "Customer supplied",
+        "provenance_class": "Declared"
+      },
+      "attributable_revenue": {
+        "value": "200.00",
+        "provenance": "Estimated",
+        "provenance_class": "Declared"
+      },
+      "avoided_monthly_cost": {
+        "value": "100.00",
+        "provenance": "Measured",
+        "provenance_class": "Declared"
+      },
+      "hours_saved_per_month": {
+        "value": "10.00",
+        "provenance": "Measured",
+        "provenance_class": "Declared"
+      },
+      "monthly_subscription_cost": {
+        "value": "100.00",
+        "provenance": "Customer supplied",
+        "provenance_class": "Declared"
+      },
+      "implementation_amortization_months": {
+        "value": "12",
+        "provenance": "Estimated",
+        "provenance_class": "Declared"
+      }
+    },
+    "result": {
+      "arithmetic": [
+        "Monthly labor value: 10.00 hours \u00d7 $50.00 = $500.00",
+        "Monthly value: $500.00 labor + $200.00 revenue + $100.00 avoided cost = $800.00",
+        "Monthly implementation cost: $1200.00 \u00f7 12 months = $100.00",
+        "Monthly total cost: $100.00 subscription + $100.00 implementation = $200.00",
+        "Monthly net value: $800.00 value - $200.00 cost = $600.00",
+        "ROI: $600.00 \u00f7 $200.00 \u00d7 100 = 300.00%"
+      ],
+      "provenance": "Calculated",
+      "roi_percent": "300.00",
+      "monthly_value": "800.00",
+      "engine_version": "AL-ROI-1",
+      "monthly_net_value": "600.00",
+      "monthly_total_cost": "200.00",
+      "monthly_labor_value": "500.00",
+      "amortized_implementation_cost": "100.00"
+    }
+  },
+  "methodology": {
+    "summary": "Deterministic policy, risk, and ROI engines evaluated the immutable assessment snapshot. No language model determined assessment results.",
+    "snapshot_schema_version": 1,
+    "report_context_version": "AL-REPORT-CONTEXT-2",
+    "engine_versions": {
+      "roi": "AL-ROI-1",
+      "risk": "AL-RISK-1",
+      "policy": "AL-POLICY-1"
+    },
+    "risk_configuration": {
+      "version": "AL-RISK-1",
+      "weights": [
+        {
+          "percent": 20,
+          "dimension": "data_sensitivity"
+        },
+        {
+          "percent": 20,
+          "dimension": "system_privilege"
+        },
+        {
+          "percent": 15,
+          "dimension": "autonomy"
+        },
+        {
+          "percent": 15,
+          "dimension": "external_connectivity"
+        },
+        {
+          "percent": 10,
+          "dimension": "human_oversight"
+        },
+        {
+          "percent": 10,
+          "dimension": "financial_impact"
+        },
+        {
+          "percent": 5,
+          "dimension": "regulatory_relevance"
+        },
+        {
+          "percent": 5,
+          "dimension": "vendor_risk"
+        }
+      ]
+    },
+    "provenance_legend": {
+      "Observed": "Reported directly by bounded Collector evidence.",
+      "Declared": "Provided or confirmed by a person or imported file.",
+      "Catalog-derived": "Exact result from versioned catalog metadata.",
+      "Calculated": "Produced by deterministic Stewardence engines.",
+      "Unknown": "Not established by the captured evidence."
+    },
+    "evidence_boundary": "Installed software does not establish business use, a paid subscription, granted permissions, data access, or capabilities. Catalog capabilities are not treated as observed permissions."
+  },
+  "evidence": [
+    {
+      "type": "customer_statement",
+      "reference": "EVIDENCE-1",
+      "provenance": "Declared"
+    }
+  ],
+  "assessment_date": "2026-09-03T12:00:00Z",
+  "ruleset_versions": {
+    "industry": {
+      "name": "accounting_and_bookkeeping",
+      "version": "1.1.0"
+    },
+    "platform": "not_published",
+    "organization": []
+  },
+  "review_pack": {
+    "schema": "stewardence.review_pack_render.v1",
+    "pack_id": "936af014-6e6c-4789-91e0-2d28376752b8",
+    "manifest_sha256": "df09d6eaa0b225e99e68a0053aeeb4bd45498e1346a32468ce1223cb16b380ff",
+    "manifest": {
+      "schema": "stewardence.review_pack.v2",
+      "cycle_id": "44b0ca7e-8c9a-4342-a62e-722efc51688c",
+      "snapshot": {
+        "captured_at": "2026-09-03T12:00:00Z",
+        "snapshot_id": "5500fc93-df81-415d-9759-2762682ca07d",
+        "input_sha256": "3bac53d2409ed6dee19009826251d1ac25d1542f60148f2cf8f21c136a5f5034",
+        "rules_sha256": "4f062ba2498cf1a9234d3d110e8a07baa92bb2c03859156fed795ee7102a4683",
+        "assessment_id": "bb7a7608-b55c-4ba0-b3dd-eb05604a9db2",
+        "result_sha256": "cc7fb83e352f2724b7ca6ae811b51612696b36ee1a9440238a54217b5e568e77",
+        "engine_versions": {
+          "roi": "AL-ROI-1",
+          "risk": "AL-RISK-1",
+          "policy": "AL-POLICY-1"
+        },
+        "snapshot_schema": 1,
+        "workflow_profile": "business.v1",
+        "assessment_version": 1,
+        "workflow_profile_id": "fd72eb1a-9c45-4ffe-9bf2-5a5f75f08dd8",
+        "configuration_sha256": "6e754b28c21ac2863ea0c8d7cfb38f5bbeb7dd36d8b7dcda4954e852ef3e40ab",
+        "workflow_settings_sha256": "793bbc0570cf07b6ec36b807f6c5e49b33bbb1681d458fa068080b351996c164"
+      },
+      "artifact_state": "not_created",
+      "organization_id": "0d63b726-ed8e-462c-b16a-1882d667724f",
+      "selection_scope": "owner_statement_events",
+      "baseline_pack_id": null,
+      "baseline_promotion": "blocked",
+      "selected_decisions": [
+        {
+          "state": "act",
+          "event_id": "398fb561-1eaf-41a6-8296-efb62382c218",
+          "card_index": 0,
+          "event_kind": "disposition",
+          "card_sha256": "cb9370eb921f25b01fcaf47b318ead188c09e10b4746193a51313e8c6ba96828",
+          "revision_id": "b3a2dc60-78e1-4bbf-be9e-3c94f90dbf66",
+          "snapshot_id": "5500fc93-df81-415d-9759-2762682ca07d",
+          "event_sha256": "7d94a269186377cc1ce36da59bed2317b336fe488c45b4ab1db6c3bfc72bbe96",
+          "revision_sha256": "370fc2c764c7c12b2bd60900c03c40ab13bd075515855b7dbc3feb0a3d93e10d",
+          "resolution_verified": false,
+          "owner_statement_only": true,
+          "snapshot_result_sha256": "cc7fb83e352f2724b7ca6ae811b51612696b36ee1a9440238a54217b5e568e77"
+        }
+      ]
+    },
+    "selected_decisions": [
+      {
+        "payload": {
+          "id": "398fb561-1eaf-41a6-8296-efb62382c218",
+          "links": [
+            "https://example.invalid/never-fetch"
+          ],
+          "notes": "<script>UNSAFE_MARKER</script>",
+          "state": "act",
+          "schema": "stewardence.core_decision_event.v1",
+          "due_date": null,
+          "sequence": 1,
+          "card_index": 0,
+          "created_at": "2026-10-04T20:35:11.919976+00:00",
+          "event_kind": "disposition",
+          "card_sha256": "cb9370eb921f25b01fcaf47b318ead188c09e10b4746193a51313e8c6ba96828",
+          "revision_id": "b3a2dc60-78e1-4bbf-be9e-3c94f90dbf66",
+          "snapshot_id": "5500fc93-df81-415d-9759-2762682ca07d",
+          "created_by_id": "af1944ab-aabf-47c9-a0ea-5d4935d91573",
+          "organization_id": "0d63b726-ed8e-462c-b16a-1882d667724f",
+          "revision_sha256": "370fc2c764c7c12b2bd60900c03c40ab13bd075515855b7dbc3feb0a3d93e10d",
+          "previous_event_id": null,
+          "responsible_label": "Named owner",
+          "resolution_verified": false,
+          "owner_statement_only": true,
+          "snapshot_result_sha256": "cc7fb83e352f2724b7ca6ae811b51612696b36ee1a9440238a54217b5e568e77"
+        },
+        "proposal": {
+          "rule_id": "ACC-PAYROLL-EXT",
+          "proposal": "Document and configure a human approval step in the source system or business process before payroll information is sent.",
+          "severity": "HIGH",
+          "authority": "proposal_only",
+          "rule_version": "1.1.0",
+          "inventory_item_id": "a4a0f83b-7802-499d-bb1c-1aadeacd7c10"
+        },
+        "selection": {
+          "state": "act",
+          "event_id": "398fb561-1eaf-41a6-8296-efb62382c218",
+          "card_index": 0,
+          "event_kind": "disposition",
+          "card_sha256": "cb9370eb921f25b01fcaf47b318ead188c09e10b4746193a51313e8c6ba96828",
+          "revision_id": "b3a2dc60-78e1-4bbf-be9e-3c94f90dbf66",
+          "snapshot_id": "5500fc93-df81-415d-9759-2762682ca07d",
+          "event_sha256": "7d94a269186377cc1ce36da59bed2317b336fe488c45b4ab1db6c3bfc72bbe96",
+          "revision_sha256": "370fc2c764c7c12b2bd60900c03c40ab13bd075515855b7dbc3feb0a3d93e10d",
+          "resolution_verified": false,
+          "owner_statement_only": true,
+          "snapshot_result_sha256": "cc7fb83e352f2724b7ca6ae811b51612696b36ee1a9440238a54217b5e568e77"
+        },
+        "event_sha256": "7d94a269186377cc1ce36da59bed2317b336fe488c45b4ab1db6c3bfc72bbe96"
+      }
+    ],
+    "exposure_reviews": [
+      {
+        "source_record": {
+          "id": "a4a0f83b-7802-499d-bb1c-1aadeacd7c10",
+          "status": "reviewing",
+          "department": "Bookkeeping",
+          "product_id": null,
+          "provenance": {
+            "status": "Declared",
+            "department": "Declared",
+            "product_id": "Unknown",
+            "seat_count": "Declared",
+            "user_count": "Declared",
+            "permissions": "Declared",
+            "source_type": "Declared",
+            "vendor_name": "Declared",
+            "capabilities": "Declared",
+            "display_name": "Declared",
+            "autonomy_level": "Declared",
+            "business_owner": "Declared",
+            "human_approval": "Declared",
+            "data_categories": "Declared",
+            "business_purpose": "Declared",
+            "connected_systems": "Declared",
+            "monthly_cost_cents": "Declared"
+          },
+          "seat_count": 0,
+          "user_count": 0,
+          "archived_at": null,
+          "permissions": [],
+          "source_type": "manual",
+          "vendor_name": "Example Vendor",
+          "capabilities": [
+            "external_transfer"
+          ],
+          "display_name": "Payroll Assistant",
+          "autonomy_level": 0,
+          "business_owner": "",
+          "human_approval": false,
+          "data_categories": [
+            "payroll"
+          ],
+          "business_purpose": "",
+          "connected_systems": [],
+          "monthly_cost_cents": 10000
+        },
+        "review": {
+          "schema": "core.exposure.declarations.v1",
+          "inventory_item_id": "a4a0f83b-7802-499d-bb1c-1aadeacd7c10",
+          "record_sha256": "953df9f7edf52168edf711f7188dd400c320cd157b1c0edd96b77877326f0df6",
+          "questions": [
+            {
+              "question_id": "business_owner",
+              "outcome": "CONCERN",
+              "explanation": "Responsible person is blank in the declaration.",
+              "source_fields": [
+                "business_owner"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "business_purpose",
+              "outcome": "CONCERN",
+              "explanation": "Business purpose is blank in the declaration.",
+              "source_fields": [
+                "business_purpose"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "data_categories",
+              "outcome": "PASS",
+              "explanation": "Information categories are recorded as declarations, including any stated empty list.",
+              "source_fields": [
+                "data_categories"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "permissions",
+              "outcome": "PASS",
+              "explanation": "Permissions are recorded as declarations, including any stated empty list.",
+              "source_fields": [
+                "permissions"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "capabilities",
+              "outcome": "PASS",
+              "explanation": "Actions are recorded as declarations, including any stated empty list.",
+              "source_fields": [
+                "capabilities"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "approval",
+              "outcome": "CONCERN",
+              "explanation": "Actions or permissions are declared without a human approval requirement; review the intended boundary.",
+              "source_fields": [
+                "human_approval",
+                "autonomy_level",
+                "capabilities",
+                "permissions"
+              ],
+              "basis": "customer_declaration",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "account_identity",
+              "outcome": "UNKNOWN",
+              "explanation": "This captured inventory schema does not identify the executing account or principal.",
+              "source_fields": [],
+              "basis": "unknown",
+              "verification": "not_established"
+            },
+            {
+              "question_id": "access_removal",
+              "outcome": "UNKNOWN",
+              "explanation": "This captured inventory schema does not record an access-removal procedure.",
+              "source_fields": [],
+              "basis": "unknown",
+              "verification": "not_established"
+            }
+          ],
+          "authority": "proposal_only",
+          "verification": "not_established",
+          "sha256": "4444b26be2b0866e320398acabbffe216bf58e98d75b896929038f73e47e52b6"
+        }
+      }
+    ]
+  }
+}
+
+EVIDENCE delivery-visual-qualified/raster-receipt.json
+{
+  "input_pdf_sha256": "a946265b47a62ddd9d75a6b7f9ed85fe4d235d0e5d243b616f09d18c1b92fb27",
+  "context_sha256": "9fde7bed8b6e0a6d4ebbccd94a96ca753f6aff319f27b4cc98565c679e7190bd",
+  "tool": "pypdfium2",
+  "version": "5.14.0",
+  "pages": [
+    {
+      "page": 1,
+      "file": "page-01.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "3d0457968f4131a89163050016d34b81bc68fef8e106d6915582c38893d93b30"
+    },
+    {
+      "page": 2,
+      "file": "page-02.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "a2af51c923543c0b551347c2954c19f0dec9e1449dc720da43b06c8b73489e3b"
+    },
+    {
+      "page": 3,
+      "file": "page-03.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "b31bbc3c1fab5e4dce5ec1de3313ef9410aaf7782e58eb21d8fe26bd86cca34f"
+    },
+    {
+      "page": 4,
+      "file": "page-04.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "a9aeb0d0be1a47664831fa6ca4c3e896de1a788aa638f7c037dff9b75cb39632"
+    },
+    {
+      "page": 5,
+      "file": "page-05.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "b73616e137ca093f100c157e300691588333077c7e156551c5d7c4886e7d83d4"
+    },
+    {
+      "page": 6,
+      "file": "page-06.png",
+      "width": 894,
+      "height": 1265,
+      "sha256": "2938187410915be3bdf1df8c031c2ba94af0aa118cc82881082e7ccf0d493bd9"
+    }
+  ],
+  "pdf_unchanged": true,
+  "scope": "synthetic fixture exported from actual Chromium worker delivery; raster inspection only"
+}
+
+EVIDENCE delivery-visual-qualified/visual-review.txt
+VISUAL REVIEW: actual factory-resolved Chromium worker delivery PDF.
+Synthetic qualification fixture; actual local storage/readback and completion.
+All six rasterized pages inspected on 2026-10-04. Input PDF remains unchanged.
+
+Pages 1-4: readable legacy assessment presentation; no clipped text, overlap,
+missing glyphs or broken tables observed. Legacy AgentLedger wording and sparse
+metadata page remain unchanged and are outside this scoped pagination repair.
+Page 5: exact frozen pack identity and readable exposure table. The heading is
+'Exposure review of frozen inputs'; text explicitly names the versioned
+core.exposure.declarations.v1 render-time contract, states these questions were
+not selected at freeze, and limits PASS to bounded customer declarations.
+Page 6: 'Frozen owner decisions' heading, introductory evidence boundary and
+first selected card now appear together. Prior heading/card split is repaired
+for this fixture. Original selected statement is readable; unsafe HTML appears
+literally; reference remains unverified. Actual PDF text tests exclude the
+genuinely admitted later event.
+
+No new clipping/overlap/orphan-section issue observed in this six-page fixture.
+This does not close multi-inventory pagination, atlas alignment, live storage,
+worker services, production billing or whole-source release qualification.
+
+
+RUN 20261004T203551.145004Z
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-8ed7068729",
+  "image_id": "sha256:76b0de2c97f6432ea6dee33a8f46ef27b1e76c254459c8c4d9ff0c992f98caa4",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T203551.145004Z",
+  "test_arguments": [
+    "tests/test_review_workspace_views.py",
+    "tests/test_review_renderer.py",
+    "tests/test_renderer.py"
+  ],
+  "test_result_counts": {
+    "cases": 86,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "6b365e57faf7df5636a783378d6d731f811c1bec056c7b713b4233ef89dc6b03"
+}
+
+RUN 20261004T202335.571899Z
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-f32bb35880",
+  "image_id": "sha256:3c21ae8df524995e94a43e1fdf31072600b3e2e22e8e4123dc2e883e74e6fe49",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T202335.571899Z",
+  "test_arguments": [
+    "tests/test_review_report_read_authority.py"
+  ],
+  "test_result_counts": {
+    "cases": 6,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "060317be0ca5e338c0306c7694b61ce1d88848f947e34efeb8abf1e54cfde9b3"
+}
+
+RUN 20261004T203524.475441Z
+{
+  "exit_code": 1,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-6ae4f10ff5",
+  "image_id": "sha256:aeea98ecdeba90ae53f3a115a7e2d804de0a36de74c780b0e6352ee6e2d3345b",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T203524.475441Z",
+  "test_arguments": [
+    "tests"
+  ],
+  "test_result_counts": {
+    "cases": 1720,
+    "failed": 4,
+    "errors": 0,
+    "skipped": 1
+  },
+  "test_results_sha256": "32ba31b86612b57ca8a9914d10568da97db9aa04e82ca1fb9ebede2a6f227ea8"
+}
+
+RUN 20261004T204824.067533Z
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-4d38f945f6",
+  "image_id": "sha256:afd7c85b5339b47489a927c86dd036f893bc54d2e9c602dffcf1bc3edc292f1a",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T204824.067533Z",
+  "test_arguments": [
+    "tests/test_review_cycle_authority.py",
+    "tests/test_review_pack_lifecycle.py",
+    "tests/test_review_pack_projection.py"
+  ],
+  "test_result_counts": {
+    "cases": 84,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "e6217d2628af929def6a1afa2a120fe5dc0369eb94b2da8ac4f89d39ed410f2d"
+}
+PRIVACY SOURCE apps/reports/migrations/0005_review_pack_read_authority.py
+"""Owner-only review packs must not inherit ordinary report viewer access."""
+
+from django.db import migrations
+
+SQL = r"""
+CREATE FUNCTION app_private.report_read_allowed(rid uuid,org uuid)
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path=pg_catalog,public AS $fn$
+ SELECT org=app_private.current_organization_id() AND (
+  NOT EXISTS(SELECT 1 FROM public.review_artifact_requests
+             WHERE report_id=rid AND organization_id=org)
+  OR EXISTS(SELECT 1 FROM public.organizations_organizationmember
+            WHERE organization_id=org AND user_id=app_private.current_user_id()
+             AND role='owner'))
+$fn$;
+ALTER FUNCTION app_private.report_read_allowed(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.report_read_allowed(uuid,uuid)
+ FROM PUBLIC,agentledger_worker,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.report_read_allowed(uuid,uuid) TO agentledger_app;
+
+CREATE POLICY reports_review_owner_read ON public.reports AS RESTRICTIVE
+ FOR SELECT TO agentledger_app
+ USING(app_private.report_read_allowed(id,organization_id));
+CREATE POLICY report_artifacts_review_owner_read ON public.report_artifacts AS RESTRICTIVE
+ FOR SELECT TO agentledger_app
+ USING(app_private.report_read_allowed(report_id,organization_id));
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ("reports", "0004_reportartifact_security"),
+        ("reviews", "0003_worker_pack_projection"),
+    ]
+    operations = [migrations.RunSQL(SQL)]
+
+PRIVACY SOURCE tests/test_review_report_read_authority.py
+"""Actual app-role review-pack read isolation; synthetic local PDFs only."""
+import pytest
+from datetime import timedelta
+from django.contrib.auth import get_user_model
+from django.db import connections
+from django.urls import reverse
+
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+from apps.organizations.models import Organization, OrganizationMember
+from apps.reports.models import Report, ReportArtifact
+from apps.reports.services import create_report
+from apps.reports.artifact_services import persist_pdf_artifact
+from apps.reviews.models import ArtifactRequest
+from apps.jobs.worker import execute_claimed_job, JobExecution
+from apps.assessments.snapshots import create_assessment_snapshot
+from tests.conftest import _roi_inputs
+from tests.test_review_pack_lifecycle import pack_context, enabled, request, claimed, handler
+from tests.test_standard_checkout_route_durability import actual_app_default
+
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+
+
+@pytest.fixture
+def stored_reports(pack_context, enabled, tmp_path, report_context):
+    staged = request(pack_context)
+    job = claimed(pack_context)
+    wrapped = handler(tmp_path)
+    execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                        wrapped, using="worker_runtime")
+    owner, org, snapshot, _ = pack_context
+    ordinary_snapshot = create_assessment_snapshot(
+        organization_id=org.id, created_by_id=owner.id,
+        assessed_item_id=report_context[3].id, roi_inputs=_roi_inputs(),
+        captured_at=snapshot.captured_at+timedelta(seconds=1), previous_snapshot=snapshot)
+    ordinary = create_report(organization_id=org.id,
+                             assessment_snapshot_id=ordinary_snapshot.id, created_by_id=owner.id)
+    assert ordinary.id != staged.report_id
+    persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                         storage=wrapped.delegate.storage)
+    return owner, org, staged, ordinary, wrapped.delegate.storage
+
+
+def member(org, role):
+    user = get_user_model().objects.create_user(f"{role}@read-authority.example")
+    OrganizationMember.objects.create(organization=org, user=user, role=role)
+    return user
+
+
+@pytest.mark.parametrize("role", ["viewer", "assessor"])
+def test_hidden_request_cannot_turn_review_pack_into_ordinary_report(stored_reports, role):
+    _, org, staged, ordinary, _ = stored_reports
+    user = member(org, role)
+    with identity_transaction(user.id, using="app_runtime"), tenant_transaction(org.id, using="app_runtime"):
+        assert not ArtifactRequest.objects.using("app_runtime").filter(report_id=staged.report_id).exists()
+        with connections["app_runtime"].cursor() as cursor:
+            cursor.execute("SELECT current_user")
+            assert cursor.fetchone()[0] == "agentledger_app"
+            cursor.execute("SELECT app_private.report_read_allowed(%s,%s)", [staged.report_id, org.id])
+            assert cursor.fetchone()[0] is False
+            cursor.execute("SELECT id FROM reports WHERE id=%s", [staged.report_id])
+            assert cursor.fetchall() == []
+            cursor.execute("SELECT id FROM report_artifacts WHERE report_id=%s", [staged.report_id])
+            assert cursor.fetchall() == []
+        assert Report.objects.using("app_runtime").filter(pk=ordinary.id).exists()
+        assert ReportArtifact.objects.using("app_runtime").filter(report_id=ordinary.id).exists()
+
+
+@pytest.mark.parametrize("role", ["viewer", "assessor"])
+def test_routed_nonowner_reads_hide_pack_before_storage(stored_reports, role, client, settings, monkeypatch):
+    _, org, staged, ordinary, storage = stored_reports
+    user = member(org, role)
+    client.force_login(user)
+    session = client.session
+    session["active_organization_id"] = str(org.id)
+    session.save()
+    settings.ALLOWED_HOSTS = ["testserver"]
+    # Organization subscription is one-to-one and belongs to the owner.
+    # Isolate report read authorization: billing redirect is a separate guard;
+    # retain authentication and actual tenant/identity middleware and routes.
+    settings.MIDDLEWARE = [entry for entry in settings.MIDDLEWARE
+                           if not entry.endswith("BillingEntitlementMiddleware")]
+    def forbidden_storage():
+        pytest.fail("Denied review-pack download reached object storage")
+    monkeypatch.setattr("apps.reports.views._report_storage", forbidden_storage)
+    with actual_app_default():
+        history = client.get(reverse("reports:history"))
+        assert history.status_code == 200
+        assert staged.report_id not in [row["id"] for row in history.context["rows"]]
+        assert ordinary.id in [row["id"] for row in history.context["rows"]]
+        for route in ["detail", "download"]:
+            assert client.get(reverse(f"reports:{route}", kwargs={"report_id": staged.report_id})).status_code == 404
+        assert client.get(reverse("reports:detail", kwargs={"report_id": ordinary.id})).status_code == 200
+        monkeypatch.setattr("apps.reports.views._report_storage", lambda: storage)
+        ordinary_pdf = client.get(reverse("reports:download", kwargs={"report_id": ordinary.id}))
+        assert ordinary_pdf.status_code == 200 and ordinary_pdf.content.startswith(b"%PDF-")
+
+
+def test_owner_reads_pack_and_ordinary_report_with_actual_app_role(stored_reports, client, settings, monkeypatch):
+    owner, org, staged, ordinary, storage = stored_reports
+    client.force_login(owner)
+    session = client.session
+    session["active_organization_id"] = str(org.id)
+    session.save()
+    settings.ALLOWED_HOSTS = ["testserver"]
+    monkeypatch.setattr("apps.reports.views._report_storage", lambda: storage)
+    with identity_transaction(owner.id, using="app_runtime"), tenant_transaction(org.id, using="app_runtime"):
+        assert Report.objects.using("app_runtime").filter(pk=staged.report_id).exists()
+        assert ReportArtifact.objects.using("app_runtime").filter(report_id=staged.report_id).exists()
+    with actual_app_default():
+        history = client.get(reverse("reports:history"))
+        assert history.status_code == 200
+        assert {staged.report_id, ordinary.id}.issubset({row["id"] for row in history.context["rows"]})
+        assert client.get(reverse("reports:detail", kwargs={"report_id": staged.report_id})).status_code == 200
+        response = client.get(reverse("reports:download", kwargs={"report_id": staged.report_id}))
+        assert response.status_code == 200 and response.content.startswith(b"%PDF-")
+
+
+def test_owner_identity_cannot_read_original_pack_in_other_tenant_context(stored_reports):
+    owner, _, staged, _, _ = stored_reports
+    other = Organization.objects.create(name="Other read-authority tenant")
+    OrganizationMember.objects.create(organization=other, user=owner, role="owner")
+    with identity_transaction(owner.id, using="app_runtime"), tenant_transaction(other.id, using="app_runtime"):
+        assert not Report.objects.using("app_runtime").filter(pk=staged.report_id).exists()
+        assert not ReportArtifact.objects.using("app_runtime").filter(report_id=staged.report_id).exists()
+
+UI SOURCE apps/reviews/views.py
+"""Gated owner journey over admitted evidence; GET never admits new work."""
+from functools import wraps
+from uuid import UUID,uuid4
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied,ValidationError,ObjectDoesNotExist
+from django.core.paginator import Paginator
+from django.db import DatabaseError,transaction
+from django.http import Http404,HttpResponse
+from django.shortcuts import get_object_or_404,redirect,render
+from django.utils import timezone
+from django.views.decorators.http import require_GET,require_POST,require_http_methods
+from apps.assessments.models import AssessmentSnapshot
+from apps.assessments.snapshots import verify_snapshot,canonical_sha256
+from apps.jobs.core_models import ActionCardRevision,DecisionEvent
+from apps.jobs.core_decisions import record_decision
+from apps.jobs.contracts import WorkflowRequest,Operation,BranchProfile
+from apps.jobs.core_workflows import dispatch,require_owner
+from apps.organizations.models import OrganizationMember
+from .comparison import compare_snapshots
+from .exposure import review_record
+from .forms import DecisionForm,ComparisonForm,FreezeForm
+from .models import PackIdentity,ArtifactRequest
+from .services import open_cycle,freeze_cycle,request_pack_artifact
+
+
+def _private(response):
+    response['Cache-Control']='private, no-store'
+    return response
+
+
+def owner_workspace(view):
+    @login_required
+    @wraps(view)
+    def guarded(request,*args,**kwargs):
+        if not getattr(settings,'CORE_REVIEW_WORKSPACE_ENABLED',False):
+            return _private(HttpResponse('Core evidence review workspace is unavailable while qualification gates are closed.',status=503))
+        org=getattr(request,'organization_id',None)
+        if org is None:raise Http404('Choose a workspace first')
+        member=get_object_or_404(OrganizationMember,organization_id=org,user_id=request.user.id)
+        if member.role!=OrganizationMember.Role.OWNER:raise PermissionDenied('Evidence review requires workspace owner authority')
+        return _private(view(request,*args,**kwargs))
+    return guarded
+
+
+def _snapshot(org,identity):
+    snapshot=get_object_or_404(AssessmentSnapshot,id=identity,organization_id=org)
+    if not verify_snapshot(snapshot):raise ValidationError('Captured evidence integrity failed')
+    return snapshot
+
+
+def _revision(org,identity):
+    revision=get_object_or_404(ActionCardRevision.objects.select_related('snapshot'),id=identity,organization_id=org)
+    if type(revision.cards) is not list or any(type(card) is not dict for card in revision.cards) or not verify_snapshot(revision.snapshot) or revision.input_sha256!=revision.snapshot.result_sha256 or canonical_sha256(revision.cards)!=revision.sha256:
+        raise ValidationError('Proposal evidence integrity failed')
+    return revision
+
+
+def _integrity_unavailable():
+    return HttpResponse('Recorded evidence could not be verified. Content is withheld for review.',status=503)
+
+
+def _admission_unavailable():
+    return HttpResponse('This request could not be admitted under current deployment, owner, paid coverage, profile and health controls. No completion is claimed.',status=409)
+
+
+@owner_workspace
+@require_GET
+def history(request):
+    org=request.organization_id
+    snapshots=list(AssessmentSnapshot.objects.filter(organization_id=org).order_by('-captured_at','-id')[:25])
+    page=Paginator(PackIdentity.objects.filter(organization_id=org).select_related('cycle').order_by('-created_at','-id'),25).get_page(request.GET.get('page'))
+    rows=[]
+    try:
+        for pack in page.object_list:
+            if canonical_sha256(pack.manifest)!=pack.sha256 or pack.manifest.get('organization_id')!=str(org):raise ValidationError('Frozen identity invalid')
+            rows.append({'pack':pack,'state':pack.cycle.state})
+        if any(not verify_snapshot(snapshot) for snapshot in snapshots):raise ValidationError('Snapshot integrity invalid')
+    except (ValueError,ValidationError,KeyError,TypeError):return _integrity_unavailable()
+    return render(request,'reviews/history.html',{'snapshots':snapshots,'rows':rows,'page':page})
+
+
+@owner_workspace
+@require_GET
+def snapshot_review(request,snapshot_id):
+    try:
+        snapshot=_snapshot(request.organization_id,snapshot_id)
+        exposures=[{'record':row,'review':review_record(row)} for row in snapshot.input_payload['inventory']]
+        revision=ActionCardRevision.objects.filter(organization_id=request.organization_id,snapshot_id=snapshot.id).first()
+        if revision is not None:revision=_revision(request.organization_id,revision.id)
+    except (ValidationError,ValueError,KeyError,TypeError):return _integrity_unavailable()
+    return render(request,'reviews/snapshot.html',{'snapshot':snapshot,'exposures':exposures,'revision':revision,
+        'freeze_form':FreezeForm(initial={'cycle_id':uuid4()}),'proposals_enabled':getattr(settings,'CORE_WORKFLOWS_ENABLED',False)})
+
+
+@owner_workspace
+@require_POST
+def issue_proposals(request,snapshot_id):
+    if not getattr(settings,'CORE_WORKFLOWS_ENABLED',False):return HttpResponse('Proposal admission is unavailable while its deployment gate is closed.',status=503)
+    try:snapshot=_snapshot(request.organization_id,snapshot_id)
+    except (ValidationError,ValueError,KeyError,TypeError):return _integrity_unavailable()
+    try:
+        with transaction.atomic():
+            profile=require_owner(request.organization_id,request.user.id)
+            dispatch(WorkflowRequest(organization_id=request.organization_id,operation=Operation.REASSESS,
+                receipt_ids=(snapshot.id,),effective_at=timezone.now(),branch_profile=BranchProfile(profile.profile)),actor_id=request.user.id)
+    except (ValidationError,DatabaseError,ObjectDoesNotExist,ValueError):return _admission_unavailable()
+    return redirect('reviews:snapshot',snapshot_id=snapshot.id)
+
+
+@owner_workspace
+@require_http_methods(['GET','POST'])
+def decision(request,revision_id,card_index):
+    try:revision=_revision(request.organization_id,revision_id)
+    except (ValidationError,ValueError,KeyError,TypeError):return _integrity_unavailable()
+    if card_index>=len(revision.cards):raise Http404('Proposal not found')
+    events=list(DecisionEvent.objects.filter(organization_id=request.organization_id,revision_id=revision.id,card_index=card_index).order_by('-sequence')[:25])
+    if any(canonical_sha256(event.payload)!=event.sha256 or event.card_sha256!=canonical_sha256(revision.cards[card_index]) for event in events):return _integrity_unavailable()
+    enabled=getattr(settings,'DECISION_DESK_ENABLED',False)
+    form=DecisionForm(request.POST if request.method=='POST' else None,initial={'expected_previous_event':events[0].id if events else None})
+    status=200
+    if request.method=='POST':
+        if not enabled:return HttpResponse('Owner statement admission is unavailable while its deployment gate is closed.',status=503)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    record_decision(organization_id=request.organization_id,actor_id=request.user.id,revision_id=revision.id,card_index=card_index,**form.cleaned_data)
+            except (ValidationError,DatabaseError,ObjectDoesNotExist,ValueError):
+                form.add_error(None,'The exact proposal history changed or admission is unavailable. Review current evidence before submitting again.')
+                status=409
+            else:return redirect('reviews:decision',revision_id=revision.id,card_index=card_index)
+        else:status=400
+    return render(request,'reviews/decision.html',{'revision':revision,'card':revision.cards[card_index],
+        'card_index':card_index,'events':events,'form':form,'decisions_enabled':enabled},status=status)
+
+
+@owner_workspace
+@require_POST
+def freeze(request,snapshot_id):
+    try:snapshot=_snapshot(request.organization_id,snapshot_id)
+    except (ValidationError,ValueError,KeyError,TypeError):return _integrity_unavailable()
+    form=FreezeForm(request.POST)
+    if not form.is_valid():return HttpResponse('A valid exact freeze request identity is required.',status=400)
+    try:
+        with transaction.atomic():
+            cycle=open_cycle(organization_id=request.organization_id,actor_id=request.user.id,input_snapshot_id=snapshot.id,cycle_id=form.cleaned_data['cycle_id'])
+            pack=freeze_cycle(cycle_id=cycle.id,organization_id=request.organization_id,actor_id=request.user.id,expected_revision=1)
+    except (ValidationError,DatabaseError,ObjectDoesNotExist,ValueError):return _admission_unavailable()
+    return redirect('reviews:pack-detail',pack_id=pack.id)
+
+
+def _frozen_entries(pack,snapshot):
+    manifest=pack.manifest
+    if (canonical_sha256(manifest)!=pack.sha256 or manifest.get('organization_id')!=str(pack.organization_id)
+        or manifest.get('cycle_id')!=str(pack.cycle_id) or manifest['snapshot']['snapshot_id']!=str(snapshot.id)
+        or manifest['snapshot']['input_sha256']!=snapshot.input_sha256 or manifest['snapshot']['result_sha256']!=snapshot.result_sha256):
+        raise ValidationError('Frozen pack pins invalid')
+    entries=[]
+    for selected in manifest['selected_decisions']:
+        event=DecisionEvent.objects.select_related('revision').get(id=UUID(selected['event_id']),organization_id=pack.organization_id)
+        revision=event.revision
+        if event.card_index>=len(revision.cards):raise ValidationError('Frozen card index invalid')
+        proposal=revision.cards[event.card_index]
+        if (canonical_sha256(event.payload)!=event.sha256 or event.sha256!=selected['event_sha256']
+            or canonical_sha256(revision.cards)!=revision.sha256 or revision.sha256!=selected['revision_sha256']
+            or canonical_sha256(proposal)!=selected['card_sha256'] or revision.snapshot_id!=snapshot.id
+            or event.snapshot_id!=snapshot.id or event.payload['id']!=selected['event_id']
+            or event.payload['owner_statement_only'] is not True or event.payload['resolution_verified'] is not False
+            or any(event.payload[key]!=selected[key] for key in ('revision_id','revision_sha256','card_index','card_sha256','snapshot_id','snapshot_result_sha256','event_kind','state'))):
+            raise ValidationError('Frozen owner statement invalid')
+        entries.append({'selection':selected,'event':event,'proposal':proposal})
+    return entries
+
+
+@owner_workspace
+@require_GET
+def pack_detail(request,pack_id):
+    pack=get_object_or_404(PackIdentity.objects.select_related('cycle'),id=pack_id,organization_id=request.organization_id)
+    try:
+        snapshot=_snapshot(request.organization_id,pack.cycle.input_snapshot_id)
+        entries=_frozen_entries(pack,snapshot)
+        exposures=[{'record':row,'review':review_record(row)} for row in snapshot.input_payload['inventory']]
+    except (ValidationError,ValueError,KeyError,TypeError,ObjectDoesNotExist):return _integrity_unavailable()
+    artifact_request=ArtifactRequest.objects.filter(pack_id=pack.id,organization_id=request.organization_id).select_related('job','report').first()
+    completed=artifact_request is not None and hasattr(artifact_request,'completion')
+    return render(request,'reviews/pack.html',{'pack':pack,'snapshot':snapshot,'entries':entries,'exposures':exposures,
+        'artifact_request':artifact_request,'completed':completed,'state':pack.cycle.state,
+        'artifact_enabled':getattr(settings,'REVIEW_PACK_LIFECYCLE_ENABLED',False)})
+
+
+@owner_workspace
+@require_POST
+def request_artifact(request,pack_id):
+    get_object_or_404(PackIdentity,id=pack_id,organization_id=request.organization_id)
+    if not getattr(settings,'REVIEW_PACK_LIFECYCLE_ENABLED',False):return HttpResponse('Private PDF preparation is unavailable while its deployment gate is closed.',status=503)
+    try:
+        with transaction.atomic():
+            request_pack_artifact(pack_id=pack_id,organization_id=request.organization_id,actor_id=request.user.id,expected_revision=3,promote_baseline=False)
+    except (ValidationError,DatabaseError,ObjectDoesNotExist,ValueError):return _admission_unavailable()
+    return redirect('reviews:pack-detail',pack_id=pack_id)
+
+
+@owner_workspace
+@require_GET
+def comparison(request):
+    form=ComparisonForm(request.GET or None,organization_id=request.organization_id)
+    result=None;status=200
+    if request.GET:
+        if form.is_valid():
+            try:result=compare_snapshots(baseline=form.cleaned_data['baseline'],current=form.cleaned_data['current'],organization_id=request.organization_id)
+            except (ValidationError,ValueError,KeyError,TypeError):form.add_error(None,'Comparison requires intact same-workspace snapshots in captured-time order.');status=400
+        else:status=400
+    return render(request,'reviews/comparison.html',{'form':form,'comparison':result},status=status)
+
+UI SOURCE apps/reviews/forms.py
+from django import forms
+from apps.assessments.models import AssessmentSnapshot
+
+
+class FreezeForm(forms.Form):
+    cycle_id=forms.UUIDField(widget=forms.HiddenInput)
+
+
+class DecisionForm(forms.Form):
+    expected_previous_event=forms.UUIDField(required=False,widget=forms.HiddenInput)
+    event_kind=forms.ChoiceField(choices=[('disposition','Owner decision'),('execution','Owner execution statement')])
+    state=forms.ChoiceField(choices=[(value,value.replace('_',' ')) for value in ('act','defer','decline','accept_risk','completion_recorded','evidence_reviewed')])
+    responsible_label=forms.CharField(max_length=200,label='Responsible person (recorded name)')
+    due_date=forms.DateField(required=False,widget=forms.DateInput(attrs={'type':'date'}))
+    notes=forms.CharField(required=False,max_length=4096,widget=forms.Textarea,label='Reason and evidence boundary')
+    links=forms.CharField(required=False,max_length=20489,widget=forms.Textarea,label='Evidence references: one HTTPS address per line; never fetched')
+
+    def clean_links(self):
+        links=[line.strip() for line in self.cleaned_data['links'].splitlines() if line.strip()]
+        import re
+        if len(links)>10 or any(len(link)>2048 or not re.fullmatch(r'https://[^\s/?#@]+(?:[/?#][^\s]*)?',link) for link in links):
+            raise forms.ValidationError('Use at most ten HTTPS references without credentials, each at most 2048 characters.')
+        return links
+
+    def clean(self):
+        cleaned=super().clean()
+        kind,state=cleaned.get('event_kind'),cleaned.get('state')
+        if kind=='disposition' and state not in ('act','defer','decline','accept_risk') or kind=='execution' and state not in ('completion_recorded','evidence_reviewed'):
+            self.add_error('state','Choose a state matching the statement kind.')
+        return cleaned
+
+
+class ComparisonForm(forms.Form):
+    baseline=forms.ModelChoiceField(queryset=AssessmentSnapshot.objects.none(),label='Earlier captured snapshot')
+    current=forms.ModelChoiceField(queryset=AssessmentSnapshot.objects.none(),label='Current captured snapshot')
+
+    def __init__(self,*args,organization_id,**kwargs):
+        super().__init__(*args,**kwargs)
+        snapshots=AssessmentSnapshot.objects.filter(organization_id=organization_id).order_by('-captured_at','-id')
+        self.fields['baseline'].queryset=snapshots
+        self.fields['current'].queryset=snapshots
+
+UI SOURCE apps/reviews/urls.py
+from django.urls import path
+from . import views
+
+app_name='reviews'
+urlpatterns=[
+    path('',views.history,name='history'),
+    path('compare/',views.comparison,name='comparison'),
+    path('snapshots/<uuid:snapshot_id>/',views.snapshot_review,name='snapshot'),
+    path('snapshots/<uuid:snapshot_id>/proposals/',views.issue_proposals,name='issue-proposals'),
+    path('snapshots/<uuid:snapshot_id>/freeze/',views.freeze,name='freeze'),
+    path('cards/<uuid:revision_id>/<int:card_index>/',views.decision,name='decision'),
+    path('packs/<uuid:pack_id>/',views.pack_detail,name='pack-detail'),
+    path('packs/<uuid:pack_id>/request/',views.request_artifact,name='request-artifact'),
+]
+
+UI SOURCE tests/test_review_workspace_views.py
+"""Owner journey route tests; SQL role authority has separate qualifications."""
+from datetime import timedelta
+from uuid import uuid4
+import pytest
+from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
+from django.db import DatabaseError
+from django.http import Http404
+from django.test import Client,RequestFactory
+from django.urls import reverse,resolve
+from apps.assessments.snapshots import create_assessment_snapshot
+from apps.jobs.core_models import ActionCardRevision,DecisionDeskGate,DecisionEvent
+from apps.organizations.models import Organization,OrganizationMember,WorkflowProfile
+from apps.reviews.models import PackIdentity,ReviewCycle,ArtifactRequest,ReviewLifecycleGate
+from conftest import _roi_inputs
+
+pytestmark=pytest.mark.django_db(transaction=True,databases='__all__')
+
+
+@pytest.fixture
+def workspace(report_context,settings,client,monkeypatch):
+    user,org,_,_,snapshot=report_context
+    WorkflowProfile.objects.get_or_create(organization=org,defaults={'created_by':user,'profile':'business.v1','settings':{'name':'Owner journey'}})
+    settings.CORE_REVIEW_WORKSPACE_ENABLED=True
+    settings.CORE_WORKFLOWS_ENABLED=True
+    settings.DECISION_DESK_ENABLED=True
+    settings.REVIEW_PACK_LIFECYCLE_ENABLED=False
+    DecisionDeskGate.objects.update_or_create(id=1,defaults={'enabled':True})
+    from apps.reviews import views
+    original=views.dispatch;failures=[]
+    def diagnosed(*args,**kwargs):
+        try:return original(*args,**kwargs)
+        except Exception as error:
+            failures.append((type(error).__name__,str(error).splitlines()[0]));raise
+    monkeypatch.setattr(views,'dispatch',diagnosed)
+    result=client.post(reverse('reviews:issue-proposals',args=[snapshot.id]))
+    assert result.status_code==302,failures
+    revision=ActionCardRevision.objects.get(snapshot=snapshot)
+    assert revision.cards
+    return user,org,snapshot,revision
+
+
+def statement(previous=None,**changes):
+    values={'event_kind':'disposition','state':'act','responsible_label':'Owner label',
+        'notes':'First frozen rationale','links':'https://example.invalid/evidence',
+        'expected_previous_event':str(previous) if previous else ''}
+    values.update(changes)
+    return values
+
+
+def decision_url(workspace):return reverse('reviews:decision',args=[workspace[3].id,0])
+
+
+def freeze_pack(client,workspace):
+    response=client.post(reverse('reviews:freeze',args=[workspace[2].id]),{'cycle_id':str(uuid4())})
+    assert response.status_code==302
+    return PackIdentity.objects.get(cycle__input_snapshot=workspace[2])
+
+
+def test_default_workspace_gate_unavailable_without_effects(report_context,settings,client):
+    settings.CORE_REVIEW_WORKSPACE_ENABLED=False
+    response=client.get(reverse('reviews:history'))
+    assert response.status_code==503
+    assert b'unavailable' in response.content
+    assert response['Cache-Control']=='private, no-store'
+    assert not ReviewCycle.objects.exists()
+
+
+@pytest.mark.parametrize('route',['history','snapshot','decision','comparison'])
+def test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access(workspace,client,route):
+    viewer=get_user_model().objects.create_user('ui-viewer@example.invalid')
+    OrganizationMember.objects.create(organization=workspace[1],user=viewer,role='viewer')
+    client.force_login(viewer)
+    session=client.session;session['active_organization_id']=str(workspace[1].id);session.save()
+    args={'history':[],'snapshot':[workspace[2].id],'decision':[workspace[3].id,0],'comparison':[]}[route]
+    url=reverse('reviews:'+route,args=args)
+    assert client.get(url).status_code==302  # Billing preempts unpaid visitor before the view.
+    request=RequestFactory().get(url);request.user=viewer;request.organization_id=workspace[1].id
+    match=resolve(url)
+    with pytest.raises(PermissionDenied):match.func(request,**match.kwargs)
+    assert not DecisionEvent.objects.exists()
+
+
+def test_snapshot_get_is_dated_read_only_and_shows_unestablished_accounts(workspace,client):
+    before=(ActionCardRevision.objects.count(),DecisionEvent.objects.count(),ReviewCycle.objects.count())
+    response=client.get(reverse('reviews:snapshot',args=[workspace[2].id]))
+    assert response.status_code==200
+    assert b'access_removal' in response.content and b'not_established' in response.content
+    assert b'Freeze this snapshot' in response.content
+    assert response['Cache-Control']=='private, no-store'
+    assert before==(ActionCardRevision.objects.count(),DecisionEvent.objects.count(),ReviewCycle.objects.count())
+
+
+def test_decision_post_appends_exact_binding_and_stale_retry_is_conflict(workspace,client):
+    url=decision_url(workspace)
+    assert client.post(url,statement(notes='<script>attempt()</script>')).status_code==302
+    event=DecisionEvent.objects.get()
+    assert event.revision_id==workspace[3].id and event.card_index==0
+    assert event.payload['resolution_verified'] is False
+    stale=client.post(url,statement(state='decline'))
+    assert stale.status_code==409
+    assert DecisionEvent.objects.count()==1
+    assert b'current evidence' in stale.content
+    read=client.get(url)
+    assert b'&lt;script&gt;attempt()&lt;/script&gt;' in read.content
+    assert b'<script>attempt()' not in read.content
+
+
+@pytest.mark.parametrize('changes',[{'event_kind':'execution','state':'act'},{'links':'http://example.invalid'},
+    {'links':'https://user:secret@example.invalid'},{'state':'verified'},{'notes':'x'*4097},
+    {'expected_previous_event':'not-a-uuid'},{'responsible_label':'x'*201}])
+def test_invalid_owner_form_never_issues(workspace,client,changes):
+    response=client.post(decision_url(workspace),statement(**changes))
+    assert response.status_code==400
+    assert not DecisionEvent.objects.exists()
+
+
+def test_missing_decision_feature_is_explicitly_unavailable(workspace,client,settings):
+    settings.DECISION_DESK_ENABLED=False
+    response=client.get(decision_url(workspace))
+    assert response.status_code==200 and b'Owner statement admission is unavailable' in response.content
+    assert client.post(decision_url(workspace),statement()).status_code==503
+    assert not DecisionEvent.objects.exists()
+
+
+def test_foreign_snapshot_revision_and_pack_are_not_found(workspace,client):
+    pack=freeze_pack(client,workspace)
+    other=Organization.objects.create(name='Other owner workspace')
+    OrganizationMember.objects.create(organization=other,user=workspace[0],role='owner')
+    session=client.session;session['active_organization_id']=str(other.id);session.save()
+    for route,args in [('snapshot',[workspace[2].id]),('decision',[workspace[3].id,0]),('pack-detail',[pack.id])]:
+        url=reverse('reviews:'+route,args=args)
+        assert client.get(url).status_code in (302,404)  # Middleware may preempt; neither path reveals the foreign record.
+        request=RequestFactory().get(url);request.user=workspace[0];request.organization_id=other.id
+        match=resolve(url)
+        with pytest.raises(Http404):match.func(request,**match.kwargs)
+
+
+def test_freeze_projects_exact_old_statement_without_requesting_pdf(workspace,client):
+    assert client.post(decision_url(workspace),statement()).status_code==302
+    first=DecisionEvent.objects.get()
+    pack=freeze_pack(client,workspace)
+    assert not ArtifactRequest.objects.exists()
+    assert client.post(decision_url(workspace),statement(first.id,state='defer',notes='Later statement after freeze')).status_code==302
+    response=client.get(reverse('reviews:pack-detail',args=[pack.id]))
+    assert response.status_code==200
+    assert b'First frozen rationale' in response.content
+    assert b'Later statement after freeze' not in response.content
+    assert str(first.id).encode() in response.content and pack.sha256.encode() in response.content
+    assert b'Private PDF preparation is unavailable' in response.content
+    assert client.post(reverse('reviews:request-artifact',args=[pack.id])).status_code==503
+    assert not ArtifactRequest.objects.exists()
+
+
+def test_explicit_artifact_request_queues_without_promoting_baseline_or_starting_worker(workspace,client,settings):
+    settings.REVIEW_PACK_LIFECYCLE_ENABLED=True
+    ReviewLifecycleGate.objects.update_or_create(id=1,defaults={'enabled':True})
+    pack=freeze_pack(client,workspace)
+    response=client.post(reverse('reviews:request-artifact',args=[pack.id]),{'promote_baseline':'true','baseline_pack_id':str(uuid4())})
+    assert response.status_code==302
+    request=ArtifactRequest.objects.get()
+    assert request.promote_baseline is False
+    assert request.job.status=='queued'
+    response=client.get(reverse('reviews:pack-detail',args=[pack.id]))
+    assert b'Queue admission is not delivery' in response.content
+    assert b'Download private frozen pack PDF' not in response.content
+
+
+def test_database_denial_rolls_back_open_cycle_before_safe_response(workspace,client,monkeypatch):
+    def denied(**kwargs):raise DatabaseError('secret internal SQL detail')
+    monkeypatch.setattr('apps.reviews.views.freeze_cycle',denied)
+    response=client.post(reverse('reviews:freeze',args=[workspace[2].id]),{'cycle_id':str(uuid4())})
+    assert response.status_code==409
+    assert b'secret internal SQL' not in response.content
+    assert not ReviewCycle.objects.exists() and not PackIdentity.objects.exists()
+    assert client.get(reverse('reviews:history')).status_code==200
+
+
+@pytest.mark.parametrize('method,route',[('get','snapshot'),('post','freeze'),('post','issue-proposals')])
+def test_corrupt_snapshot_is_withheld_before_any_admission(workspace,client,monkeypatch,method,route):
+    monkeypatch.setattr('apps.reviews.views.verify_snapshot',lambda snapshot:False)
+    response=getattr(client,method)(reverse('reviews:'+route,args=[workspace[2].id]))
+    assert response.status_code==503
+    assert b'withheld' in response.content
+    assert not ReviewCycle.objects.exists() and not DecisionEvent.objects.exists()
+
+
+def test_freeze_lost_redirect_replay_uses_one_cycle_pack_and_reservation(workspace,client):
+    from apps.reviews.models import CapacityReservation
+    identity=str(uuid4());url=reverse('reviews:freeze',args=[workspace[2].id])
+    first=client.post(url,{'cycle_id':identity})
+    replay=client.post(url,{'cycle_id':identity})
+    assert first.status_code==replay.status_code==302
+    assert first.url==replay.url
+    assert ReviewCycle.objects.count()==PackIdentity.objects.count()==CapacityReservation.objects.count()==1
+
+
+def test_simultaneous_same_freeze_form_has_one_effect(workspace):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+    from django.db import connections
+    from apps.reviews.models import CapacityReservation
+    barrier=Barrier(2);identity=str(uuid4());url=reverse('reviews:freeze',args=[workspace[2].id])
+    def submit(index):
+        try:
+            browser=Client();browser.force_login(workspace[0]);session=browser.session
+            session['active_organization_id']=str(workspace[1].id);session.save()
+            barrier.wait(timeout=20)
+            response=browser.post(url,{'cycle_id':identity})
+            return response.status_code,getattr(response,'url',None)
+        finally:connections.close_all()
+    with ThreadPoolExecutor(max_workers=2) as executor:outcomes=list(executor.map(submit,[0,1]))
+    assert outcomes[0]==outcomes[1]
+    assert outcomes[0][0]==302
+    assert ReviewCycle.objects.count()==PackIdentity.objects.count()==CapacityReservation.objects.count()==1
+
+
+def test_reusing_freeze_identity_for_another_snapshot_is_denied(workspace,report_context,client):
+    identity=str(uuid4());original=workspace[2]
+    assert client.post(reverse('reviews:freeze',args=[original.id]),{'cycle_id':identity}).status_code==302
+    changed=create_assessment_snapshot(organization_id=workspace[1].id,created_by_id=workspace[0].id,
+        assessed_item_id=report_context[3].id,roi_inputs=_roi_inputs(),captured_at=original.captured_at+timedelta(days=1),previous_snapshot=original)
+    response=client.post(reverse('reviews:freeze',args=[changed.id]),{'cycle_id':identity})
+    assert response.status_code==409
+    assert ReviewCycle.objects.count()==PackIdentity.objects.count()==1
+
+
+def test_freeze_identity_is_required_and_never_becomes_authority(workspace,client):
+    url=reverse('reviews:freeze',args=[workspace[2].id])
+    assert client.post(url).status_code==400
+    assert client.post(url,{'cycle_id':'not-a-uuid'}).status_code==400
+    assert not ReviewCycle.objects.exists()
+
+
+def test_foreign_admitted_cycle_identity_cannot_be_replayed_into_this_workspace(workspace,client):
+    from apps.inventory.models import InventoryItem
+    from apps.reviews.services import open_cycle
+    from conftest import grant_core_entitlement
+    owner=get_user_model().objects.create_user('foreign-cycle-owner@example.invalid')
+    org=Organization.objects.create(name='Foreign paid owner')
+    OrganizationMember.objects.create(organization=org,user=owner,role='owner')
+    WorkflowProfile.objects.create(organization=org,created_by=owner,profile='business.v1',settings={'name':'Foreign owner meaning'})
+    grant_core_entitlement(owner,org)
+    item=InventoryItem.objects.create(organization=org,display_name='Foreign workflow')
+    snapshot=create_assessment_snapshot(organization_id=org.id,created_by_id=owner.id,assessed_item_id=item.id,
+        roi_inputs=_roi_inputs(),captured_at=workspace[2].captured_at)
+    foreign=open_cycle(organization_id=org.id,actor_id=owner.id,input_snapshot_id=snapshot.id)
+    response=client.post(reverse('reviews:freeze',args=[workspace[2].id]),{'cycle_id':str(foreign.id)})
+    assert response.status_code==409
+    assert ReviewCycle.objects.count()==1 and not PackIdentity.objects.exists()
+
+
+def test_csrf_and_http_methods_preserve_no_effects(workspace):
+    client=Client(enforce_csrf_checks=True)
+    client.force_login(workspace[0]);session=client.session
+    session['active_organization_id']=str(workspace[1].id);session.save()
+    url=reverse('reviews:freeze',args=[workspace[2].id])
+    assert client.get(url).status_code==405
+    assert client.post(url).status_code==403
+    assert not ReviewCycle.objects.exists()
+    assert client.get(reverse('reviews:snapshot',args=[workspace[2].id])).status_code==200
+    token=client.cookies['csrftoken'].value
+    assert client.post(url,{'cycle_id':str(uuid4())},HTTP_X_CSRFTOKEN=token).status_code==302
+
+
+def test_user_selected_comparison_is_read_only_and_never_admits_a_baseline(workspace,report_context,client):
+    user,org,before,_=workspace
+    item=report_context[3];item.business_purpose='Changed owner declaration';item.save(update_fields=['business_purpose'])
+    after=create_assessment_snapshot(organization_id=org.id,created_by_id=user.id,assessed_item_id=item.id,
+        roi_inputs=_roi_inputs(),captured_at=before.captured_at+timedelta(days=1),previous_snapshot=before)
+    response=client.get(reverse('reviews:comparison'),{'baseline':str(before.id),'current':str(after.id)})
+    assert response.status_code==200
+    assert b'business_purpose' in response.content and b'not_established' in response.content
+    assert not ReviewCycle.objects.exists() and not PackIdentity.objects.exists()
+    assert client.get(reverse('reviews:comparison'),{'baseline':str(after.id),'current':str(before.id)}).status_code==400
+    other=Organization.objects.create(name='Foreign snapshot workspace')
+    from apps.inventory.models import InventoryItem
+    foreign_item=InventoryItem.objects.create(organization=other,display_name='Foreign captured tool')
+    foreign_snapshot=create_assessment_snapshot(organization_id=other.id,created_by_id=user.id,
+        assessed_item_id=foreign_item.id,roi_inputs=_roi_inputs(),captured_at=before.captured_at)
+    assert client.get(reverse('reviews:comparison'),{'baseline':str(foreign_snapshot.id),'current':str(after.id)}).status_code==400
+
+
+@pytest.mark.parametrize('width',[390,1280])
+def test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links(workspace,client,width):
+    from pathlib import Path
+    from django.conf import settings
+    from playwright.sync_api import sync_playwright
+    assert client.post(decision_url(workspace),statement(notes='x'*4096,responsible_label='r'*200,
+        links='https://example.invalid/'+'e'*1500)).status_code==302
+    pack=freeze_pack(client,workspace)
+    routes=[reverse('reviews:history'),reverse('reviews:snapshot',args=[workspace[2].id]),
+        decision_url(workspace),reverse('reviews:pack-detail',args=[pack.id]),reverse('reviews:comparison')]
+    css='\n'.join((Path(settings.BASE_DIR)/'static'/name).read_text(encoding='utf-8') for name in ('agentledger.css','atlas.css'))
+    rendered=[]
+    for url in routes:
+        response=client.get(url);assert response.status_code==200
+        rendered.append((url,response.content.decode('utf-8')))
+    event_id=str(DecisionEvent.objects.get().id)
+    with sync_playwright() as driver:
+        browser=driver.chromium.launch(headless=True,chromium_sandbox=False)
+        context=browser.new_context(viewport={'width':width,'height':900},reduced_motion='reduce')
+        context.route('**/*',lambda route:route.abort())
+        page=context.new_page()
+        for url,html in rendered:
+            page.set_content(html,wait_until='load');page.add_style_tag(content=css)
+            assert page.locator('main h1').count()==1
+            assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth'),url
+            assert page.locator('a[href^="https://example.invalid"]').count()==0
+            if url==decision_url(workspace):
+                page.locator('#id_responsible_label').focus()
+                assert page.evaluate('document.activeElement.id')=='id_responsible_label'
+                assert page.locator('input[name="expected_previous_event"]').input_value()==event_id
+        context.close();browser.close()

@@ -1,0 +1,11 @@
+{
+  "exit_code": 1,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-a8e5001cea",
+  "image_id": "sha256:d11940326338898c9be57b8db5803990bb0ff01fb9932563b97843bd47002b3a",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T005917.217157Z",
+  "test_arguments": [
+    "tests/test_core_checkout_admission.py::test_unconfigured_webhook_secret_fails_closed_before_admission"
+  ]
+}

@@ -1,0 +1,438 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reviews.0004_capture_pack_projection... OK
+  Applying jobs.0015_legacy_action_card_schema_fence... OK
+  Applying reviews.0005_capture_proposal_admission... OK
+  Applying jobs.0016_capture_decisions... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0005_review_pack_read_authority... OK
+  Applying reports.0006_capture_owner_read... OK
+  Applying reviews.0006_capture_proposal_packs... OK
+  Applying reviews.0007_unused_stop... OK
+  Applying reviews.0008_proposal_post_effect_authority... OK
+........................................................................ [  3%]
+........................................................................ [  6%]
+........................................................................ [  9%]
+........................................................................ [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 19%]
+............E........................................................... [ 23%]
+....................................................s................... [ 26%]
+........................................................................ [ 29%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+...........s............................................................ [ 39%]
+........................................................................ [ 43%]
+........................................................................ [ 46%]
+....................................E................................... [ 49%]
+......F................................................................. [ 53%]
+........................................................................ [ 56%]
+........................................................................ [ 59%]
+........................................................................ [ 63%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 73%]
+........................................................................ [ 76%]
+........................................................................ [ 79%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+........................................................................ [ 89%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 99%]
+.                                                                        [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_raw_identity_and_owner_statement_bounds_fail_closed[due_date-tomorrow] _
+
+self = <django.db.backends.utils.CursorWrapper object at 0x78fd2e9ba3f0>
+sql = 'SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)'
+params = [UUID('a15b484d-e974-4bd7-817c-b638e1b11f52'), UUID('9b26a15a-6922-4b0b-ae1a-808eb2a876bf'), UUID('77800cb0-ee1f-4c4f-9fa8-d78af9f4332b'), UUID('4ebda409-e766-427d-982b-c1f687a0a1e8')]
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x78fd2e9ba3f0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x78fd2fdf7d90>
+query = 'SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)'
+params = [UUID('a15b484d-e974-4bd7-817c-b638e1b11f52'), UUID('9b26a15a-6922-4b0b-ae1a-808eb2a876bf'), UUID('77800cb0-ee1f-4c4f-9fa8-d78af9f4332b'), UUID('4ebda409-e766-427d-982b-c1f687a0a1e8')]
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Proposal authority unavailable after waits
+E           CONTEXT:  PL/pgSQL function app_private.issue_core_exposure_proposals(uuid,uuid,uuid,uuid) line 32 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+settings = <pytest_django.fixtures.Settings object at 0x78fd2fba77a0>
+
+    @pytest.fixture
+    def capture_decision_context(capture_context, settings):
+        settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+        settings.DECISION_DESK_ENABLED = True
+        CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        DecisionDeskGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        user, org = capture_context
+        snapshot = admit(capture_context, preview(capture_context))
+>       revision = issue_capture_proposals(
+            organization_id=org.id,
+            actor_id=user.id,
+            snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+
+tests/test_capture_decisions.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/reviews/proposal_admission.py:36: in issue_capture_proposals
+    cursor.execute(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x78fd2fdf7d90>
+query = 'SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)'
+params = [UUID('a15b484d-e974-4bd7-817c-b638e1b11f52'), UUID('9b26a15a-6922-4b0b-ae1a-808eb2a876bf'), UUID('77800cb0-ee1f-4c4f-9fa8-d78af9f4332b'), UUID('4ebda409-e766-427d-982b-c1f687a0a1e8')]
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Proposal authority unavailable after waits
+E           CONTEXT:  PL/pgSQL function app_private.issue_core_exposure_proposals(uuid,uuid,uuid,uuid) line 32 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+___ ERROR at setup of test_stop_gate_denial_has_no_domain_effect[python-503] ___
+
+self = <django.db.backends.utils.CursorWrapper object at 0x78fd2f55fbf0>
+sql = 'SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)'
+params = [UUID('62130653-87ae-4f08-af2e-913768ba58e8'), UUID('036da42a-991e-470e-808f-a05b6596c3be'), UUID('a00935fd-f281-40d9-a681-7184d36fc7af'), UUID('88f50c5c-c861-4eea-b513-4a768bed3d3d')]
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x78fd2f55fbf0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x78fd2da85550>
+query = 'SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)'
+params = [UUID('62130653-87ae-4f08-af2e-913768ba58e8'), UUID('036da42a-991e-470e-808f-a05b6596c3be'), UUID('a00935fd-f281-40d9-a681-7184d36fc7af'), UUID('88f50c5c-c861-4eea-b513-4a768bed3d3d')]
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Proposal authority unavailable after waits
+E           CONTEXT:  PL/pgSQL function app_private.issue_core_exposure_proposals(uuid,uuid,uuid,uuid) line 32 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+settings = <pytest_django.fixtures.Settings object at 0x78fd2e58e800>
+
+    @pytest.fixture
+    def capture_decision_context(capture_context, settings):
+        settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+        settings.DECISION_DESK_ENABLED = True
+        CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        DecisionDeskGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        user, org = capture_context
+        snapshot = admit(capture_context, preview(capture_context))
+>       revision = issue_capture_proposals(
+            organization_id=org.id,
+            actor_id=user.id,
+            snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+
+tests/test_capture_decisions.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/reviews/proposal_admission.py:36: in issue_capture_proposals
+    cursor.execute(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x78fd2da85550>
+query = 'SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)'
+params = [UUID('62130653-87ae-4f08-af2e-913768ba58e8'), UUID('036da42a-991e-470e-808f-a05b6596c3be'), UUID('a00935fd-f281-40d9-a681-7184d36fc7af'), UUID('88f50c5c-c861-4eea-b513-4a768bed3d3d')]
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Proposal authority unavailable after waits
+E           CONTEXT:  PL/pgSQL function app_private.issue_core_exposure_proposals(uuid,uuid,uuid,uuid) line 32 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+=================================== FAILURES ===================================
+_ test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates _
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: f71616f5-3d0a-435f-8e6c-8296f196b77f v1>, <ActionCardRevision: ActionCardRevision object (41fe8b14-f22c-4733-a206-2376a6ebe13b)>)
+client = <django.test.client.Client object at 0x78fd2f5f0910>
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        for index in range(128):
+            observed = []
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+>           assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+E           AssertionError: {'index': 49, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', ...7:04:55.740413+00:00', ...}, 'bound_org': '001394e1-fb30-47f1-8a36-f8d4a66d0fb2', 'isolation': 'read committed', ...}]}
+E           assert 409 == 302
+E            +  where 409 = <HttpResponse status_code=409, "text/html; charset=utf-8">.status_code
+
+tests/test_review_workspace_views.py:603: AssertionError
+----------------------------- Captured stdout call -----------------------------
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "31611284-3ab6-4568-ae74-abc9a1b41308", "bound_actor": "31611284-3ab6-4568-ae74-abc9a1b41308", "bound_effective_pg": "2026-10-05 07:04:55.740413+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "001394e1-fb30-47f1-8a36-f8d4a66d0fb2", "clock_timestamp": "2026-10-05 07:04:54.441692+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "1298721.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 37 at RAISE", "organization_context": "001394e1-fb30-47f1-8a36-f8d4a66d0fb2", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-05T07:04:55.740413+00:00", "python_clock_before_probe": "2026-10-05T07:04:54.441153+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-05T07:04:55.740413+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "001394e1-fb30-47f1-8a36-f8d4a66d0fb2", "receipt_ids": ["e941d3db-4955-427b-bb1d-b61cf11708e5"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-05 07:04:55.740413+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-05 07:04:54.441335+00", "transaction_timestamp": "2026-10-05 07:04:55.728617+00"}
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "31611284-3ab6-4568-ae74-abc9a1b41308", "bound_actor": "31611284-3ab6-4568-ae74-abc9a1b41308", "bound_effective_pg": "2026-10-05 07:04:55.740413+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "001394e1-fb30-47f1-8a36-f8d4a66d0fb2", "clock_timestamp": "2026-10-05 07:04:54.440718+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "1299695.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 37 at RAISE", "organization_context": "001394e1-fb30-47f1-8a36-f8d4a66d0fb2", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-05T07:04:55.740413+00:00", "python_clock_before_probe": "2026-10-05T07:04:54.439785+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-05T07:04:55.740413+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "001394e1-fb30-47f1-8a36-f8d4a66d0fb2", "receipt_ids": ["e941d3db-4955-427b-bb1d-b61cf11708e5"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-05 07:04:55.740413+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-05 07:04:54.440025+00", "transaction_timestamp": "2026-10-05 07:04:55.728617+00"}
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:253 Conflict: /reviews/snapshots/e941d3db-4955-427b-bb1d-b61cf11708e5/proposals/
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py: 2 warnings
+tests/test_billing_founder_cancellation_authority.py: 3 warnings
+tests/test_billing_founder_checkout_authority.py: 2 warnings
+tests/test_billing_portal_cancellation.py: 2 warnings
+tests/test_billing_tenant_authority.py: 10 warnings
+tests/test_core_checkout_admission.py: 21 warnings
+tests/test_csv_import.py: 10 warnings
+tests/test_discovery.py: 2 warnings
+tests/test_discovery_reconciliation.py: 2 warnings
+tests/test_inventory.py: 10 warnings
+tests/test_organization_rules.py: 9 warnings
+tests/test_payflow_deployment_gates.py: 6 warnings
+tests/test_production_security.py: 3 warnings
+tests/test_public_signup.py: 11 warnings
+tests/test_report_history.py: 3 warnings
+tests/test_reports.py: 3 warnings
+tests/test_roi_engine_v2.py: 1 warning
+tests/test_workspaces.py: 9 warnings
+tests/test_billing_standard_launch.py: 3 warnings
+tests/test_capture_archived_reads.py: 2 warnings
+tests/test_capture_comparison_ui.py: 2 warnings
+tests/test_capture_proposal_ui.py: 10 warnings
+tests/test_capture_report_access.py: 2 warnings
+tests/test_capture_review_ui.py: 21 warnings
+tests/test_capture_review_worker.py: 2 warnings
+tests/test_capture_v4_reads.py: 6 warnings
+tests/test_capture_v4_worker.py: 2 warnings
+tests/test_core_first_capture_journey.py: 1 warning
+tests/test_core_workflows.py: 1 warning
+tests/test_explicit_inventory.py: 6 warnings
+tests/test_lyra_authority_findings.py: 1 warning
+tests/test_operations_dashboard.py: 2 warnings
+tests/test_paid_workflow_boundary.py: 3 warnings
+tests/test_provider_lifecycle.py: 2 warnings
+tests/test_quickbooks_lifecycle.py: 13 warnings
+tests/test_quickbooks_reports.py: 6 warnings
+tests/test_report_artifacts.py: 4 warnings
+tests/test_report_recovery_states.py: 1 warning
+tests/test_review_profile_handoff.py: 3 warnings
+tests/test_review_report_read_authority.py: 3 warnings
+tests/test_review_unused_stop_ui.py: 8 warnings
+tests/test_review_workspace_views.py: 33 warnings
+tests/test_standard_checkout_route_durability.py: 4 warnings
+tests/test_workflow_profile_setup.py: 3 warnings
+tests/test_baseline.py: 4 warnings
+tests/test_download.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_review_workspace_views.py::test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates
+ERROR tests/test_capture_decisions.py::test_raw_identity_and_owner_statement_bounds_fail_closed[due_date-tomorrow]
+ERROR tests/test_review_unused_stop_ui.py::test_stop_gate_denial_has_no_domain_effect[python-503]
+1 failed, 2156 passed, 2 skipped, 258 warnings, 2 errors in 587.39s (0:09:47)

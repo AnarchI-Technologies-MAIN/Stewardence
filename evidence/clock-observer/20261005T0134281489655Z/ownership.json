@@ -1,0 +1,7 @@
+{
+  "schema": "anarchi.clock.observer.resources.v1",
+  "instance_name": "steward_clock_6090809aa30b4a4097d979dea4b1224e",
+  "probe_group": "steward_clock_6090809aa30b4a4097d979dea4b1224e",
+  "planned_probe_name": "timex_modes",
+  "global_before_sha256": "b3ea1a1d24c606067961649abba79255cf78845d6b3c6f6c223a293e1e5d6559"
+}

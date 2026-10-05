@@ -1,0 +1,36 @@
+{
+  "verified_at": "2026-10-03T21:29:54.279644+00:00",
+  "qualification_passed": true,
+  "request_probe": {
+    "qualified": true,
+    "application_role": "agentledger_app",
+    "transaction_isolation": "read committed",
+    "objects": 6,
+    "counts": {
+      "authorized_downloads": 6,
+      "anonymous_denials": 6,
+      "cross_tenant_denials": 6,
+      "corrupt_object_denials": 6,
+      "missing_object_denials": 6,
+      "repaired_copy_downloads": 6,
+      "qualified_existing_entitlements": 0,
+      "snapshot_entitlement_denials": 6,
+      "isolated_entitlement_fixtures": 6
+    },
+    "listening_server_started": false,
+    "production_writes": false,
+    "provider_requests": false,
+    "limits": "In-process Django request pipeline with actual app role, restored existing rows/objects, explicitly synthetic clone entitlements where absent, and isolated negative tenant; no live entitlement, production HTTP or cutover proof."
+  },
+  "source_object_receipt": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\report-object-restore\\20261003T212039.504272Z\\restore-summary.json",
+  "source_backup_sha256": "0b20cd7ede2d1218e210af325f3ee19fa98a6d2cacff895728468c58981e1dbc",
+  "candidate_image_id": "sha256:4b12ba090bbeafa2c3295b5bd742eff8e9bdd0090619a7ce34a561bf8ca82a1d",
+  "postgres_image_id": "sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722",
+  "probe_sha256": "d24f2fb3d9cc8a10c0660ed9a34246fc2a60ac3726db0ff7527fa034ef0673a0",
+  "total_plaintext_bytes_verified": 698217,
+  "host_plaintext_files_created": false,
+  "production_writes": false,
+  "candidate_migrations_on_isolated_clone": true,
+  "same_physical_host_custody": true,
+  "cleanup_passed": true
+}

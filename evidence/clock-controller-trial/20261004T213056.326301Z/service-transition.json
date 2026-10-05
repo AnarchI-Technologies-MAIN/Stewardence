@@ -1,0 +1,32 @@
+{
+  "user_authorized": true,
+  "production_touched": false,
+  "image": "sha256:afd7c85b5339b47489a927c86dd036f893bc54d2e9c602dffcf1bc3edc292f1a",
+  "settlement_windows": 6,
+  "ubuntu_chrony_controls_clock": false,
+  "before": {
+    "exit_code": 0,
+    "stdout": "active\n",
+    "stderr": ""
+  },
+  "stop": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "during": {
+    "exit_code": 3,
+    "stdout": "inactive\n",
+    "stderr": ""
+  },
+  "restore": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "after": {
+    "exit_code": 0,
+    "stdout": "active\n",
+    "stderr": ""
+  }
+}

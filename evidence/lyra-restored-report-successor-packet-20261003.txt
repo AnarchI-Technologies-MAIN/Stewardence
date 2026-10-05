@@ -1,0 +1,513 @@
+Fresh source/execution successor for the five restore qualifications. Please adversarially review the exact source and evidence below; distinguish supplied execution from independent rerun. Product source unchanged since full run 20261003T212935.286078Z (1146 passed, one inapplicable skip); both full suite and this restored request gate use exact image sha256:95b24d4215bb6cec845a42ee8061504b95d62ba11e4c6f53c7d596c354680946. No deployment, provider requests, live entitlements or production writes. Backup and key remain on same physical host. Stage1 byte recovery historic acceptance remains scoped, cleanup successor is source + injected failure evidence; not a newly rerun live download.
+
+FILE scripts/restored_report_access_probe.py
+"""Run inside the disposable candidate container, against restored data only.
+
+Receives length-framed restored PDFs over stdin. Does not print customer content,
+identifiers, credentials or underlying exceptions. No listening server/network
+provider calls. Django's real request middleware/views use agentledger_app.
+"""
+import hashlib
+import json
+import logging
+import os
+import struct
+import sys
+from pathlib import Path
+from uuid import uuid4
+
+import django
+
+django.setup()
+from django.contrib.auth import get_user_model
+from django.db import connections
+from django.test import Client, override_settings
+from django.contrib.auth.views import redirect_to_login
+from django.urls import reverse
+from apps.billing.models import BillingCustomer, Subscription
+from apps.organizations.models import Organization, OrganizationMember
+from apps.reports.models import ReportArtifact
+
+for name in ['django.request', 'agentledger.tenancy.middleware']:
+    logging.getLogger(name).disabled = True
+
+
+def exact_read(size):
+    if not 0 <= size <= 16*1048576:
+        raise RuntimeError('Restore frame size outside bound')
+    data = sys.stdin.buffer.read(size)
+    if len(data) != size:
+        raise RuntimeError('Restore frame truncated')
+    return data
+
+
+def main():
+    with connections['default'].cursor() as cursor:
+        cursor.execute("SELECT current_user,current_setting('transaction_isolation')")
+        role, isolation = cursor.fetchone()
+    if role != 'agentledger_app' or isolation != 'read committed':
+        raise RuntimeError('Restored application authority identity invalid')
+    manifest_length = struct.unpack('!I', exact_read(4))[0]
+    manifest = json.loads(exact_read(manifest_length))
+    root = Path('/recovered-reports')
+    for item in manifest:
+        size = struct.unpack('!I', exact_read(4))[0]
+        data = exact_read(size)
+        if size != item['size_bytes'] or hashlib.sha256(data).hexdigest() != item['sha256'] or not data.startswith(b'%PDF-'):
+            raise RuntimeError('Restored object does not match immutable manifest')
+        destination = root / item['object_key']
+        if root not in destination.resolve().parents:
+            raise RuntimeError('Unsafe private restore path')
+        destination.parent.mkdir(parents=True, mode=0o700, exist_ok=True)
+        fd = os.open(destination, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o600)
+        with os.fdopen(fd, 'wb') as stream:
+            stream.write(data); stream.flush(); os.fsync(stream.fileno())
+    if sys.stdin.buffer.read(1):
+        raise RuntimeError('Unexpected restore frame tail')
+    # Fresh synthetic paid tenant exists only in this clone. It exercises real
+    # middleware + forced RLS while guessing actual restored report UUIDs.
+    user_model = get_user_model()
+    denied_user = user_model.objects.db_manager('owner_runtime').create_user(str(uuid4())+'@restore.example.invalid')
+    denied_org = Organization.objects.using('owner_runtime').create(name='Isolated restore negative tenant')
+    OrganizationMember.objects.using('owner_runtime').create(user=denied_user, organization=denied_org, role='owner')
+    customer = BillingCustomer.objects.using('owner_runtime').create(user=denied_user)
+    Subscription.objects.using('owner_runtime').create(billing_customer=customer, organization=denied_org,
+                                                     status='active', portfolio='core', current_price_cents=9900)
+    cross = Client()
+    cross.force_login(denied_user)
+    session = cross.session; session['active_organization_id'] = str(denied_org.id); session.save()
+    counts = {'authorized_downloads': 0, 'anonymous_denials': 0, 'cross_tenant_denials': 0,
+              'corrupt_object_denials': 0, 'missing_object_denials': 0, 'repaired_copy_downloads': 0,
+              'download_attempts_with_current_clone_entitlement': 0}
+    counts['same_length_corrupt_object_denials'] = 0
+    counts['post_request_metadata_matches'] = 0
+    counts['unentitled_clone_denials'] = 0
+    counts['isolated_entitlement_mutations'] = 0
+    anonymous = Client()
+    with override_settings(DEBUG=False, ALLOWED_HOSTS=['testserver'], REPORTS_STORAGE_BACKEND='local',
+                           REPORTS_LOCAL_STORAGE_ROOT=root, CORE_WORKFLOWS_ENABLED=False,
+                           QUICKBOOKS_PREVIEW_ENABLED=False, MICROSOFT_PREVIEW_ENABLED=False,
+                           XERO_PREVIEW_ENABLED=False, AUTOMATION_ENABLED=False):
+        for item in manifest:
+            artifact = ReportArtifact.objects.using('owner_runtime').get(pk=item['id'])
+            if any(str(getattr(artifact, name)) != str(item[name]) for name in
+                   ['id','organization_id','report_id','assessment_snapshot_id','object_key','sha256','size_bytes','content_type']):
+                raise RuntimeError('Restored database artifact binding changed')
+            owner = OrganizationMember.objects.using('owner_runtime').filter(organization_id=item['organization_id'], role='owner').get()
+            entitled = Subscription.objects.using('owner_runtime').filter(organization_id=item['organization_id'],
+                billing_customer__user_id=owner.user_id, status__in=['active','canceling']).exists()
+            viewer = Client()
+            viewer.force_login(user_model.objects.using('owner_runtime').get(pk=owner.user_id))
+            session = viewer.session; session['active_organization_id'] = item['organization_id']; session.save()
+            path = reverse('reports:download', args=[item['report_id']])
+            if not entitled:
+                denied = viewer.get(path)
+                if denied.status_code != 302 or denied.get('Location') != reverse('billing:portfolio') or denied.get('Content-Type') == 'application/pdf':
+                    raise RuntimeError('Unentitled snapshot owner was not denied')
+                counts['unentitled_clone_denials'] += 1
+                fixture_customer, _ = BillingCustomer.objects.using('owner_runtime').get_or_create(user_id=owner.user_id)
+                Subscription.objects.using('owner_runtime').update_or_create(billing_customer=fixture_customer,
+                    defaults={'organization_id':item['organization_id'], 'status':'active', 'portfolio':'core', 'current_price_cents':9900})
+                counts['isolated_entitlement_mutations'] += 1
+                session = viewer.session; session['active_organization_id'] = item['organization_id']; session.save()
+            else:
+                counts['download_attempts_with_current_clone_entitlement'] += 1
+            response = viewer.get(path)
+            if response.status_code != 200 or hashlib.sha256(response.content).hexdigest() != item['sha256']:
+                raise RuntimeError('Authorized restored-object download failed')
+            if response.get('Cache-Control') != 'private, no-store' or response.get('Content-Type') != 'application/pdf':
+                raise RuntimeError('Authorized private response policy invalid')
+            counts['authorized_downloads'] += 1
+            response = anonymous.get(path)
+            expected_login = redirect_to_login(path, reverse('accounts:login'))['Location']
+            if response.status_code != 302 or response.get('Location') != expected_login or response.get('Content-Type') == 'application/pdf':
+                raise RuntimeError('Anonymous restored-object access admitted')
+            counts['anonymous_denials'] += 1
+            response = cross.get(path)
+            if response.status_code != 404 or response.get('Content-Type') == 'application/pdf':
+                raise RuntimeError('Cross-tenant restored-object access admitted')
+            counts['cross_tenant_denials'] += 1
+            file = root/item['object_key']
+            original = file.read_bytes()
+            file.write_bytes(b'%PDF-corrupt-isolated-restore-fixture')
+            response = viewer.get(path)
+            if response.status_code != 503 or response.get('Content-Type') == 'application/pdf' or response.get('Content-Disposition') or response.get('Cache-Control') != 'private, no-store':
+                raise RuntimeError('Corrupt restored object was served')
+            counts['corrupt_object_denials'] += 1
+            mutated = bytearray(original)
+            mutated[-1] ^= 1
+            file.write_bytes(mutated)
+            if file.stat().st_size != item['size_bytes']:
+                raise RuntimeError('Same-length corruption fixture changed length')
+            response = viewer.get(path)
+            if response.status_code != 503 or response.get('Content-Type') == 'application/pdf' or response.get('Content-Disposition') or response.get('Cache-Control') != 'private, no-store':
+                raise RuntimeError('Same-length corrupt restored object was served')
+            counts['same_length_corrupt_object_denials'] += 1
+            file.unlink()
+            response = viewer.get(path)
+            if response.status_code != 503 or response.get('Content-Type') == 'application/pdf' or response.get('Content-Disposition') or response.get('Cache-Control') != 'private, no-store':
+                raise RuntimeError('Missing restored object was served')
+            counts['missing_object_denials'] += 1
+            fd = os.open(file, os.O_CREAT|os.O_EXCL|os.O_WRONLY, 0o600)
+            with os.fdopen(fd, 'wb') as stream:
+                stream.write(original); stream.flush(); os.fsync(stream.fileno())
+            response = viewer.get(path)
+            if response.status_code != 200 or hashlib.sha256(response.content).hexdigest() != item['sha256']:
+                raise RuntimeError('Restored copy did not recover without metadata rewrite')
+            counts['repaired_copy_downloads'] += 1
+            artifact = ReportArtifact.objects.using('owner_runtime').get(pk=item['id'])
+            if any(str(getattr(artifact, name)) != str(item[name]) for name in
+                   ['id','organization_id','report_id','assessment_snapshot_id','object_key','sha256','size_bytes','content_type']):
+                raise RuntimeError('Post-request immutable artifact binding changed')
+            counts['post_request_metadata_matches'] += 1
+    print(json.dumps({'qualified': True, 'application_role': role, 'transaction_isolation': isolation,
+                      'objects': len(manifest), 'counts': counts, 'listening_server_started': False,
+                      'production_writes': False, 'provider_requests': False,
+                      'entitlement_evidence': 'Clone entitlements can be changed by explicitly synthetic fixtures during this probe. Current-clone counts are not original-snapshot or live entitlement facts.',
+                      'limits': 'In-process Django request pipeline with actual app role, restored existing rows/objects, explicitly synthetic clone entitlements where absent, and isolated negative tenant; no live entitlement, production HTTP or cutover proof.'}))
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as error:
+        print(json.dumps({'qualified': False, 'failure_type': type(error).__name__,
+                          'safe_reason': str(error) if type(error) is RuntimeError else 'Underlying diagnostics suppressed'}))
+        raise SystemExit(1) from None
+
+FILE scripts/qualify_restored_report_access.py
+"""Isolated restored database + real PDF request-boundary qualification.
+
+No production calls/writes. Ciphertext comes from Ubuntu WSL; key stays Windows.
+All restored plaintext exists only in memory/container tmpfs. Containers/network
+are explicitly named and verified absent before an overall passing receipt.
+"""
+import hashlib
+import json
+import os
+import re
+import secrets
+import struct
+import subprocess
+import time
+import uuid
+from datetime import UTC, datetime
+from pathlib import Path
+
+from qualify_report_object_restore import docker, pipeline
+
+ROOT = Path(__file__).resolve().parents[1]
+OBJECT_RECEIPT = ROOT/'evidence/report-object-restore/20261003T212039.504272Z/restore-summary.json'
+DATABASE_RECEIPT = ROOT/'evidence/restore/20261003T190142.291805Z/restore-summary.json'
+IMAGE_RECEIPT = ROOT/'evidence/20261003T212935.286078Z/qualification-summary.json'
+
+
+def ciphertext(path, maximum, digest):
+    program = 'import hashlib,pathlib,sys; d=pathlib.Path(sys.argv[1]).open("rb").read(int(sys.argv[2])+1); assert len(d)<=int(sys.argv[2]); assert hashlib.sha256(d).hexdigest()==sys.argv[3]; sys.stdout.buffer.write(d)'
+    return subprocess.Popen(['wsl','-d','Ubuntu','--exec','python3','-c',program,path,str(maximum),digest],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+
+def plaintext(path, maximum, digest, key):
+    reader = ciphertext(path, maximum, digest)
+    decoder = subprocess.Popen(['age','-d','-i',str(key)], stdin=reader.stdout,
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    reader.stdout.close(); reader.stdout = None
+    try:
+        data, _ = decoder.communicate(timeout=40)
+        reader.communicate(timeout=15)
+        if decoder.returncode or reader.returncode or len(data)>maximum:
+            raise RuntimeError('Pinned private backup read failed')
+        return data
+    finally:
+        for process in [decoder, reader]:
+            if process.poll() is None:
+                process.kill(); process.wait(timeout=10)
+
+
+def absent_container(name):
+    exists = docker('container','ls','-aq','--filter','name=^/'+name+'$',capture_output=True,text=True).stdout.strip()
+    if exists:
+        docker('rm','-f',name,capture_output=True,timeout=30)
+    if docker('container','ls','-aq','--filter','name=^/'+name+'$',capture_output=True,text=True).stdout.strip():
+        raise RuntimeError('Private restored target cleanup failed')
+
+
+def main():
+    objects=json.loads(OBJECT_RECEIPT.read_bytes()); database=json.loads(DATABASE_RECEIPT.read_bytes())
+    candidate=json.loads(IMAGE_RECEIPT.read_bytes())
+    if not objects['restore_passed'] or not objects['cleanup_passed'] or candidate['exit_code']!=0:
+        raise RuntimeError('Required prior qualification is absent')
+    key=Path(database['private_key_file']); image=candidate['image_id']; pg_image=objects['postgres_image_id']
+    for value in [image,pg_image]:
+        if docker('image','inspect','--format','{{.Id}}',value,capture_output=True,text=True).stdout.strip()!=value:
+            raise RuntimeError('Pinned local image differs')
+    run=ROOT/'evidence/restored-report-access'/datetime.now(UTC).strftime('%Y%m%dT%H%M%S.%fZ')
+    run.mkdir(parents=True)
+    probe=run/'restored-report-probe.py'
+    probe.write_bytes((ROOT/'scripts/restored_report_access_probe.py').read_bytes())
+    probe_digest=hashlib.sha256(probe.read_bytes()).hexdigest()
+    prefix='stewardence-restored-access-'+uuid.uuid4().hex[:10]
+    names=[prefix+'-db',prefix+'-migrations',prefix+'-app']
+    network_created=False; result=None
+    try:
+        docker('network','create','--internal',prefix,stdout=subprocess.DEVNULL)
+        network_created=True
+        docker('run','-d','--name',names[0],'--network',prefix,'--network-alias','restored-db',
+               '--memory','512m','--pids-limit','128','--tmpfs','/var/lib/postgresql:rw,size=512m',
+               '-e','POSTGRES_HOST_AUTH_METHOD=trust','-e','POSTGRES_DB=restored',pg_image,
+               stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
+        for _ in range(60):
+            if subprocess.run(['docker','exec',names[0],'pg_isready','-h','127.0.0.1','-U','postgres','-d','restored'],capture_output=True).returncode==0:
+                break
+            time.sleep(.5)
+        else:
+            raise RuntimeError('Isolated stable database readiness failed')
+        docker('exec',names[0],'psql','-U','postgres','-d','restored','-v','ON_ERROR_STOP=1','-c',
+               'CREATE ROLE agentledger_owner; CREATE ROLE agentledger_app; CREATE ROLE agentledger_worker;',capture_output=True)
+        cipher=ciphertext(database['wsl_ciphertext_custody']['encrypted_path'],200*1048576,database['backup_sha256'])
+        decrypt=subprocess.Popen(['age','-d','-i',str(key)],stdin=cipher.stdout,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        cipher.stdout.close(); cipher.stdout=None
+        restore=subprocess.Popen(['docker','exec','-i',names[0],'pg_restore','-U','postgres','-d','restored','--exit-on-error'],
+                                 stdin=decrypt.stdout,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
+        decrypt.stdout.close(); decrypt.stdout=None
+        try:
+            pipeline(decrypt,restore,timeout=120)
+            cipher.communicate(timeout=15)
+            if cipher.returncode: raise RuntimeError('Pinned source database ciphertext unavailable')
+        finally:
+            if cipher.poll() is None: cipher.kill(); cipher.wait(timeout=10)
+        passwords={role:secrets.token_urlsafe(24) for role in ['agentledger_owner','agentledger_app','agentledger_worker']}
+        if any(not re.fullmatch('[A-Za-z0-9_-]+',value) for value in passwords.values()):
+            raise RuntimeError('Local credential generation invalid')
+        ddl='\n'.join("ALTER ROLE "+role+" LOGIN NOSUPERUSER NOBYPASSRLS NOINHERIT PASSWORD '"+value+"';" for role,value in passwords.items())
+        docker('exec','-i',names[0],'psql','-U','postgres','-d','restored','-v','ON_ERROR_STOP=1',
+               input=ddl.encode(),capture_output=True)
+        environment=os.environ.copy()
+        environment.update({'DJANGO_SETTINGS_MODULE':'agentledger.settings.development',
+                            'DJANGO_SECRET_KEY':secrets.token_urlsafe(48),
+                            'DATABASE_URL':'postgresql://postgres@restored-db:5432/restored'})
+        for variable,role in [('OWNER_DATABASE_URL','agentledger_owner'),('APP_DATABASE_URL','agentledger_app'),('WORKER_DATABASE_URL','agentledger_worker')]:
+            environment[variable]='postgresql://'+role+':'+passwords[role]+'@restored-db:5432/restored'
+        arguments=[]
+        for variable in ['DJANGO_SETTINGS_MODULE','DJANGO_SECRET_KEY','DATABASE_URL','OWNER_DATABASE_URL','APP_DATABASE_URL','WORKER_DATABASE_URL']:
+            arguments.extend(['-e',variable])
+        # Upgrade only the isolated restored clone, using the exact candidate ID.
+        migrated=subprocess.run(['docker','run','--rm','--name',names[1],'--network',prefix,'--memory','512m',
+            '--pids-limit','128',*arguments,image,'/app/.venv/bin/python','manage.py','migrate','--noinput'],
+            env=environment,capture_output=True,timeout=120)
+        (run/'migration.log').write_bytes(migrated.stdout)
+        if migrated.returncode:
+            raise RuntimeError('Candidate migration on isolated restored data failed; details suppressed')
+        environment['DATABASE_URL']=environment['APP_DATABASE_URL']
+        manifest_file=next(item for item in objects['wsl_ciphertext_custody']['files'] if item['file']=='manifest.json.age')
+        manifest=plaintext(objects['wsl_ciphertext_custody']['directory']+'/manifest.json.age',1048576,manifest_file['sha256'],key)
+        if hashlib.sha256(manifest).hexdigest()!=objects['source_manifest_sha256']:
+            raise RuntimeError('Restored source manifest differs from accepted binding')
+        rows=json.loads(manifest)
+        if len(rows)!=objects['objects_restored'] or len(rows)>100:
+            raise RuntimeError('Restored artifact inventory mismatch')
+        framed=bytearray(struct.pack('!I',len(manifest))+manifest)
+        total=0
+        for index,item in enumerate(rows):
+            receipt=next(value for value in objects['wsl_ciphertext_custody']['files'] if value['file']==str(index)+'.pdf.age')
+            pdf=plaintext(objects['wsl_ciphertext_custody']['directory']+'/'+receipt['file'],17*1048576,receipt['sha256'],key)
+            if len(pdf)!=item['size_bytes'] or len(pdf)>16*1048576 or hashlib.sha256(pdf).hexdigest()!=item['sha256']:
+                raise RuntimeError('Restored PDF bytes differ from immutable database metadata')
+            total+=len(pdf)
+            if total>128*1048576: raise RuntimeError('Private request restore exceeds total resource bound')
+            framed.extend(struct.pack('!I',len(pdf))+pdf)
+        tested=subprocess.run(['docker','run','--rm','--name',names[2],'--network',prefix,'--memory','512m',
+            '--pids-limit','128','--tmpfs','/recovered-reports:rw,noexec,nosuid,size=128m,mode=700,uid=10001,gid=10001',
+            '--mount','type=bind,source='+str(probe)+',target=/tmp/restored-report-probe.py,readonly',
+            '-i',*arguments,image,'/app/.venv/bin/python','/tmp/restored-report-probe.py'],
+            env=environment,input=framed,capture_output=True,timeout=120)
+        try:
+            outcome=json.loads(tested.stdout)
+        except (ValueError,TypeError):
+            raise RuntimeError('Restored request qualification response invalid; diagnostics suppressed') from None
+        (run/'request-probe.json').write_text(json.dumps(outcome,indent=2),encoding='utf-8')
+        if tested.returncode or outcome.get('qualified') is not True:
+            raise RuntimeError('Restored request qualification failed; see sanitized probe')
+        result={'verified_at':datetime.now(UTC).isoformat(),'qualification_passed':True,'request_probe':outcome,
+                'source_object_receipt':str(OBJECT_RECEIPT),'source_backup_sha256':database['backup_sha256'],
+                'candidate_image_id':image,'postgres_image_id':pg_image,'probe_sha256':probe_digest,
+                'total_plaintext_bytes_verified':total,'host_plaintext_files_created':False,'production_writes':False,
+                'candidate_migrations_on_isolated_clone':True,'same_physical_host_custody':True}
+    finally:
+        from qualification_cleanup import cleanup_targets
+        cleanup = cleanup_targets(docker, names, prefix if network_created else None)
+        if not cleanup['cleanup_passed']:
+            (run/'cleanup-failure.json').write_text(json.dumps(cleanup),encoding='utf-8')
+            raise RuntimeError('Isolated request cleanup incomplete; overall qualification withheld')
+        if result is not None:
+            result['cleanup_passed']=True
+            result['cleanup']=cleanup['verified']
+            (run/'qualification-summary.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+            print(json.dumps(result))
+
+
+if __name__=='__main__':
+    main()
+
+FILE scripts/qualification_cleanup.py
+"""Attempt every isolated target; successful deletion alone is not proof."""
+def cleanup_targets(docker, containers, network=None):
+    verified, failures = [], []
+    for name in containers:
+        try:
+            present = docker('container', 'ls', '-aq', '--filter', 'name=^/' + name + '$', capture_output=True, text=True).stdout.strip()
+            if present:
+                docker('rm', '-f', name, capture_output=True, timeout=30)
+        except Exception:
+            failures.append('container-operation:' + name)
+        try:
+            remaining = docker('container', 'ls', '-aq', '--filter', 'name=^/' + name + '$', capture_output=True, text=True).stdout.strip()
+            if remaining:
+                failures.append('container-remains:' + name)
+            else:
+                verified.append({'target': name, 'absence_verified': True})
+        except Exception:
+            failures.append('container-verification:' + name)
+    if network:
+        try:
+            docker('network', 'rm', network, capture_output=True, timeout=30)
+        except Exception:
+            failures.append('network-operation:' + network)
+        try:
+            if docker('network', 'ls', '-q', '--filter', 'name=^' + network + '$', capture_output=True, text=True).stdout.strip():
+                failures.append('network-remains:' + network)
+            else:
+                verified.append({'target': network, 'absence_verified': True})
+        except Exception:
+            failures.append('network-verification:' + network)
+    return {'cleanup_passed': not failures, 'verified': verified, 'failed_targets': failures}
+
+FILE scripts/qualify_cleanup_failure.py
+"""Fault-inject the isolated qualification cleanup, without real deletions."""
+import json
+from pathlib import Path
+from types import SimpleNamespace
+from qualification_cleanup import cleanup_targets
+
+calls = []
+def broken_docker(*args, **kwargs):
+    calls.append(args)
+    if args[:2] == ('rm', '-f') and args[2] == 'first':
+        raise RuntimeError('Injected deletion failure')
+    present = args[:3] == ('container', 'ls', '-aq') and 'name=^/first$' in args
+    return SimpleNamespace(stdout='fake-id' if present else '')
+
+result = cleanup_targets(broken_docker, ['first', 'second', 'third'], 'isolated-network')
+assert not result['cleanup_passed']
+assert 'container-operation:first' in result['failed_targets']
+assert 'container-remains:first' in result['failed_targets']
+assert all(any('name=^/' + name + '$' in call for call in calls) for name in ['second', 'third'])
+assert ('network', 'rm', 'isolated-network') in calls
+assert any('name=^isolated-network$' in call for call in calls)
+receipt = {'qualification_passed': True, 'injected_first_target_failure': True,
+           'later_targets_and_network_attempted': True, 'cleanup_success_withheld': True,
+           'real_targets_deleted': False, 'result': result}
+destination = Path(__file__).resolve().parents[1] / 'evidence/cleanup-failure-qualification.json'
+destination.write_text(json.dumps(receipt, indent=2), encoding='utf-8')
+print(json.dumps(receipt))
+
+FILE evidence/cleanup-failure-qualification.json
+{
+  "qualification_passed": true,
+  "injected_first_target_failure": true,
+  "later_targets_and_network_attempted": true,
+  "cleanup_success_withheld": true,
+  "real_targets_deleted": false,
+  "result": {
+    "cleanup_passed": false,
+    "verified": [
+      {
+        "target": "second",
+        "absence_verified": true
+      },
+      {
+        "target": "third",
+        "absence_verified": true
+      },
+      {
+        "target": "isolated-network",
+        "absence_verified": true
+      }
+    ],
+    "failed_targets": [
+      "container-operation:first",
+      "container-remains:first"
+    ]
+  }
+}
+FILE evidence/restored-report-access/20261003T221725.466960Z/qualification-summary.json
+{
+  "verified_at": "2026-10-03T22:17:50.276821+00:00",
+  "qualification_passed": true,
+  "request_probe": {
+    "qualified": true,
+    "application_role": "agentledger_app",
+    "transaction_isolation": "read committed",
+    "objects": 6,
+    "counts": {
+      "authorized_downloads": 6,
+      "anonymous_denials": 6,
+      "cross_tenant_denials": 6,
+      "corrupt_object_denials": 6,
+      "missing_object_denials": 6,
+      "repaired_copy_downloads": 6,
+      "download_attempts_with_current_clone_entitlement": 0,
+      "same_length_corrupt_object_denials": 6,
+      "post_request_metadata_matches": 6,
+      "unentitled_clone_denials": 6,
+      "isolated_entitlement_mutations": 6
+    },
+    "listening_server_started": false,
+    "production_writes": false,
+    "provider_requests": false,
+    "entitlement_evidence": "Clone entitlements can be changed by explicitly synthetic fixtures during this probe. Current-clone counts are not original-snapshot or live entitlement facts.",
+    "limits": "In-process Django request pipeline with actual app role, restored existing rows/objects, explicitly synthetic clone entitlements where absent, and isolated negative tenant; no live entitlement, production HTTP or cutover proof."
+  },
+  "source_object_receipt": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\report-object-restore\\20261003T212039.504272Z\\restore-summary.json",
+  "source_backup_sha256": "0b20cd7ede2d1218e210af325f3ee19fa98a6d2cacff895728468c58981e1dbc",
+  "candidate_image_id": "sha256:95b24d4215bb6cec845a42ee8061504b95d62ba11e4c6f53c7d596c354680946",
+  "postgres_image_id": "sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722",
+  "probe_sha256": "f780781b15befc96c67e2a41b48eb19ab862e5f8474d63c9a1e3adb2d96d932d",
+  "total_plaintext_bytes_verified": 698217,
+  "host_plaintext_files_created": false,
+  "production_writes": false,
+  "candidate_migrations_on_isolated_clone": true,
+  "same_physical_host_custody": true,
+  "cleanup_passed": true,
+  "cleanup": [
+    {
+      "target": "stewardence-restored-access-a035cd600a-db",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-restored-access-a035cd600a-migrations",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-restored-access-a035cd600a-app",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-restored-access-a035cd600a",
+      "absence_verified": true
+    }
+  ]
+}
+FILE evidence/20261003T212935.286078Z/qualification-summary.json
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-ca0abcf2df",
+  "image_id": "sha256:95b24d4215bb6cec845a42ee8061504b95d62ba11e4c6f53c7d596c354680946",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T212935.286078Z",
+  "test_arguments": [
+    "tests"
+  ]
+}

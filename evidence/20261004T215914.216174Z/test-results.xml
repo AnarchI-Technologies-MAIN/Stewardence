@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="49.968" timestamp="2026-10-04T22:02:36.659125+00:00" hostname="6338acddf103"><testcase classname="tests.test_capture_review_ui" name="test_missing_issuance_receipt_withholds_saved_capture_content" time="38.273" /><testcase classname="tests.test_capture_review_ui" name="test_schema_two_legacy_assessment_link_returns_to_qualified_owner_review" time="6.774"><failure message="assert 200 == 302&#10; +  where 200 = &lt;HttpResponse status_code=200, &quot;text/html; charset=utf-8&quot;&gt;.status_code">capture_ui = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;InventoryItem: Workflow helper&gt;)
+client = &lt;django.test.client.Client object at 0x7711e4c582b0&gt;
+
+    def test_schema_two_legacy_assessment_link_returns_to_qualified_owner_review(
+        capture_ui, client
+    ):
+        _, token, frame = preview(client)
+        saved = confirm(client, token)
+        assert saved.status_code == 302
+        before = effects()
+        legacy = client.get(reverse("assessments:detail", args=[frame["capture_id"]]))
+&gt;       assert legacy.status_code == 302
+E       assert 200 == 302
+E        +  where 200 = &lt;HttpResponse status_code=200, "text/html; charset=utf-8"&gt;.status_code
+
+tests/test_capture_review_ui.py:408: AssertionError</failure></testcase></testsuite></testsuites>

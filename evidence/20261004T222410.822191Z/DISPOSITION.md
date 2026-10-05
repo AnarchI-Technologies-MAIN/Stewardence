@@ -1,0 +1,5 @@
+# Interrupted before final qualification
+
+The parent stopped this frozen-source run after the final source check found that the schema2 snapshot freeze CTA still used the legacy-only condition. No pass or runtime qualification is claimed from this interrupted run. The source manifest/build artifacts are retained. The candidate now allows the new CTA only under the existing default-false lifecycle Python flag; a fresh frozen run is required. No production changes occurred.
+
+Correction from log inspection: migrations and partial tests had started before interruption. Interrupting the local Docker client left its owned ephemeral app/DB running. The exact build-tagged app xenodochial_proskuriakova, DB stewardence-local-b7f1aa2183-db and network stewardence-local-b7f1aa2183 were subsequently identified through the frozen build log and docker inspect, then removed. No unrelated containers were changed. A brief overlap with the successor run occurred before that cleanup; the successor is not claimed serial for its entire initial interval. No complete test result is claimed for this abandoned run.

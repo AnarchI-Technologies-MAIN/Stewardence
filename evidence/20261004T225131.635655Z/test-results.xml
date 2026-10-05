@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="208" time="156.279" timestamp="2026-10-04T22:52:25.908186+00:00" hostname="52acee13447c"><testcase classname="tests.test_rls" name="test_restricted_alias_uses_the_expected_database_identity[owner_runtime-agentledger_owner]" time="12.200" /><testcase classname="tests.test_rls" name="test_restricted_alias_uses_the_expected_database_identity[app_runtime-agentledger_app]" time="1.182" /><testcase classname="tests.test_rls" name="test_restricted_alias_uses_the_expected_database_identity[worker_runtime-agentledger_worker]" time="1.215" /><testcase classname="tests.test_rls" name="test_app_runtime_can_read_global_catalog_without_write_authority" time="0.917" /><testcase classname="tests.test_rls" name="test_database_roles_have_the_required_privilege_boundary" time="0.683" /><testcase classname="tests.test_rls" name="test_organization_scoped_tables_have_required_column_and_forced_rls" time="0.754" /><testcase classname="tests.test_rls" name="test_assessment_snapshots_are_tenant_isolated_and_append_only" time="0.835" /><testcase classname="tests.test_rls" name="test_reports_are_tenant_isolated_and_runtime_immutable" time="1.381" /><testcase classname="tests.test_rls" name="test_report_service_uses_restricted_app_role" time="1.195" /><testcase classname="tests.test_rls" name="test_app_role_cannot_link_report_to_another_tenants_snapshot" time="1.456" /><testcase classname="tests.test_rls" name="test_organization_rules_are_tenant_isolated_for_app_and_worker" time="0.930" /><testcase classname="tests.test_rls" name="test_identity_bootstrap_exposes_only_the_users_own_membership" time="0.797" /><testcase classname="tests.test_rls" name="test_public_onboarding_works_under_restricted_app_role" time="1.833" /><testcase classname="tests.test_rls" name="test_public_registration_cannot_create_privileged_account" time="1.523" /><testcase classname="tests.test_rls" name="test_onboarding_does_not_grant_direct_membership_insert" time="0.824" /><testcase classname="tests.test_rls" name="test_worker_cannot_provision_workspace" time="0.779" /><testcase classname="tests.test_rls" name="test_app_role_unfiltered_orm_and_raw_sql_are_tenant_isolated" time="0.706" /><testcase classname="tests.test_rls" name="test_direct_cross_tenant_primary_key_lookup_is_inaccessible" time="0.791" /><testcase classname="tests.test_rls" name="test_cross_tenant_insert_is_rejected" time="1.564" /><testcase classname="tests.test_rls" name="test_cross_tenant_update_affects_no_rows" time="0.716" /><testcase classname="tests.test_rls" name="test_missing_tenant_context_fails_closed" time="0.953" /><testcase classname="tests.test_rls" name="test_context_on_default_connection_does_not_unlock_app_runtime" time="1.474" /><testcase classname="tests.test_rls" name="test_worker_role_cannot_read_another_tenants_business_rows" time="1.186" /><testcase classname="tests.test_rls" name="test_csv_staging_is_tenant_isolated_under_app_role" time="1.130" /><testcase classname="tests.test_rls" name="test_background_jobs_are_tenant_scoped_for_app_runtime" time="1.082" /><testcase classname="tests.test_rls" name="test_app_runtime_cannot_insert_background_job_for_another_tenant" time="0.652" /><testcase classname="tests.test_rls" name="test_app_runtime_has_no_background_job_update_authority" time="0.579" /><testcase classname="tests.test_rls" name="test_worker_runtime_can_claim_across_tenants_without_tenant_context" time="1.133" /><testcase classname="tests.test_rls" name="test_worker_queue_scope_does_not_unlock_business_table_scope" time="0.445" /><testcase classname="tests.test_rls" name="test_report_artifacts_are_tenant_isolated_and_runtime_immutable" time="0.812" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_direct_app_sql_cannot_issue_legacy_cards_for_admitted_capture2" time="0.494" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_direct_app_sql_unresolved_snapshot_cannot_bypass_schema_dispatch" time="0.365" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_schema1_issuance_and_exact_replay_keep_legacy_meaning" time="1.206" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[app_runtime]" time="0.206" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[worker_runtime]" time="0.277" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_worker_cannot_execute_public_legacy_issuer" time="0.775" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_schema1_delegate_body_and_searchpath_are_preserved" time="0.625" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_wrong_app_context_is_rejected_before_definer_snapshot_lookup[existing_capture]" time="0.778" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_wrong_app_context_is_rejected_before_definer_snapshot_lookup[unresolved]" time="0.652" /><testcase classname="tests.test_capture_admission" name="test_preview_read_only_counts_legacy_and_admit_one_exact_receipt" time="0.597" /><testcase classname="tests.test_capture_admission" name="test_committed_replay_does_not_reinterpret_later_inventory" time="0.613" /><testcase classname="tests.test_capture_admission" name="test_review_to_admit_inventory_mutation_requires_new_preview" time="0.411" /><testcase classname="tests.test_capture_admission" name="test_new_explicit_record_is_not_a_silent_capture_phantom" time="0.379" /><testcase classname="tests.test_capture_admission" name="test_reviewed_server_pin_changes_are_rejected[industry]" time="0.353" /><testcase classname="tests.test_capture_admission" name="test_reviewed_server_pin_changes_are_rejected[profile]" time="0.473" /><testcase classname="tests.test_capture_admission" name="test_reviewed_server_pin_changes_are_rejected[counts]" time="0.373" /><testcase classname="tests.test_capture_admission" name="test_reviewed_server_pin_changes_are_rejected[future]" time="0.331" /><testcase classname="tests.test_capture_admission" name="test_reviewed_server_pin_changes_are_rejected[old]" time="0.385" /><testcase classname="tests.test_capture_admission" name="test_authority_denies_preview_and_issue[python_gate]" time="0.482" /><testcase classname="tests.test_capture_admission" name="test_authority_denies_preview_and_issue[operator_gate]" time="0.317" /><testcase classname="tests.test_capture_admission" name="test_authority_denies_preview_and_issue[paused]" time="0.405" /><testcase classname="tests.test_capture_admission" name="test_authority_denies_preview_and_issue[viewer]" time="0.369" /><testcase classname="tests.test_capture_admission" name="test_authority_denies_preview_and_issue[paid_expired]" time="0.334" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[benefit]" time="0.442" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[risk]" time="0.476" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[input_hash]" time="0.473" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[result_hash]" time="0.612" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[schema]" time="0.788" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[membership]" time="1.013" /><testcase classname="tests.test_capture_admission" name="test_raw_snapshot_two_and_unknown_schema_insert_are_denied[app_runtime]" time="0.674" /><testcase classname="tests.test_capture_admission" name="test_raw_snapshot_two_and_unknown_schema_insert_are_denied[worker_runtime]" time="0.610" /><testcase classname="tests.test_capture_admission" name="test_worker_cannot_read_receipt_or_execute_issuer" time="0.505" /><testcase classname="tests.test_capture_admission" name="test_receipt_raw_app_writes_and_mutation_denied" time="0.670" /><testcase classname="tests.test_capture_admission" name="test_changed_request_cannot_reuse_committed_capture_identity" time="0.725" /><testcase classname="tests.test_capture_admission" name="test_two_connections_same_reviewed_request_issue_one_snapshot" time="1.120" /><testcase classname="tests.test_capture_admission" name="test_paid_authority_is_rechecked_after_last_source_row_wait[organization]" time="0.882" /><testcase classname="tests.test_capture_admission" name="test_paid_authority_is_rechecked_after_last_source_row_wait[actor]" time="0.830" /><testcase classname="tests.test_capture_admission" name="test_receipt_reads_are_owner_only_and_same_tenant" time="0.740" /><testcase classname="tests.test_capture_admission" name="test_sql_preview_never_truncates_or_invents_explicit_records[0]" time="0.719" /><testcase classname="tests.test_capture_admission" name="test_sql_preview_never_truncates_or_invents_explicit_records[101]" time="1.518" /><testcase classname="tests.test_capture_admission" name="test_actual_sql_context_cannot_admit_another_actor_or_tenant" time="0.887" /><testcase classname="tests.test_capture_review_ui" name="test_owner_preview_is_private_read_only_and_explicitly_not_a_benefit_model" time="2.112" /><testcase classname="tests.test_capture_review_ui" name="test_signed_owner_confirmation_admits_schema_two_without_roi_or_downstream_work" time="1.218" /><testcase classname="tests.test_capture_review_ui" name="test_same_signed_retry_returns_exact_committed_capture_after_inventory_changes" time="0.915" /><testcase classname="tests.test_capture_review_ui" name="test_changed_inventory_before_confirmation_is_conflict_with_no_capture" time="0.586" /><testcase classname="tests.test_capture_review_ui" name="test_bad_preview_tokens_have_no_domain_effects[tampered]" time="0.692" /><testcase classname="tests.test_capture_review_ui" name="test_bad_preview_tokens_have_no_domain_effects[foreign_org]" time="0.742" /><testcase classname="tests.test_capture_review_ui" name="test_bad_preview_tokens_have_no_domain_effects[foreign_actor]" time="0.989" /><testcase classname="tests.test_capture_review_ui" name="test_bad_preview_tokens_have_no_domain_effects[expired]" time="1.091" /><testcase classname="tests.test_capture_review_ui" name="test_bad_preview_tokens_have_no_domain_effects[malformed_signed]" time="0.938" /><testcase classname="tests.test_capture_review_ui" name="test_confirmation_requires_deliberate_checkbox_and_csrf" time="2.029" /><testcase classname="tests.test_capture_review_ui" name="test_preview_and_snapshot_distinguish_unknown_none_no_and_zero" time="1.766" /><testcase classname="tests.test_capture_review_ui" name="test_closed_gates_deny_preview_and_confirmation_without_effects[workspace]" time="2.205" /><testcase classname="tests.test_capture_review_ui" name="test_closed_gates_deny_preview_and_confirmation_without_effects[application]" time="1.723" /><testcase classname="tests.test_capture_review_ui" name="test_closed_gates_deny_preview_and_confirmation_without_effects[operator]" time="1.288" /><testcase classname="tests.test_capture_review_ui" name="test_same_tenant_viewer_cannot_preview_or_confirm_capture" time="0.962" /><testcase classname="tests.test_capture_review_ui" name="test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet[390]" time="23.525" /><testcase classname="tests.test_capture_review_ui" name="test_real_browser_preview_is_readable_keyboard_confirmable_and_network_quiet[1280]" time="5.730" /><testcase classname="tests.test_capture_review_ui" name="test_missing_issuance_receipt_withholds_saved_capture_content" time="1.132" /><testcase classname="tests.test_capture_review_ui" name="test_schema_two_legacy_assessment_link_returns_to_qualified_owner_review" time="0.621" /><testcase classname="tests.test_capture_review_ui" name="test_direct_legacy_report_post_cannot_stage_schema_two_report_or_job" time="0.589" /><testcase classname="tests.test_capture_review_ui" name="test_direct_schema_two_proposals_stay_closed_with_legacy_flag_enabled" time="0.822" /><testcase classname="tests.test_capture_review_worker" name="test_capture2_actual_worker_chromium_storage_and_no_promotion[other]" time="3.771" /><testcase classname="tests.test_capture_review_worker" name="test_capture2_actual_worker_chromium_storage_and_no_promotion[accounting_bookkeeping]" time="3.198" /><testcase classname="tests.test_capture_archived_reads" name="test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[30-True]" time="0.590"><failure message="django.db.utils.ProgrammingError: New jobs require an unclaimed queued state&#10;CONTEXT:  PL/pgSQL function app_private.protect_job_inputs() line 4 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x7fbe311b45f0&gt;
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('91e232f5-9082-4a45-a11e-76e8933e8936'), UUID('f14a6fa1-8bba-41d3-933c-f22dbd6674a6'), 'report_generation', Json...8a1c-0eab-4a5e-a ... (53 chars)), '41d61d4d26d35720d2ab56829ddab7cb29718ae1677dd561dac41dd6a2fa99ad', 'completed', ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x7fbe311b45f0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7fbe322ff690&gt;
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('91e232f5-9082-4a45-a11e-76e8933e8936'), UUID('f14a6fa1-8bba-41d3-933c-f22dbd6674a6'), 'report_generation', Json...8a1c-0eab-4a5e-a ... (53 chars)), '41d61d4d26d35720d2ab56829ddab7cb29718ae1677dd561dac41dd6a2fa99ad', 'completed', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: New jobs require an unclaimed queued state
+E           CONTEXT:  PL/pgSQL function app_private.protect_job_inputs() line 4 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+admitted = (&lt;User: paid-authority@example.invalid&gt;, &lt;Organization: Synthetic paid authority&gt;, &lt;Subscription: Subscription object ...: '86151e86-b8a3-48ab-9765-ed3ac3506c6b', 'stripe_subscription_id': 'sub_test', 'stripe_customer_id': 'cus_test', ...})
+age_days = 30, allowed = True
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_genuine_past_paid_interva0')
+client = &lt;django.test.client.Client object at 0x7fbe31225630&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0x7fbe31547980&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fbe31210f30&gt;
+
+    @pytest.mark.parametrize("age_days,allowed", [(30, True), (91, False)])
+    def test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy(
+        admitted, age_days, allowed, tmp_path, client, settings, monkeypatch
+    ):
+&gt;       user, org, subscription, report, storage, pdf = synthetic_archive(
+            admitted, age_days, tmp_path
+        )
+
+tests/test_capture_archived_reads.py:184: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_capture_archived_reads.py:51: in synthetic_archive
+    return _synthetic_archive_owner(admitted, age_days, path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_capture_archived_reads.py:139: in _synthetic_archive_owner
+    job = BackgroundJob.objects.create(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7fbe322ff690&gt;
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('91e232f5-9082-4a45-a11e-76e8933e8936'), UUID('f14a6fa1-8bba-41d3-933c-f22dbd6674a6'), 'report_generation', Json...8a1c-0eab-4a5e-a ... (53 chars)), '41d61d4d26d35720d2ab56829ddab7cb29718ae1677dd561dac41dd6a2fa99ad', 'completed', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: New jobs require an unclaimed queued state
+E           CONTEXT:  PL/pgSQL function app_private.protect_job_inputs() line 4 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_capture_archived_reads" name="test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[91-False]" time="0.580"><failure message="django.db.utils.ProgrammingError: New jobs require an unclaimed queued state&#10;CONTEXT:  PL/pgSQL function app_private.protect_job_inputs() line 4 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x7fbe319109b0&gt;
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('0f399887-c599-4772-a0a0-eefc533a44c3'), UUID('39c968e6-a95d-4a1c-82b5-917c21d4d209'), 'report_generation', Json...2d66-fd12-49ef-9 ... (53 chars)), 'a29d632506c604d3d524f57c66e8088c35a1c9f0c6984b7b0f15394b8f2b1e3c', 'completed', ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x7fbe319109b0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7fbe322fd7f0&gt;
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('0f399887-c599-4772-a0a0-eefc533a44c3'), UUID('39c968e6-a95d-4a1c-82b5-917c21d4d209'), 'report_generation', Json...2d66-fd12-49ef-9 ... (53 chars)), 'a29d632506c604d3d524f57c66e8088c35a1c9f0c6984b7b0f15394b8f2b1e3c', 'completed', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: New jobs require an unclaimed queued state
+E           CONTEXT:  PL/pgSQL function app_private.protect_job_inputs() line 4 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+admitted = (&lt;User: paid-authority@example.invalid&gt;, &lt;Organization: Synthetic paid authority&gt;, &lt;Subscription: Subscription object ...: 'afb6c5da-6452-4a08-9ed9-3b0abbe66bc6', 'stripe_subscription_id': 'sub_test', 'stripe_customer_id': 'cus_test', ...})
+age_days = 91, allowed = False
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_genuine_past_paid_interva1')
+client = &lt;django.test.client.Client object at 0x7fbe31f61d10&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0x7fbe342c4140&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fbe315c7690&gt;
+
+    @pytest.mark.parametrize("age_days,allowed", [(30, True), (91, False)])
+    def test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy(
+        admitted, age_days, allowed, tmp_path, client, settings, monkeypatch
+    ):
+&gt;       user, org, subscription, report, storage, pdf = synthetic_archive(
+            admitted, age_days, tmp_path
+        )
+
+tests/test_capture_archived_reads.py:184: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_capture_archived_reads.py:51: in synthetic_archive
+    return _synthetic_archive_owner(admitted, age_days, path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_capture_archived_reads.py:139: in _synthetic_archive_owner
+    job = BackgroundJob.objects.create(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7fbe322fd7f0&gt;
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('0f399887-c599-4772-a0a0-eefc533a44c3'), UUID('39c968e6-a95d-4a1c-82b5-917c21d4d209'), 'report_generation', Json...2d66-fd12-49ef-9 ... (53 chars)), 'a29d632506c604d3d524f57c66e8088c35a1c9f0c6984b7b0f15394b8f2b1e3c', 'completed', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: New jobs require an unclaimed queued state
+E           CONTEXT:  PL/pgSQL function app_private.protect_job_inputs() line 4 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_capture_report_access" name="test_unassociated_capture_report_is_not_ordinary_tenant_report[viewer]" time="0.460" /><testcase classname="tests.test_capture_report_access" name="test_unassociated_capture_report_is_not_ordinary_tenant_report[assessor]" time="0.474" /><testcase classname="tests.test_capture_report_access" name="test_capture_report_foreign_tenant_denied_and_worker_policy_preserved" time="0.429" /><testcase classname="tests.test_capture_report_access" name="test_unassociated_capture_detail_and_download_fail_before_storage" time="0.586" /><testcase classname="tests.test_capture_report_access" name="test_admitted_pending_capture_status_never_builds_legacy_roi_context" time="0.461" /><testcase classname="tests.test_core_first_capture_journey" name="test_first_owner_records_reviews_freezes_and_requests_exact_capture" time="2.042" /><testcase classname="tests.test_capture_pack_authority" name="test_frozen_capture_has_exact_issued_receipt_and_no_baseline_or_decisions" time="1.414" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_projection_and_readback_use_new_context" time="1.154" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_request_cannot_authorize_baseline_promotion[False]" time="0.735" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_request_cannot_authorize_baseline_promotion[True]" time="0.771" /><testcase classname="tests.test_capture_pack_authority" name="test_historical_and_capture_internal_helpers_are_owner_only[app_runtime]" time="0.368" /><testcase classname="tests.test_capture_pack_authority" name="test_historical_and_capture_internal_helpers_are_owner_only[worker_runtime]" time="0.475" /><testcase classname="tests.test_capture_pack_authority" name="test_worker_projection_receipt_pins_match_actual_capture" time="1.508" /><testcase classname="tests.test_capture_pack_authority" name="test_foreign_owner_cannot_dispatch_capture_pack" time="1.606" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_authority_revoked_during_actor_row_wait[open]" time="1.537" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_authority_revoked_during_actor_row_wait[freeze]" time="1.681" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[accounting_bookkeeping]" time="0.034" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[legal]" time="0.009" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[healthcare]" time="0.014" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[construction]" time="0.013" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[agency]" time="0.009" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[other]" time="0.010" /><testcase classname="tests.test_capture_contract" name="test_order_duplicates_count_and_no_alias" time="0.116" /><testcase classname="tests.test_capture_contract" name="test_bounds[0]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_bounds[101]" time="0.006" /><testcase classname="tests.test_capture_contract" name="test_known_premises_and_auxiliary_unknowns" time="0.019" /><testcase classname="tests.test_capture_contract" name="test_false_known_premise_does_not_mask_unknown" time="0.028" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[permissions-value0-Unknown]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[human_approval-False-Unknown]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[monthly_cost_cents-0-Unknown]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[seat_count-True-Declared]" time="0.009" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[autonomy_level-5-Declared]" time="0.005" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[human_approval-0-Declared]" time="0.012" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[permissions-write-Declared]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[permissions-value7-Declared]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[vendor_name-None-Declared]" time="0.015" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[assessment_version-True]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[assessment_version-2]" time="0.015" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[industry-unknown]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[workflow_profile-custom.v1]" time="0.015" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[organization_id-uuid]" time="0.010" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[captured_at-value5]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[schema]" time="0.038" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[digest]" time="0.040" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[result]" time="0.040" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[roi]" time="0.058" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[created_by_id]" time="0.073" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[workflow_profile_id]" time="0.052" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[organization_id]" time="0.048" /><testcase classname="tests.test_capture_contract" name="test_closed_record[extra]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_closed_record[future]" time="0.008" /><testcase classname="tests.test_capture_contract" name="test_closed_record[catalog]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_closed_record[archived]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_closed_record[missing]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_actual_inventory_helper_normalizes_unknowns_without_database" time="0.006" /><testcase classname="tests.test_capture_contract" name="test_explicit_none_false_zero_are_preserved_without_benefit[permissions-value0]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_explicit_none_false_zero_are_preserved_without_benefit[human_approval-False]" time="0.006" /><testcase classname="tests.test_capture_contract" name="test_explicit_none_false_zero_are_preserved_without_benefit[monthly_cost_cents-0]" time="0.014" /><testcase classname="tests.test_capture_contract" name="test_declaration_as_of_is_an_exact_owner_date[None]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_declaration_as_of_is_an_exact_owner_date[True]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_declaration_as_of_is_an_exact_owner_date[2026-10-04T00:00:00Z]" time="0.005" /><testcase classname="tests.test_capture_contract" name="test_declaration_as_of_is_an_exact_owner_date[20261004]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_declaration_as_of_is_an_exact_owner_date[not-a-date]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_development_profile_and_timezone_normalization_are_pinned" time="0.008" /><testcase classname="tests.test_capture_contract" name="test_business_purpose_bound_matches_explicit_issuer[4096-True]" time="0.006" /><testcase classname="tests.test_capture_contract" name="test_business_purpose_bound_matches_explicit_issuer[4097-False]" time="0.003" /><testcase classname="tests.test_capture_historical_semantics" name="test_permanent_capture_ignores_current_semantic_aliases[other-dac2763c822baaf708fbb22c46f09ea14917b35991504d89d94a56f6bce54fd8-89370962075734b9dab03348d7aa4d5bf40515f6e58e788b7e33741cbba581c1]" time="0.014" /><testcase classname="tests.test_capture_historical_semantics" name="test_permanent_capture_ignores_current_semantic_aliases[accounting_bookkeeping-fc510a466bb56099dcfa42e86882ef2bb7ffd18b591a439b5a6a3f10e7389eca-77de47e4506d81b034f9faac31d1c446d1acde7902f9dc0b0ded382915281365]" time="0.034" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[other]" time="0.010" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[legal]" time="0.011" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[healthcare]" time="0.012" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[construction]" time="0.015" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[agency]" time="0.016" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[accounting_bookkeeping]" time="0.046" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[mixed_schema]" time="0.011" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[legacy_manifest]" time="0.006" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[nonempty_decisions]" time="0.009" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[rule_pin]" time="0.009" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[owner]" time="0.006" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[fabricated_risk]" time="0.008" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[fabricated_benefit]" time="0.007" /><testcase classname="tests.test_capture_review_renderer" name="test_renderer_rejects_extra_roi_and_hash_consistent_fake_risk" time="0.012" /><testcase classname="tests.test_capture_review_renderer" name="test_actual_chromium_capture_pack_is_roi_free" time="2.611" /><testcase classname="tests.test_capture_review_renderer" name="test_rehashed_divergent_receipt_identity_cannot_render" time="0.007" /><testcase classname="tests.test_capture_review_renderer" name="test_rehashed_unknown_to_pass_exposure_cannot_render" time="0.010" /><testcase classname="tests.test_capture_review_renderer" name="test_metadata_assessment_version_is_exact_integer_one[True]" time="0.008" /><testcase classname="tests.test_capture_review_renderer" name="test_metadata_assessment_version_is_exact_integer_one[1.0]" time="0.011" /><testcase classname="tests.test_capture_review_renderer" name="test_metadata_assessment_version_is_exact_integer_one[1]" time="0.009" /><testcase classname="tests.test_capture_review_renderer" name="test_metadata_assessment_version_is_exact_integer_one[None]" time="0.007" /><testcase classname="tests.test_capture_review_renderer" name="test_metadata_assessment_version_is_exact_integer_one[2]" time="0.006" /><testcase classname="tests.test_capture_review_renderer" name="test_initial_capture_pack_rejects_rehashed_unadmitted_baseline" time="0.008" /><testcase classname="tests.test_capture_proposals_contract" name="test_finite_unknown_allowlist_and_exact_source_pins" time="0.012" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[False-1-CONCERN]" time="0.012" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[True-1-PASS]" time="0.008" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[False-0-NOT_APPLICABLE]" time="0.006" /><testcase classname="tests.test_capture_proposals_contract" name="test_accounting_fail_requires_exact_frozen_qualification" time="0.035" /><testcase classname="tests.test_capture_proposals_contract" name="test_unknown_premise_does_not_emit_accounting_failure" time="0.031" /><testcase classname="tests.test_capture_proposals_contract" name="test_deterministic_order_identity_digest_and_no_aliases" time="0.048" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[question]" time="0.055" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[digest]" time="0.066" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[record]" time="0.046" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[result]" time="0.039" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[definition]" time="0.042" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[applicability]" time="0.044" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[extra]" time="0.057" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[None]" time="0.007" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[True]" time="0.004" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[malformed2]" time="0.004" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[2_0]" time="0.005" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[2_1]" time="0.008" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_snapshot_uuid_and_boolean_admission_shape_denied" time="0.007" /><testcase classname="tests.test_capture_proposals_contract" name="test_independent_later_capture_changes_without_rewriting_unknown" time="4.872" /></testsuite></testsuites>

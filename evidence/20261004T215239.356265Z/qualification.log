@@ -1,0 +1,650 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+FFFFFF.......FF.....................................F.                   [100%]
+=================================== FAILURES ===================================
+_________ test_capture_context_exact_unknowns_and_no_legacy_roi[other] _________
+
+industry = 'other'
+
+    @pytest.mark.parametrize("industry", ["other", "legal", "healthcare", "construction", "agency", "accounting_bookkeeping"])
+    def test_capture_context_exact_unknowns_and_no_legacy_roi(industry):
+        metadata, projection = capture_projection(industry)
+        context = build_capture_pack_context(metadata, projection)
+>       assert validate_report_render_payload(context) == context
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_review_renderer.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+renderer/schema.py:111: in validate_report_render_payload
+    return validate_capture_render_payload(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:13: in validate_capture_render_payload
+    return _validate(report)
+           ^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:26: in _validate
+    _validate_tree(report)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ('business_owner',), depth = 5
+
+    def _validate_tree(value: Any, *, depth: int = 0) -> None:
+        if depth > MAX_NESTING_DEPTH:
+            raise InvalidReportRenderPayload("Payload nesting is too deep")
+        if value is None or isinstance(value, (bool, int)):
+            return
+        if isinstance(value, str):
+            if len(value) > MAX_STRING_LENGTH:
+                raise InvalidReportRenderPayload("Payload string is too long")
+            if "\x00" in value:
+                raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+            return
+        if isinstance(value, list):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for item in value:
+                _validate_tree(item, depth=depth + 1)
+            return
+        if isinstance(value, dict):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise InvalidReportRenderPayload("Payload keys must be strings")
+                if key.casefold() in FORBIDDEN_KEYS:
+                    raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+                _validate_tree(item, depth=depth + 1)
+            return
+>       raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+E       renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type
+
+renderer/schema.py:88: InvalidReportRenderPayload
+_________ test_capture_context_exact_unknowns_and_no_legacy_roi[legal] _________
+
+industry = 'legal'
+
+    @pytest.mark.parametrize("industry", ["other", "legal", "healthcare", "construction", "agency", "accounting_bookkeeping"])
+    def test_capture_context_exact_unknowns_and_no_legacy_roi(industry):
+        metadata, projection = capture_projection(industry)
+        context = build_capture_pack_context(metadata, projection)
+>       assert validate_report_render_payload(context) == context
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_review_renderer.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+renderer/schema.py:111: in validate_report_render_payload
+    return validate_capture_render_payload(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:13: in validate_capture_render_payload
+    return _validate(report)
+           ^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:26: in _validate
+    _validate_tree(report)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ('business_owner',), depth = 5
+
+    def _validate_tree(value: Any, *, depth: int = 0) -> None:
+        if depth > MAX_NESTING_DEPTH:
+            raise InvalidReportRenderPayload("Payload nesting is too deep")
+        if value is None or isinstance(value, (bool, int)):
+            return
+        if isinstance(value, str):
+            if len(value) > MAX_STRING_LENGTH:
+                raise InvalidReportRenderPayload("Payload string is too long")
+            if "\x00" in value:
+                raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+            return
+        if isinstance(value, list):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for item in value:
+                _validate_tree(item, depth=depth + 1)
+            return
+        if isinstance(value, dict):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise InvalidReportRenderPayload("Payload keys must be strings")
+                if key.casefold() in FORBIDDEN_KEYS:
+                    raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+                _validate_tree(item, depth=depth + 1)
+            return
+>       raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+E       renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type
+
+renderer/schema.py:88: InvalidReportRenderPayload
+______ test_capture_context_exact_unknowns_and_no_legacy_roi[healthcare] _______
+
+industry = 'healthcare'
+
+    @pytest.mark.parametrize("industry", ["other", "legal", "healthcare", "construction", "agency", "accounting_bookkeeping"])
+    def test_capture_context_exact_unknowns_and_no_legacy_roi(industry):
+        metadata, projection = capture_projection(industry)
+        context = build_capture_pack_context(metadata, projection)
+>       assert validate_report_render_payload(context) == context
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_review_renderer.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+renderer/schema.py:111: in validate_report_render_payload
+    return validate_capture_render_payload(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:13: in validate_capture_render_payload
+    return _validate(report)
+           ^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:26: in _validate
+    _validate_tree(report)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ('business_owner',), depth = 5
+
+    def _validate_tree(value: Any, *, depth: int = 0) -> None:
+        if depth > MAX_NESTING_DEPTH:
+            raise InvalidReportRenderPayload("Payload nesting is too deep")
+        if value is None or isinstance(value, (bool, int)):
+            return
+        if isinstance(value, str):
+            if len(value) > MAX_STRING_LENGTH:
+                raise InvalidReportRenderPayload("Payload string is too long")
+            if "\x00" in value:
+                raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+            return
+        if isinstance(value, list):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for item in value:
+                _validate_tree(item, depth=depth + 1)
+            return
+        if isinstance(value, dict):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise InvalidReportRenderPayload("Payload keys must be strings")
+                if key.casefold() in FORBIDDEN_KEYS:
+                    raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+                _validate_tree(item, depth=depth + 1)
+            return
+>       raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+E       renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type
+
+renderer/schema.py:88: InvalidReportRenderPayload
+_____ test_capture_context_exact_unknowns_and_no_legacy_roi[construction] ______
+
+industry = 'construction'
+
+    @pytest.mark.parametrize("industry", ["other", "legal", "healthcare", "construction", "agency", "accounting_bookkeeping"])
+    def test_capture_context_exact_unknowns_and_no_legacy_roi(industry):
+        metadata, projection = capture_projection(industry)
+        context = build_capture_pack_context(metadata, projection)
+>       assert validate_report_render_payload(context) == context
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_review_renderer.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+renderer/schema.py:111: in validate_report_render_payload
+    return validate_capture_render_payload(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:13: in validate_capture_render_payload
+    return _validate(report)
+           ^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:26: in _validate
+    _validate_tree(report)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ('business_owner',), depth = 5
+
+    def _validate_tree(value: Any, *, depth: int = 0) -> None:
+        if depth > MAX_NESTING_DEPTH:
+            raise InvalidReportRenderPayload("Payload nesting is too deep")
+        if value is None or isinstance(value, (bool, int)):
+            return
+        if isinstance(value, str):
+            if len(value) > MAX_STRING_LENGTH:
+                raise InvalidReportRenderPayload("Payload string is too long")
+            if "\x00" in value:
+                raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+            return
+        if isinstance(value, list):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for item in value:
+                _validate_tree(item, depth=depth + 1)
+            return
+        if isinstance(value, dict):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise InvalidReportRenderPayload("Payload keys must be strings")
+                if key.casefold() in FORBIDDEN_KEYS:
+                    raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+                _validate_tree(item, depth=depth + 1)
+            return
+>       raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+E       renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type
+
+renderer/schema.py:88: InvalidReportRenderPayload
+________ test_capture_context_exact_unknowns_and_no_legacy_roi[agency] _________
+
+industry = 'agency'
+
+    @pytest.mark.parametrize("industry", ["other", "legal", "healthcare", "construction", "agency", "accounting_bookkeeping"])
+    def test_capture_context_exact_unknowns_and_no_legacy_roi(industry):
+        metadata, projection = capture_projection(industry)
+        context = build_capture_pack_context(metadata, projection)
+>       assert validate_report_render_payload(context) == context
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_review_renderer.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+renderer/schema.py:111: in validate_report_render_payload
+    return validate_capture_render_payload(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:13: in validate_capture_render_payload
+    return _validate(report)
+           ^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:26: in _validate
+    _validate_tree(report)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ('business_owner',), depth = 5
+
+    def _validate_tree(value: Any, *, depth: int = 0) -> None:
+        if depth > MAX_NESTING_DEPTH:
+            raise InvalidReportRenderPayload("Payload nesting is too deep")
+        if value is None or isinstance(value, (bool, int)):
+            return
+        if isinstance(value, str):
+            if len(value) > MAX_STRING_LENGTH:
+                raise InvalidReportRenderPayload("Payload string is too long")
+            if "\x00" in value:
+                raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+            return
+        if isinstance(value, list):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for item in value:
+                _validate_tree(item, depth=depth + 1)
+            return
+        if isinstance(value, dict):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise InvalidReportRenderPayload("Payload keys must be strings")
+                if key.casefold() in FORBIDDEN_KEYS:
+                    raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+                _validate_tree(item, depth=depth + 1)
+            return
+>       raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+E       renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type
+
+renderer/schema.py:88: InvalidReportRenderPayload
+_ test_capture_context_exact_unknowns_and_no_legacy_roi[accounting_bookkeeping] _
+
+industry = 'accounting_bookkeeping'
+
+    @pytest.mark.parametrize("industry", ["other", "legal", "healthcare", "construction", "agency", "accounting_bookkeeping"])
+    def test_capture_context_exact_unknowns_and_no_legacy_roi(industry):
+        metadata, projection = capture_projection(industry)
+        context = build_capture_pack_context(metadata, projection)
+>       assert validate_report_render_payload(context) == context
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_review_renderer.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+renderer/schema.py:111: in validate_report_render_payload
+    return validate_capture_render_payload(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:13: in validate_capture_render_payload
+    return _validate(report)
+           ^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:26: in _validate
+    _validate_tree(report)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ('business_owner',), depth = 5
+
+    def _validate_tree(value: Any, *, depth: int = 0) -> None:
+        if depth > MAX_NESTING_DEPTH:
+            raise InvalidReportRenderPayload("Payload nesting is too deep")
+        if value is None or isinstance(value, (bool, int)):
+            return
+        if isinstance(value, str):
+            if len(value) > MAX_STRING_LENGTH:
+                raise InvalidReportRenderPayload("Payload string is too long")
+            if "\x00" in value:
+                raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+            return
+        if isinstance(value, list):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for item in value:
+                _validate_tree(item, depth=depth + 1)
+            return
+        if isinstance(value, dict):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise InvalidReportRenderPayload("Payload keys must be strings")
+                if key.casefold() in FORBIDDEN_KEYS:
+                    raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+                _validate_tree(item, depth=depth + 1)
+            return
+>       raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+E       renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type
+
+renderer/schema.py:88: InvalidReportRenderPayload
+________ test_renderer_rejects_extra_roi_and_hash_consistent_fake_risk _________
+
+    def test_renderer_rejects_extra_roi_and_hash_consistent_fake_risk():
+        context = build_capture_pack_context(*capture_projection())
+        context["roi"] = {"roi_percent": "0"}
+        with pytest.raises(InvalidReportRenderPayload):
+            validate_report_render_payload(context)
+        context.pop("roi")
+        p = context["projection"]
+        p["snapshot_result"]["inventory_results"][0]["risk"]["score"] = 0
+        pin = p["manifest"]["snapshot"]
+        pin["result_sha256"] = digest(p["snapshot_result"])
+        context["metadata"]["result_sha256"] = pin["result_sha256"]
+        p["manifest_sha256"] = digest(p["manifest"])
+>       with pytest.raises(InvalidReportRenderPayload, match="risk/policy"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'risk/policy'
+E         Actual message: 'Payload contains an unsupported value type'
+
+tests/test_capture_review_renderer.py:94: AssertionError
+________________ test_actual_chromium_capture_pack_is_roi_free _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_actual_chromium_capture_p0')
+
+    def test_actual_chromium_capture_pack_is_roi_free(tmp_path):
+        context = build_capture_pack_context(*capture_projection())
+>       data = render_pdf(context, output_directory=tmp_path)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_capture_review_renderer.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+renderer/render.py:88: in render_pdf
+    validated = validate_report_render_payload(payload)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+renderer/schema.py:111: in validate_report_render_payload
+    return validate_capture_render_payload(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:13: in validate_capture_render_payload
+    return _validate(report)
+           ^^^^^^^^^^^^^^^^^
+renderer/capture_schema.py:26: in _validate
+    _validate_tree(report)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:76: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:86: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ('business_owner',), depth = 5
+
+    def _validate_tree(value: Any, *, depth: int = 0) -> None:
+        if depth > MAX_NESTING_DEPTH:
+            raise InvalidReportRenderPayload("Payload nesting is too deep")
+        if value is None or isinstance(value, (bool, int)):
+            return
+        if isinstance(value, str):
+            if len(value) > MAX_STRING_LENGTH:
+                raise InvalidReportRenderPayload("Payload string is too long")
+            if "\x00" in value:
+                raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+            return
+        if isinstance(value, list):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for item in value:
+                _validate_tree(item, depth=depth + 1)
+            return
+        if isinstance(value, dict):
+            if len(value) > MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise InvalidReportRenderPayload("Payload keys must be strings")
+                if key.casefold() in FORBIDDEN_KEYS:
+                    raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+                _validate_tree(item, depth=depth + 1)
+            return
+>       raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+E       renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type
+
+renderer/schema.py:88: InvalidReportRenderPayload
+_ test_real_chromium_pdf_contains_frozen_identity_exposure_and_owner_statement _
+
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_real_chromium_pdf_contain0')
+
+    def test_real_chromium_pdf_contains_frozen_identity_exposure_and_owner_statement(
+        tmp_path,
+    ):
+        report = review_payload()
+>       pdf = render_pdf(report, output_directory=tmp_path, timeout_seconds=30)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_review_renderer.py:362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+payload = {'context_version': 'AL-REVIEW-PACK-CONTEXT-1', 'title': 'Frozen AI Evidence Review Pack', 'metadata': {'report_identi...'inventory_count': 0, 'highest_individual_risk': None, 'monthly_spend': '0.00', 'monthly_net_value': '0.00', ...}, ...}
+output_directory = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_real_chromium_pdf_contain0')
+timeout_seconds = 30, max_pdf_bytes = 16777216
+
+    def render_pdf(
+        payload: Any,
+        *,
+        output_directory: Path = OUTPUT_DIRECTORY,
+        timeout_seconds: int = RENDER_TIMEOUT_SECONDS,
+        max_pdf_bytes: int = MAX_PDF_BYTES,
+    ) -> bytes:
+        validated = validate_report_render_payload(payload)
+        html = render_report_html(validated)
+        output_directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    
+        started = time.monotonic()
+        descriptor, raw_path = tempfile.mkstemp(
+            prefix="report-",
+            suffix=".pdf",
+            dir=output_directory,
+        )
+        os.close(descriptor)
+        output_path = Path(raw_path)
+        browser = None
+        try:
+            with sync_playwright() as playwright:
+                # The renderer is sandboxed by its hardened container boundary.
+                # Playwright's bundled Chromium aborts during Linux zygote startup
+                # when its internal sandbox is enabled in this environment.
+                browser = playwright.chromium.launch(
+                    headless=True,
+                    chromium_sandbox=False,
+                )
+                context = browser.new_context(
+                    java_script_enabled=False,
+                    service_workers="block",
+                )
+                context.route("**/*", _abort_request)
+                page = context.new_page()
+                page.set_content(
+                    html,
+                    wait_until="commit",
+                    timeout=timeout_seconds * 1_000,
+                )
+                page.pdf(
+                    path=str(output_path),
+                    format="A4",
+                    print_background=True,
+                    margin={
+                        "top": "16mm",
+                        "right": "14mm",
+                        "bottom": "18mm",
+                        "left": "14mm",
+                    },
+                )
+                context.close()
+                browser.close()
+                browser = None
+    
+            if time.monotonic() - started > timeout_seconds:
+>               raise RenderTimeout("PDF rendering exceeded the time limit")
+E               renderer.render.RenderTimeout: PDF rendering exceeded the time limit
+
+renderer/render.py:137: RenderTimeout
+=========================== short test summary info ============================
+FAILED tests/test_capture_review_renderer.py::test_capture_context_exact_unknowns_and_no_legacy_roi[other]
+FAILED tests/test_capture_review_renderer.py::test_capture_context_exact_unknowns_and_no_legacy_roi[legal]
+FAILED tests/test_capture_review_renderer.py::test_capture_context_exact_unknowns_and_no_legacy_roi[healthcare]
+FAILED tests/test_capture_review_renderer.py::test_capture_context_exact_unknowns_and_no_legacy_roi[construction]
+FAILED tests/test_capture_review_renderer.py::test_capture_context_exact_unknowns_and_no_legacy_roi[agency]
+FAILED tests/test_capture_review_renderer.py::test_capture_context_exact_unknowns_and_no_legacy_roi[accounting_bookkeeping]
+FAILED tests/test_capture_review_renderer.py::test_renderer_rejects_extra_roi_and_hash_consistent_fake_risk
+FAILED tests/test_capture_review_renderer.py::test_actual_chromium_capture_pack_is_roi_free
+FAILED tests/test_review_renderer.py::test_real_chromium_pdf_contains_frozen_identity_exposure_and_owner_statement
+9 failed, 45 passed in 230.91s (0:03:50)

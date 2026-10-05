@@ -1,0 +1,16 @@
+{
+  "verified_at": "2026-10-03T16:03:06.711237+00:00",
+  "scope": "captured source paths only; excludes secrets, image dependencies and generated assets",
+  "matched": [
+    "renderer/__init__.py",
+    "renderer/render.py",
+    "renderer/schema.py",
+    "renderer/server.py",
+    "renderer/template.py",
+    "renderer/templates/report.html",
+    "static/brand/stewardence-helix-orbit-light.png"
+  ],
+  "different": [],
+  "absent_from_image": [],
+  "container": "stewardence-renderer"
+}

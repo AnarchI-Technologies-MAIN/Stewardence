@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="90" time="155.248" timestamp="2026-10-04T22:02:03.457641+00:00" hostname="81a7896c96ce"><testcase classname="tests.test_assessment_snapshots" name="test_rfc8785_hash_is_independent_of_mapping_key_order" time="21.662" /><testcase classname="tests.test_assessment_snapshots" name="test_snapshot_captures_complete_versioned_input_results_and_hashes" time="0.347" /><testcase classname="tests.test_assessment_snapshots" name="test_model_and_database_reject_snapshot_mutation_or_deletion" time="0.295" /><testcase classname="tests.test_assessment_snapshots" name="test_bad_payload_hash_is_rejected_before_insert" time="0.055" /><testcase classname="tests.test_assessment_snapshots" name="test_yesterdays_snapshot_remains_identical_after_todays_changes" time="0.581" /><testcase classname="tests.test_assessment_snapshots" name="test_snapshot_requires_timezone_and_same_tenant_revision" time="0.362" /><testcase classname="tests.test_assessment_snapshots" name="test_roi_workflow_can_save_and_open_tenant_scoped_snapshot" time="2.643" /><testcase classname="tests.test_assessment_snapshots" name="test_viewer_cannot_save_snapshot" time="0.220" /><testcase classname="tests.test_capture_admission" name="test_preview_read_only_counts_legacy_and_admit_one_exact_receipt" time="1.976" /><testcase classname="tests.test_capture_admission" name="test_committed_replay_does_not_reinterpret_later_inventory" time="2.358" /><testcase classname="tests.test_capture_admission" name="test_review_to_admit_inventory_mutation_requires_new_preview" time="2.409" /><testcase classname="tests.test_capture_admission" name="test_new_explicit_record_is_not_a_silent_capture_phantom" time="2.539" /><testcase classname="tests.test_capture_admission" name="test_reviewed_server_pin_changes_are_rejected[industry]" time="2.611" /><testcase classname="tests.test_capture_admission" name="test_reviewed_server_pin_changes_are_rejected[profile]" time="2.333" /><testcase classname="tests.test_capture_admission" name="test_reviewed_server_pin_changes_are_rejected[counts]" time="2.955" /><testcase classname="tests.test_capture_admission" name="test_reviewed_server_pin_changes_are_rejected[future]" time="2.463" /><testcase classname="tests.test_capture_admission" name="test_reviewed_server_pin_changes_are_rejected[old]" time="2.762" /><testcase classname="tests.test_capture_admission" name="test_authority_denies_preview_and_issue[python_gate]" time="2.354" /><testcase classname="tests.test_capture_admission" name="test_authority_denies_preview_and_issue[operator_gate]" time="2.175" /><testcase classname="tests.test_capture_admission" name="test_authority_denies_preview_and_issue[paused]" time="3.569" /><testcase classname="tests.test_capture_admission" name="test_authority_denies_preview_and_issue[viewer]" time="5.589" /><testcase classname="tests.test_capture_admission" name="test_authority_denies_preview_and_issue[paid_expired]" time="6.928" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[benefit]" time="4.569" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[risk]" time="6.132" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[input_hash]" time="3.137" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[result_hash]" time="3.039" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[schema]" time="2.826" /><testcase classname="tests.test_capture_admission" name="test_raw_issuer_checks_result_identity_not_just_caller_hash[membership]" time="3.870" /><testcase classname="tests.test_capture_admission" name="test_raw_snapshot_two_and_unknown_schema_insert_are_denied[app_runtime]" time="4.545" /><testcase classname="tests.test_capture_admission" name="test_raw_snapshot_two_and_unknown_schema_insert_are_denied[worker_runtime]" time="2.327" /><testcase classname="tests.test_capture_admission" name="test_worker_cannot_read_receipt_or_execute_issuer" time="3.672" /><testcase classname="tests.test_capture_admission" name="test_receipt_raw_app_writes_and_mutation_denied" time="3.460" /><testcase classname="tests.test_capture_admission" name="test_changed_request_cannot_reuse_committed_capture_identity" time="5.381" /><testcase classname="tests.test_capture_admission" name="test_two_connections_same_reviewed_request_issue_one_snapshot" time="2.958" /><testcase classname="tests.test_capture_admission" name="test_paid_authority_is_rechecked_after_last_source_row_wait[organization]" time="2.003" /><testcase classname="tests.test_capture_admission" name="test_paid_authority_is_rechecked_after_last_source_row_wait[actor]" time="2.140" /><testcase classname="tests.test_capture_admission" name="test_receipt_reads_are_owner_only_and_same_tenant" time="2.161" /><testcase classname="tests.test_capture_admission" name="test_sql_preview_never_truncates_or_invents_explicit_records[0]" time="2.615" /><testcase classname="tests.test_capture_admission" name="test_sql_preview_never_truncates_or_invents_explicit_records[101]" time="5.469"><failure message="django.db.utils.ProgrammingError: Explicit inventory requires narrow owner issuance&#10;CONTEXT:  PL/pgSQL function app_private.protect_explicit_inventory() line 18 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x73627e25fad0&gt;
+sql = 'INSERT INTO "inventory_items" ("id", "organization_id", "product_id", "display_name", "vendor_name", "business_owner"...], (%s)::date[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[])'
+params = ([UUID('46e4abdc-ea55-4bb9-bd7e-00adb9da30c8'), UUID('ef5682d1-e337-4467-bfd4-489e5d7188e4'), UUID('f950ed65-abf0-42eb...ol 1', 'Tool 2', 'Tool 3', 'Tool 4', 'Tool 5', ...], ['', '', '', '', '', '', ...], ['', '', '', '', '', '', ...], ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x73627e25fad0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x73627e3add30&gt;
+query = 'INSERT INTO "inventory_items" ("id", "organization_id", "product_id", "display_name", "vendor_name", "business_owner"...], (%s)::date[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[])'
+params = ([UUID('46e4abdc-ea55-4bb9-bd7e-00adb9da30c8'), UUID('ef5682d1-e337-4467-bfd4-489e5d7188e4'), UUID('f950ed65-abf0-42eb...ol 1', 'Tool 2', 'Tool 3', 'Tool 4', 'Tool 5', ...], ['', '', '', '', '', '', ...], ['', '', '', '', '', '', ...], ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Explicit inventory requires narrow owner issuance
+E           CONTEXT:  PL/pgSQL function app_private.protect_explicit_inventory() line 18 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+explicit_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+settings = &lt;pytest_django.fixtures.Settings object at 0x73627e43bf70&gt;
+eligible_count = 101
+
+    @pytest.mark.parametrize("eligible_count", [0, 101])
+    def test_sql_preview_never_truncates_or_invents_explicit_records(
+        explicit_context, settings, eligible_count
+    ):
+        from datetime import date
+    
+        from apps.inventory.models import InventoryItem
+    
+        settings.DELIBERATE_CAPTURE_ENABLED = True
+        CaptureAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        _, org = explicit_context
+        if eligible_count:
+&gt;           InventoryItem.objects.bulk_create(
+                [
+                    InventoryItem(
+                        organization=org,
+                        display_name=f"Tool {index}",
+                        vendor_name="",
+                        declaration_contract="core.inventory.declarations.v1",
+                        declaration_as_of=date(2026, 1, 1),
+                        declared_fields=["display_name"],
+                    )
+                    for index in range(eligible_count)
+                ]
+            )
+
+tests/test_capture_admission.py:431: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:808: in bulk_create
+    returned_columns = self._batched_insert(
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1901: in _batched_insert
+    self._insert(
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x73627e3add30&gt;
+query = 'INSERT INTO "inventory_items" ("id", "organization_id", "product_id", "display_name", "vendor_name", "business_owner"...], (%s)::date[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[], (%s)::timestamp with time zone[])'
+params = ([UUID('46e4abdc-ea55-4bb9-bd7e-00adb9da30c8'), UUID('ef5682d1-e337-4467-bfd4-489e5d7188e4'), UUID('f950ed65-abf0-42eb...ol 1', 'Tool 2', 'Tool 3', 'Tool 4', 'Tool 5', ...], ['', '', '', '', '', '', ...], ['', '', '', '', '', '', ...], ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Explicit inventory requires narrow owner issuance
+E           CONTEXT:  PL/pgSQL function app_private.protect_explicit_inventory() line 18 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_capture_admission" name="test_actual_sql_context_cannot_admit_another_actor_or_tenant" time="5.953" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[accounting_bookkeeping]" time="0.125" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[legal]" time="0.018" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[healthcare]" time="0.008" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[construction]" time="0.006" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[agency]" time="0.009" /><testcase classname="tests.test_capture_contract" name="test_all_audiences_unknown_benefit_risk_and_applicability[other]" time="0.020" /><testcase classname="tests.test_capture_contract" name="test_order_duplicates_count_and_no_alias" time="0.315" /><testcase classname="tests.test_capture_contract" name="test_bounds[0]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_bounds[101]" time="0.015" /><testcase classname="tests.test_capture_contract" name="test_known_premises_and_auxiliary_unknowns" time="0.029" /><testcase classname="tests.test_capture_contract" name="test_false_known_premise_does_not_mask_unknown" time="0.049" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[permissions-value0-Unknown]" time="0.007" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[human_approval-False-Unknown]" time="0.010" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[monthly_cost_cents-0-Unknown]" time="0.015" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[seat_count-True-Declared]" time="0.017" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[autonomy_level-5-Declared]" time="0.017" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[human_approval-0-Declared]" time="0.024" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[permissions-write-Declared]" time="0.005" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[permissions-value7-Declared]" time="0.005" /><testcase classname="tests.test_capture_contract" name="test_invalid_knowledge_types[vendor_name-None-Declared]" time="0.011" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[assessment_version-True]" time="0.016" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[assessment_version-2]" time="0.009" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[industry-unknown]" time="0.015" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[workflow_profile-custom.v1]" time="0.030" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[organization_id-uuid]" time="0.007" /><testcase classname="tests.test_capture_contract" name="test_bad_pins[captured_at-value5]" time="0.020" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[schema]" time="0.078" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[digest]" time="0.077" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[result]" time="0.055" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[roi]" time="0.024" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[created_by_id]" time="0.024" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[workflow_profile_id]" time="0.023" /><testcase classname="tests.test_capture_contract" name="test_exact_recompute_rejects_tamper_and_foreign_pins[organization_id]" time="0.032" /><testcase classname="tests.test_capture_contract" name="test_closed_record[extra]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_closed_record[future]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_closed_record[catalog]" time="0.002" /><testcase classname="tests.test_capture_contract" name="test_closed_record[archived]" time="0.002" /><testcase classname="tests.test_capture_contract" name="test_closed_record[missing]" time="0.002" /><testcase classname="tests.test_capture_contract" name="test_actual_inventory_helper_normalizes_unknowns_without_database" time="0.005" /><testcase classname="tests.test_capture_contract" name="test_explicit_none_false_zero_are_preserved_without_benefit[permissions-value0]" time="0.004" /><testcase classname="tests.test_capture_contract" name="test_explicit_none_false_zero_are_preserved_without_benefit[human_approval-False]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_explicit_none_false_zero_are_preserved_without_benefit[monthly_cost_cents-0]" time="0.003" /><testcase classname="tests.test_capture_contract" name="test_declaration_as_of_is_an_exact_owner_date[None]" time="0.001" /><testcase classname="tests.test_capture_contract" name="test_declaration_as_of_is_an_exact_owner_date[True]" time="0.002" /><testcase classname="tests.test_capture_contract" name="test_declaration_as_of_is_an_exact_owner_date[2026-10-04T00:00:00Z]" time="0.326" /><testcase classname="tests.test_capture_contract" name="test_declaration_as_of_is_an_exact_owner_date[20261004]" time="0.095" /><testcase classname="tests.test_capture_contract" name="test_declaration_as_of_is_an_exact_owner_date[not-a-date]" time="0.002" /><testcase classname="tests.test_capture_contract" name="test_development_profile_and_timezone_normalization_are_pinned" time="0.200" /><testcase classname="tests.test_capture_contract" name="test_business_purpose_bound_matches_explicit_issuer[4096-True]" time="0.034" /><testcase classname="tests.test_capture_contract" name="test_business_purpose_bound_matches_explicit_issuer[4097-False]" time="6.919" /></testsuite></testsuites>

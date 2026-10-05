@@ -1,0 +1,159 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_deletion_serializes_with_old_founder_checkout_observation ________
+
+settings = <pytest_django.fixtures.Settings object at 0x7df621ae7cb0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7df621637230>
+
+    def test_deletion_serializes_with_old_founder_checkout_observation(settings, monkeypatch):
+        assert connections["default"].vendor == "postgresql"
+        user = get_user_model().objects.create_user(email="checkout-race@example.invalid")
+        customer = BillingCustomer.objects.create(user=user)
+        slot = reserve_founder_slot(billing_customer_id=customer.id)
+        assert attach_founder_checkout_session(
+            slot_sequence=slot.sequence, reservation_token=slot.reservation_token,
+            billing_customer_id=customer.id, stripe_checkout_session_id="cs_checkout_race",
+            checkout_expires_at=slot.checkout_expires_at,
+        )
+        session = {"id": "cs_checkout_race", "client_reference_id": str(user.id),
+                   "subscription": "sub_checkout_race", "metadata": {
+                       "founder_slot_sequence": str(slot.sequence),
+                       "founder_reservation_token": str(slot.reservation_token)}}
+        authoritative = configure_paid_core_checkout(monkeypatch, settings, customer, session)
+        monkeypatch.setattr(views, "ensure_founder_subscription_schedule", Mock(return_value={
+            "schedule_id": "sched_checkout_race", "intro_ends_at": slot.checkout_expires_at}))
+        views._handle_checkout_completed(session)
+        observed, resume, delete_started, delete_committed = Event(), Event(), Event(), Event()
+        identifiers = {}
+    
+        def paused_provider(external_id):
+            assert external_id == session["subscription"]
+            observed.set()
+            assert resume.wait(15), "Checkout observation barrier was not released"
+            return authoritative
+    
+        monkeypatch.setattr(views, "_retrieve_core_subscription", paused_provider)
+    
+        def invoke(kind):
+            try:
+                with identity_transaction(user.id):
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute("SET LOCAL ROLE agentledger_app")
+                        cursor.execute("SET LOCAL statement_timeout = '20s'")
+                        cursor.execute("SELECT current_user, pg_backend_pid(), current_setting('transaction_isolation')")
+                        role, pid, isolation = cursor.fetchone()
+                        assert role == "agentledger_app"
+                        assert isolation == "read committed"
+                        identifiers[kind] = pid
+                    if kind == "checkout":
+                        views._handle_checkout_completed(session)
+                    if kind == "delete":
+                        delete_started.set()
+                        views._handle_subscription_deleted({"id": session["subscription"], "status": "canceled"})
+                if kind == "delete":
+                    delete_committed.set()
+            finally:
+                connections["default"].close()
+    
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            checkout = executor.submit(invoke, "checkout")
+            try:
+                assert observed.wait(10), "Checkout never reached its post-observation provider barrier"
+                deletion = executor.submit(invoke, "delete")
+                assert delete_started.wait(10), "Deletion never established its app-role connection"
+                deadline = monotonic() + 10
+                blocked = False
+                while not delete_committed.is_set() and monotonic() < deadline:
+                    with connections["default"].cursor() as cursor:
+                        cursor.execute(
+                            "WITH RECURSIVE blockers(pid,path) AS ("
+                            " SELECT %s::integer, ARRAY[%s::integer] UNION ALL"
+                            " SELECT next.pid, blockers.path || next.pid FROM blockers"
+                            " CROSS JOIN LATERAL unnest(pg_blocking_pids(blockers.pid)) AS next(pid)"
+                            " WHERE cardinality(blockers.path) < 16 AND NOT next.pid = ANY(blockers.path)"
+                            ") SELECT EXISTS(SELECT 1 FROM blockers WHERE pid = %s)",
+                            [identifiers["delete"], identifiers["delete"], identifiers["checkout"]])
+                        blocked = cursor.fetchone()[0]
+                    if blocked:
+                        break
+                assert delete_committed.is_set() or blocked, "Neither deletion commit nor blocker chain was proven"
+            finally:
+                resume.set()
+            checkout.result(timeout=25)
+            deletion.result(timeout=25)
+        assert delete_committed.is_set()
+        assert identifiers["delete"] != identifiers["checkout"]
+        subscription = Subscription.objects.get(billing_customer=customer)
+>       assert subscription.status == Subscription.Status.CANCELED
+E       AssertionError: assert 'active' == Subscription.Status.CANCELED
+E         
+E         - canceled
+E         + active
+
+tests/test_billing_terminal_checkout_concurrency.py:99: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_billing_terminal_checkout_concurrency.py::test_deletion_serializes_with_old_founder_checkout_observation
+1 failed in 5.22s

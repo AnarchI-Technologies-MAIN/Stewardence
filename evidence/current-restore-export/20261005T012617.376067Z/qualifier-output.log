@@ -1,0 +1,46 @@
+{"exit_code": 0, "live_providers_tested": false, "production_touched": false, "image": "stewardence-local-qualification:stewardence-local-09abeac6a9", "image_id": "sha256:d77eac86708e973da2ecbe1db507878e88f29936a37de3d5a375c7489ed1c75b", "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261005T012617.651575Z", "test_arguments": ["tests/test_capture_v4_restore_export.py"], "http_renderer": true, "deployment_parity": false, "test_result_counts": {"cases": 1, "failed": 0, "errors": 0, "skipped": 0}, "test_results_sha256": "b52b247a6f12aa640101a8a8fa6245a37f8e158ba2776d47e22d492c6304c002"}
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reviews.0004_capture_pack_projection... OK
+  Applying jobs.0015_legacy_action_card_schema_fence... OK
+  Applying reviews.0005_capture_proposal_admission... OK
+  Applying jobs.0016_capture_decisions... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0005_review_pack_read_authority... OK
+  Applying reports.0006_capture_owner_read... OK
+  Applying reviews.0006_capture_proposal_packs... OK
+  Applying reviews.0007_unused_stop... OK
+  Applying reviews.0008_proposal_post_effect_authority... OK
+.                                                                        [100%]
+=============================== warnings summary ===============================
+tests/test_capture_v4_restore_export.py::test_two_actual_v4_journeys_hold_database_and_ram_objects_for_encrypted_export
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 1 warning in 96.21s (0:01:36)

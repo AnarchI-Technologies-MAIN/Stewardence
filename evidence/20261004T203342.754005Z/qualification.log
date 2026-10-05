@@ -1,0 +1,466 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+.............................FF......................................... [ 83%]
+..............                                                           [100%]
+=================================== FAILURES ===================================
+_ test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[390] _
+
+self = <django.contrib.sessions.backends.db.SessionStore object at 0x72e49bf69550>
+no_load = False
+
+    def _get_session(self, no_load=False):
+        """
+        Lazily load session from storage (unless "no_load" is True, when only
+        an empty dict is stored) and store it in the current instance.
+        """
+        self.accessed = True
+        try:
+>           return self._session_cache
+                   ^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:244: AttributeError
+
+During handling of the above exception, another exception occurred:
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 65dfcc26-ce33-4b3e-8452-d849708b33ce v1>, <ActionCardRevision: ActionCardRevision object (a5b0048d-03c8-4599-9e6c-d187b622192c)>)
+client = <django.test.client.Client object at 0x72e4a12700f0>, width = 390
+
+    @pytest.mark.parametrize('width',[390,1280])
+    def test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links(workspace,client,width):
+        from pathlib import Path
+        from django.conf import settings
+        from playwright.sync_api import sync_playwright
+        assert client.post(decision_url(workspace),statement()).status_code==302
+        pack=freeze_pack(client,workspace)
+        routes=[reverse('reviews:history'),reverse('reviews:snapshot',args=[workspace[2].id]),
+            decision_url(workspace),reverse('reviews:pack-detail',args=[pack.id]),reverse('reviews:comparison')]
+        css='\n'.join((Path(settings.BASE_DIR)/'static'/name).read_text(encoding='utf-8') for name in ('agentledger.css','atlas.css'))
+        with sync_playwright() as driver:
+            browser=driver.chromium.launch(headless=True,chromium_sandbox=False)
+            context=browser.new_context(viewport={'width':width,'height':900},reduced_motion='reduce')
+            context.route('**/*',lambda route:route.abort())
+            page=context.new_page()
+            for url in routes:
+>               response=client.get(url);assert response.status_code==200
+                         ^^^^^^^^^^^^^^^
+
+tests/test_review_workspace_views.py:300: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/test/client.py:1127: in get
+    response = super().get(
+.venv/lib/python3.14/site-packages/django/test/client.py:475: in get
+    return self.generic(
+.venv/lib/python3.14/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+.venv/lib/python3.14/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+.venv/lib/python3.14/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+apps/billing/middleware.py:41: in __call__
+    if not user.is_authenticated:
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/functional.py:251: in inner
+    self._setup()
+.venv/lib/python3.14/site-packages/django/utils/functional.py:404: in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:40: in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:20: in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:304: in get_user
+    user_id = _get_user_session_key(request)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:95: in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:55: in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:249: in _get_session
+    self._session_cache = self.load()
+                          ^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:55: in load
+    s = self._get_session_from_db()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:34: in _get_session_from_db
+    return self.model.objects.get(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1621: in execute_sql
+    cursor = self.connection.cursor()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (<DatabaseWrapper vendor='postgresql' alias='default'>,), kwargs = {}
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        # Detect a running event loop in this thread.
+        try:
+            get_running_loop()
+        except RuntimeError:
+            pass
+        else:
+            if not os.environ.get("DJANGO_ALLOW_ASYNC_UNSAFE"):
+>               raise SynchronousOnlyOperation(message)
+E               django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.
+
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:24: SynchronousOnlyOperation
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:253 Internal Server Error: /reviews/
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 244, in _get_session
+    return self._session_cache
+           ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/app/apps/billing/middleware.py", line 41, in __call__
+    if not user.is_authenticated:
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/functional.py", line 251, in inner
+    self._setup()
+    ~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ~~~~~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ~~~~~~~~^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ~~~~~~~~~~~~~^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py", line 304, in get_user
+    user_id = _get_user_session_key(request)
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py", line 95, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 55, in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 249, in _get_session
+    self._session_cache = self.load()
+                          ~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py", line 55, in load
+    s = self._get_session_from_db()
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py", line 34, in _get_session_from_db
+    return self.model.objects.get(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        session_key=self.session_key, expire_date__gt=timezone.now()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 631, in get
+    num = len(clone)
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 368, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+    cursor = self.connection.cursor()
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/asyncio.py", line 24, in inner
+    raise SynchronousOnlyOperation(message)
+django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.
+_ test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[1280] _
+
+self = <django.contrib.sessions.backends.db.SessionStore object at 0x72e49bc03ad0>
+no_load = False
+
+    def _get_session(self, no_load=False):
+        """
+        Lazily load session from storage (unless "no_load" is True, when only
+        an empty dict is stored) and store it in the current instance.
+        """
+        self.accessed = True
+        try:
+>           return self._session_cache
+                   ^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:244: AttributeError
+
+During handling of the above exception, another exception occurred:
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 98023133-2a30-4c02-9ef3-87c9c92957fe v1>, <ActionCardRevision: ActionCardRevision object (41f7045e-61e1-4f6c-82b4-68b6c71dee17)>)
+client = <django.test.client.Client object at 0x72e49bef99f0>, width = 1280
+
+    @pytest.mark.parametrize('width',[390,1280])
+    def test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links(workspace,client,width):
+        from pathlib import Path
+        from django.conf import settings
+        from playwright.sync_api import sync_playwright
+        assert client.post(decision_url(workspace),statement()).status_code==302
+        pack=freeze_pack(client,workspace)
+        routes=[reverse('reviews:history'),reverse('reviews:snapshot',args=[workspace[2].id]),
+            decision_url(workspace),reverse('reviews:pack-detail',args=[pack.id]),reverse('reviews:comparison')]
+        css='\n'.join((Path(settings.BASE_DIR)/'static'/name).read_text(encoding='utf-8') for name in ('agentledger.css','atlas.css'))
+        with sync_playwright() as driver:
+            browser=driver.chromium.launch(headless=True,chromium_sandbox=False)
+            context=browser.new_context(viewport={'width':width,'height':900},reduced_motion='reduce')
+            context.route('**/*',lambda route:route.abort())
+            page=context.new_page()
+            for url in routes:
+>               response=client.get(url);assert response.status_code==200
+                         ^^^^^^^^^^^^^^^
+
+tests/test_review_workspace_views.py:300: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/test/client.py:1127: in get
+    response = super().get(
+.venv/lib/python3.14/site-packages/django/test/client.py:475: in get
+    return self.generic(
+.venv/lib/python3.14/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+.venv/lib/python3.14/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+.venv/lib/python3.14/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+apps/billing/middleware.py:41: in __call__
+    if not user.is_authenticated:
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/functional.py:251: in inner
+    self._setup()
+.venv/lib/python3.14/site-packages/django/utils/functional.py:404: in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:40: in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:20: in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:304: in get_user
+    user_id = _get_user_session_key(request)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:95: in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:55: in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:249: in _get_session
+    self._session_cache = self.load()
+                          ^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:55: in load
+    s = self._get_session_from_db()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:34: in _get_session_from_db
+    return self.model.objects.get(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1621: in execute_sql
+    cursor = self.connection.cursor()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (<DatabaseWrapper vendor='postgresql' alias='default'>,), kwargs = {}
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        # Detect a running event loop in this thread.
+        try:
+            get_running_loop()
+        except RuntimeError:
+            pass
+        else:
+            if not os.environ.get("DJANGO_ALLOW_ASYNC_UNSAFE"):
+>               raise SynchronousOnlyOperation(message)
+E               django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.
+
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:24: SynchronousOnlyOperation
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:253 Internal Server Error: /reviews/
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 244, in _get_session
+    return self._session_cache
+           ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/app/apps/billing/middleware.py", line 41, in __call__
+    if not user.is_authenticated:
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/functional.py", line 251, in inner
+    self._setup()
+    ~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/functional.py", line 404, in _setup
+    self._wrapped = self._setupfunc()
+                    ~~~~~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py", line 40, in <lambda>
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ~~~~~~~~^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py", line 20, in get_user
+    request._cached_user = auth.get_user(request)
+                           ~~~~~~~~~~~~~^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py", line 304, in get_user
+    user_id = _get_user_session_key(request)
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py", line 95, in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 55, in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py", line 249, in _get_session
+    self._session_cache = self.load()
+                          ~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py", line 55, in load
+    s = self._get_session_from_db()
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py", line 34, in _get_session_from_db
+    return self.model.objects.get(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        session_key=self.session_key, expire_date__gt=timezone.now()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 631, in get
+    num = len(clone)
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 368, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/query.py", line 93, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "/app/.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+    cursor = self.connection.cursor()
+  File "/app/.venv/lib/python3.14/site-packages/django/utils/asyncio.py", line 24, in inner
+    raise SynchronousOnlyOperation(message)
+django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.
+=============================== warnings summary ===============================
+tests/test_review_workspace_views.py: 31 warnings
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_review_workspace_views.py::test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[390]
+FAILED tests/test_review_workspace_views.py::test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[1280]
+2 failed, 84 passed, 31 warnings in 50.76s

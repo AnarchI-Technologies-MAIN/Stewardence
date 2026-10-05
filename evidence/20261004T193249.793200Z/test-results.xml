@@ -1,0 +1,722 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="13" time="14.048" timestamp="2026-10-04T19:33:30.667378+00:00" hostname="4b1c40027735"><testcase classname="tests.test_checkout_intent_authority" name="test_retry_freezes_every_parameter_and_idempotency_key" time="5.942" /><testcase classname="tests.test_checkout_intent_authority" name="test_eight_concurrent_reservations_share_one_generation" time="0.412" /><testcase classname="tests.test_checkout_intent_authority" name="test_observation_does_not_authorize_payment_or_expiry" time="0.352"><failure message="django.db.utils.ProgrammingError: Authenticated user context is not set&#10;CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x731bd3f44590&gt;
+sql = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('0ef42eea-5e74-458a-bfef-1c234a84be94'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='app_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x731bd3f44590&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41fe7b0&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('0ef42eea-5e74-458a-bfef-1c234a84be94'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+owner = (&lt;User: intent-owner@example.invalid&gt;, &lt;BillingCustomer: BillingCustomer object (e808c9f9-7d60-4ccb-a8af-9d8b5bd29dc8)&gt;)
+
+    def test_observation_does_not_authorize_payment_or_expiry(owner):
+        intent=reserve(owner)
+        observed=record_checkout_observation(intent.id,actor_id=owner[0].id,generation=intent.generation,
+            session_id='cs_observed',url='https://checkout.stripe.com/c/pay/synthetic',using='app_runtime')
+        assert observed.state=='pending' and observed.stripe_session_id is None
+        assert observed.observed_session_id=='cs_observed'
+        assert outcome(intent)=='attached'
+&gt;       intent.refresh_from_db()
+
+tests/test_checkout_intent_authority.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/base.py:737: in refresh_from_db
+    db_instance = db_instance_qs.get()
+                  ^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41fe7b0&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('0ef42eea-5e74-458a-bfef-1c234a84be94'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_checkout_intent_authority" name="test_admission_rejects_changed_generation_binding[changes0]" time="0.307"><failure message="django.db.utils.ProgrammingError: Authenticated user context is not set&#10;CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x731bd4140770&gt;
+sql = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('83587e6f-63b5-452b-86f3-deae3ff5be91'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='app_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x731bd4140770&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41fd470&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('83587e6f-63b5-452b-86f3-deae3ff5be91'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+owner = (&lt;User: intent-owner@example.invalid&gt;, &lt;BillingCustomer: BillingCustomer object (cb370ed7-26d3-4dc7-9c8e-352cf03436b0)&gt;)
+changes = {'generation': UUID('0bb8e844-3097-40ef-a2c8-93e76a84367b')}
+
+    @pytest.mark.parametrize('changes',[{'generation':uuid4()},{'customer_id':'cus_other'},
+        {'account_id':'acct_other'},{'livemode':True},{'expires_at':1}])
+    def test_admission_rejects_changed_generation_binding(owner,changes):
+        intent=reserve(owner)
+        with pytest.raises(DatabaseError),transaction.atomic(using='billing_admission'):outcome(intent,**changes)
+&gt;       intent.refresh_from_db()
+
+tests/test_checkout_intent_authority.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/base.py:737: in refresh_from_db
+    db_instance = db_instance_qs.get()
+                  ^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41fd470&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('83587e6f-63b5-452b-86f3-deae3ff5be91'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_checkout_intent_authority" name="test_admission_rejects_changed_generation_binding[changes1]" time="0.381"><failure message="django.db.utils.ProgrammingError: Authenticated user context is not set&#10;CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x731bd4142330&gt;
+sql = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('67c69b6c-d324-47fb-870b-94752a1f44fa'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='app_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x731bd4142330&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41fe7b0&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('67c69b6c-d324-47fb-870b-94752a1f44fa'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+owner = (&lt;User: intent-owner@example.invalid&gt;, &lt;BillingCustomer: BillingCustomer object (71bd88cf-368d-4006-bd08-f53346118f3f)&gt;)
+changes = {'customer_id': 'cus_other'}
+
+    @pytest.mark.parametrize('changes',[{'generation':uuid4()},{'customer_id':'cus_other'},
+        {'account_id':'acct_other'},{'livemode':True},{'expires_at':1}])
+    def test_admission_rejects_changed_generation_binding(owner,changes):
+        intent=reserve(owner)
+        with pytest.raises(DatabaseError),transaction.atomic(using='billing_admission'):outcome(intent,**changes)
+&gt;       intent.refresh_from_db()
+
+tests/test_checkout_intent_authority.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/base.py:737: in refresh_from_db
+    db_instance = db_instance_qs.get()
+                  ^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41fe7b0&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('67c69b6c-d324-47fb-870b-94752a1f44fa'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_checkout_intent_authority" name="test_admission_rejects_changed_generation_binding[changes2]" time="0.503"><failure message="django.db.utils.ProgrammingError: Authenticated user context is not set&#10;CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x731bd4143b30&gt;
+sql = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('b988fe69-94b8-42e4-9613-bca4fe761e0b'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='app_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x731bd4143b30&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41ff230&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('b988fe69-94b8-42e4-9613-bca4fe761e0b'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+owner = (&lt;User: intent-owner@example.invalid&gt;, &lt;BillingCustomer: BillingCustomer object (56857e9c-2800-4114-bab1-f899eae6d70c)&gt;)
+changes = {'account_id': 'acct_other'}
+
+    @pytest.mark.parametrize('changes',[{'generation':uuid4()},{'customer_id':'cus_other'},
+        {'account_id':'acct_other'},{'livemode':True},{'expires_at':1}])
+    def test_admission_rejects_changed_generation_binding(owner,changes):
+        intent=reserve(owner)
+        with pytest.raises(DatabaseError),transaction.atomic(using='billing_admission'):outcome(intent,**changes)
+&gt;       intent.refresh_from_db()
+
+tests/test_checkout_intent_authority.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/base.py:737: in refresh_from_db
+    db_instance = db_instance_qs.get()
+                  ^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41ff230&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('b988fe69-94b8-42e4-9613-bca4fe761e0b'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_checkout_intent_authority" name="test_admission_rejects_changed_generation_binding[changes3]" time="0.344"><failure message="django.db.utils.ProgrammingError: Authenticated user context is not set&#10;CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x731bd4141c70&gt;
+sql = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('79880cc4-464c-44f5-9179-7d9750f5ea39'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='app_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x731bd4141c70&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41fecf0&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('79880cc4-464c-44f5-9179-7d9750f5ea39'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+owner = (&lt;User: intent-owner@example.invalid&gt;, &lt;BillingCustomer: BillingCustomer object (2850aa64-dd33-4f8d-8cbb-b213474f8edc)&gt;)
+changes = {'livemode': True}
+
+    @pytest.mark.parametrize('changes',[{'generation':uuid4()},{'customer_id':'cus_other'},
+        {'account_id':'acct_other'},{'livemode':True},{'expires_at':1}])
+    def test_admission_rejects_changed_generation_binding(owner,changes):
+        intent=reserve(owner)
+        with pytest.raises(DatabaseError),transaction.atomic(using='billing_admission'):outcome(intent,**changes)
+&gt;       intent.refresh_from_db()
+
+tests/test_checkout_intent_authority.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/base.py:737: in refresh_from_db
+    db_instance = db_instance_qs.get()
+                  ^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41fecf0&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('79880cc4-464c-44f5-9179-7d9750f5ea39'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_checkout_intent_authority" name="test_admission_rejects_changed_generation_binding[changes4]" time="0.529"><failure message="django.db.utils.ProgrammingError: Authenticated user context is not set&#10;CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x731bd4081250&gt;
+sql = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('b380b935-87a1-41a3-b723-4b79eb0862b8'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='app_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x731bd4081250&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41ffe70&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('b380b935-87a1-41a3-b723-4b79eb0862b8'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+owner = (&lt;User: intent-owner@example.invalid&gt;, &lt;BillingCustomer: BillingCustomer object (ed134f6a-63a0-41a1-9c55-cb1206540700)&gt;)
+changes = {'expires_at': 1}
+
+    @pytest.mark.parametrize('changes',[{'generation':uuid4()},{'customer_id':'cus_other'},
+        {'account_id':'acct_other'},{'livemode':True},{'expires_at':1}])
+    def test_admission_rejects_changed_generation_binding(owner,changes):
+        intent=reserve(owner)
+        with pytest.raises(DatabaseError),transaction.atomic(using='billing_admission'):outcome(intent,**changes)
+&gt;       intent.refresh_from_db()
+
+tests/test_checkout_intent_authority.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/base.py:737: in refresh_from_db
+    db_instance = db_instance_qs.get()
+                  ^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x731bd41ffe70&gt;
+query = 'SELECT "billing_checkout_intents"."id", "billing_checkout_intents"."billing_customer_id", "billing_checkout_intents"....g_checkout_intents"."observed_url" FROM "billing_checkout_intents" WHERE "billing_checkout_intents"."id" = %s LIMIT 21'
+params = (UUID('b380b935-87a1-41a3-b723-4b79eb0862b8'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_checkout_intent_authority" name="test_app_cannot_assert_expiry_and_admission_cannot_expire_early" time="0.573" /><testcase classname="tests.test_checkout_intent_authority" name="test_expired_ambiguous_fixture_is_held_until_authoritative_expiry" time="0.711" /><testcase classname="tests.test_checkout_intent_authority" name="test_other_owner_cannot_read_or_observe_intent" time="0.567" /><testcase classname="tests.test_checkout_intent_authority" name="test_raw_role_writes_and_request_mutation_are_denied" time="0.574" /><testcase classname="tests.test_checkout_intent_authority" name="test_unresolved_external_subscription_blocks_another_checkout" time="0.526" /></testsuite></testsuites>

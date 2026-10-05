@@ -1,0 +1,15 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-d5515ab53a",
+  "image_id": "sha256:06dd1a2a7afd03982886d17952a988de86633a75a5b4220891a3bf30b75f5a7b",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T170322.850591Z",
+  "test_arguments": [
+    "tests/test_upload_limits.py",
+    "tests/test_csv_import.py",
+    "tests/test_discovery.py",
+    "tests/test_public_signup.py",
+    "tests/test_workflow_profile_setup.py"
+  ]
+}

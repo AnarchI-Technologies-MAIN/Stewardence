@@ -1,0 +1,2430 @@
+STEWARDENCE SCOPED SUCCESSOR REVIEW — NOT PRODUCTION APPROVAL
+Please independently review repairs for LAYOUT-QA-01, HTTP-QA-01, HTTP-QA-02 and separately the new offline Core checkout admission/SDK boundary. Preserve all prior bounded authority/restore/presentation closures.
+Fresh exact-source full suite: 1171 passed, 1 intentional skipped (Xero remote disconnection), 129 warnings, image f8b63f61b9594949909127463a1f4f8855ead66b2ee233c5f3385626ec47d41d. Actual Chromium and five SIGKILL qualifications enabled.
+Historical failures remain: first SDK admission full run 1169 pass/1 fail/1 skip (second cross-tenant worker claim None). Two isolated reruns and later RLS group passed; root cause UNKNOWN. Added pre-claim admission-state assertion without weakening claims; final suite passed but does not erase intermittence. Next full run 1170 pass/1 fail/1 skip was a test-fixture gateway mocking mistake; fixed test to call preserved actual gateway; focused 52 tests then final full pass. Real SDK signed-event tests initially exposed get() unsupported on Stripe Event; boundary converts verified SDK objects via to_dict(), including subscriptions.
+LAYOUT: same exact delivered stress PDF digests/pages 5/9/27, repeat-byte equality, independent healthy content checks. New actual PDF controls reject appended blank page, footer-only page, inventory label only in risk. Caller rejects false subchecks despite child qualification_passed=true and writes no summary. No claim of universal layout/accessibility coverage.
+HTTP: complete pinned-source membership now includes collector; 281 host build inputs (Dockerfile included), independently 280 actual packaged image files compared to pinned subset inside Gunicorn container (Dockerfile intentionally build-only). Image ef5cf3903e898a997c14520aceb66edf8cce2652fc75e90442fa0cb8006922cb. Docker create -> pre-start inspect enforces restrictions and immutable resolved synthetic network/DB -> start -> actual endpoint inspect -> real HTTP probe. Docker created NetworkID is empty until start: pre-start checks exact HostConfig.NetworkMode pinned network ID plus expected map key; post-start requires exact NetworkID. No public ports. Exact caller fault mocks assert no start/exec and no success receipt; 22 helper controls. Actual fresh HTTP/CSRF/security/static/readiness all passed, cleanup absent. These are controlled mocks/local runtime, not induced actual Docker daemon failures.
+BILLING: Alexander selected USD99 standard monthly only; founder acquisition disabled but existing founder contracts preserved. Real Stripe CLI expired; Alexander explicitly requests OFFLINE only, no new credential request. Gateway retrieval mocked. Real SDK HMAC signature fixtures local-only, not Stripe-origin events. New completed+paid+customer/owner/portfolio+authoritative active registered price/future paid period admission precedes issuance. New Stripe SDK16.0.0. SDK resource/dictionary compatibility exercised.
+OPEN KNOWN GATES: ongoing Core paid-period expiry currently not enforced by grants_access/database entitlement; subscription update lifecycle fail-closed review; standard checkout concurrency/idempotency; real Stripe API/account/checkout/webhook; live ingress/TLS/cutover; provider lifecycle; full-system key/device-loss recovery; unresolved worker intermittence. Existing app billing-row grants remain trusted mapping authority; no same-role database payment-issuance protection claimed. No production deploy/migration/service/automation/provider writes. Overall Core production ready remains OPEN.
+Please provide bounded dispositions and reproducible new findings, distinguishing supplied local runtime evidence from your independent checks.
+
+===== scripts/report_layout_content.py =====
+"""Independent, section-bound completeness checks for synthetic report PDFs."""
+import re
+
+
+def verify_content(reader, specimen):
+    bodies = []
+    for page in reader.pages:
+        lines = page.extract_text().splitlines()
+        body = '\n'.join(line for line in lines
+                         if not re.fullmatch(r'Page \d+ of \d+', line.strip())).strip()
+        if not body:
+            raise RuntimeError('Report contains a blank or footer-only page')
+        bodies.append(body)
+    text = '\n'.join(bodies)
+    start = text.find('AI and software inventory')
+    stop = text.find('Overall risk overview', start + 1)
+    if start < 0 or stop < 0:
+        raise RuntimeError('Report inventory section is missing or unterminated')
+    inventory = ' '.join(text[start:stop].split())
+    count = {'long-table': 80, 'multi-tool': 8}.get(specimen, 0)
+    for number in range(1, count + 1):
+        label = ('Synthetic table tool ' + format(number, '03d')
+                 if specimen == 'long-table' else 'Synthetic tool ' + str(number))
+        if not re.search(re.escape(label) + r'\s*\(', inventory):
+            raise RuntimeError('Inventory section lost a synthetic row: ' + label)
+    if specimen == 'long-table' and inventory.count('Monthly cost') < 2:
+        raise RuntimeError('Long inventory table did not repeat its headers')
+    if specimen == 'long-input' and 'Müller & García' not in text:
+        raise RuntimeError('Latin customer-name glyphs were lost')
+    return {'pages': len(bodies), 'nonempty_pages': True,
+            'inventory_section_complete': True}
+
+
+def verify_receipt(receipt):
+    if receipt.get('qualification_passed') is not True:
+        raise RuntimeError('Layout qualification did not pass')
+    checks = receipt.get('content_checks', {})
+    if set(checks) != {'long-input', 'multi-tool', 'long-table'}:
+        raise RuntimeError('Layout receipt specimen set is incomplete')
+    for check in checks.values():
+        if (check.get('nonempty_pages') is not True
+                or check.get('inventory_section_complete') is not True
+                or type(check.get('pages')) is not int or check['pages'] < 1):
+            raise RuntimeError('Layout receipt contains failed content checks')
+    geometry = receipt.get('geometry', {})
+    columns = geometry.get('table_columns', [])
+    if (geometry.get('viewport') != 688 or len(columns) != 5
+            or geometry.get('document_width', 10000) > 689 or min(columns) < 90):
+        raise RuntimeError('Layout receipt contains failed geometry checks')
+
+
+===== scripts/report_layout_geometry.py =====
+"""Print-width DOM geometry plus independent PDF content completeness."""
+import json
+import os
+from pathlib import Path
+from pypdf import PdfReader
+from playwright.sync_api import sync_playwright
+from renderer.template import render_report_html
+from report_layout_content import verify_content
+
+payload = json.loads(Path('/qa/long-input.json').read_bytes())
+with sync_playwright() as browser_tools:
+    browser = browser_tools.chromium.launch(headless=True,chromium_sandbox=False)
+    context = browser.new_context(java_script_enabled=False,service_workers='block',
+                                  viewport={'width':688,'height':1123})
+    context.route('**/*',lambda route:route.abort())
+    page = context.new_page()
+    page.emulate_media(media='print')
+    page.set_content(render_report_html(payload))
+    geometry = page.evaluate('''() => ({viewport:innerWidth,
+      document_width:document.documentElement.scrollWidth,
+      table_columns:Array.from(document.querySelector('table').querySelectorAll('th'))
+        .map(cell=>cell.getBoundingClientRect().width)})''')
+    browser.close()
+within_bounds = geometry['document_width'] <= geometry['viewport']+1 and min(geometry['table_columns']) >= 90
+if os.getenv('EXPECT_LAYOUT_REJECTION') == '1':
+    if within_bounds:
+        raise RuntimeError('Predecessor unexpectedly passed the differential layout control')
+    print(json.dumps({'predecessor_rejection_observed':True,'geometry':geometry,
+                      'scope':'Actual Chromium print-width DOM control; not physical print pagination.'}))
+else:
+    if not within_bounds:
+        raise RuntimeError('Long-input layout exceeds print width or squeezes columns')
+    content_checks = {}
+    for specimen in ['long-input','multi-tool','long-table']:
+        reader = PdfReader('/qa/'+specimen+'.pdf')
+        content_checks[specimen] = verify_content(reader, specimen)
+    receipt = {'qualification_passed':True,'geometry':geometry,'content_checks':content_checks,
+        'scope':'Synthetic renderer layout only; not source-derived assessment, international glyph coverage or production service proof.'}
+    Path('/qa/layout-summary.json').write_text(json.dumps(receipt,indent=2))
+    print(json.dumps(receipt))
+
+
+===== scripts/qualify_report_layout.py =====
+"""Fresh, isolated packaged-renderer stress qualification and artifact binding."""
+import hashlib
+import json
+import shutil
+import subprocess
+import uuid
+from datetime import UTC, datetime
+from qualify_renderer_package import ROOT, IMAGE, PAYLOAD, docker
+from report_layout_content import verify_receipt
+
+
+def main():
+    output = ROOT/'evidence/report-layout-qualified'/datetime.now(UTC).strftime('%Y%m%dT%H%M%S.%fZ')
+    output.mkdir(parents=True)
+    shutil.copyfile(PAYLOAD, output/'synthetic-render-payload.json')
+    for file in ['report_layout_probe.py','report_layout_geometry.py','report_layout_content.py']:
+        shutil.copyfile(ROOT/'scripts'/file,output/file)
+    name = 'stewardence-layout-qualification-'+uuid.uuid4().hex
+    result = None
+    try:
+        docker('create','--name',name,'--network','none','--read-only','--user','10001:10001',
+               '--cap-drop','ALL','--security-opt','no-new-privileges','--memory','512m','--pids-limit','256',
+               '--tmpfs','/tmp:rw,size=128m','--tmpfs','/work/output:rw,size=32m,mode=0700,uid=10001,gid=10001',
+               '--mount','type=bind,source='+str(output)+',target=/qa', IMAGE,
+               '/app/.venv/bin/python','-c',
+               'import runpy,sys; sys.path.insert(0,"/qa"); runpy.run_path("/qa/report_layout_probe.py"); runpy.run_path("/qa/report_layout_probe.py"); runpy.run_path("/qa/report_layout_geometry.py")')
+        state = json.loads(docker('inspect',name).stdout)[0]
+        host = state['HostConfig']
+        if (state['Image'] != IMAGE or state['Config']['User'] != '10001:10001'
+                or host['NetworkMode'] != 'none' or not host['ReadonlyRootfs']
+                or host['CapDrop'] != ['ALL'] or 'no-new-privileges' not in host['SecurityOpt']
+                or host['Memory'] != 512*1024*1024 or host['PidsLimit'] != 256):
+            raise RuntimeError('Layout runtime constraints changed')
+        execution = subprocess.run(['docker','start','-a',name],capture_output=True,text=True)
+        (output/'layout.log').write_text(execution.stdout+execution.stderr,encoding='utf-8')
+        final_state = json.loads(docker('inspect',name).stdout)[0]['State']
+        if execution.returncode or final_state['ExitCode'] or final_state['OOMKilled']:
+            raise RuntimeError('Layout execution failed; inspect frozen run log')
+        receipts = [json.loads(line) for line in execution.stdout.splitlines() if line.startswith('{')]
+        if len(receipts) != 3 or receipts[0] != receipts[1] or not receipts[2]['qualification_passed']:
+            raise RuntimeError('Layout repeated renders or geometry verification failed')
+        verify_receipt(receipts[2])
+        artifacts = []
+        for item in receipts[0]['rendered']:
+            name_part = item['specimen']
+            if hashlib.sha256((output/(name_part+'.pdf')).read_bytes()).hexdigest() != item['pdf_sha256']:
+                raise RuntimeError('Layout artifact digest mismatch')
+            artifacts.append(dict(item,input_sha256=hashlib.sha256((output/(name_part+'.json')).read_bytes()).hexdigest()))
+        result = dict(receipts[2],renderer_image_id=IMAGE,repeat_bytes_equal=True,
+                      artifacts=artifacts,verified_at=datetime.now(UTC).isoformat(),
+                      runtime_constraints={key:host[key] for key in
+                          ['NetworkMode','ReadonlyRootfs','CapDrop','SecurityOpt','Memory','PidsLimit','Tmpfs']})
+    finally:
+        subprocess.run(['docker','rm','-f',name],capture_output=True)
+        if docker('ps','-aq','--filter','name=^'+name+'$').stdout.strip():
+            raise RuntimeError('Layout qualification cleanup incomplete')
+    result['cleanup_verified'] = True
+    (output/'qualification-summary.json').write_text(json.dumps(result,indent=2))
+    print(json.dumps(dict(result,evidence_directory=str(output))))
+
+
+if __name__ == '__main__':
+    main()
+
+
+===== scripts/qualify_layout_content_rejection.py =====
+"""Actual synthetic PDF counterexamples plus failed-receipt controls."""
+import copy
+import io
+import json
+from pathlib import Path
+from pypdf import PdfReader, PdfWriter
+from playwright.sync_api import sync_playwright
+from report_layout_content import verify_content, verify_receipt
+
+root = Path('/qa')
+baseline = PdfReader(root/'long-input.pdf')
+rejections = []
+
+
+def must_reject(label, callback):
+    try:
+        callback()
+    except RuntimeError:
+        rejections.append(label)
+        return
+    raise RuntimeError('Counterexample falsely accepted: ' + label)
+
+
+writer = PdfWriter()
+writer.append(baseline)
+writer.add_blank_page(width=595, height=842)
+buffer = io.BytesIO()
+writer.write(buffer)
+must_reject('actual_blank_page', lambda: verify_content(PdfReader(buffer), 'long-input'))
+with sync_playwright() as tools:
+    browser = tools.chromium.launch(headless=True, chromium_sandbox=False)
+    page = browser.new_page(java_script_enabled=False)
+    page.set_content('<p>Page 6 of 6</p>')
+    footer = page.pdf()
+    writer = PdfWriter()
+    writer.append(baseline)
+    writer.append(PdfReader(io.BytesIO(footer)))
+    buffer = io.BytesIO()
+    writer.write(buffer)
+    must_reject('actual_footer_only_page', lambda: verify_content(PdfReader(buffer), 'long-input'))
+    page.set_content('<h2>AI and software inventory</h2><p>Monthly cost</p>'
+                     '<h2>Overall risk overview</h2><h2>Individual tool risk</h2>'
+                     '<p>Synthetic table tool 001 (Declared)</p>')
+    poisoned = page.pdf()
+    must_reject('actual_label_only_in_risk', lambda: verify_content(PdfReader(io.BytesIO(poisoned)), 'long-table'))
+    browser.close()
+receipt = json.loads((root/'layout-summary.json').read_bytes())
+verify_receipt(receipt)
+for field in ['nonempty_pages', 'inventory_section_complete']:
+    bad = copy.deepcopy(receipt)
+    bad['content_checks']['long-input'][field] = False
+    must_reject('receipt_false_' + field, lambda: verify_receipt(bad))
+bad = copy.deepcopy(receipt)
+del bad['content_checks']['multi-tool']
+must_reject('receipt_missing_specimen', lambda: verify_receipt(bad))
+print(json.dumps({'rejections': rejections, 'healthy_receipt_passed': True,
+                  'scope': 'Actual synthetic PDF controls; no customer or production data.'}))
+
+
+===== scripts/qualify_layout_caller_rejection.py =====
+"""Exact layout launcher must withhold success for failed child subchecks."""
+import copy
+import json
+import tempfile
+from pathlib import Path
+from subprocess import CompletedProcess
+from unittest.mock import patch
+import qualify_report_layout as launcher
+
+baseline = {'qualification_passed': True,
+    'geometry': {'viewport': 688, 'document_width': 688, 'table_columns': [137]*5},
+    'content_checks': {specimen: {'pages': 1, 'nonempty_pages': True,
+                                'inventory_section_complete': True}
+                       for specimen in ['long-input', 'multi-tool', 'long-table']}}
+controls = []
+for field in ['nonempty_pages', 'inventory_section_complete', 'pages']:
+    bad = copy.deepcopy(baseline)
+    bad['content_checks']['long-input'][field] = False
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        (root/'scripts').mkdir()
+        payload = root/'payload.json'
+        payload.write_text('{}')
+        for file in ['report_layout_probe.py','report_layout_geometry.py','report_layout_content.py']:
+            (root/'scripts'/file).write_text('# mock frozen probe')
+        state = {'Image': launcher.IMAGE, 'Config': {'User': '10001:10001'},
+            'HostConfig': {'NetworkMode': 'none', 'ReadonlyRootfs': True, 'CapDrop': ['ALL'],
+                'SecurityOpt': ['no-new-privileges'], 'Memory': 512*1024*1024, 'PidsLimit': 256},
+            'State': {'ExitCode': 0, 'OOMKilled': False}}
+
+        def docker(*args):
+            if args[0] == 'inspect':
+                return CompletedProcess(args, 0, json.dumps([state]), '')
+            return CompletedProcess(args, 0, '', '')
+
+        def run(args, **kwargs):
+            if args[:3] == ['docker','start','-a']:
+                return CompletedProcess(args, 0, '\n'.join(map(json.dumps,
+                    [{'rendered': []}, {'rendered': []}, bad])), '')
+            return CompletedProcess(args, 0, '', '')
+
+        with patch.object(launcher, 'ROOT', root), patch.object(launcher, 'PAYLOAD', payload), \
+             patch.object(launcher, 'docker', docker), patch.object(launcher.subprocess, 'run', run):
+            try:
+                launcher.main()
+            except RuntimeError as error:
+                assert 'failed content checks' in str(error), error
+            else:
+                raise RuntimeError('Exact layout caller accepted false field: '+field)
+        assert not list(root.rglob('qualification-summary.json'))
+        controls.append({'field': field, 'success_receipt_written': False})
+print(json.dumps({'qualification_passed': True, 'controls': controls,
+                  'scope': 'Exact launcher mocked child receipts; not a daemon failure.'}))
+
+
+===== scripts/package_qualification_contract.py =====
+"""Fail-closed source and pre-start runtime checks for local HTTP qualification."""
+import hashlib
+import re
+
+
+def selected(key):
+    key = key.replace('\\', '/')
+    return (key.startswith(('apps/', 'src/', 'templates/', 'static/', 'collector/'))
+            or key in {'Dockerfile', 'manage.py', 'pyproject.toml', 'uv.lock'})
+
+
+def verify_source(root, manifest):
+    expected = {key.replace('\\', '/'): digest for key, digest in manifest.items()
+                if selected(key) and '__pycache__' not in key and not key.endswith('.pyc')}
+    current = {file.relative_to(root).as_posix(): file for file in root.rglob('*')
+               if file.is_file() and selected(file.relative_to(root).as_posix())
+               and '__pycache__' not in file.parts and file.suffix != '.pyc'}
+    if set(expected) != set(current):
+        raise RuntimeError('Deployable source membership differs from pinned manifest')
+    for key, file in current.items():
+        if hashlib.sha256(file.read_bytes()).hexdigest() != expected[key]:
+            raise RuntimeError('Deployable source content differs: ' + key)
+    return len(expected)
+
+
+def verify_fixture(preview, network, database):
+    network_id = network['Id']
+    db_id = database['Id']
+    link = database['NetworkSettings']['Networks'].get(preview['network'], {})
+    if (network['Name'] != preview['network'] or not network['Internal']
+            or not re.fullmatch(r'[0-9a-f]{64}', network_id)
+            or database['Name'] != '/' + preview['database']
+            or database['Image'] != preview['postgres_image_id']
+            or not database['State']['Running']
+            or database['HostConfig']['PortBindings']
+            or set(database['NetworkSettings']['Networks']) != {preview['network']}
+            or link.get('NetworkID') != network_id
+            or 'qualification-db' not in link.get('Aliases', [])
+            or db_id not in network.get('Containers', {})
+            or network['Containers'][db_id]['Name'] != preview['database']):
+        raise RuntimeError('Synthetic database/network fixture identity is unverified')
+    return network_id, db_id
+
+
+def verify_runtime(runtime, image, network_id, *, network_name=None, started=False):
+    host = runtime['HostConfig']
+    networks = runtime['NetworkSettings']['Networks']
+    if (runtime['Image'] != image or runtime['Config']['User'] != 'agentledger'
+            or runtime['State']['Running'] is not started
+            or runtime['State']['Status'] != ('running' if started else 'created')
+            or not host['ReadonlyRootfs'] or host['PortBindings']
+            or host['PublishAllPorts'] or host['Privileged']
+            or host['CapDrop'] != ['ALL'] or host.get('CapAdd')
+            or 'no-new-privileges' not in (host['SecurityOpt'] or [])
+            or host['Memory'] != 512 * 1024 * 1024 or host['PidsLimit'] != 128
+            or host['Tmpfs'] != {'/tmp': 'rw,size=32m'}
+            or host['NetworkMode'] != network_id
+            or len(networks) != 1
+            or (network_name is not None and set(networks) != {network_name})
+            or next(iter(networks.values()))['NetworkID'] not in
+               ({network_id} if started else {'', network_id})):
+        raise RuntimeError('HTTP runtime constraints failed before start')
+
+
+===== scripts/qualify_production_package_http.py =====
+"""Local deployable-package HTTP proof; never contacts production or providers."""
+import hashlib
+import json
+import subprocess
+import shutil
+import uuid
+from datetime import UTC, datetime
+from pathlib import Path
+from package_qualification_contract import selected, verify_source, verify_fixture, verify_runtime
+
+ROOT = Path(__file__).resolve().parents[1]
+IMAGE = 'sha256:ef5cf3903e898a997c14520aceb66edf8cce2652fc75e90442fa0cb8006922cb'
+QUALIFICATION = ROOT/'evidence/20261003T235918.400817Z'
+
+
+def docker(*args):
+    return subprocess.run(['docker',*args],capture_output=True,text=True,check=True)
+
+
+def main():
+    preview = json.loads((ROOT/'evidence/visual-preview.json').read_bytes())
+    if preview['name'] != 'stewardence-visualqa-7e62efb888':
+        raise RuntimeError('Expected synthetic database fixture changed')
+    full_result = json.loads((QUALIFICATION/'qualification-summary.json').read_bytes())
+    if full_result['exit_code'] != 0 or full_result['test_arguments'] != ['tests']:
+        raise RuntimeError('Pinned complete source qualification is not passing')
+    manifest_bytes = (QUALIFICATION/'source-manifest.json').read_bytes()
+    source_manifest = json.loads(manifest_bytes)
+    source_count = verify_source(ROOT/'source', source_manifest)
+    network = json.loads(docker('network','inspect',preview['network']).stdout)[0]
+    database = json.loads(docker('inspect',preview['database']).stdout)[0]
+    network_id, database_id = verify_fixture(preview, network, database)
+    name = 'stewardence-package-http-'+uuid.uuid4().hex
+    output = ROOT/'evidence/production-package-http'/datetime.now(UTC).strftime('%Y%m%dT%H%M%S.%fZ')
+    output.mkdir(parents=True)
+    shutil.copyfile(ROOT/'scripts/production_package_http_probe.py', output/'http-probe.py')
+    expected_image = {key.replace('\\', '/'): digest for key, digest in source_manifest.items()
+                      if selected(key) and key != 'Dockerfile'
+                      and '__pycache__' not in key and not key.endswith('.pyc')}
+    (output/'expected-source.json').write_text(json.dumps(expected_image, sort_keys=True))
+    result = None
+    container_id = None
+    configuration = {
+        'DJANGO_SETTINGS_MODULE':'agentledger.settings.production',
+        'DJANGO_SECRET_KEY':'qualification-only-no-production-authority-secret-20261003-aB7k9',
+        'DATABASE_URL':'postgresql://agentledger_app@qualification-db:5432/qualification',
+        'ALLOWED_HOSTS':'localhost','CSRF_TRUSTED_ORIGINS':'https://localhost',
+        'REPORTS_BUCKET_NAME':'qualification-only','REPORTS_BUCKET_ENDPOINT':'https://127.0.0.1',
+        'REPORTS_BUCKET_ACCESS_KEY_ID':'qualification-only',
+        'REPORTS_BUCKET_SECRET_ACCESS_KEY':'qualification-only',
+        'REPORT_RENDERER_URL':'http://127.0.0.1:8080','STEWARDENCE_ISOLATED_QA':'1',
+        'AUTOMATION_ENABLED':'0','CORE_WORKFLOWS_ENABLED':'0','FOUNDER_OFFER_ENABLED':'0',
+    }
+    try:
+        args = ['create','--name',name,'--network',network_id,'--read-only',
+                '--cap-drop','ALL','--security-opt','no-new-privileges','--memory','512m',
+                '--pids-limit','128','--tmpfs','/tmp:rw,size=32m',
+                '--mount','type=bind,source='+str(output/'http-probe.py')+',target=/probe.py,readonly',
+                '--mount','type=bind,source='+str(output/'expected-source.json')+',target=/expected-source.json,readonly']
+        for key,value in configuration.items():
+            args.extend(['-e',key+'='+value])
+        container_id = docker(*args, IMAGE).stdout.strip()
+        runtime = json.loads(docker('inspect',container_id).stdout)[0]
+        if runtime['Id'] != container_id:
+            raise RuntimeError('Created HTTP container identity changed')
+        verify_runtime(runtime, IMAGE, network_id, network_name=preview['network'])
+        fresh_network = json.loads(docker('network','inspect',network_id).stdout)[0]
+        fresh_database = json.loads(docker('inspect',database_id).stdout)[0]
+        if verify_fixture(preview, fresh_network, fresh_database) != (network_id, database_id):
+            raise RuntimeError('Synthetic fixture changed before start')
+        docker('start',container_id)
+        connected_runtime = json.loads(docker('inspect',container_id).stdout)[0]
+        verify_runtime(connected_runtime, IMAGE, network_id,
+                       network_name=preview['network'], started=True)
+        execution = docker('exec',container_id,'/app/.venv/bin/python','/probe.py')
+        result = json.loads(execution.stdout)
+        if (result.get('qualification_passed') is not True
+                or result.get('provider_requests') is not False
+                or result.get('production_touched') is not False):
+            raise RuntimeError('HTTP child did not produce a passing isolated receipt')
+        result.update({'application_image_id':runtime['Image'],'full_tested_source_image_id':full_result['image_id'],
+                       'source_manifest_sha256':hashlib.sha256(manifest_bytes).hexdigest(),
+                       'http_probe_sha256':hashlib.sha256((output/'http-probe.py').read_bytes()).hexdigest(),
+                       'synthetic_database_id':database_id,'synthetic_network_id':network_id,
+                       'source_files_matched':source_count,'runtime_read_only':runtime['HostConfig']['ReadonlyRootfs'],
+                       'runtime_no_public_ports':not bool(runtime['HostConfig']['PortBindings']),
+                       'verified_at':datetime.now(UTC).isoformat()})
+        (output/'gunicorn.log').write_text(docker('logs',container_id).stdout,encoding='utf-8')
+    finally:
+        if container_id:
+            subprocess.run(['docker','rm','-f',container_id],capture_output=True)
+        if docker('ps','-aq','--filter','name=^'+name+'$').stdout.strip():
+            raise RuntimeError('Packaged HTTP qualification cleanup incomplete')
+    result['cleanup_verified'] = True
+    (output/'qualification-summary.json').write_text(json.dumps(result,indent=2))
+    print(json.dumps(result))
+
+
+if __name__ == '__main__':
+    main()
+
+
+===== scripts/production_package_http_probe.py =====
+"""Run inside an isolated deployable web image; synthetic configuration only."""
+import hashlib
+import json
+import os
+import re
+import time
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, message, headers, newurl):
+        return None
+
+
+opener = urllib.request.build_opener(NoRedirect())
+
+
+def request(path, *, secure=True, host='localhost', data=None):
+    headers = {'Host':host}
+    if secure:
+        headers['X-Forwarded-Proto'] = 'https'
+    query = urllib.request.Request('http://127.0.0.1:8000'+path, data=data, headers=headers)
+    try:
+        response = opener.open(query, timeout=5)
+    except urllib.error.HTTPError as error:
+        response = error
+    return response.status, response.headers, response.read(2*1024*1024)
+
+
+def main():
+    if os.getuid() != 10001 or os.getenv('STEWARDENCE_ISOLATED_QA') != '1':
+        raise RuntimeError('Isolated non-root package qualification required')
+    expected = json.loads(Path('/expected-source.json').read_bytes())
+    actual = {}
+    for folder in ['apps', 'src', 'templates', 'static', 'collector']:
+        for file in (Path('/app')/folder).rglob('*'):
+            if file.is_file() and '__pycache__' not in file.parts and file.suffix != '.pyc':
+                actual[file.relative_to('/app').as_posix()] = hashlib.sha256(file.read_bytes()).hexdigest()
+    for name in ['manage.py', 'pyproject.toml', 'uv.lock']:
+        actual[name] = hashlib.sha256((Path('/app')/name).read_bytes()).hexdigest()
+    if actual != expected:
+        raise RuntimeError('Packaged image source differs from the pinned complete source subset')
+    for _ in range(30):
+        try:
+            status, headers, body = request('/healthz',secure=False)
+            if status == 200:
+                break
+        except urllib.error.URLError:
+            pass
+        time.sleep(.2)
+    else:
+        raise RuntimeError('Packaged Gunicorn did not become available')
+    assert json.loads(body) == {'status':'ok'}
+    status, headers, body = request('/readyz',secure=False)
+    assert status == 200 and json.loads(body) == {'status':'ready'}
+    status, headers, body = request('/',secure=False)
+    assert status == 301 and headers['Location'] == 'https://localhost/'
+    status, headers, body = request('/')
+    assert status == 200 and b'Inventory AI usage' in body
+    assert headers['X-Content-Type-Options'] == 'nosniff'
+    assert headers['X-Frame-Options'] == 'DENY'
+    assert 'max-age=3600' in headers['Strict-Transport-Security']
+    styles = re.findall(rb'href="(/static/[^" ]+\.css)"',body)
+    assert len(styles) >= 2
+    manifest = json.loads(Path('/app/staticfiles/staticfiles.json').read_bytes())['paths']
+    assets = []
+    for key in ['agentledger.css','atlas.css','brand/atlas/reports.svg']:
+        url = '/static/'+manifest[key]
+        if key.endswith('.css'):
+            assert url.encode() in styles
+        status, headers, content = request(url)
+        assert status == 200
+        assert content == (Path('/app/staticfiles')/manifest[key]).read_bytes()
+        assert 'max-age=315360000' in headers['Cache-Control']
+        assets.append({'asset':key,'manifest_path':manifest[key],
+                       'sha256':hashlib.sha256(content).hexdigest(),'status':status})
+    status, headers, body = request('/accounts/login/')
+    assert status == 200 and b'csrfmiddlewaretoken' in body
+    cookie = headers.get('Set-Cookie','')
+    for flag in ['Secure','HttpOnly','SameSite=Lax']:
+        assert flag in cookie
+    status, headers, body = request('/accounts/login/',data=b'email=synthetic%40example.invalid')
+    assert status == 403
+    status, headers, body = request('/',host='untrusted.example.invalid')
+    assert status == 400
+    from django.conf import settings
+    assert not settings.DEBUG and not settings.FOUNDER_OFFER_ENABLED
+    assert not settings.AUTOMATION_ENABLED and not settings.CORE_WORKFLOWS_ENABLED
+    print(json.dumps({'qualification_passed':True,'uid':os.getuid(),
+        'image_source_files_matched':len(actual),
+        'image_source_manifest_sha256':hashlib.sha256(Path('/expected-source.json').read_bytes()).hexdigest(),
+        'gunicorn_http':True,'production_settings':True,'database_readiness':True,
+        'http_to_https_redirect':True,'secure_proxy_header_simulated':True,
+        'csrf_rejection':True,'host_rejection':True,'static_manifest_assets':assets,
+        'synthetic_only':True,'provider_requests':False,'production_touched':False,
+        'limits':'Isolated deployable image and simulated trusted proxy header; not live ingress, real TLS, provider health or payment fulfillment.'}))
+
+
+if __name__ == '__main__':
+    import django
+    django.setup()
+    main()
+
+
+===== scripts/qualify_package_contract_rejection.py =====
+"""Offline adversarial controls for source membership and pre-start checks."""
+import copy
+import hashlib
+import json
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
+from package_qualification_contract import verify_source, verify_runtime, verify_fixture
+
+rejections = []
+
+
+def rejected(label, callback):
+    try:
+        callback()
+    except (RuntimeError, OSError):
+        rejections.append(label)
+        return
+    raise RuntimeError('Falsely accepted package control: ' + label)
+
+
+with tempfile.TemporaryDirectory() as directory:
+    root = Path(directory)
+    (root/'templates').mkdir()
+    for name in ['templates/report.html', 'uv.lock', 'Dockerfile']:
+        (root/name).write_text('synthetic qualification input')
+    manifest = {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                for p in root.rglob('*') if p.is_file()}
+    assert verify_source(root, manifest) == 3
+    for name in ['templates/report.html', 'uv.lock']:
+        path = root/name
+        data = path.read_bytes()
+        path.unlink()
+        rejected('missing_' + name, lambda: verify_source(root, manifest))
+        path.write_bytes(data)
+    (root/'templates/unexpected.html').write_text('unexpected')
+    rejected('unexpected_source', lambda: verify_source(root, manifest))
+    (root/'templates/unexpected.html').unlink()
+    (root/'uv.lock').write_text('changed')
+    rejected('changed_source', lambda: verify_source(root, manifest))
+    (root/'uv.lock').write_text('synthetic qualification input')
+    with patch.object(Path, 'read_bytes', side_effect=PermissionError('mock unreadable')):
+        rejected('unreadable_source', lambda: verify_source(root, manifest))
+
+image = 'sha256:' + 'a'*64
+network_id = 'b'*64
+database_id = 'c'*64
+preview = {'network': 'synthetic-network', 'database': 'synthetic-db',
+           'postgres_image_id': image}
+network = {'Id': network_id, 'Name': preview['network'], 'Internal': True,
+           'Containers': {database_id: {'Name': preview['database']}}}
+database = {'Id': database_id, 'Name': '/' + preview['database'], 'Image': image,
+            'State': {'Running': True}, 'HostConfig': {'PortBindings': {}},
+            'NetworkSettings': {'Networks': {preview['network']: {
+                'NetworkID': network_id, 'Aliases': ['qualification-db']}}}}
+assert verify_fixture(preview, network, database) == (network_id, database_id)
+for label, key, value in [('public_network', 'Internal', False),
+                           ('renamed_network', 'Name', 'foreign')]:
+    changed = copy.deepcopy(network)
+    changed[key] = value
+    rejected(label, lambda: verify_fixture(preview, changed, database))
+changed = copy.deepcopy(database)
+changed['HostConfig']['PortBindings'] = {'5432/tcp': [{'HostPort': '5432'}]}
+rejected('public_database', lambda: verify_fixture(preview, network, changed))
+changed = copy.deepcopy(database)
+changed['Image'] = 'sha256:' + 'd'*64
+rejected('foreign_database_image', lambda: verify_fixture(preview, network, changed))
+
+runtime = {'Image': image, 'Config': {'User': 'agentledger'},
+           'State': {'Running': False, 'Status': 'created'},
+           'HostConfig': {'NetworkMode': network_id, 'ReadonlyRootfs': True, 'PortBindings': {},
+               'PublishAllPorts': False, 'Privileged': False, 'CapDrop': ['ALL'],
+               'CapAdd': None, 'SecurityOpt': ['no-new-privileges'],
+               'Memory': 512*1024*1024, 'PidsLimit': 128,
+               'Tmpfs': {'/tmp': 'rw,size=32m'}},
+           'NetworkSettings': {'Networks': {'synthetic-network': {'NetworkID': network_id}}}}
+verify_runtime(runtime, image, network_id)
+for key, value in [('ReadonlyRootfs', False), ('PortBindings', {'8000/tcp': []}),
+                   ('PublishAllPorts', True), ('Privileged', True), ('CapDrop', []),
+                   ('CapAdd', ['SYS_ADMIN']), ('SecurityOpt', []), ('Memory', 0),
+                   ('PidsLimit', 0), ('Tmpfs', {})]:
+    bad = copy.deepcopy(runtime)
+    bad['HostConfig'][key] = value
+    rejected('runtime_' + key, lambda: verify_runtime(bad, image, network_id))
+for label, path, value in [('wrong_image', 'Image', 'foreign')]:
+    bad = copy.deepcopy(runtime)
+    bad[path] = value
+    rejected(label, lambda: verify_runtime(bad, image, network_id))
+bad = copy.deepcopy(runtime)
+bad['NetworkSettings']['Networks']['synthetic-network']['NetworkID'] = 'foreign'
+rejected('foreign_network_identity', lambda: verify_runtime(bad, image, network_id))
+bad = copy.deepcopy(runtime)
+bad['State']['Running'] = True
+rejected('already_started', lambda: verify_runtime(bad, image, network_id))
+print(json.dumps({'qualification_passed': True, 'rejections': rejections,
+                  'scope': 'Filesystem controls and mocked inspection contracts; not daemon faults.'}))
+
+
+===== scripts/qualify_package_caller_rejection.py =====
+"""Exact HTTP launcher controls: rejected pre-start inspections cannot start."""
+import copy
+import hashlib
+import json
+import tempfile
+from pathlib import Path
+from subprocess import CompletedProcess
+from unittest.mock import patch
+import qualify_production_package_http as launcher
+
+network_id = 'b'*64
+database_id = 'c'*64
+container_id = 'd'*64
+name = 'stewardence-visualqa-7e62efb888'
+preview = {'name': name, 'network': name, 'database': name+'-db',
+           'postgres_image_id': 'sha256:'+'a'*64}
+network = {'Id': network_id, 'Name': name, 'Internal': True,
+           'Containers': {database_id: {'Name': preview['database']}}}
+database = {'Id': database_id, 'Name': '/'+preview['database'],
+            'Image': preview['postgres_image_id'], 'State': {'Running': True},
+            'HostConfig': {'PortBindings': {}},
+            'NetworkSettings': {'Networks': {name: {
+                'NetworkID': network_id, 'Aliases': ['qualification-db']}}}}
+runtime = {'Id': container_id, 'Image': launcher.IMAGE, 'Config': {'User': 'agentledger'},
+           'State': {'Running': False, 'Status': 'created'},
+           'HostConfig': {'NetworkMode': network_id, 'ReadonlyRootfs': True, 'PortBindings': {},
+               'PublishAllPorts': False, 'Privileged': False, 'CapDrop': ['ALL'],
+               'CapAdd': None, 'SecurityOpt': ['no-new-privileges'],
+               'Memory': 512*1024*1024, 'PidsLimit': 128,
+               'Tmpfs': {'/tmp': 'rw,size=32m'}},
+           'NetworkSettings': {'Networks': {name: {'NetworkID': network_id}}}}
+results = []
+for scenario in ['writable_root', 'public_port', 'foreign_image', 'foreign_network']:
+    bad = copy.deepcopy(runtime)
+    if scenario == 'writable_root':
+        bad['HostConfig']['ReadonlyRootfs'] = False
+    if scenario == 'public_port':
+        bad['HostConfig']['PortBindings'] = {'8000/tcp': [{'HostPort': '8000'}]}
+    if scenario == 'foreign_image':
+        bad['Image'] = 'foreign'
+    if scenario == 'foreign_network':
+        bad['NetworkSettings']['Networks'][name]['NetworkID'] = 'foreign'
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        qualification = root/'pinned-qualification'
+        qualification.mkdir()
+        (root/'evidence').mkdir()
+        (root/'source').mkdir()
+        (root/'scripts').mkdir()
+        (root/'scripts/production_package_http_probe.py').write_text('# mocked HTTP probe')
+        (root/'source/uv.lock').write_text('synthetic')
+        (qualification/'qualification-summary.json').write_text(json.dumps({
+            'exit_code': 0, 'test_arguments': ['tests'], 'image_id': 'synthetic-reference'}))
+        (qualification/'source-manifest.json').write_text(json.dumps({
+            'uv.lock': hashlib.sha256(b'synthetic').hexdigest()}))
+        (root/'evidence/visual-preview.json').write_text(json.dumps(preview))
+        calls = []
+
+        def docker(*args):
+            calls.append(args)
+            if args[:2] == ('network', 'inspect'):
+                return CompletedProcess(args, 0, json.dumps([network]), '')
+            if args == ('inspect', preview['database']):
+                return CompletedProcess(args, 0, json.dumps([database]), '')
+            if args[0] == 'create':
+                return CompletedProcess(args, 0, container_id+'\n', '')
+            if args == ('inspect', container_id):
+                return CompletedProcess(args, 0, json.dumps([bad]), '')
+            if args[0] == 'ps':
+                return CompletedProcess(args, 0, '', '')
+            raise RuntimeError('Unexpected Docker action: '+str(args))
+
+        with patch.object(launcher, 'ROOT', root), patch.object(launcher, 'QUALIFICATION', qualification), \
+             patch.object(launcher, 'docker', docker), patch.object(launcher.subprocess, 'run'):
+            try:
+                launcher.main()
+            except RuntimeError as error:
+                assert 'before start' in str(error), error
+            else:
+                raise RuntimeError('Exact caller accepted: '+scenario)
+        assert not any(call[0] in {'start', 'exec'} for call in calls), calls
+        assert not list((root/'evidence').rglob('qualification-summary.json'))
+        results.append({'scenario': scenario, 'start_called': False, 'success_receipt_written': False})
+print(json.dumps({'qualification_passed': True, 'controls': results,
+                  'scope': 'Exact launcher mocked-Docker controls; no actual daemon fault.'}))
+
+
+===== evidence/qualification-harness-negative-controls-20261003.json =====
+[
+  {
+    "script": "qualify_package_contract_rejection.py",
+    "script_sha256": "153edd7dafb75605d25c22c93595d1199a37a0702f50e43fc275f5a5599ccbbf",
+    "exit_code": 0,
+    "result": {
+      "qualification_passed": true,
+      "rejections": [
+        "missing_templates/report.html",
+        "missing_uv.lock",
+        "unexpected_source",
+        "changed_source",
+        "unreadable_source",
+        "public_network",
+        "renamed_network",
+        "public_database",
+        "foreign_database_image",
+        "runtime_ReadonlyRootfs",
+        "runtime_PortBindings",
+        "runtime_PublishAllPorts",
+        "runtime_Privileged",
+        "runtime_CapDrop",
+        "runtime_CapAdd",
+        "runtime_SecurityOpt",
+        "runtime_Memory",
+        "runtime_PidsLimit",
+        "runtime_Tmpfs",
+        "wrong_image",
+        "foreign_network_identity",
+        "already_started"
+      ],
+      "scope": "Filesystem controls and mocked inspection contracts; not daemon faults."
+    }
+  },
+  {
+    "script": "qualify_package_caller_rejection.py",
+    "script_sha256": "048b554f10be563de02d2553c6e1afe39d24a3a055def5d9a9cb5595e6a1b75e",
+    "exit_code": 0,
+    "result": {
+      "qualification_passed": true,
+      "controls": [
+        {
+          "scenario": "writable_root",
+          "start_called": false,
+          "success_receipt_written": false
+        },
+        {
+          "scenario": "public_port",
+          "start_called": false,
+          "success_receipt_written": false
+        },
+        {
+          "scenario": "foreign_image",
+          "start_called": false,
+          "success_receipt_written": false
+        },
+        {
+          "scenario": "foreign_network",
+          "start_called": false,
+          "success_receipt_written": false
+        }
+      ],
+      "scope": "Exact launcher mocked-Docker controls; no actual daemon fault."
+    }
+  },
+  {
+    "script": "qualify_layout_caller_rejection.py",
+    "script_sha256": "1c1dd2ac4cf35657fc156a203c6e82e0ba204dafe560876f0f75f2ecd2d17100",
+    "exit_code": 0,
+    "result": {
+      "qualification_passed": true,
+      "controls": [
+        {
+          "field": "nonempty_pages",
+          "success_receipt_written": false
+        },
+        {
+          "field": "inventory_section_complete",
+          "success_receipt_written": false
+        },
+        {
+          "field": "pages",
+          "success_receipt_written": false
+        }
+      ],
+      "scope": "Exact launcher mocked child receipts; not a daemon failure."
+    }
+  },
+  {
+    "script": "qualify_layout_content_rejection.py",
+    "exit_code": 0,
+    "result": {
+      "rejections": [
+        "actual_blank_page",
+        "actual_footer_only_page",
+        "actual_label_only_in_risk",
+        "receipt_false_nonempty_pages",
+        "receipt_false_inventory_section_complete",
+        "receipt_missing_specimen"
+      ],
+      "healthy_receipt_passed": true,
+      "scope": "Actual synthetic PDF controls; no customer or production data."
+    },
+    "script_sha256": "47291985f1a91c3c9a269e99936f15f4af5c0e26e7a8b55df4bddc91a0ef2c2c"
+  }
+]
+
+===== evidence/report-layout-qualified/20261003T234711.969251Z/qualification-summary.json =====
+{
+  "qualification_passed": true,
+  "geometry": {
+    "viewport": 688,
+    "document_width": 688,
+    "table_columns": [
+      137.390625,
+      137.390625,
+      137.390625,
+      137.390625,
+      137.4375
+    ]
+  },
+  "content_checks": {
+    "long-input": {
+      "pages": 5,
+      "nonempty_pages": true,
+      "inventory_section_complete": true
+    },
+    "multi-tool": {
+      "pages": 9,
+      "nonempty_pages": true,
+      "inventory_section_complete": true
+    },
+    "long-table": {
+      "pages": 27,
+      "nonempty_pages": true,
+      "inventory_section_complete": true
+    }
+  },
+  "scope": "Synthetic renderer layout only; not source-derived assessment, international glyph coverage or production service proof.",
+  "renderer_image_id": "sha256:d4c73ead4d1c6bf16c77089a6837e039a0ab84c4a9a48d8b4f60852809e57a27",
+  "repeat_bytes_equal": true,
+  "artifacts": [
+    {
+      "specimen": "long-input",
+      "pdf_sha256": "3d0fb8bc7af40635d7897ff2e04f56da258cd13d2f8a700e2ffb22d851d5f20a",
+      "bytes": 115424,
+      "input_sha256": "9c39efb81890d4fd230f106fdcd9cda32067b158008814a4c7573baf095680d7"
+    },
+    {
+      "specimen": "multi-tool",
+      "pdf_sha256": "f024564297342566780a35123f9835d511b2e1edcd8df1c59638f239a0a04c5f",
+      "bytes": 132802,
+      "input_sha256": "96eef285c28d2ed66f318ae7e60e3b6ed03f24dc31aefeb7733baf9407283fd2"
+    },
+    {
+      "specimen": "long-table",
+      "pdf_sha256": "90819109ff6001c0bf2a1123a82ac7da1d4113ed645730bdbc9feb472757f373",
+      "bytes": 266183,
+      "input_sha256": "0f09a0d8c1497310e34572eacf66f2a57a556972c831145506ccf93562513013"
+    }
+  ],
+  "verified_at": "2026-10-03T23:47:30.226565+00:00",
+  "runtime_constraints": {
+    "NetworkMode": "none",
+    "ReadonlyRootfs": true,
+    "CapDrop": [
+      "ALL"
+    ],
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "Memory": 536870912,
+    "PidsLimit": 256,
+    "Tmpfs": {
+      "/tmp": "rw,size=128m",
+      "/work/output": "rw,size=32m,mode=0700,uid=10001,gid=10001"
+    }
+  },
+  "cleanup_verified": true
+}
+
+===== evidence/production-package-http/20261004T000321.742621Z/qualification-summary.json =====
+{
+  "qualification_passed": true,
+  "uid": 10001,
+  "image_source_files_matched": 280,
+  "image_source_manifest_sha256": "7af4f0e3f88ecbc5ee9f3babeebf64603bc4f612cd249c4fff2d9e016709aa2c",
+  "gunicorn_http": true,
+  "production_settings": true,
+  "database_readiness": true,
+  "http_to_https_redirect": true,
+  "secure_proxy_header_simulated": true,
+  "csrf_rejection": true,
+  "host_rejection": true,
+  "static_manifest_assets": [
+    {
+      "asset": "agentledger.css",
+      "manifest_path": "agentledger.41f194629df4.css",
+      "sha256": "a5c70074be4af5ee467e62cc36f19eb6d6c638171ae1dc79e1d7b0e76eee49c8",
+      "status": 200
+    },
+    {
+      "asset": "atlas.css",
+      "manifest_path": "atlas.8150aa8b4dc5.css",
+      "sha256": "391200701735fee61311f76d99e27a2fa14cef2bff7d73be476cef4395b06667",
+      "status": 200
+    },
+    {
+      "asset": "brand/atlas/reports.svg",
+      "manifest_path": "brand/atlas/reports.a9b494028809.svg",
+      "sha256": "173afd2fa4df14b9067df281d539368b1f74e00985a2174cd7dc06a5921903f1",
+      "status": 200
+    }
+  ],
+  "synthetic_only": true,
+  "provider_requests": false,
+  "production_touched": false,
+  "limits": "Isolated deployable image and simulated trusted proxy header; not live ingress, real TLS, provider health or payment fulfillment.",
+  "application_image_id": "sha256:ef5cf3903e898a997c14520aceb66edf8cce2652fc75e90442fa0cb8006922cb",
+  "full_tested_source_image_id": "sha256:f8b63f61b9594949909127463a1f4f8855ead66b2ee233c5f3385626ec47d41d",
+  "source_manifest_sha256": "d44683dc78e9986599ba8c38e56eeb81e530e3268e4bcf31a3252b7dfae06997",
+  "http_probe_sha256": "7f7e963d03d5f193d7fb38505e7f3ced3da8b417a67f1042ce33d9295748a8e4",
+  "synthetic_database_id": "25269ce6a30eacc0e6470484279ed9cb55a048c363b73c6a5338f151d54f0010",
+  "synthetic_network_id": "2024b44969bc8b7167759d89d383f62befa6ab23fd9553622a141f50176721e8",
+  "source_files_matched": 281,
+  "runtime_read_only": true,
+  "runtime_no_public_ports": true,
+  "verified_at": "2026-10-04T00:03:25.341772+00:00",
+  "cleanup_verified": true
+}
+
+===== evidence/production-package-http/20261004T000321.742621Z/expected-source.json =====
+{"apps/__init__.py": "b9cb4531bec357cb7696b80bf2fe4033c04c64e6f1712bbea67b4498b80a0e71", "apps/accounts/__init__.py": "a7350fa0a8fe68adb4b5cc7eede764c9fc628619794557c638f6324d57f9998e", "apps/accounts/apps.py": "a5622329454c7d8d97c9a8e6ebc19ccbe697c6541ad0d2e142520b7f56730dfb", "apps/accounts/forms.py": "98f6c988c66758cb7cdcf9a14574615f2fd912f41a85af3fb67ee9fc121baba7", "apps/accounts/managers.py": "8863cd2369eb6714024019d8ffcf670169ad90632e720fa59229ff86a4e64a94", "apps/accounts/migrations/0001_initial.py": "c372d33e78fd3505b5e22f0428486080fe9ccf00dabf4320ba56912186578e49", "apps/accounts/migrations/__init__.py": "64730bb48f84cdeb70d58988d64d81246acd053587365e33c84c6c34ce7000e6", "apps/accounts/models.py": "b5d2721a954cc9f4f8549986a78e07e12f5e6ed9ffb774477ac0b55a3a3e2e32", "apps/accounts/urls.py": "e70f509bf6e4967086f3e7248e997df20d2270e87897a9f0029b51da12f7a695", "apps/accounts/views.py": "3e154eeac0896d0ed4d9bd1b636c6af8472af7c2c0ccace345e8a22f24bee729", "apps/assessments/__init__.py": "915d7d3b98935eb236e930fd0b77aa29f76b1b6c22eef2e118e556e42808da68", "apps/assessments/apps.py": "d20e84e151ad30d5bdd45391f99ebb2db14f6e6d9773a8385ff757fdf3e64cf3", "apps/assessments/migrations/0001_initial.py": "7f12754f8efd6fe869a4482351c6ad1346b793a295b39350f583f30ad564f763", "apps/assessments/migrations/0002_snapshot_security.py": "542fd99b745ac44f19968092ff4701bb948a7b32a7c2fe466df6845fdad184aa", "apps/assessments/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "apps/assessments/models.py": "98a7c536ee91894d0161776da9ec74526108991bf767c2ed5e770e109a95e911", "apps/assessments/snapshots.py": "47b4ca126223ddae929b9f470852f61c378e233443ad85027063c7e00fb6cc0e", "apps/assessments/urls.py": "77938e62e8bd6a9e5a56c41e276cec88d1a0c9c99dc7c02e5baf50756d43c165", "apps/assessments/views.py": "bb6eb63ea552560802e51b86d7f6ba7caea94ef6c0066d7da56b6da80c8406bb", "apps/audit/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b", "apps/audit/append.py": "8f59bbb3e10c1004a97e48ed1cf8e2ac1dfbbeee31b741302a8fe8e986db8460", "apps/audit/apps.py": "aa0276f27c7d882d5f318346744c685f9a3c17630f2d447fba54cd5a2ef71a8d", "apps/audit/events.py": "21fb5ce29f20a69e19aeb9b000fec82e8c922dcd79a8d234a1c9060c2b50979f", "apps/audit/jobs.py": "b1d779cf2b53702869e135ab51e422c1070c2f27cd25c899661cd14acd79cb29", "apps/audit/management/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b", "apps/audit/management/commands/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b", "apps/audit/management/commands/verify_audit.py": "9f0de1e7f2ed7a9009dd1e6fd58ed49c9dc9b332786b5bc6ba7b257e19ef65a5", "apps/audit/merkle.py": "323e64878b3492c1e00cc51cb78fd530968f1b76824a7f93d54a6463739ea799", "apps/audit/migrations/0001_initial.py": "915479d4fd4780f95711860061fe5c01e913c0168a2ea8e5b4fbca12487cbb3c", "apps/audit/migrations/0002_audit_security.py": "ede8a6252d8856c0d3eb9350af92ebcb5cc749f08f11d2c5ea7f0ec7ec46f651", "apps/audit/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "apps/audit/models.py": "6180e5515eb9a1dcd2b1a51c5d935d42ff8fb5ec6966f976d24db93010012445", "apps/audit/sealing.py": "36a67b09058ec330f8ca3f492fa74e7a8215c970874d6b334b13c28bfe92d4b9", "apps/audit/verification.py": "fc5e8d3bafed1c5a8b8d5a542c8630458d49a27f9b667526be774bb6cc014e6e", "apps/billing/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b", "apps/billing/admin.py": "23c6467e17bff5c849acd5e9f7cfcb2583904106e025a75919c771d2f95ce627", "apps/billing/apps.py": "e6eb40df45ef31952514396ef3b44d8b1cf74efd09f2af629123637dcb879094", "apps/billing/catalog.py": "d3ba18e1cae7828248461f07d11192f05463c824ff7d4439481b45b2bf6d3eea", "apps/billing/founder_slots.py": "0db15cfde07db49f644ed264a10b31421336157b1bdd7b4d5e5e14be53f67f66", "apps/billing/middleware.py": "9ffed4168031e47172f8181f206a1f2998318c678afe0d0de08cea8c16935648", "apps/billing/migrations/0001_initial.py": "86561c4db49c3686f021904659657d2b0d7a5b91b4dcf518a5ac5e3aed2396a8", "apps/billing/migrations/0002_stripewebhookevent.py": "007a0f01b24fc3cd1d2f8cfa77dcbf21ba5094751ea253d8eda573045e8bba27", "apps/billing/migrations/0003_founderslot.py": "2dd5e9473260160d96dda339fe35c12a4211f049fbfaccd99b3e5cf83d6be2e0", "apps/billing/migrations/0004_founderslot_reservation_token.py": "130fe200aff4c8b7f20187198caff702b0c7431f91ed11028d0eb93253c97cdc", "apps/billing/migrations/0005_billing_security.py": "8fb6d3717c9a92dc79ae1e9f095b877d14413dcfc89d4df2b2a2d87548242000", "apps/billing/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "apps/billing/models.py": "85c8f89a1600cef4859d10e8fe5e199cef52bc1b3d59e9b14e76749be4f8521f", "apps/billing/pricing.py": "2dee680bfa2effb3c06518d6dc27b3feeba476f31fa238ffdfcc42f6a49ab8ba", "apps/billing/security.py": "f4ddd4325623545bfc968b2f64315a1b08043be52ad8fdaf6f372933999cb4a0", "apps/billing/stripe_schedules.py": "4fad2b36fdd3f4887561995692477bcd848389d30cc7782ec8a984a200c5c21a", "apps/billing/urls.py": "938611e64eaa8aa8cc6b69ceadf2ecd4925b86176a7df97d62e7fc32a2337819", "apps/billing/views.py": "c3e4f20b9c2ac7138314db411278022ccbdd648dc52d0eee5b83f08fedb0552e", "apps/catalog/__init__.py": "cbfa59e11d6a79bfbfeb2dd9ca270d25b46863be95f34817a3dfa5d568af2d7a", "apps/catalog/apps.py": "d298a01aeb553a50b5fa1f5e10ba7feb8d8988fe3e960c71bc71b767a0a1f311", "apps/catalog/management/__init__.py": "36738e75b512d7f39ec85d4e9b56fab74696ae388408669e5b7e351699f49377", "apps/catalog/management/commands/__init__.py": "d03ebcd347db9857f468c599dd04840f0a726bc1a124e00da8f1e41b34f89510", "apps/catalog/management/commands/seed_product_catalog.py": "fa02625b15346d7d81747360b8203a04e5a92f144fcedbfb27a255c1a2a24eef", "apps/catalog/matching.py": "eb38d112a0ca13666aa51bd6fa3cee6402fcc9272721be261e4ef55c02032b29", "apps/catalog/migrations/0001_initial.py": "4b42245be922b2b9663bab19fce7137cef7f072c7c64b40dcdea47489a53209d", "apps/catalog/migrations/0002_catalog_security.py": "341a0a1deceb408610fc21c42512056ce4cafedcec86b055092f8b424d14d0ae", "apps/catalog/migrations/__init__.py": "62b823c8d40d8f2eb9f246092c75721a5e4028db42ec2fb85b6de93c63207fdf", "apps/catalog/models.py": "7a272ad26ac47edea2cdbb5d6ce3588ab9cf94fc8995100f3d7c409571a4eadf", "apps/catalog/normalization.py": "5ba489f866b2cedb8b857a45f57fc674b44fbd86eb56a8420b7e085b4aa83625", "apps/credentials/__init__.py": "26860884d154f68714a0d52f7be5c11f61b352e522eebe1be71fe5e605c8af90", "apps/credentials/crypto.py": "3b98354a253eb42a7f76d0273e2e3490413ffe305551474cec2b7595b2784dad", "apps/imports/__init__.py": "a516f7c7bc9cbb592cd80fb0952464f97e4b0e2824dd5cef84b1734d520e1dcc", "apps/imports/apps.py": "34049ceae48129e2ed695b7c7193601a2bbbde0324ad2dfa98695754acfeb339", "apps/imports/forms.py": "441ddfa2e39578b61d48ff101c42866fde25c46655a37531df0f705da2883f4a", "apps/imports/migrations/0001_initial.py": "035a9abbc0b057dd3523666236e889aea4d5754e881e919b2e5261f4d7182d8d", "apps/imports/migrations/0002_import_staging_security.py": "b450f37c7c4ff101d05a8bbd83868524dd8193c67579469a3b98b94af57ac226", "apps/imports/migrations/__init__.py": "e395e752b7518ccf72d0a9c188b29710cd7e62ed82e8ee758f8681512b295e70", "apps/imports/models.py": "28db65b8eae6bf3c17dfdcc17277f195ced909a948752ad4dbe0f2ab2d867a68", "apps/imports/parsing.py": "2c6d8ff9c4cc28239fce0685a1b661683698b51204b612def4c3ad75bec9182d", "apps/imports/urls.py": "32ff355671a1caf7267a403449940d8a6dacec6cfa17443d326041c9324a9f97", "apps/imports/views.py": "99c479c0499f7cf56bdad63489df6d4b87e2178bf557079ad41fffb625cee0e6", "apps/integrations/__init__.py": "75665e40f6d645ec5b43afeade76a3e5cd4964fe3ffcf3a2ef63125b199e9a4e", "apps/integrations/analysis.py": "40c25213f6e6363cee42064fb81eadc39fef476ebe349d7483848ed9f5a41903", "apps/integrations/apps.py": "d07cf3ea0bd46904e8e5c142bbaad4faaa32d4cabab99a7c615bc0f53edc4af5", "apps/integrations/capabilities.py": "f8c494a51164b3bb4fd3323e516dda3f56a0dfb2e013128f2b32595a26eae19c", "apps/integrations/forms.py": "8b453067357e2e929088140e734fe251f1810ed91a3dd70ec03fe25e0bb5cde2", "apps/integrations/logging.py": "9ae2db4afb2626f62c25efe5cd5b1287811af45a94e89e57b98fd2e96fff8cb6", "apps/integrations/migrations/0001_initial.py": "08809ab18d5896c62232229fa9b9268d87d6af5f155d515da2cbf4295286246f", "apps/integrations/migrations/0002_providerconnection_providerattempt_providerevent_and_more.py": "6c69db0779ad3228fa6777ff17d0be2852c28acb27616414d01d8c50083fb97f", "apps/integrations/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "apps/integrations/models.py": "76569d4837ca38b4de147aca0f5329923631295b31e69afe580d7e63e8d512c3", "apps/integrations/provider_client.py": "d439374a8b734525391916bb0a15c5af198ac8862832071d87ea0101ca93899f", "apps/integrations/provider_crypto.py": "72b8b4c25758f4a53c43170625f99452a3cdd9f19e96cac35c30fbe748c2341a", "apps/integrations/provider_services.py": "24e6566e0115d0e2ac1f4b8f6a459648a73afe17c5b4d519b8072fcb76830023", "apps/integrations/provider_views.py": "96dcf6f0a9d996e7e14a3216c21321e9d6a4e27efb05059bdaa615cc0cff4e25", "apps/integrations/quickbooks_client.py": "9ea899adad6de5483026cd872b11b55767c011fc645203e98aa555c94135ec43", "apps/integrations/quickbooks_crypto.py": "0815561f762a5041265ae9f0cf8ac8df8113558a1c332a2da987024f2c52c30b", "apps/integrations/quickbooks_reports.py": "3ebc14b8927d18a58aa9a9913969128f48c26b2337786c8fbdc10e8b05f68261", "apps/integrations/quickbooks_services.py": "4c21d70c51568b5fdd8e8e58623b386cc1c6ed6fa67ddcd4de0fabfb1d32bdb2", "apps/integrations/quickbooks_views.py": "26a1f2db31f01d511049a4ff885c71658860037f89551b6d36498403a30f44d5", "apps/integrations/semantics/README.md": "9630881aa67f2eed9b5a6b0e55b39b7a94212b498e7cf9f1e49a6409869cc9b3", "apps/integrations/semantics/__init__.py": "8616557404019bcdeaa536839783891f30c2e22446cbb421682b3062c3cd35b6", "apps/integrations/semantics/adapters.py": "44c7fee56aabd19c283a7609c0e7e9a5b8544e3b9941b94bef0b10c9593ef732", "apps/integrations/semantics/contracts.py": "a7b493666a2a0f19715eca27f11d34c1be8a37b1074ef6457dd2f4d0b1aace8a", "apps/integrations/semantics/openapi-components-v1.json": "f162d4430274344a99bd0d492460790390885fc006ad95f26d736457020462e8", "apps/integrations/semantics/registry-v1.json": "159db1ed5c319e69f71714deed640193de148b6a588989f4eabc588ea986f9d7", "apps/integrations/semantics/schemas/assertion-v1.json": "694f9d0ed4fd6c837f62cee3b5d8144afd57b949c311d4d8de6bce3c29dc9546", "apps/integrations/semantics/schemas/entity-profile-v1.json": "b15aba4c10a1decd594ab84ccb815e8a1b8d9076a8db58ff9eabe1a15afcd989", "apps/integrations/semantics/schemas/normalization-request-v1.json": "f202278140573c17f115a852615c78b334007732a34a35ab01a482e67fc47f1d", "apps/integrations/semantics/schemas/read-envelope-v1.json": "38a56681c61ae1e59e5a5b24971f770a6d46a66e5b1bfeb6cae0ed38d74a76b4", "apps/integrations/semantics/schemas/read-payload-v1.json": "b5b1939beb08311f7a81333897c0d6eea66592452112e9a6b247fbe74cd13d50", "apps/integrations/urls.py": "c83bde9c41bd69fa8e15df69c35e67fa24bd10c4866be741db32251ad389d465", "apps/inventory/__init__.py": "68175d01ca01be0342ec25b2a292589995bc76c307e09e43c5c1eb76d6b6d8ee", "apps/inventory/apps.py": "35a17d4b4333bf15778fc3d8a86644147ba64a7110b4be98d9d721342ef290fb", "apps/inventory/discovery.py": "e8623b78ca855762359f362bff10e6d0ba56204ef458fdfbce6a1884a1710bbf", "apps/inventory/discovery_views.py": "d9f7bce657590566aba5b2a030e806af9d85b8a30e5ff1debb863d1bafe975bd", "apps/inventory/forms.py": "70d2d7a72095f4c6336f5d517cba9d8c369f54ab912a12d2089e624787b410c2", "apps/inventory/management/__init__.py": "0ceeedd6f74614ee7ae1455ec2a7ba106fb08e932c5e3c88b9ef8592bf036ee6", "apps/inventory/management/commands/__init__.py": "3872c37cad8c2f423bb5cf25647b16ebf120e057ed2521fbd3833b9b8a6b3be6", "apps/inventory/management/commands/seed_demo_company.py": "03b7a3bb653329f4e46cf1ee385ee508cf670cdca7da82302f8d97ed9cc869d9", "apps/inventory/management/commands/seed_demo_inventory.py": "900a1fcc5230a677036bb8a31a81013a595bb0efadb934cbe8ae467cbee6389c", "apps/inventory/migrations/0001_initial.py": "c017cd12c5dd0e4ff2e2db21bffd04a4b06aca4320dbd26fc84321b7eedd328b", "apps/inventory/migrations/0002_database_security.py": "5c8cfba0e591122919412ac7214921fdbd7c04375105b475f4bf727c4d5d00bc", "apps/inventory/migrations/0003_remove_inventoryitem_product_id_and_more.py": "d84e1eae7b5b89c84399a628aa6055d95c9a4737e4ab74cf791725a3bb84e307", "apps/inventory/migrations/0004_discovery_evidence.py": "e17e731010186c439b363f6032f62a1a194c7dd27a3a2ed800f1be217b30b829", "apps/inventory/migrations/0005_discovery_security.py": "1eec5d51cab949d040bd74511ee5cad52c0f8fdd521457200d6452661c2ea125", "apps/inventory/migrations/0006_detectionevidence_inventory_item_and_more.py": "08abe75cbe47e6e81ba30ece14ff822e50337624acf300e5b63101577342cb0f", "apps/inventory/migrations/0007_inventoryitem_declared_fields.py": "e0ab0c7b5e054866d683d34a3a3ea164d61a80d874d3dff3176e9109ff3aef3d", "apps/inventory/migrations/__init__.py": "83fa60fd3ca51908e778fa99a301ee95d2c8e6102889d0796336c049f05038e9", "apps/inventory/models.py": "a48689209d8ee6f5047b5123669f1a2609df2c1d14ea9825710ddb26e7c61e61", "apps/inventory/provenance.py": "826d7588b4f83fc14f30652c33d486fa5f325c0120d2457255e6c7365733103e", "apps/inventory/urls.py": "be78651f7ecf76e0a37363dc0d2cbf680ccc38461da126a38ba4a9ae9cec61d6", "apps/inventory/views.py": "0a4b5b185e8749e79a84c4773bf67abf47c71542eb7324289d58697e115e7769", "apps/jobs/__init__.py": "710d43ad8b4eb1ae679e78dc3ecc71d2a6e6daee98f220efc57f2e268773706b", "apps/jobs/apps.py": "eb346b6789243ec64bd15e7735ac2bb85517cd6ef994211086b385b9fd692c69", "apps/jobs/automation_contracts.py": "ac7254097fcca836a19e8ff6d89feb3c198dedfa75be428228ba871f1e33461e", "apps/jobs/contracts.py": "795c758c4c7911f0285923d0f0d9c42e0acff1330ffa1327d0ea1476cdd6756f", "apps/jobs/core_models.py": "daf3b23b1e7b1d493d21cb94e9af7ad1d2b6bf005fe5ed9600e8d0c3d7568855", "apps/jobs/core_views.py": "4c87c8c8255a13e625ac75be37db655ddda8eb8e05b5894fea5d449315ebe770", "apps/jobs/core_workflows.py": "7a629e55070028a9ed30659a9a6fa0c42b97f9ff2456f8d655533581f0620087", "apps/jobs/handlers.py": "2860264fc6b4d5feffbc3b27040e0b10fc50158cb499028f0f1d08d64e0afdd0", "apps/jobs/listener.py": "1cfcc03bc111dcb3c3ebf5da2b27e8f6d342b88dca6ce4efac0e190e37130601", "apps/jobs/management/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b", "apps/jobs/management/commands/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b", "apps/jobs/management/commands/run_core_tick.py": "ee5c7200fddc89ca5631bb3061967bc1fd41bc248e5bf07df2e52470f5eb3657", "apps/jobs/management/commands/run_core_worker.py": "4a964df32fed5322d660cd57d9004e61a246ff4972b1fa947b1007f150340a96", "apps/jobs/management/commands/run_worker.py": "46c9f82a41892ec5ced6d4cd192c5510098938f96740eb5f01fa068229e56a54", "apps/jobs/migrations/0001_initial.py": "dd15b638e633d67bf27f33e6a600e540450c45827c1c0cc418aaa34c9197c684", "apps/jobs/migrations/0002_job_security.py": "b9e75d3564dca404e32ddf72df3cd6c10e73ae6dbdf957522bc6c6a32b4c6654", "apps/jobs/migrations/0003_recovery_receipts.py": "fb8f5bf12cd406a08d9f97bf27865076f4f97b261577794d7e65ba5b52b23cd7", "apps/jobs/migrations/0004_receipt_admission.py": "bb915a1d7867c4f38429733fe7686b21e5ba558b5184ca04de58a21c3b48c8e1", "apps/jobs/migrations/0005_atomic_recovery_admission.py": "bed4ecef1ff6999d9172ae681e704c08a9c31d271fa0b6426f90d842a849b7b6", "apps/jobs/migrations/0006_corecontrol_workflowschedule_actioncardrevision_and_more.py": "1b25a9dc787a6be8da250c4d12de94d929ca802ed064b4a0d35e6f929697ab5f", "apps/jobs/migrations/0007_core_workflow_security.py": "5c7e5f98d31300c354fb4b7bbe5dd362a0223bdb63018a2c3a586d3c2c5a5ec5", "apps/jobs/migrations/0008_worker_transition_authority.py": "58824d87e4a77421a06bdfec1970f4f865f0d33b42a7c1bba703c3120888bcfc", "apps/jobs/migrations/0009_core_issuance_authority.py": "9beb850cf4569be45f6abf8c10030d96e44a69567a9b90426cc3bc0d3e786aad", "apps/jobs/migrations/0010_job_input_admission.py": "2fc31a11d13e94f7bd21086d1d38d28e6228da2497632ae235aacae4d31430f8", "apps/jobs/migrations/0011_action_card_issuance.py": "2df81089a4c4e640bf00b622ae0081d7ad4915f43f60f36da4174d398b2706c0", "apps/jobs/migrations/0012_core_authority_successor.py": "357ce814aed41fa3a4effec56bf0c82949a90de65aef9a66c67626afd91bdb7a", "apps/jobs/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "apps/jobs/models.py": "7f4dfefcff8c3ecee092d2195182c81a6d0bfa797d9f386fefd097c80bbf7328", "apps/jobs/queue.py": "c45ffb401055fb0b8fef656cfb27f909e5455719eaee59cbfb86d301ff1c6e0b", "apps/jobs/receipts.py": "75653128fa1de2ba3d373bbad876c618e610ad79276e01d486ddc408a3406945", "apps/jobs/recovery.py": "151d6518fddbd19854c9dae58079f7ae3ce7b409f19f2f503486bbc09c864ee7", "apps/jobs/views.py": "3c5b7fe064e0c81adbf65fe9d1ec798ab318a3a3a21e8b2643b09c892aa54d17", "apps/jobs/worker.py": "169653e55f934b26ae5383865dfd6d55bd4a38d6f5901c2a54043398bb3b6c3d", "apps/organizations/__init__.py": "43467b25668e3578ebcee5977529be9ee6dc4757979efe2a9b5d54a97496ef82", "apps/organizations/apps.py": "2c75ae5414e2d2f62d6ebcc7f5a4a0bbc2d4c3baf18248bd2521433e1366f479", "apps/organizations/forms.py": "c4a8357f07c9534bff734eb03355f076ced359913789888eb56671730c24cd35", "apps/organizations/migrations/0001_initial.py": "60711a79f16936b86a0e2099dd38c9e4e4bf27955a6fe5a54836cc95804dab65", "apps/organizations/migrations/0002_public_onboarding.py": "7c93e699d08dc7a9462538bfcaa99eb8f29c17341654e4b29700a7ebc5457340", "apps/organizations/migrations/0003_workflow_profile.py": "fc7daa063ddbcdbd117bbabdcaa22712e036480d2380c4c08b5f8ac37759982b", "apps/organizations/migrations/__init__.py": "d30ca1fc84e6afa9eae23b44081e76dc05b9607bd2ce9e634821ae298d63a1b4", "apps/organizations/models.py": "d5d7d98650bd7a2ba0811f5871b044f091970e6b25b996125e66a4cad08dc16b", "apps/organizations/services.py": "2f2391a1c7a6e17173d52f1641b5e5d48de787d0bb71c9e2f8093432ddbf95b6", "apps/organizations/urls.py": "c457815579e7ff7a6564251aca0683500dc5c3cca1b1ab900cf55ff7ebfccdbe", "apps/organizations/views.py": "cecb2a778bd09c9673c86689dbd12027ec4eccaf041ce72de3de2f0fb5504e20", "apps/organizations/workflow_profiles.py": "f89b06f620401721e98be7fbf09a4de65a97b3017b79070ce1252991b26450e4", "apps/policies/__init__.py": "8a76409b78802f3a03d021eee746b6e4738ffbd1e3aeaae00420ac004e3dc358", "apps/policies/apps.py": "34325aa169629b4ebfe61cc7692f0cdffd7f6bdfea2dac69a4ad6fdb386a125d", "apps/policies/context.py": "ef78f5670ea2f4ff7044a71d98479330fa38c866d6f80401eebc0673609b285f", "apps/policies/detector_mappings.py": "1c17b5d2db9c623da45dbb28cc5855806b404e45db7841ab560d8d6f8e5bcfdf", "apps/policies/engine.py": "ebdf820be99238c730cc30fb82233baf98c6ea345e1fd563595d04ba0e1552ab", "apps/policies/forms.py": "b57e05838a08b7e71ea9cb280e098acc2a6e19fcb70d8dab8cf0a432b73badbf", "apps/policies/migrations/0001_initial.py": "5aab751e051b430edbea53b45e07e2c4d057bb8937ed69e8715ff91263420c94", "apps/policies/migrations/0002_organization_rule_security.py": "41eab34177e8f875a4a1cc92236d344d00cbf04ef95db9455f478287acd3b935", "apps/policies/migrations/0003_remove_organizationrule_unique_organization_rule_name_and_more.py": "13906c098286e2a9831ba73c32fdaff02b4171911b5d8358021f05b102bf58c2", "apps/policies/migrations/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "apps/policies/models.py": "7e1180e093f5de4fe7cdd5420ff7dc9a71d76e345de37aa714db4627f0dd919f", "apps/policies/organization_rules.py": "18ef6c2c2e791473a1ba14df324f835d33baf94381b87caedc1faa029868f86d", "apps/policies/packs/__init__.py": "92f04eb0bb2cf3106653afe4422bb01c53a7a9a785fcea05895d3f31a10db75a", "apps/policies/packs/accounting.py": "b6aaa241c9b28648504499f4d90854444bfbf53f0b8afebf8ff81ac14dac23f0", "apps/policies/registry.py": "6eb30a6683f1e8d213d2ffb402b4de364957a4be7e0d2da7b3359f3930135598", "apps/policies/risk.py": "c446b1e1b94db78613930116e97a7ffdcb6aa9d82f1e32df2a2ea0205332816a", "apps/policies/urls.py": "90dc9f073d06ac32985855bd8b1a4ecf0c5d0f0f2ccf0f08ba99e310ff3d7bca", "apps/policies/views.py": "6fcce5863b9128752e2206e8822a30c3258e62399b4ab95a9192e05bac0b0343", "apps/reports/__init__.py": "a14e2e3330ac0706ef9b83c0587e7a1e69bbfeeacee949f4c66f5fa10bd020d4", "apps/reports/apps.py": "29483c80b171a3440d88511259f11630cefef36fbe6484d349d424b3b73d617d", "apps/reports/artifact_services.py": "fea6a46522adf9e88267ecc26f13760757814aa89d258fead048bd9d2d8a3848", "apps/reports/context.py": "9e5cf2ff5f630e5b59206612dfb89141a1639da1a7ef49d2dd29d09939527bf9", "apps/reports/jobs.py": "0713c999fa79e010ce288945bed90d4fb87509999ba4173def28d334785910e8", "apps/reports/migrations/0001_initial.py": "a8abb1cc199f2db6d82c84040857f2f807febff8a92f0f59155bc42d999a463e", "apps/reports/migrations/0002_report_security.py": "5dfd0ed04410e32f578ffb165114f4110327276fde03087bc6301d551b9d0f09", "apps/reports/migrations/0003_reportartifact.py": "9a1a71acd4e2c86495a803d3d8c7a76c6099b162d169887a808d7c9f78272f8f", "apps/reports/migrations/0004_reportartifact_security.py": "3d6d1cf32dd5dde4d09c5c71f6a1305b3c33a084648983379e9eee20b5f98a51", "apps/reports/migrations/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b", "apps/reports/models.py": "98a21dbc1f7c7ee78cda1a8d101f63595db2caf49ac9449e9dff9e59a6436169", "apps/reports/render_client.py": "ce23eecb7110167532ae27a65367815a2a6297576bba6b19fd90db566d3cb781", "apps/reports/services.py": "7defcf360bcafabfce6d6fd1486e69c30cda3e20217eb47ec534df779c9c30dc", "apps/reports/storage.py": "4289f3cfd64e2963e3b12eda552499a9aa2ab2daea1eb1c25caf2ec47fbcd7cf", "apps/reports/urls.py": "d0d0b5f998a41480f4b86196c5decf285503c72923ae323dd0c9cec189c4ba85", "apps/reports/views.py": "4f1855cb3a9521a709ae3e90d6d2328ce2a9374d9464aa0e73881878708821f5", "apps/roi/__init__.py": "15a8796ffcaaf8fddc4b12070a8a555e9a8021c0a5f30e074d44c9573cf89c4f", "apps/roi/apps.py": "0ae9293701fdd71e47fe14565c32ef4fd55dfb780dce910e0f13aeead2756fa9", "apps/roi/engine.py": "265a4e4deb4d453c98b5f5994828b48af063bad67f86f1beeb41f8253b52b4eb", "apps/roi/engine_v2.py": "6f6873c4650cf5c4bafd03fb487031f3b47b9c710a058d2ace28adbb1452ab40", "apps/roi/forms.py": "659a88bceb4010251a074e9ca9a1ddb25eed2cb26a42a64aec4eac1d4ca5cd19", "collector/RELEASE_README.txt": "8465305b39ca9b017e97692744cef97b6da71d65ab031b751d52ec45ce56077c", "collector/Stewardence-Collector.ps1": "56c26f2a1c99dc2d90ab74e69929878f4c7e15ba18707f3b184a7c82232b204b", "collector/__init__.py": "f7faf146bf3d3a894f6c9ecc3b4b4a201fdd068b45144e2086daf1158250786c", "collector/__main__.py": "6002770d1a113fa0473eebd82c614c8d5d2c33a5bc4f07bd0689734a7937e70d", "collector/collector-modules.json": "1574d83e55b084fa0fbe706d60062e09fac0e3c35fd6825673f82d55ed31adc2", "collector/collector-profile-public.pem": "84b3b7bcabc2161479d82de2d75b45b55ef9ee0f1dd54d7d6108655cbe7b6ec5", "collector/contract.py": "40dc43063e6be953860dec66f2723eb207d452edad310a42953eefe253ab96f0", "collector/setup.py": "9b854cdb895029198abf0fd79347cb9c74868305ff4e4dc8f0d940e91d828f4a", "collector/windows.py": "121c80985c9c9418953c226376632fdfaa731680028cd3f235b34db61a54983c", "manage.py": "606549c72f9a1e25f063b6c8f2daabb3a753e680b110e4c6048942d6d11e3ad9", "pyproject.toml": "0212825800aa6e3fa9c2088b5bea3d43b7f9a0fa241f689acda865122d7be046", "src/agentledger/__init__.py": "8787009c9340e3d9c992e631c5e155b8a9294d0813a62a315ca7fa0c6f849dd5", "src/agentledger/downloads.py": "9d90ec9e0cd8409b18e61fba92bafc48ba0c0d8685097be771c09d4887802dac", "src/agentledger/gunicorn.conf.py": "af5c4408bdbce779e56595a0936330c7fd0f08bdab895e517c075a5a5a1fc321", "src/agentledger/health.py": "3a7ebc4d43838a862b085652c4149ba4daa377e73ccc438e8fe0733c46621b9e", "src/agentledger/settings/__init__.py": "8885a3e90067290b08edf65642b7321156a6248127b652a91c4367be19f6f5f7", "src/agentledger/settings/base.py": "16453f61fe3943f5abfc8e5f5f1067e13d3e9f6c8235d948ed03e545c69c7e83", "src/agentledger/settings/development.py": "7b5d000bbe78f2b873d9bc49d4e3abde253d02006af45f47b0bc70bae9b87db3", "src/agentledger/settings/production.py": "7f6a3e41d8b55b8649ef029afca21f15cebc89175aa1fca9cb3e674321214c8a", "src/agentledger/settings/qualification.py": "54bca976e3fc8eef8a683bf1b72700c5d0e26f45f5a6c1a55cb7f365aed9c270", "src/agentledger/tenancy/__init__.py": "0227e55e1978bb63e82cf6ebdf254bf50c02201d2b4261f3cb5dea376503f1d6", "src/agentledger/tenancy/context.py": "485d06d374da3e039d46c9f3b54edc95ed1a9d21f386337bee384e6f795d8b0e", "src/agentledger/tenancy/middleware.py": "42442cd69133dc4e59750380709eee964f6624c830a2f91b41e5fd0f52fefcf8", "src/agentledger/upload_limits.py": "e5c493bde20b763f20ef48441b1fbc6ba6f1c5f8f80de0d6d1ef7baa864c9edb", "src/agentledger/urls.py": "fb87d437a7f026298e91559eb4747e3e7204fbeeaa8ade914f7092137c4f1b79", "src/agentledger/wsgi.py": "80c3737057e27da9ae86fe03b6e96f851196b65c8fc35ce2a84598e4536cebf8", "static/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b", "static/agentledger.css": "a5c70074be4af5ee467e62cc36f19eb6d6c638171ae1dc79e1d7b0e76eee49c8", "static/atlas.css": "391200701735fee61311f76d99e27a2fa14cef2bff7d73be476cef4395b06667", "static/brand/atlas/admin.svg": "d0b699e1722f06678f6fcfb458431696f31f709f0245bc9dbc40c194468eadd5", "static/brand/atlas/evidence-library.svg": "df452da45ee25e67fd6b3294b75d9d1bd27799e90e24b8c8f31ac0076dc5615c", "static/brand/atlas/overview.svg": "f6e3f0e8c3bdcbc2ebb8d304c91cfaac097883b66d4402a51fb14349633ab965", "static/brand/atlas/reports.svg": "173afd2fa4df14b9067df281d539368b1f74e00985a2174cd7dc06a5921903f1", "static/brand/stewardence-app-icon-dark.png": "5cbee80b9406646e498198a815ee050ead4235547cf100c441cbeb0bc3d3b4ba", "static/brand/stewardence-helix-orbit-dark.png": "e022f6df5c644d803bec3c32d4905e2e1a3d42213fde615cf317e32a64665afc", "static/brand/stewardence-helix-orbit-light.png": "e28a1f66864e0631c5cc5ac4c395240b72c73bfc634fa98d839b80839f49928d", "templates/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b", "templates/403.html": "f9299df82a36c4f72938b65adcf238f10fee289a880f253bda2d1096028f3068", "templates/assessments/detail.html": "e930d8c3b391194517f970d92f75409a97511b13b2950f512193e827d47a77c6", "templates/base.html": "21586b401f359fbb89277094a3fbfbc12668c3b8beb2752be68d39465b198ae8", "templates/billing/account.html": "b25125f2fcdf310107abfe1fbc8a997ac65b6716137451544355193fa3629474", "templates/billing/portfolio.html": "95174d257738b63633fa92b0aa291709740e157985ac516f63b4df59f19276da", "templates/billing/success.html": "d64a6c9b52d220fcebd1a5f4b608441cdf1ce9615a1a843910db7cdba3bec488", "templates/downloads/_content.html": "a320dcc1b96877804badece7049b63350e95dbf979a3799a5046cb9086000596", "templates/downloads/detail.html": "22d41f25db72ec54535364979c2812a72e15386d9354452f787920d56a1fdd64", "templates/home.html": "3038733451e957a791bae556419de3c64605e432492edc3919b94b1935ec6c2e", "templates/imports/final.html": "df2ec9d508724678247284cf48d7c8362c48a6c08e84785642ab6c6abcc35d59", "templates/imports/review.html": "16bf70c1ad7b00ae87cca36dc71f9ccc1e400a383b77f9a7d809c6d6c2c406da", "templates/imports/upload.html": "fd7131ae26d1c56e7a7e85fdbb20b78af4990644f1e74883acbc138ccaa7b61a", "templates/integrations/provider_preview.html": "77e1034dbf15a1e5e515082e9dd15e054c552d48c36672e1c1abb7da4cf23b4a", "templates/integrations/quickbooks.html": "dcc4611ac251b857c13033e439a308edcd78d42fd16aa681a19545677009864f", "templates/inventory/detail.html": "59168f093eebc4a254ed05b072ac1894934e9e73676cfbfcf90bf10902ac30c6", "templates/inventory/discovery.html": "d58643ebb5590baf2b27891a7e30d38d6ebc46c8809c065199e3652bac8bc7ac", "templates/inventory/form.html": "267e4e488c7f8dc5ac6fa7273d6ac3eba6e7fbecdd1779e774d8eff602298eb2", "templates/inventory/list.html": "ea104e0cf61291099f5c035bba3708dd2b73438da3886ee643a7deca86590ba4", "templates/inventory/roi.html": "02506ee23b96166667c3ffb0582ca4bd21c9620277c75164f15ec92ed0261deb", "templates/jobs/core_workspace.html": "1f829e663614984d96f1f7424e063b52368d3686608e21c7975c5d8e434c78aa", "templates/jobs/operations.html": "ef002bb6d3d59ee18012fd9271a5c876b16a077c8bdcdc96bd17fc18bfe219f8", "templates/organizations/select_workspace.html": "e507fb4312a2002b973f89f65897d4557af2e8ed6eed2652c049e439f4637c8e", "templates/organizations/setup.html": "f649e652658294c56b540149ea8b812f94b844dbf8c434b558fbf43359d8dcfb", "templates/organizations/workflow_profile.html": "2dc6ec05846620fd3e1009096423e0e0e98aeca77f107de1ac8e12d73cf29285", "templates/policies/detail.html": "c4b9c1924c4505d11f3b738d82f84981544ed764f2c7b2c3f6caf7580233c4ed", "templates/policies/form.html": "a64d397834e3a3e461f09493ca15e4e7ce4c7a33f0acd7ab6b16ba74ad4ab8ed", "templates/policies/list.html": "a04c371d8ace388fa0f69912d650af3f200bbcbffe509ecadb6791ef16c0a65e", "templates/registration/login.html": "2978e6af1dee5991d9eef9917bf0372f704c62791d0b22155c2c806da6cb72d6", "templates/registration/signup.html": "fd1dc1086749461b78bf4a5714d83222a691e6e932053655e0190f396070fd1f", "templates/reports/detail.html": "64800193de5797e51094c196b858f25f93dfebdfc2a6fd238ecd5adf9ed27b41", "templates/reports/history.html": "34d91b63090dfa9fa18678a5dc4896f1e50c6b911bd07e4254c547443dbf9f09", "uv.lock": "0fbf562c85e422a03fbf751a3b1d99320c3dcf9e8e845c74a1311d3c85a4351a"}
+
+===== evidence/20261003T235918.400817Z/qualification-summary.json =====
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-2dc35a44a7",
+  "image_id": "sha256:f8b63f61b9594949909127463a1f4f8855ead66b2ee233c5f3385626ec47d41d",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T235918.400817Z",
+  "test_arguments": [
+    "tests"
+  ]
+}
+
+===== source/apps/billing/views.py =====
+from __future__ import annotations
+
+from datetime import UTC, datetime
+
+import stripe
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+from agentledger.tenancy.context import identity_transaction
+
+from .catalog import FOUNDER_LIMIT, PORTFOLIOS
+from .founder_slots import (
+    attach_founder_checkout_session,
+    claim_founder_slot,
+    release_expired_founder_checkout,
+    release_unattached_founder_reservation,
+    reserve_founder_slot,
+)
+from .models import BillingCustomer, StripeWebhookEvent, Subscription
+from .pricing import (
+    automation_checkout_available,
+    portfolio_price_ids,
+    subscription_price_contract,
+    validate_price_object,
+)
+from .security import (
+    billing_identity,
+    founder_claimed_count,
+    invoice_subscription_id,
+    verified_event_user,
+)
+from .stripe_schedules import (
+    ensure_founder_subscription_schedule,
+    price_cents_from_stripe_subscription,
+    schedule_founder_cancellation_at_period_end,
+    undo_founder_cancellation,
+)
+
+
+def _stripe_client() -> None:
+    if not settings.STRIPE_SECRET_KEY:
+        raise RuntimeError("STRIPE_SECRET_KEY is not configured.")
+
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+def _subscription_for_user(user_id):
+    return (
+        Subscription.objects.filter(
+            billing_customer__user_id=user_id,
+        )
+        .select_related("billing_customer")
+        .first()
+    )
+
+
+@login_required
+@billing_identity
+def portfolio_view(request):
+    subscription = _subscription_for_user(request.user.id)
+
+    if subscription and subscription.grants_access:
+        return redirect("organizations:workspace-selection")
+
+    founder_claimed = founder_claimed_count() if settings.FOUNDER_OFFER_ENABLED else 0
+
+    founder_remaining = max(
+        FOUNDER_LIMIT - founder_claimed,
+        0,
+    )
+
+    return render(
+        request,
+        "billing/portfolio.html",
+        {
+            "portfolios": PORTFOLIOS,
+            "automation_available": automation_checkout_available(),
+            "founder_limit": FOUNDER_LIMIT,
+            "founder_claimed": founder_claimed,
+            "founder_remaining": founder_remaining,
+            "founder_offer_active": settings.FOUNDER_OFFER_ENABLED and founder_remaining > 0,
+        },
+    )
+
+
+@login_required
+@require_POST
+@billing_identity
+def start_core_checkout(request):
+    return _start_checkout(request, Subscription.Portfolio.CORE)
+
+
+@login_required
+@require_POST
+@billing_identity
+def start_automation_checkout(request):
+    if not automation_checkout_available():
+        return HttpResponse("Automation is not yet available for purchase.", status=503)
+    return _start_checkout(request, Subscription.Portfolio.AUTOMATION)
+
+
+def _start_checkout(request, portfolio):
+    existing = _subscription_for_user(request.user.id)
+    if existing is not None and existing.grants_access:
+        return redirect("billing:account")
+    prices = portfolio_price_ids(portfolio)
+    if not settings.FOUNDER_OFFER_ENABLED and not prices["standard"]:
+        return HttpResponse("Core checkout is not yet configured.", status=503)
+    _stripe_client()
+
+    billing_customer, _ = BillingCustomer.objects.get_or_create(
+        user=request.user,
+    )
+
+    if billing_customer.stripe_customer_id:
+        stripe_customer_id = billing_customer.stripe_customer_id
+    else:
+        customer = stripe.Customer.create(
+            email=request.user.email,
+            name=request.user.get_full_name() or None,
+            metadata={
+                "stewardence_user_id": str(request.user.id),
+            },
+        )
+
+        stripe_customer_id = customer.id
+        billing_customer.stripe_customer_id = stripe_customer_id
+
+        billing_customer.save(
+            update_fields=[
+                "stripe_customer_id",
+                "updated_at",
+            ]
+        )
+
+    success_url = request.build_absolute_uri(reverse("billing:checkout-success"))
+
+    cancel_url = request.build_absolute_uri(reverse("billing:portfolio"))
+
+    founder_slot = None
+    if settings.FOUNDER_OFFER_ENABLED:
+        founder_slot = reserve_founder_slot(
+            billing_customer_id=billing_customer.id,
+        )
+
+    if founder_slot is not None and founder_slot.stripe_checkout_session_id:
+        existing_session = stripe.checkout.Session.retrieve(
+            founder_slot.stripe_checkout_session_id
+        )
+        if isinstance(existing_session, stripe.StripeObject):
+            existing_session = existing_session.to_dict()
+
+        existing_status = existing_session.get("status")
+        existing_portfolio = existing_session.get("metadata", {}).get(
+            "portfolio", "core"
+        )
+        if existing_status in {"open", "complete"} and existing_portfolio != portfolio:
+            return HttpResponse(
+                "A checkout for another plan is already pending. "
+                "Complete it or let it expire before choosing another plan.",
+                status=409,
+            )
+
+        if existing_status == "open":
+            existing_url = existing_session.get("url")
+
+            if not existing_url:
+                raise RuntimeError(
+                    "Authoritative founder Checkout Session has no redirect URL."
+                )
+
+            return redirect(existing_url)
+
+        if existing_status == "complete":
+            return redirect(
+                f"{success_url}?session_id={founder_slot.stripe_checkout_session_id}"
+            )
+
+        if existing_status == "expired":
+            released = release_expired_founder_checkout(
+                slot_sequence=founder_slot.sequence,
+                reservation_token=founder_slot.reservation_token,
+                billing_customer_id=billing_customer.id,
+                stripe_checkout_session_id=(founder_slot.stripe_checkout_session_id),
+            )
+
+            if not released:
+                raise RuntimeError(
+                    "Expired founder Checkout Session could "
+                    "not release its exact reservation."
+                )
+
+            founder_slot = reserve_founder_slot(
+                billing_customer_id=billing_customer.id,
+            )
+
+        if existing_status not in {
+            "open",
+            "complete",
+            "expired",
+        }:
+            raise RuntimeError(
+                "Authoritative founder Checkout Session has "
+                f"unsupported Stripe status: {existing_status!r}"
+            )
+
+    price_id = prices["standard"]
+
+    metadata = {
+        "stewardence_user_id": str(request.user.id),
+        "portfolio": portfolio,
+    }
+
+    if founder_slot is not None:
+        price_id = prices["founder_intro"]
+
+        metadata.update(
+            {
+                "founder_slot_sequence": str(founder_slot.sequence),
+                "founder_reservation_token": str(founder_slot.reservation_token),
+            }
+        )
+
+    if not price_id:
+        if founder_slot is not None:
+            release_unattached_founder_reservation(
+                slot_sequence=founder_slot.sequence,
+                reservation_token=founder_slot.reservation_token,
+                billing_customer_id=billing_customer.id,
+            )
+
+        raise RuntimeError("The selected Stripe price is not configured.")
+
+    checkout_kwargs = {
+        # A stable random suffix preserves parameters on idempotent retries.
+        "integration_identifier": "stewardence-"+portfolio+"-"+"".join(
+            chr(97+value%26) for value in billing_customer.id.bytes[:8]
+        ),
+        "mode": "subscription",
+        "customer": stripe_customer_id,
+        "client_reference_id": str(request.user.id),
+        "line_items": [
+            {
+                "price": price_id,
+                "quantity": 1,
+            }
+        ],
+        "success_url": (f"{success_url}?session_id={{CHECKOUT_SESSION_ID}}"),
+        "cancel_url": cancel_url,
+        "metadata": metadata,
+        "subscription_data": {
+            "metadata": metadata,
+        },
+    }
+
+    if founder_slot is not None:
+        checkout_kwargs["expires_at"] = int(
+            founder_slot.checkout_expires_at.timestamp()
+        )
+
+    create_kwargs = {}
+
+    if founder_slot is not None:
+        create_kwargs["idempotency_key"] = (
+            f"stewardence-founder-checkout:{founder_slot.reservation_token}"
+        )
+
+    try:
+        session = stripe.checkout.Session.create(
+            **checkout_kwargs,
+            **create_kwargs,
+        )
+    except Exception:
+        if founder_slot is not None:
+            release_unattached_founder_reservation(
+                slot_sequence=founder_slot.sequence,
+                reservation_token=founder_slot.reservation_token,
+                billing_customer_id=billing_customer.id,
+            )
+
+        raise
+
+    if founder_slot is not None:
+        attached = attach_founder_checkout_session(
+            slot_sequence=founder_slot.sequence,
+            reservation_token=founder_slot.reservation_token,
+            billing_customer_id=billing_customer.id,
+            stripe_checkout_session_id=session.id,
+            checkout_expires_at=founder_slot.checkout_expires_at,
+        )
+
+        if not attached:
+            raise RuntimeError(
+                "Stripe returned a Checkout Session that "
+                "does not match the authoritative founder "
+                "reservation generation."
+            )
+
+    return redirect(session.url)
+
+
+@login_required
+@billing_identity
+def billing_portal(request):
+    _stripe_client()
+
+    billing_customer = BillingCustomer.objects.filter(
+        user=request.user,
+    ).first()
+
+    if billing_customer is None or not billing_customer.stripe_customer_id:
+        raise RuntimeError("No Stripe billing customer exists for this account.")
+
+    subscription = _subscription_for_user(request.user.id)
+
+    configuration_id = settings.STRIPE_BILLING_PORTAL_CONFIGURATION_ID
+
+    if (
+        subscription is not None
+        and subscription.is_founder
+        and subscription.grants_access
+    ):
+        configuration_id = settings.STRIPE_BILLING_PORTAL_FOUNDER_CONFIGURATION_ID
+
+    if not configuration_id:
+        raise RuntimeError(
+            "The required Stripe Billing Portal configuration is not configured."
+        )
+
+    return_url = request.build_absolute_uri(
+        reverse("organizations:workspace-selection")
+    )
+
+    portal_session = stripe.billing_portal.Session.create(
+        customer=(billing_customer.stripe_customer_id),
+        configuration=configuration_id,
+        return_url=return_url,
+    )
+
+    if not portal_session.url:
+        raise RuntimeError("Stripe Billing Portal returned no URL.")
+
+    return redirect(portal_session.url)
+
+
+@login_required
+@require_POST
+@billing_identity
+def founder_cancel(request):
+    _stripe_client()
+
+    subscription = _subscription_for_user(request.user.id)
+
+    if subscription is None:
+        raise RuntimeError("No Stewardence subscription exists.")
+
+    if not subscription.is_founder:
+        raise RuntimeError("Founder cancellation requires active founder entitlement.")
+
+    if not subscription.grants_access:
+        raise RuntimeError("Founder subscription is not active.")
+
+    result = schedule_founder_cancellation_at_period_end(
+        subscription=subscription,
+    )
+
+    subscription.status = Subscription.Status.CANCELING
+
+    subscription.cancel_at_period_end = True
+
+    period_end = result.get("current_period_end")
+
+    update_fields = [
+        "status",
+        "cancel_at_period_end",
+        "updated_at",
+    ]
+
+    if period_end is not None:
+        subscription.current_period_end = period_end
+
+        update_fields.append("current_period_end")
+
+    subscription.save(update_fields=update_fields)
+
+    return redirect("organizations:workspace-selection")
+
+
+@login_required
+@require_POST
+@billing_identity
+def founder_cancel_undo(request):
+    _stripe_client()
+
+    subscription = _subscription_for_user(request.user.id)
+
+    if subscription is None:
+        raise RuntimeError("No Stewardence subscription exists.")
+
+    undo_founder_cancellation(
+        subscription=subscription,
+    )
+
+    subscription.status = Subscription.Status.ACTIVE
+
+    subscription.cancel_at_period_end = False
+
+    subscription.save(
+        update_fields=[
+            "status",
+            "cancel_at_period_end",
+            "updated_at",
+        ]
+    )
+
+    return redirect("organizations:workspace-selection")
+
+
+@login_required
+@billing_identity
+def billing_account(request):
+    subscription = _subscription_for_user(request.user.id)
+
+    billing_customer = BillingCustomer.objects.filter(
+        user=request.user,
+    ).first()
+
+    can_manage_billing = bool(
+        billing_customer is not None and billing_customer.stripe_customer_id
+    )
+
+    founder_cancel_pending = bool(
+        subscription is not None
+        and subscription.is_founder
+        and subscription.grants_access
+        and subscription.status == Subscription.Status.CANCELING
+        and subscription.cancel_at_period_end
+    )
+
+    founder_can_cancel = bool(
+        subscription is not None
+        and subscription.is_founder
+        and subscription.grants_access
+        and not founder_cancel_pending
+    )
+
+    monthly_price_display = None
+
+    if subscription is not None and subscription.current_price_cents is not None:
+        monthly_price_display = f"${subscription.current_price_cents / 100:.2f}"
+
+    return render(
+        request,
+        "billing/account.html",
+        {
+            "subscription": subscription,
+            "can_manage_billing": can_manage_billing,
+            "founder_cancel_pending": (founder_cancel_pending),
+            "founder_can_cancel": founder_can_cancel,
+            "monthly_price_display": (monthly_price_display),
+        },
+    )
+
+
+@login_required
+@billing_identity
+def checkout_success(request):
+    subscription = _subscription_for_user(request.user.id)
+
+    return render(
+        request,
+        "billing/success.html",
+        {
+            "subscription": subscription,
+        },
+    )
+
+
+@csrf_exempt
+@require_POST
+def stripe_webhook(request: HttpRequest) -> HttpResponse:
+    _stripe_client()
+
+    signature = request.headers.get("Stripe-Signature", "")
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload=request.body,
+            sig_header=signature,
+            secret=settings.STRIPE_WEBHOOK_SECRET,
+        )
+    except (ValueError, stripe.SignatureVerificationError):
+        return HttpResponse(status=400)
+
+    if isinstance(event, stripe.StripeObject):
+        event = event.to_dict()
+
+    event_id = event.get("id")
+    event_type = event.get("type")
+
+    if not event_id or not event_type:
+        return HttpResponse(status=400)
+
+    obj = event["data"]["object"]
+
+    with transaction.atomic():
+        _receipt, created = StripeWebhookEvent.objects.get_or_create(
+            stripe_event_id=event_id,
+            defaults={
+                "event_type": event_type,
+            },
+        )
+
+        if not created:
+            return HttpResponse(status=200)
+
+        user_id = verified_event_user(event_type, obj)
+        if user_id is None:
+            return HttpResponse(status=200)
+
+        with identity_transaction(user_id):
+            if event_type in {
+                "checkout.session.completed",
+                "checkout.session.async_payment_succeeded",
+            }:
+                _handle_checkout_completed(obj)
+
+            if event_type == "checkout.session.expired":
+                _handle_checkout_expired(obj)
+
+            if event_type == "customer.subscription.updated":
+                _handle_subscription_updated(obj)
+
+            if event_type in {
+                "subscription_schedule.updated",
+                "subscription_schedule.completed",
+                "subscription_schedule.released",
+            }:
+                _handle_subscription_schedule_event(obj)
+
+            if event_type == "customer.subscription.deleted":
+                _handle_subscription_deleted(obj)
+
+            if event_type == "invoice.paid":
+                _handle_invoice_paid(obj)
+
+            if event_type == "invoice.payment_failed":
+                _handle_invoice_payment_failed(obj)
+
+    return HttpResponse(status=200)
+
+
+def _retrieve_core_subscription(external_id):
+    if not settings.STRIPE_SECRET_KEY:
+        raise RuntimeError("Stripe is not configured for Core verification.")
+    client = stripe.StripeClient(settings.STRIPE_SECRET_KEY)
+    return client.v1.subscriptions.retrieve(external_id).to_dict()
+
+
+def _validate_core_checkout(session, billing_customer):
+    metadata = session.get("metadata", {})
+    if (
+        session.get("mode") != "subscription"
+        or session.get("status") != "complete"
+        or session.get("payment_status") != "paid"
+        or not billing_customer.stripe_customer_id
+        or session.get("customer") != billing_customer.stripe_customer_id
+        or metadata.get("stewardence_user_id") != str(billing_customer.user_id)
+        or metadata.get("portfolio") != "core"
+        or not isinstance(session.get("subscription"), str)
+        or not session["subscription"]
+    ):
+        raise RuntimeError("Core checkout identity or payment is unverified.")
+    authoritative = _retrieve_core_subscription(session["subscription"])
+    contract = subscription_price_contract(authoritative)
+    expected_phase = "founder_intro" if metadata.get("founder_slot_sequence") else "standard"
+    if (
+        contract is None or contract.portfolio != "core" or contract.phase != expected_phase
+        or authoritative.get("id") != session["subscription"]
+        or authoritative.get("customer") != billing_customer.stripe_customer_id
+        or authoritative.get("status") != "active"
+        or authoritative.get("metadata", {}).get("portfolio") != "core"
+        or authoritative.get("metadata", {}).get("stewardence_user_id") != str(billing_customer.user_id)
+    ):
+        raise RuntimeError("Core subscription does not match its paid price contract.")
+    item = authoritative["items"]["data"][0]
+    try:
+        validate_price_object(item["price"], contract)
+    except ValueError as error:
+        raise RuntimeError("Core price is outside its admitted monthly contract.") from error
+    root_period = authoritative.get("current_period_end")
+    item_period = item.get("current_period_end")
+    timestamp = root_period if root_period is not None else item_period
+    if (type(timestamp) is not int or timestamp <= int(timezone.now().timestamp())
+            or (root_period is not None and item_period is not None and root_period != item_period)):
+        raise RuntimeError("Core checkout is missing a verified current paid period.")
+    return authoritative
+
+
+def _validate_automation_checkout(session, billing_customer):
+    if (
+        session.get("mode") != "subscription"
+        or session.get("payment_status") not in {"paid", "no_payment_required"}
+        or session.get("customer") != billing_customer.stripe_customer_id
+        or session.get("metadata", {}).get("stewardence_user_id")
+        != str(billing_customer.user_id)
+        or not session.get("subscription")
+    ):
+        raise RuntimeError("Automation checkout identity or payment is unverified.")
+    authoritative = stripe.Subscription.retrieve(session["subscription"])
+    if isinstance(authoritative, stripe.StripeObject):
+        authoritative = authoritative.to_dict()
+    contract = subscription_price_contract(authoritative)
+    expected_phase = (
+        "founder_intro"
+        if session.get("metadata", {}).get("founder_slot_sequence")
+        else "standard"
+    )
+    if (
+        contract is None
+        or contract.portfolio != "automation"
+        or contract.phase != expected_phase
+        or authoritative.get("customer") != billing_customer.stripe_customer_id
+        or authoritative.get("status") != "active"
+        or authoritative.get("metadata", {}).get("portfolio") != "automation"
+        or authoritative.get("metadata", {}).get("stewardence_user_id")
+        != str(billing_customer.user_id)
+    ):
+        raise RuntimeError(
+            "Automation subscription does not match its paid price contract."
+        )
+    validate_price_object(authoritative["items"]["data"][0]["price"], contract)
+    return authoritative
+
+
+def _handle_checkout_completed(session) -> None:
+    user_id = session.get("client_reference_id")
+
+    billing_customer = BillingCustomer.objects.filter(
+        user_id=user_id,
+    ).first()
+
+    if billing_customer is None:
+        return
+
+    metadata = session.get("metadata", {})
+
+    portfolio = metadata.get("portfolio", Subscription.Portfolio.CORE)
+    if portfolio not in {
+        Subscription.Portfolio.CORE,
+        Subscription.Portfolio.AUTOMATION,
+    }:
+        raise RuntimeError("Checkout completion has an unsupported portfolio.")
+    if session.get("payment_status") == "unpaid":
+        return
+    authoritative = None
+    if portfolio == Subscription.Portfolio.AUTOMATION:
+        authoritative = _validate_automation_checkout(session, billing_customer)
+    if portfolio == Subscription.Portfolio.CORE:
+        authoritative = _validate_core_checkout(session, billing_customer)
+
+    raw_slot_sequence = metadata.get("founder_slot_sequence")
+
+    reservation_token = metadata.get("founder_reservation_token")
+
+    founder_metadata_present = bool(raw_slot_sequence or reservation_token)
+
+    founder_slot = None
+
+    if founder_metadata_present:
+        if not raw_slot_sequence or not reservation_token:
+            raise RuntimeError(
+                "Founder Checkout completion has incomplete reservation metadata."
+            )
+
+        try:
+            slot_sequence = int(raw_slot_sequence)
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError(
+                "Founder Checkout completion has invalid slot sequence."
+            ) from exc
+
+        founder_slot = claim_founder_slot(
+            slot_sequence=slot_sequence,
+            reservation_token=reservation_token,
+            billing_customer_id=billing_customer.id,
+            stripe_checkout_session_id=session.get("id"),
+        )
+
+        if founder_slot is None:
+            raise RuntimeError(
+                "Founder Checkout completion could not prove "
+                "its authoritative reservation."
+            )
+
+    subscription, _ = Subscription.objects.get_or_create(
+        billing_customer=billing_customer,
+        defaults={
+            "portfolio": portfolio,
+        },
+    )
+    if (
+        subscription.grants_access
+        and subscription.stripe_subscription_id
+        and subscription.stripe_subscription_id != session.get("subscription")
+    ):
+        raise RuntimeError(
+            "An active subscription cannot be replaced by another checkout."
+        )
+    subscription.portfolio = portfolio
+
+    subscription.stripe_subscription_id = session.get("subscription")
+    subscription.status = Subscription.Status.ACTIVE
+    if authoritative is not None:
+        subscription.current_period_end = _stripe_current_period_end(authoritative)
+        if subscription.current_period_end is None:
+            raise RuntimeError("Checkout is missing its paid period end.")
+
+    if founder_slot is not None:
+        subscription.is_founder = True
+        subscription.founder_sequence = founder_slot.sequence
+        subscription.current_price_cents = PORTFOLIOS[portfolio]["founder_intro_cents"]
+
+        schedule_state = ensure_founder_subscription_schedule(
+            subscription=subscription,
+        )
+
+        subscription.stripe_schedule_id = schedule_state["schedule_id"]
+
+        subscription.founder_intro_ends_at = schedule_state["intro_ends_at"]
+
+    if founder_slot is None:
+        subscription.current_price_cents = PORTFOLIOS[portfolio]["standard_cents"]
+
+        subscription.is_founder = False
+        subscription.stripe_schedule_id = None
+        subscription.founder_intro_ends_at = None
+
+    subscription.save()
+
+
+def _handle_checkout_expired(session) -> None:
+    user_id = session.get("client_reference_id")
+
+    billing_customer = BillingCustomer.objects.filter(
+        user_id=user_id,
+    ).first()
+
+    if billing_customer is None:
+        return
+
+    metadata = session.get("metadata", {})
+
+    slot_sequence = metadata.get("founder_slot_sequence")
+    reservation_token = metadata.get("founder_reservation_token")
+
+    if not slot_sequence or not reservation_token:
+        return
+
+    try:
+        slot_sequence = int(slot_sequence)
+    except (TypeError, ValueError):  # noqa: UP039
+        return
+
+    release_expired_founder_checkout(
+        slot_sequence=slot_sequence,
+        reservation_token=reservation_token,
+        billing_customer_id=billing_customer.id,
+        stripe_checkout_session_id=session.get("id"),
+    )
+
+
+def _stripe_current_period_end(
+    stripe_subscription,
+):
+    """
+    Return Stripe's authoritative paid-period end.
+
+    Prefer the subscription-level field. Fall back to the first
+    subscription item for API shapes where period boundaries are
+    represented there.
+    """
+    timestamp = stripe_subscription.get("current_period_end")
+
+    if timestamp is None:
+        items = stripe_subscription.get(
+            "items",
+            {},
+        )
+
+        data = items.get("data", [])
+
+        if data:
+            timestamp = data[0].get("current_period_end")
+
+    if timestamp is None:
+        return None
+
+    return datetime.fromtimestamp(
+        int(timestamp),
+        tz=UTC,
+    )
+
+
+def _handle_subscription_updated(stripe_subscription) -> None:
+    subscription = Subscription.objects.filter(
+        stripe_subscription_id=stripe_subscription["id"],
+    ).first()
+
+    if subscription is None:
+        return
+
+    contract = subscription_price_contract(stripe_subscription)
+    if subscription.portfolio == Subscription.Portfolio.AUTOMATION and contract is None:
+        subscription.status = Subscription.Status.PENDING
+        subscription.save(update_fields=["status", "updated_at"])
+        return
+    if contract is not None:
+        if subscription.is_founder and contract.portfolio != subscription.portfolio:
+            raise RuntimeError(
+                "Founder plan changes require an explicit price-contract transition."
+            )
+        subscription.portfolio = contract.portfolio
+
+    stripe_status = stripe_subscription.get(
+        "status",
+        "",
+    )
+
+    status_map = {
+        "active": Subscription.Status.ACTIVE,
+        "trialing": Subscription.Status.ACTIVE,
+        "past_due": Subscription.Status.PAST_DUE,
+        "canceled": Subscription.Status.CANCELED,
+    }
+
+    mapped = status_map.get(stripe_status)
+
+    founder_normalized_cancel = bool(
+        subscription.is_founder and subscription.status == Subscription.Status.CANCELING
+    )
+
+    if mapped:
+        subscription.status = mapped
+
+    stripe_cancel_at_period_end = bool(stripe_subscription.get("cancel_at_period_end"))
+
+    if founder_normalized_cancel:
+        subscription.status = Subscription.Status.CANCELING
+
+        subscription.cancel_at_period_end = True
+
+    if not founder_normalized_cancel:
+        subscription.cancel_at_period_end = stripe_cancel_at_period_end
+
+        if (
+            subscription.status == Subscription.Status.ACTIVE
+            and subscription.cancel_at_period_end
+        ):
+            subscription.status = Subscription.Status.CANCELING
+
+    period_end = _stripe_current_period_end(stripe_subscription)
+
+    stripe_price_cents = price_cents_from_stripe_subscription(stripe_subscription)
+
+    update_fields = [
+        "status",
+        "cancel_at_period_end",
+        "updated_at",
+    ]
+
+    if contract is not None:
+        update_fields.append("portfolio")
+
+    if period_end is not None:
+        subscription.current_period_end = period_end
+
+        update_fields.append("current_period_end")
+
+    if stripe_price_cents is not None:
+        subscription.current_price_cents = stripe_price_cents
+
+        update_fields.append("current_price_cents")
+
+    stripe_schedule_id = stripe_subscription.get("schedule")
+
+    if stripe_schedule_id:
+        subscription.stripe_schedule_id = stripe_schedule_id
+
+        update_fields.append("stripe_schedule_id")
+
+    subscription.save(update_fields=update_fields)
+
+
+def _handle_subscription_schedule_event(
+    stripe_schedule,
+) -> None:
+    schedule_id = stripe_schedule.get("id")
+
+    if not schedule_id:
+        return
+
+    subscription = Subscription.objects.filter(
+        stripe_schedule_id=schedule_id,
+    ).first()
+
+    if subscription is None:
+        return
+
+    if not subscription.is_founder:
+        return
+
+    schedule_status = stripe_schedule.get(
+        "status",
+        "",
+    )
+
+    end_behavior = stripe_schedule.get(
+        "end_behavior",
+        "",
+    )
+
+    if schedule_status == "active" and end_behavior == "cancel":
+        subscription.status = Subscription.Status.CANCELING
+
+        subscription.cancel_at_period_end = True
+
+        subscription.save(
+            update_fields=[
+                "status",
+                "cancel_at_period_end",
+                "updated_at",
+            ]
+        )
+
+        return
+
+    if (
+        schedule_status == "active"
+        and end_behavior == "release"
+        and subscription.status == Subscription.Status.CANCELING
+    ):
+        subscription.status = Subscription.Status.ACTIVE
+
+        subscription.cancel_at_period_end = False
+
+        subscription.save(
+            update_fields=[
+                "status",
+                "cancel_at_period_end",
+                "updated_at",
+            ]
+        )
+
+
+def _handle_subscription_deleted(stripe_subscription) -> None:
+    subscription = Subscription.objects.filter(
+        stripe_subscription_id=stripe_subscription["id"],
+    ).first()
+
+    if subscription is None:
+        return
+
+    subscription.status = Subscription.Status.CANCELED
+
+    subscription.cancel_at_period_end = False
+
+    period_end = _stripe_current_period_end(stripe_subscription)
+
+    update_fields = [
+        "status",
+        "cancel_at_period_end",
+        "updated_at",
+    ]
+
+    if period_end is not None:
+        subscription.current_period_end = period_end
+
+        update_fields.append("current_period_end")
+
+    if subscription.is_founder and subscription.founder_entitlement_ends_on_cancel:
+        subscription.is_founder = False
+
+        subscription.stripe_schedule_id = None
+        subscription.founder_intro_ends_at = None
+
+        update_fields.extend(
+            [
+                "is_founder",
+                "stripe_schedule_id",
+                "founder_intro_ends_at",
+            ]
+        )
+
+    subscription.save(update_fields=update_fields)
+
+
+def _handle_invoice_paid(invoice) -> None:
+    subscription_id = invoice_subscription_id(invoice)
+
+    if not subscription_id:
+        return
+
+    Subscription.objects.filter(
+        stripe_subscription_id=subscription_id,
+    ).exclude(
+        status__in=[Subscription.Status.CANCELING, Subscription.Status.CANCELED],
+    ).update(
+        status=Subscription.Status.ACTIVE,
+    )
+
+
+def _handle_invoice_payment_failed(invoice) -> None:
+    subscription_id = invoice_subscription_id(invoice)
+
+    if not subscription_id:
+        return
+
+    Subscription.objects.filter(
+        stripe_subscription_id=subscription_id,
+    ).update(
+        status=Subscription.Status.PAST_DUE,
+    )
+
+
+===== source/apps/billing/pricing.py =====
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from django.conf import settings
+import stripe
+
+from .catalog import PORTFOLIOS
+
+SUPPORTED_PORTFOLIOS = ("core", "automation")
+PHASES = ("standard", "founder_intro", "founder_ongoing")
+
+
+@dataclass(frozen=True)
+class PriceContract:
+    portfolio: str
+    phase: str
+    cents: int
+
+
+def portfolio_price_ids(portfolio: str) -> dict[str, str]:
+    if portfolio not in SUPPORTED_PORTFOLIOS:
+        raise ValueError("Unsupported subscription portfolio")
+    return {
+        phase: getattr(
+            settings, f"STRIPE_{portfolio.upper()}_{phase.upper()}_PRICE_ID", ""
+        )
+        for phase in PHASES
+    }
+
+
+def configured_price_contracts() -> dict[str, PriceContract]:
+    contracts = {}
+    for portfolio in SUPPORTED_PORTFOLIOS:
+        for phase, price_id in portfolio_price_ids(portfolio).items():
+            if not price_id:
+                continue
+            if price_id in contracts:
+                raise ValueError("Stripe price IDs must be distinct for each contract")
+            contracts[price_id] = PriceContract(
+                portfolio, phase, PORTFOLIOS[portfolio][f"{phase}_cents"]
+            )
+    return contracts
+
+
+def automation_checkout_available() -> bool:
+    try:
+        configured_price_contracts()
+    except ValueError:
+        return False
+    return bool(
+        settings.AUTOMATION_ENABLED
+        and settings.STRIPE_SECRET_KEY
+        and settings.STRIPE_WEBHOOK_SECRET
+        and all(portfolio_price_ids("automation").values())
+    )
+
+
+def subscription_price_contract(subscription) -> PriceContract | None:
+    if isinstance(subscription, stripe.StripeObject):
+        subscription = subscription.to_dict()
+    items = subscription.get("items", {}).get("data", [])
+    if len(items) != 1 or type(items[0].get("quantity", 1)) is not int or items[0].get("quantity", 1) != 1:
+        return None
+    price = items[0].get("price", {})
+    if not isinstance(price, dict):
+        return None
+    return configured_price_contracts().get(price.get("id"))
+
+
+def validate_price_object(price, contract: PriceContract) -> None:
+    recurring = price.get("recurring") or {}
+    if (
+        price.get("active") is not True
+        or price.get("currency") != "usd"
+        or price.get("unit_amount") != contract.cents
+        or type(price.get("unit_amount")) is not int
+        or recurring.get("interval") != "month"
+        or recurring.get("interval_count", 1) != 1
+        or type(recurring.get("interval_count", 1)) is not int
+        or recurring.get("usage_type", "licensed") != "licensed"
+    ):
+        raise ValueError("Stripe price does not match the monthly portfolio contract")
+
+
+===== source/tests/test_core_checkout_admission.py =====
+"""Core access requires a paid, owner-bound monthly price contract."""
+import copy
+import hashlib
+import hmac
+import json
+import time
+from datetime import timedelta
+
+import pytest
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+from django.urls import reverse
+import stripe
+from types import SimpleNamespace
+
+from apps.billing.models import BillingCustomer, Subscription, StripeWebhookEvent
+from apps.billing.views import _handle_checkout_completed, _retrieve_core_subscription
+
+pytestmark = pytest.mark.django_db
+
+
+def test_current_sdk_subscription_gateway_normalizes_nested_resources(checkout_evidence, settings, monkeypatch):
+    from apps.billing.pricing import subscription_price_contract
+    customer, session, authoritative = checkout_evidence
+    settings.STRIPE_SECRET_KEY = 'rk_test_offline_qualification_only'
+    resource = stripe.Subscription.construct_from(authoritative, settings.STRIPE_SECRET_KEY)
+    calls = []
+
+    def retrieve(external_id):
+        calls.append(external_id)
+        return resource
+
+    monkeypatch.setattr(stripe, 'StripeClient', lambda key: SimpleNamespace(
+        v1=SimpleNamespace(subscriptions=SimpleNamespace(retrieve=retrieve))))
+    result = _retrieve_core_subscription(session['subscription'])
+    assert type(result) is dict
+    assert type(result['items']['data'][0]['price']) is dict
+    assert calls == [session['subscription']]
+    assert subscription_price_contract(resource).cents == 9900
+
+
+@pytest.fixture
+def checkout_evidence(settings, monkeypatch):
+    user = get_user_model().objects.create_user('core-admission@example.invalid','test-password')
+    customer = BillingCustomer.objects.create(user=user,stripe_customer_id='cus_core_admission')
+    settings.STRIPE_CORE_STANDARD_PRICE_ID = 'price_core_99'
+    settings.FOUNDER_OFFER_ENABLED = False
+    session = {'id':'cs_core_admission','client_reference_id':str(user.id),
+        'mode':'subscription','status':'complete','payment_status':'paid',
+        'customer':customer.stripe_customer_id,'subscription':'sub_core_admission',
+        'metadata':{'portfolio':'core','stewardence_user_id':str(user.id)}}
+    authoritative = {'id':'sub_core_admission','customer':customer.stripe_customer_id,
+        'status':'active','metadata':dict(session['metadata']),
+        'items':{'data':[{'quantity':1,'current_period_end':int((timezone.now()+timedelta(days=30)).timestamp()),
+            'price':{'id':'price_core_99','active':True,'currency':'usd','unit_amount':9900,
+                     'recurring':{'interval':'month','interval_count':1,'usage_type':'licensed'}}}]}}
+    # The existing Core path makes no authoritative retrieval; the successor
+    # gateway is mocked when present. This never authorizes provider calls.
+    monkeypatch.setattr('apps.billing.views._retrieve_core_subscription',
+                        lambda external_id:copy.deepcopy(authoritative),raising=False)
+    return customer,session,authoritative
+
+
+@pytest.mark.parametrize('field,value',[
+    ('payment_status',None),('payment_status','no_payment_required'),
+    ('customer','cus_other_owner'),('mode','payment'),('status','open'),
+    ('subscription',None),
+])
+def test_invalid_session_cannot_issue_core_access(checkout_evidence,field,value):
+    customer,session,authoritative = checkout_evidence
+    session[field] = value
+    with pytest.raises(RuntimeError):
+        _handle_checkout_completed(session)
+    assert not Subscription.objects.filter(billing_customer=customer).exists()
+
+
+@pytest.mark.parametrize('mutation',[
+    'foreign_customer','foreign_owner','unregistered_price','wrong_amount',
+    'annual_price','inactive_subscription','missing_period','expired_period',
+])
+def test_invalid_subscription_cannot_issue_core_access(checkout_evidence,mutation):
+    customer,session,authoritative = checkout_evidence
+    item = authoritative['items']['data'][0]
+    if mutation == 'foreign_customer': authoritative['customer'] = 'cus_other_owner'
+    if mutation == 'foreign_owner': authoritative['metadata']['stewardence_user_id'] = 'other-owner'
+    if mutation == 'unregistered_price': item['price']['id'] = 'price_unregistered'
+    if mutation == 'wrong_amount': item['price']['unit_amount'] = 4900
+    if mutation == 'annual_price': item['price']['recurring']['interval'] = 'year'
+    if mutation == 'inactive_subscription': authoritative['status'] = 'incomplete'
+    if mutation == 'missing_period': item.pop('current_period_end')
+    if mutation == 'expired_period': item['current_period_end'] = 1
+    with pytest.raises(RuntimeError):
+        _handle_checkout_completed(session)
+    assert not Subscription.objects.filter(billing_customer=customer).exists()
+
+
+def test_paid_core_contract_records_its_verified_period(checkout_evidence):
+    customer,session,authoritative = checkout_evidence
+    _handle_checkout_completed(session)
+    subscription = Subscription.objects.get(billing_customer=customer)
+    assert subscription.current_price_cents == 9900
+    assert subscription.current_period_end is not None
+    assert int(subscription.current_period_end.timestamp()) == authoritative['items']['data'][0]['current_period_end']
+
+
+def signed_fixture_request(client,settings,session,*,fault=None):
+    # Locally generated fixture secret; this is actual SDK signature checking,
+    # not an event delivered by Stripe and not a production credential.
+    settings.STRIPE_SECRET_KEY = 'rk_test_offline_qualification_only'
+    settings.STRIPE_WEBHOOK_SECRET = 'whsec_offline_qualification_only'
+    event = {'id':'evt_core_offline','type':'checkout.session.completed',
+             'livemode':False,'data':{'object':session}}
+    body = json.dumps(event,separators=(',',':')).encode()
+    timestamp = int(time.time())-600 if fault == 'expired' else int(time.time())
+    secret = 'wrong_fixture_secret' if fault == 'wrong_signature' else settings.STRIPE_WEBHOOK_SECRET
+    digest = hmac.new(secret.encode(),str(timestamp).encode()+b'.'+body,hashlib.sha256).hexdigest()
+    signature = 't='+str(timestamp)+',v1='+digest
+    if fault == 'tampered_body': body += b' '
+    if fault == 'missing_signature': signature = ''
+    return client.post(reverse('billing:stripe-webhook'),data=body,content_type='application/json',
+                       HTTP_STRIPE_SIGNATURE=signature)
+
+
+@pytest.mark.parametrize('fault',['tampered_body','expired','wrong_signature','missing_signature'])
+def test_actual_sdk_signature_rejects_invalid_envelopes(client,settings,checkout_evidence,fault):
+    customer,session,authoritative = checkout_evidence
+    response = signed_fixture_request(client,settings,session,fault=fault)
+    assert response.status_code == 400
+    assert not Subscription.objects.filter(billing_customer=customer).exists()
+    assert not StripeWebhookEvent.objects.exists()
+
+
+def test_signed_fixture_requires_admitted_price_before_receipt_commit(client,settings,checkout_evidence):
+    customer,session,authoritative = checkout_evidence
+    authoritative['items']['data'][0]['price']['unit_amount'] = 4900
+    with pytest.raises(RuntimeError):
+        signed_fixture_request(client,settings,session)
+    assert not Subscription.objects.filter(billing_customer=customer).exists()
+    assert not StripeWebhookEvent.objects.exists()
+
+
+def test_signed_paid_fixture_fulfills_once(client,settings,checkout_evidence):
+    customer,session,authoritative = checkout_evidence
+    first = signed_fixture_request(client,settings,session)
+    second = signed_fixture_request(client,settings,session)
+    assert first.status_code == second.status_code == 200
+    assert Subscription.objects.filter(billing_customer=customer).count() == 1
+    assert StripeWebhookEvent.objects.count() == 1
+
+
+===== source/tests/stripe_fixtures.py =====
+"""Explicit synthetic paid-contract evidence for legacy lifecycle tests."""
+from datetime import timedelta
+from django.utils import timezone
+
+
+def configure_paid_core_checkout(monkeypatch,settings,customer,session):
+    if not customer.stripe_customer_id:
+        customer.stripe_customer_id = 'cus_fixture_'+str(customer.user_id)
+        customer.save(update_fields=['stripe_customer_id','updated_at'])
+    founder = bool(session.get('metadata',{}).get('founder_slot_sequence'))
+    price_id = 'price_fixture_core_founder' if founder else 'price_fixture_core_standard'
+    if founder:
+        settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID = price_id
+    if not founder:
+        settings.STRIPE_CORE_STANDARD_PRICE_ID = price_id
+    session.update({'mode':'subscription','status':'complete','payment_status':'paid',
+                    'customer':customer.stripe_customer_id})
+    session.setdefault('metadata',{}).update({'portfolio':'core','stewardence_user_id':str(customer.user_id)})
+    authoritative = {'id':session['subscription'],'customer':customer.stripe_customer_id,
+        'status':'active','metadata':dict(session['metadata']),
+        'items':{'data':[{'quantity':1,'current_period_end':int((timezone.now()+timedelta(days=30)).timestamp()),
+            'price':{'id':price_id,'active':True,'currency':'usd','unit_amount':4900 if founder else 9900,
+                     'recurring':{'interval':'month','interval_count':1,'usage_type':'licensed'}}}]}}
+    monkeypatch.setattr('apps.billing.views._retrieve_core_subscription',lambda external_id:authoritative)
+    return authoritative
+
+
+===== source/tests/test_billing_standard_launch.py =====
+"""Standard-only launch must not allocate or advertise founder contracts."""
+from types import SimpleNamespace
+
+import pytest
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+
+from apps.billing.models import BillingCustomer, FounderSlot
+
+
+pytestmark = pytest.mark.django_db
+
+
+def signed_in_customer(client):
+    user = get_user_model().objects.create_user(
+        email="standard-launch@example.invalid", password="test-password"
+    )
+    BillingCustomer.objects.create(user=user, stripe_customer_id="cus_standard_launch")
+    client.force_login(user)
+    return user
+
+
+def test_standard_only_portfolio_has_no_founder_offer(client, settings, monkeypatch):
+    settings.FOUNDER_OFFER_ENABLED = False
+    signed_in_customer(client)
+
+    def forbidden_count():
+        raise AssertionError("Disabled offer must not query founder allocation")
+
+    monkeypatch.setattr("apps.billing.views.founder_claimed_count", forbidden_count)
+    response = client.get(reverse("billing:portfolio"))
+    assert response.status_code == 200
+    assert b"$99" in response.content
+    assert b"$49" not in response.content
+    assert b"Founding Customer Offer" not in response.content
+
+
+def test_standard_only_checkout_ignores_submitted_founder_fields(
+    client, settings, monkeypatch
+):
+    settings.FOUNDER_OFFER_ENABLED = False
+    settings.STRIPE_CORE_STANDARD_PRICE_ID = "price_core_99"
+    settings.STRIPE_CORE_FOUNDER_INTRO_PRICE_ID = "price_core_49"
+    user = signed_in_customer(client)
+    captured = []
+    monkeypatch.setattr("apps.billing.views._stripe_client", lambda: None)
+
+    def forbidden_reservation(**kwargs):
+        raise AssertionError("Standard launch must never reserve founder slots")
+
+    def create_session(**kwargs):
+        captured.append(kwargs)
+        return SimpleNamespace(id="cs_standard", url="https://checkout.stripe.test/standard")
+
+    monkeypatch.setattr("apps.billing.views.reserve_founder_slot", forbidden_reservation)
+    monkeypatch.setattr("apps.billing.views.stripe.checkout.Session.create", create_session)
+    response = client.post(reverse("billing:checkout-core"), {
+        "founder_slot_sequence": "1", "price": "price_core_49", "portfolio": "automation"
+    })
+    assert response.status_code == 302
+    assert captured[0]["line_items"] == [{"price": "price_core_99", "quantity": 1}]
+    assert captured[0]["metadata"] == {
+        "stewardence_user_id": str(user.id), "portfolio": "core"
+    }
+    assert captured[0]["subscription_data"]["metadata"] == captured[0]["metadata"]
+    assert not FounderSlot.objects.exists()
+
+
+def test_missing_standard_price_stops_before_stripe_or_reservation(
+    client, settings, monkeypatch
+):
+    settings.FOUNDER_OFFER_ENABLED = False
+    settings.STRIPE_CORE_STANDARD_PRICE_ID = ""
+    signed_in_customer(client)
+
+    def forbidden_stripe():
+        raise AssertionError("Missing launch configuration must stop before Stripe")
+
+    monkeypatch.setattr("apps.billing.views._stripe_client", forbidden_stripe)
+    response = client.post(reverse("billing:checkout-core"))
+    assert response.status_code == 503
+    assert not FounderSlot.objects.exists()
+
+
+===== docs/core-standard-launch.md =====
+# Core standard-only launch
+
+Alexander selected Core at $99 per month, standard only, on 2026-10-03.
+This supersedes the proposed founder offer for new Core launch checkouts.
+
+`FOUNDER_OFFER_ENABLED` defaults to false and is enabled only by an explicit
+environment value of `1`. Launch configuration must retain `0`. With it off,
+the portfolio hides founder pricing and checkout never calls founder allocation,
+regardless of submitted price, portfolio or founder fields. Core selects only
+the server-configured standard price. Missing standard price returns 503 before
+Stripe access or customer creation. Existing founder contracts retain their
+verified lifecycle handling; this offer switch does not rewrite contracts.
+
+Required launch configuration: a securely configured Stripe key, webhook signing
+secret, Core standard price ID and standard billing portal configuration. The
+Core price must independently verify as USD 9900, recurring monthly, on the
+intended Stripe account. Founder price IDs and founder portal configuration are
+not requirements for new standard-only customers. Live-prefix presence alone
+does not verify a key or account. No credential values belong in this document.
+
+Open qualification: isolated test-mode checkout, signed webhook processing,
+payment failure/recovery, cancellation, duplicate delivery and durable
+subscription-to-workspace fulfillment; final-source regressions and Lyra review.
+No production Stripe objects, settings or customer subscriptions have been
+created or modified by this decision. Automation purchases remain disabled.
+
+## Offline admission successor
+
+The candidate requires a completed, paid subscription session and an
+authoritatively retrieved active subscription bound to the same stored customer,
+owner metadata, Core portfolio and registered USD 9900 monthly price. A future
+paid-period timestamp is required before issuance. Client-supplied price or plan
+fields cannot select the contract. Existing admitted founder reservations use
+their separately verified contract; no new founder allocation is enabled.
+
+The candidate uses Stripe Python 16.0.0 and converts verified SDK event and
+subscription resources to plain nested dictionaries at the boundary. Locally
+signed raw webhook events exercise current-SDK signature verification,
+tampering, timestamp expiry, invalid price rollback and duplicate fulfillment.
+These events use synthetic local secrets and mocked subscription retrieval;
+they are not evidence of a real Stripe checkout or account integration.
+
+Alexander explicitly deferred Stripe authorization and requested offline
+qualification on 2026-10-03. Do not request keys again until that scope changes.
+Remaining product checks include paid-period expiry in ongoing Core entitlement,
+subscription update failure/recovery and concurrent standard checkout admission.
+The new admission code is a candidate pending exact final qualification and
+Lyra review; production remains unchanged.
+

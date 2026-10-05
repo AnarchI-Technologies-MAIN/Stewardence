@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="78" time="32.409" timestamp="2026-10-04T23:06:59.940099+00:00" hostname="f3ced1173a8e"><testcase classname="tests.test_capture_archived_reads" name="test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[30-True]" time="5.876"><failure message="django.db.utils.IntegrityError: null value in column &quot;available_at&quot; of relation &quot;background_jobs&quot; violates not-null constraint">self = &lt;django.db.backends.utils.CursorWrapper object at 0x7de6ca86bcb0&gt;
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('cde907f7-f1bb-4ee9-8ab2-4e71df53725a'), UUID('f5655fe2-4a50-4e96-a82a-188a3d17bea7'), 'report_generation', Json...b4dc102-e8fc-41e5-b ... (53 chars)), 'a0ed744b0a0b6f4a5f0dccef564535a5552ece762f8a82111e3e9cd38939909a', 'queued', ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x7de6ca86bcb0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7de6cd841470&gt;
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('cde907f7-f1bb-4ee9-8ab2-4e71df53725a'), UUID('f5655fe2-4a50-4e96-a82a-188a3d17bea7'), 'report_generation', Json...b4dc102-e8fc-41e5-b ... (53 chars)), 'a0ed744b0a0b6f4a5f0dccef564535a5552ece762f8a82111e3e9cd38939909a', 'queued', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+admitted = (&lt;User: paid-authority@example.invalid&gt;, &lt;Organization: Synthetic paid authority&gt;, &lt;Subscription: Subscription object ...: 'cd2194dc-076c-4d32-b481-f5eefae9a4bf', 'stripe_subscription_id': 'sub_test', 'stripe_customer_id': 'cus_test', ...})
+age_days = 30, allowed = True
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_genuine_past_paid_interva0')
+client = &lt;django.test.client.Client object at 0x7de6cb854e10&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0x7de6cb9ea270&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7de6cb87d810&gt;
+
+    @pytest.mark.parametrize("age_days,allowed", [(30, True), (91, False)])
+    def test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy(
+        admitted, age_days, allowed, tmp_path, client, settings, monkeypatch
+    ):
+&gt;       user, org, subscription, report, storage, pdf = synthetic_archive(
+            admitted, age_days, tmp_path
+        )
+
+tests/test_capture_archived_reads.py:209: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_capture_archived_reads.py:52: in synthetic_archive
+    return _synthetic_archive_owner(admitted, age_days, path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_capture_archived_reads.py:140: in _synthetic_archive_owner
+    job = BackgroundJob.objects.create(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7de6cd841470&gt;
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('cde907f7-f1bb-4ee9-8ab2-4e71df53725a'), UUID('f5655fe2-4a50-4e96-a82a-188a3d17bea7'), 'report_generation', Json...b4dc102-e8fc-41e5-b ... (53 chars)), 'a0ed744b0a0b6f4a5f0dccef564535a5552ece762f8a82111e3e9cd38939909a', 'queued', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError</failure></testcase><testcase classname="tests.test_capture_archived_reads" name="test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[91-False]" time="0.918"><failure message="django.db.utils.IntegrityError: null value in column &quot;available_at&quot; of relation &quot;background_jobs&quot; violates not-null constraint">self = &lt;django.db.backends.utils.CursorWrapper object at 0x7de6ca570590&gt;
+sql = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('b5d0a7f7-b959-4157-812a-a4320e51cf50'), UUID('a0b4cc1b-d8a9-44ba-a55e-be02e47c48a6'), 'report_generation', Json...8ef5da3-b238-4807-8 ... (53 chars)), '1a3997b75e48748646c4289448ab19f59c00fd65a81e872964d861d86c6e0b84', 'queued', ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x7de6ca570590&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7de6cb87baf0&gt;
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('b5d0a7f7-b959-4157-812a-a4320e51cf50'), UUID('a0b4cc1b-d8a9-44ba-a55e-be02e47c48a6'), 'report_generation', Json...8ef5da3-b238-4807-8 ... (53 chars)), '1a3997b75e48748646c4289448ab19f59c00fd65a81e872964d861d86c6e0b84', 'queued', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.NotNullViolation: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: NotNullViolation
+
+The above exception was the direct cause of the following exception:
+
+admitted = (&lt;User: paid-authority@example.invalid&gt;, &lt;Organization: Synthetic paid authority&gt;, &lt;Subscription: Subscription object ...: '7b33c613-b773-49e0-b0fa-0c8cff436c8f', 'stripe_subscription_id': 'sub_test', 'stripe_customer_id': 'cus_test', ...})
+age_days = 91, allowed = False
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_genuine_past_paid_interva1')
+client = &lt;django.test.client.Client object at 0x7de6cb87cfc0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0x7de6ca85fd90&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7de6ca75a690&gt;
+
+    @pytest.mark.parametrize("age_days,allowed", [(30, True), (91, False)])
+    def test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy(
+        admitted, age_days, allowed, tmp_path, client, settings, monkeypatch
+    ):
+&gt;       user, org, subscription, report, storage, pdf = synthetic_archive(
+            admitted, age_days, tmp_path
+        )
+
+tests/test_capture_archived_reads.py:209: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_capture_archived_reads.py:52: in synthetic_archive
+    return _synthetic_archive_owner(admitted, age_days, path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_capture_archived_reads.py:140: in _synthetic_archive_owner
+    job = BackgroundJob.objects.create(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/jobs/models.py:120: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7de6cb87baf0&gt;
+query = 'INSERT INTO "background_jobs" ("id", "organization_id", "job_type", "payload", "input_sha256", "status", "priority", ...rprint", "created_at", "completed_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('b5d0a7f7-b959-4157-812a-a4320e51cf50'), UUID('a0b4cc1b-d8a9-44ba-a55e-be02e47c48a6'), 'report_generation', Json...8ef5da3-b238-4807-8 ... (53 chars)), '1a3997b75e48748646c4289448ab19f59c00fd65a81e872964d861d86c6e0b84', 'queued', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: null value in column "available_at" of relation "background_jobs" violates not-null constraint
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError</failure></testcase><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_direct_app_sql_cannot_issue_legacy_cards_for_admitted_capture2" time="1.040" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_direct_app_sql_unresolved_snapshot_cannot_bypass_schema_dispatch" time="1.042" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_schema1_issuance_and_exact_replay_keep_legacy_meaning" time="1.236" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[app_runtime]" time="1.338" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[worker_runtime]" time="1.051" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_worker_cannot_execute_public_legacy_issuer" time="0.978" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_schema1_delegate_body_and_searchpath_are_preserved" time="0.403" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_wrong_app_context_is_rejected_before_definer_snapshot_lookup[existing_capture]" time="0.861" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_wrong_app_context_is_rejected_before_definer_snapshot_lookup[unresolved]" time="0.714" /><testcase classname="tests.test_legacy_issuer_dependency_boundary" name="test_legacy_helper_exact_acl_and_all_provisioned_login_authority" time="0.526" /><testcase classname="tests.test_legacy_issuer_dependency_boundary" name="test_no_stored_dependency_or_procedure_body_bypasses_legacy_fence" time="0.498" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[unknown]" time="0.938" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[approval]" time="0.771"><failure message="AssertionError: {'human_approval': ['Select a valid choice. false is not one of the available choices.']}&#10;assert False&#10; +  where False = is_valid()&#10; +    where is_valid = &lt;ExplicitInventoryForm bound=True, valid=False, fields=(display_name;vendor_name;business_owner;department;business_pu...ost;human_approval;autonomy_level;status;declaration_as_of;connected_systems;data_categories;permissions;capabilities)&gt;.is_valid">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None, case = 'approval'
+
+    @pytest.mark.parametrize(
+        "case",
+        ["unknown", "approval", "accounting_fail", "non_accounting", "known_no_actions", "external_transfer"],
+    )
+    def test_sql_issuance_matches_complete_permanent_python_contract(
+        capture_context, enabled, case
+    ):
+        user, org = capture_context
+        if case == "non_accounting":
+            org.industry = "legal"
+            org.save(update_fields=["industry"])
+        if case in {"approval", "accounting_fail", "known_no_actions", "non_accounting", "external_transfer"}:
+            issue(
+                capture_context,
+&gt;               form(
+                    display_name="Explicit proposal specimen",
+                    business_owner="Responsible owner",
+                    business_purpose="Review declared workflow",
+                    human_approval="false",
+                    autonomy_level="3" if case != "known_no_actions" else "0",
+                    permissions=["write"] if case != "known_no_actions" else [],
+                    capabilities=["financial_transaction", "record_modification"]
+                    if case != "known_no_actions"
+                    else [],
+                    connected_systems=["banking"],
+                    data_categories=["payroll", "tax_records"],
+                ),
+            )
+
+tests/test_capture_proposal_admission.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = {'display_name': 'Explicit proposal specimen', 'business_owner': 'Responsible owner', 'business_purpose': 'Review declared workflow', 'human_approval': 'false', ...}
+
+    def form(**values):
+        result = ExplicitInventoryForm(
+            {"display_name": "Workflow helper", "declaration_as_of": "2026-01-01", **values}
+        )
+&gt;       assert result.is_valid(), result.errors
+E       AssertionError: {'human_approval': ['Select a valid choice. false is not one of the available choices.']}
+E       assert False
+E        +  where False = is_valid()
+E        +    where is_valid = &lt;ExplicitInventoryForm bound=True, valid=False, fields=(display_name;vendor_name;business_owner;department;business_pu...ost;human_approval;autonomy_level;status;declaration_as_of;connected_systems;data_categories;permissions;capabilities)&gt;.is_valid
+
+tests/test_explicit_inventory.py:49: AssertionError</failure></testcase><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[accounting_fail]" time="0.710"><failure message="AssertionError: {'human_approval': ['Select a valid choice. false is not one of the available choices.']}&#10;assert False&#10; +  where False = is_valid()&#10; +    where is_valid = &lt;ExplicitInventoryForm bound=True, valid=False, fields=(display_name;vendor_name;business_owner;department;business_pu...ost;human_approval;autonomy_level;status;declaration_as_of;connected_systems;data_categories;permissions;capabilities)&gt;.is_valid">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None, case = 'accounting_fail'
+
+    @pytest.mark.parametrize(
+        "case",
+        ["unknown", "approval", "accounting_fail", "non_accounting", "known_no_actions", "external_transfer"],
+    )
+    def test_sql_issuance_matches_complete_permanent_python_contract(
+        capture_context, enabled, case
+    ):
+        user, org = capture_context
+        if case == "non_accounting":
+            org.industry = "legal"
+            org.save(update_fields=["industry"])
+        if case in {"approval", "accounting_fail", "known_no_actions", "non_accounting", "external_transfer"}:
+            issue(
+                capture_context,
+&gt;               form(
+                    display_name="Explicit proposal specimen",
+                    business_owner="Responsible owner",
+                    business_purpose="Review declared workflow",
+                    human_approval="false",
+                    autonomy_level="3" if case != "known_no_actions" else "0",
+                    permissions=["write"] if case != "known_no_actions" else [],
+                    capabilities=["financial_transaction", "record_modification"]
+                    if case != "known_no_actions"
+                    else [],
+                    connected_systems=["banking"],
+                    data_categories=["payroll", "tax_records"],
+                ),
+            )
+
+tests/test_capture_proposal_admission.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = {'display_name': 'Explicit proposal specimen', 'business_owner': 'Responsible owner', 'business_purpose': 'Review declared workflow', 'human_approval': 'false', ...}
+
+    def form(**values):
+        result = ExplicitInventoryForm(
+            {"display_name": "Workflow helper", "declaration_as_of": "2026-01-01", **values}
+        )
+&gt;       assert result.is_valid(), result.errors
+E       AssertionError: {'human_approval': ['Select a valid choice. false is not one of the available choices.']}
+E       assert False
+E        +  where False = is_valid()
+E        +    where is_valid = &lt;ExplicitInventoryForm bound=True, valid=False, fields=(display_name;vendor_name;business_owner;department;business_pu...ost;human_approval;autonomy_level;status;declaration_as_of;connected_systems;data_categories;permissions;capabilities)&gt;.is_valid
+
+tests/test_explicit_inventory.py:49: AssertionError</failure></testcase><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[non_accounting]" time="0.512"><failure message="AssertionError: {'human_approval': ['Select a valid choice. false is not one of the available choices.']}&#10;assert False&#10; +  where False = is_valid()&#10; +    where is_valid = &lt;ExplicitInventoryForm bound=True, valid=False, fields=(display_name;vendor_name;business_owner;department;business_pu...ost;human_approval;autonomy_level;status;declaration_as_of;connected_systems;data_categories;permissions;capabilities)&gt;.is_valid">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None, case = 'non_accounting'
+
+    @pytest.mark.parametrize(
+        "case",
+        ["unknown", "approval", "accounting_fail", "non_accounting", "known_no_actions", "external_transfer"],
+    )
+    def test_sql_issuance_matches_complete_permanent_python_contract(
+        capture_context, enabled, case
+    ):
+        user, org = capture_context
+        if case == "non_accounting":
+            org.industry = "legal"
+            org.save(update_fields=["industry"])
+        if case in {"approval", "accounting_fail", "known_no_actions", "non_accounting", "external_transfer"}:
+            issue(
+                capture_context,
+&gt;               form(
+                    display_name="Explicit proposal specimen",
+                    business_owner="Responsible owner",
+                    business_purpose="Review declared workflow",
+                    human_approval="false",
+                    autonomy_level="3" if case != "known_no_actions" else "0",
+                    permissions=["write"] if case != "known_no_actions" else [],
+                    capabilities=["financial_transaction", "record_modification"]
+                    if case != "known_no_actions"
+                    else [],
+                    connected_systems=["banking"],
+                    data_categories=["payroll", "tax_records"],
+                ),
+            )
+
+tests/test_capture_proposal_admission.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = {'display_name': 'Explicit proposal specimen', 'business_owner': 'Responsible owner', 'business_purpose': 'Review declared workflow', 'human_approval': 'false', ...}
+
+    def form(**values):
+        result = ExplicitInventoryForm(
+            {"display_name": "Workflow helper", "declaration_as_of": "2026-01-01", **values}
+        )
+&gt;       assert result.is_valid(), result.errors
+E       AssertionError: {'human_approval': ['Select a valid choice. false is not one of the available choices.']}
+E       assert False
+E        +  where False = is_valid()
+E        +    where is_valid = &lt;ExplicitInventoryForm bound=True, valid=False, fields=(display_name;vendor_name;business_owner;department;business_pu...ost;human_approval;autonomy_level;status;declaration_as_of;connected_systems;data_categories;permissions;capabilities)&gt;.is_valid
+
+tests/test_explicit_inventory.py:49: AssertionError</failure></testcase><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[known_no_actions]" time="0.527"><failure message="AssertionError: {'human_approval': ['Select a valid choice. false is not one of the available choices.']}&#10;assert False&#10; +  where False = is_valid()&#10; +    where is_valid = &lt;ExplicitInventoryForm bound=True, valid=False, fields=(display_name;vendor_name;business_owner;department;business_pu...ost;human_approval;autonomy_level;status;declaration_as_of;connected_systems;data_categories;permissions;capabilities)&gt;.is_valid">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None, case = 'known_no_actions'
+
+    @pytest.mark.parametrize(
+        "case",
+        ["unknown", "approval", "accounting_fail", "non_accounting", "known_no_actions", "external_transfer"],
+    )
+    def test_sql_issuance_matches_complete_permanent_python_contract(
+        capture_context, enabled, case
+    ):
+        user, org = capture_context
+        if case == "non_accounting":
+            org.industry = "legal"
+            org.save(update_fields=["industry"])
+        if case in {"approval", "accounting_fail", "known_no_actions", "non_accounting", "external_transfer"}:
+            issue(
+                capture_context,
+&gt;               form(
+                    display_name="Explicit proposal specimen",
+                    business_owner="Responsible owner",
+                    business_purpose="Review declared workflow",
+                    human_approval="false",
+                    autonomy_level="3" if case != "known_no_actions" else "0",
+                    permissions=["write"] if case != "known_no_actions" else [],
+                    capabilities=["financial_transaction", "record_modification"]
+                    if case != "known_no_actions"
+                    else [],
+                    connected_systems=["banking"],
+                    data_categories=["payroll", "tax_records"],
+                ),
+            )
+
+tests/test_capture_proposal_admission.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = {'display_name': 'Explicit proposal specimen', 'business_owner': 'Responsible owner', 'business_purpose': 'Review declared workflow', 'human_approval': 'false', ...}
+
+    def form(**values):
+        result = ExplicitInventoryForm(
+            {"display_name": "Workflow helper", "declaration_as_of": "2026-01-01", **values}
+        )
+&gt;       assert result.is_valid(), result.errors
+E       AssertionError: {'human_approval': ['Select a valid choice. false is not one of the available choices.']}
+E       assert False
+E        +  where False = is_valid()
+E        +    where is_valid = &lt;ExplicitInventoryForm bound=True, valid=False, fields=(display_name;vendor_name;business_owner;department;business_pu...ost;human_approval;autonomy_level;status;declaration_as_of;connected_systems;data_categories;permissions;capabilities)&gt;.is_valid
+
+tests/test_explicit_inventory.py:49: AssertionError</failure></testcase><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[external_transfer]" time="0.420"><failure message="AssertionError: {'human_approval': ['Select a valid choice. false is not one of the available choices.']}&#10;assert False&#10; +  where False = is_valid()&#10; +    where is_valid = &lt;ExplicitInventoryForm bound=True, valid=False, fields=(display_name;vendor_name;business_owner;department;business_pu...ost;human_approval;autonomy_level;status;declaration_as_of;connected_systems;data_categories;permissions;capabilities)&gt;.is_valid">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None, case = 'external_transfer'
+
+    @pytest.mark.parametrize(
+        "case",
+        ["unknown", "approval", "accounting_fail", "non_accounting", "known_no_actions", "external_transfer"],
+    )
+    def test_sql_issuance_matches_complete_permanent_python_contract(
+        capture_context, enabled, case
+    ):
+        user, org = capture_context
+        if case == "non_accounting":
+            org.industry = "legal"
+            org.save(update_fields=["industry"])
+        if case in {"approval", "accounting_fail", "known_no_actions", "non_accounting", "external_transfer"}:
+            issue(
+                capture_context,
+&gt;               form(
+                    display_name="Explicit proposal specimen",
+                    business_owner="Responsible owner",
+                    business_purpose="Review declared workflow",
+                    human_approval="false",
+                    autonomy_level="3" if case != "known_no_actions" else "0",
+                    permissions=["write"] if case != "known_no_actions" else [],
+                    capabilities=["financial_transaction", "record_modification"]
+                    if case != "known_no_actions"
+                    else [],
+                    connected_systems=["banking"],
+                    data_categories=["payroll", "tax_records"],
+                ),
+            )
+
+tests/test_capture_proposal_admission.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+values = {'display_name': 'Explicit proposal specimen', 'business_owner': 'Responsible owner', 'business_purpose': 'Review declared workflow', 'human_approval': 'false', ...}
+
+    def form(**values):
+        result = ExplicitInventoryForm(
+            {"display_name": "Workflow helper", "declaration_as_of": "2026-01-01", **values}
+        )
+&gt;       assert result.is_valid(), result.errors
+E       AssertionError: {'human_approval': ['Select a valid choice. false is not one of the available choices.']}
+E       assert False
+E        +  where False = is_valid()
+E        +    where is_valid = &lt;ExplicitInventoryForm bound=True, valid=False, fields=(display_name;vendor_name;business_owner;department;business_pu...ost;human_approval;autonomy_level;status;declaration_as_of;connected_systems;data_categories;permissions;capabilities)&gt;.is_valid
+
+tests/test_explicit_inventory.py:49: AssertionError</failure></testcase><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[python]" time="0.675" /><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[database]" time="0.708" /><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[paid]" time="0.863" /><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[profile]" time="0.594"><failure message="django.db.utils.ProgrammingError: Workflow profile is immutable&#10;CONTEXT:  PL/pgSQL function app_private.protect_workflow_profile() line 3 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x7de6cab8c230&gt;
+sql = 'DELETE FROM "organization_workflow_profiles" WHERE "organization_workflow_profiles"."organization_id" = %s'
+params = (UUID('b48be16a-ab1e-4d23-8b9b-980bbceb32fc'),)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x7de6cab8c230&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7de6cd854670&gt;
+query = 'DELETE FROM "organization_workflow_profiles" WHERE "organization_workflow_profiles"."organization_id" = %s'
+params = (UUID('b48be16a-ab1e-4d23-8b9b-980bbceb32fc'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Workflow profile is immutable
+E           CONTEXT:  PL/pgSQL function app_private.protect_workflow_profile() line 3 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None
+settings = &lt;pytest_django.fixtures.Settings object at 0x7de6ca8a6b10&gt;
+gate = 'profile'
+
+    @pytest.mark.parametrize("gate", ["python", "database", "paid", "profile"])
+    def test_proposal_admission_fails_closed(capture_context, enabled, settings, gate):
+        user, org = capture_context
+        snapshot = admit(capture_context, preview(capture_context))
+        if gate == "python":
+            settings.CORE_PROPOSAL_ADMISSION_ENABLED = False
+        if gate == "database":
+            CoreProposalAdmissionGate.objects.filter(id=1).update(enabled=False)
+        if gate == "paid":
+            with connections["default"].cursor() as cursor:
+                cursor.execute(
+                    "UPDATE billing_subscription SET status='canceled' "
+                    "WHERE organization_id=%s",
+                    [org.id],
+                )
+        if gate == "profile":
+            from apps.organizations.models import WorkflowProfile
+    
+&gt;           WorkflowProfile.objects.filter(organization=org).delete()
+
+tests/test_capture_proposal_admission.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1201: in delete
+    num_deleted, num_deleted_per_model = collector.delete()
+                                         ^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/deletion.py:467: in delete
+    count = qs._raw_delete(using=self.using)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1223: in _raw_delete
+    return query.get_compiler(using).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7de6cd854670&gt;
+query = 'DELETE FROM "organization_workflow_profiles" WHERE "organization_workflow_profiles"."organization_id" = %s'
+params = (UUID('b48be16a-ab1e-4d23-8b9b-980bbceb32fc'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Workflow profile is immutable
+E           CONTEXT:  PL/pgSQL function app_private.protect_workflow_profile() line 3 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_capture_proposal_admission" name="test_raw_proposal_receipt_and_revision_insertion_are_denied[app_runtime]" time="0.358" /><testcase classname="tests.test_capture_proposal_admission" name="test_raw_proposal_receipt_and_revision_insertion_are_denied[worker_runtime]" time="0.313" /><testcase classname="tests.test_capture_proposal_admission" name="test_worker_cannot_issue_or_read_proposal_receipts" time="0.452" /><testcase classname="tests.test_capture_proposal_admission" name="test_private_recompute_and_uuid_extension_members_are_owner_only" time="0.440" /><testcase classname="tests.test_capture_proposal_admission" name="test_two_actual_app_connections_issue_one_revision_and_receipt" time="0.547" /><testcase classname="tests.test_capture_proposal_admission" name="test_wrong_context_denied_before_snapshot_lookup" time="0.513" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[actor]" time="0.448" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[organization]" time="0.490" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[snapshot]" time="0.454" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[capture_receipt]" time="0.409" /><testcase classname="tests.test_capture_proposal_admission" name="test_receipt_owner_read_and_immutable_replay" time="0.390" /><testcase classname="tests.test_capture_context_history" name="test_cold_historical_context_keeps_meaning_after_current_alias_drift[other]" time="0.033" /><testcase classname="tests.test_capture_context_history" name="test_cold_historical_context_keeps_meaning_after_current_alias_drift[accounting_bookkeeping]" time="0.036" /><testcase classname="tests.test_capture_context_history" name="test_cold_standalone_renderer_never_imports_application_semantics" time="0.010" /><testcase classname="tests.test_capture_context_history" name="test_alias_drift_does_not_open_v3_decision_selection" time="0.003" /><testcase classname="tests.test_capture_historical_semantics" name="test_permanent_capture_ignores_current_semantic_aliases[other-dac2763c822baaf708fbb22c46f09ea14917b35991504d89d94a56f6bce54fd8-89370962075734b9dab03348d7aa4d5bf40515f6e58e788b7e33741cbba581c1]" time="0.003" /><testcase classname="tests.test_capture_historical_semantics" name="test_permanent_capture_ignores_current_semantic_aliases[accounting_bookkeeping-fc510a466bb56099dcfa42e86882ef2bb7ffd18b591a439b5a6a3f10e7389eca-77de47e4506d81b034f9faac31d1c446d1acde7902f9dc0b0ded382915281365]" time="0.014" /><testcase classname="tests.test_capture_proposals_contract" name="test_finite_unknown_allowlist_and_exact_source_pins" time="0.004" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[False-1-CONCERN]" time="0.003" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[True-1-PASS]" time="0.003" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[False-0-NOT_APPLICABLE]" time="0.005" /><testcase classname="tests.test_capture_proposals_contract" name="test_accounting_fail_requires_exact_frozen_qualification" time="0.020" /><testcase classname="tests.test_capture_proposals_contract" name="test_unknown_premise_does_not_emit_accounting_failure" time="0.015" /><testcase classname="tests.test_capture_proposals_contract" name="test_deterministic_order_identity_digest_and_no_aliases" time="0.024" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[question]" time="0.038" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[digest]" time="0.034" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[record]" time="0.040" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[result]" time="0.028" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[definition]" time="0.025" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[applicability]" time="0.026" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[extra]" time="0.029" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[None]" time="0.002" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[True]" time="0.002" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[malformed2]" time="0.002" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[2_0]" time="0.003" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[2_1]" time="0.002" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_snapshot_uuid_and_boolean_admission_shape_denied" time="0.003" /><testcase classname="tests.test_capture_proposals_contract" name="test_independent_later_capture_changes_without_rewriting_unknown" time="0.010" /><testcase classname="tests.test_capture_proposals_contract" name="test_fixed_v1_uuid_and_complete_payload_digest_goldens" time="0.005" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[contract_version-True]" time="0.009" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[digest-None]" time="0.009" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[digest-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]" time="0.010" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[source_fields-None]" time="0.009" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[source_fields-value4]" time="0.010" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[definition_sha256-0]" time="0.010" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[class-accounting_fail]" time="0.010" /><testcase classname="tests.test_capture_proposals_contract" name="test_missing_extra_reordered_and_null_proposals_deny" time="0.027" /><testcase classname="tests.test_capture_proposals_contract" name="test_bare_default_values_never_become_known_accounting_premises" time="0.003" /><testcase classname="tests.test_capture_comparison_v2" name="test_unknown_to_declaration_has_exact_values_and_no_resolution" time="0.010" /><testcase classname="tests.test_capture_comparison_v2" name="test_identical_capture_has_no_changed_items" time="0.008" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[foreign_org]" time="0.004" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[reversed]" time="0.010" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[same_id]" time="0.006" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[rehashed_result]" time="0.009" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[schema]" time="0.127" /></testsuite></testsuites>

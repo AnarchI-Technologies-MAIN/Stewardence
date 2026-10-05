@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Return on investment — {{ item.display_name }}{% endblock %}
+{% block content %}
+  <section class="page-heading"><p class="eyebrow">{{ item.display_name }}</p><h1>Calculate return on investment</h1><p>Enter each assumption and say where it came from. Unknown amounts must remain zero.</p></section>
+  <form class="card form-card" method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}<div class="field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field.errors }}{{ field }}</div>{% endfor %}
+    <button class="button" type="submit" name="action" value="calculate">Calculate ROI</button>
+    <button class="button button-secondary" type="submit" name="action" value="save_snapshot">Save immutable assessment</button>
+  </form>
+  {% if roi_result %}<section class="card risk-summary" aria-labelledby="roi-heading">
+    <p class="eyebrow">Deterministic calculation</p>
+    <h2 id="roi-heading">Monthly net value: ${{ roi_result.monthly_net_value }}</h2>
+    <p><strong>ROI:</strong> {% if roi_result.roi_percent is not None %}{{ roi_result.roi_percent }}%{% else %}Not available because monthly total cost is $0.00{% endif %}</p>
+    <h3>Arithmetic</h3><p>Money is rounded to the nearest cent after each step.</p><ol>{% for line in roi_result.arithmetic %}<li>{{ line }}</li>{% endfor %}</ol>
+    <h3>Assumption sources</h3><dl class="detail-grid">
+      <div><dt>Monthly subscription cost</dt><dd>{{ roi_result.inputs.monthly_subscription_cost.provenance.value }}</dd></div>
+      <div><dt>Implementation cost</dt><dd>{{ roi_result.inputs.implementation_cost.provenance.value }}</dd></div>
+      <div><dt>Implementation-cost period</dt><dd>{{ roi_result.inputs.implementation_amortization_months.provenance.value }}</dd></div>
+      <div><dt>Hours saved</dt><dd>{{ roi_result.inputs.hours_saved_per_month.provenance.value }}</dd></div>
+      <div><dt>Loaded hourly rate</dt><dd>{{ roi_result.inputs.loaded_hourly_rate.provenance.value }}</dd></div>
+      <div><dt>Additional revenue</dt><dd>{{ roi_result.inputs.attributable_revenue.provenance.value }}</dd></div>
+      <div><dt>Avoided cost</dt><dd>{{ roi_result.inputs.avoided_monthly_cost.provenance.value }}</dd></div>
+    </dl>
+  </section>{% endif %}
+{% endblock %}

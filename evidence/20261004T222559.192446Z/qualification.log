@@ -1,0 +1,1372 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+  Applying reports.0006_capture_owner_read... OK
+  Applying reviews.0004_capture_pack_projection... OK
+........................................................................ [  3%]
+........................................................................ [  7%]
+........................................................................ [ 11%]
+........................................................................ [ 15%]
+........................................................................ [ 18%]
+.................................................................FF..... [ 22%]
+...............................FF....................................... [ 26%]
+...................................................F.................... [ 30%]
+........................................................................ [ 34%]
+................................................s....................... [ 37%]
+........................................................................ [ 41%]
+........................................................................ [ 45%]
+........................................................................ [ 49%]
+........................FFFF...................F........................ [ 52%]
+........................................................................ [ 56%]
+........................................................................ [ 60%]
+..............F......................................................... [ 64%]
+........................................................................ [ 68%]
+........................................................................ [ 71%]
+........................................................................ [ 75%]
+........................................................................ [ 79%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+........................................................................ [ 90%]
+........................................................................ [ 94%]
+........................................................................ [ 98%]
+................................                                         [100%]
+=================================== FAILURES ===================================
+_ test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[30-True] _
+
+admitted = (<User: paid-authority@example.invalid>, <Organization: Synthetic paid authority>, <Subscription: Subscription object ...: '52684a68-73ac-4153-be43-073ec91c118b', 'stripe_subscription_id': 'sub_test', 'stripe_customer_id': 'cus_test', ...})
+age_days = 30, allowed = True
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_genuine_past_paid_interva0')
+client = <django.test.client.Client object at 0x7d1db0856490>
+settings = <pytest_django.fixtures.Settings object at 0x7d1daf3cfca0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7d1db0c0a900>
+
+    @pytest.mark.parametrize("age_days,allowed", [(30, True), (91, False)])
+    def test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy(
+        admitted, age_days, allowed, tmp_path, client, settings, monkeypatch
+    ):
+>       user, org, subscription, report, storage, pdf = synthetic_archive(
+            admitted, age_days, tmp_path
+        )
+
+tests/test_capture_archived_reads.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+admitted = (<User: paid-authority@example.invalid>, <Organization: Synthetic paid authority>, <Subscription: Subscription object ...: '52684a68-73ac-4153-be43-073ec91c118b', 'stripe_subscription_id': 'sub_test', 'stripe_customer_id': 'cus_test', ...})
+age_days = 30
+path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_genuine_past_paid_interva0')
+
+    def synthetic_archive(admitted, age_days, path):
+        user, org, subscription, evidence = admitted
+        with connections["default"].cursor() as cursor:
+            cursor.execute("SELECT current_user,clock_timestamp()")
+            role, now = cursor.fetchone()
+>       assert role == "agentledger_owner"
+E       AssertionError: assert 'postgres' == 'agentledger_owner'
+E         
+E         - agentledger_owner
+E         + postgres
+
+tests/test_capture_archived_reads.py:49: AssertionError
+_ test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[91-False] _
+
+admitted = (<User: paid-authority@example.invalid>, <Organization: Synthetic paid authority>, <Subscription: Subscription object ...: '5c93fdea-5791-4747-94a9-d5ad23c7bf0f', 'stripe_subscription_id': 'sub_test', 'stripe_customer_id': 'cus_test', ...})
+age_days = 91, allowed = False
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_genuine_past_paid_interva1')
+client = <django.test.client.Client object at 0x7d1db08553b0>
+settings = <pytest_django.fixtures.Settings object at 0x7d1db05a4e60>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7d1db141c050>
+
+    @pytest.mark.parametrize("age_days,allowed", [(30, True), (91, False)])
+    def test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy(
+        admitted, age_days, allowed, tmp_path, client, settings, monkeypatch
+    ):
+>       user, org, subscription, report, storage, pdf = synthetic_archive(
+            admitted, age_days, tmp_path
+        )
+
+tests/test_capture_archived_reads.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+admitted = (<User: paid-authority@example.invalid>, <Organization: Synthetic paid authority>, <Subscription: Subscription object ...: '5c93fdea-5791-4747-94a9-d5ad23c7bf0f', 'stripe_subscription_id': 'sub_test', 'stripe_customer_id': 'cus_test', ...})
+age_days = 91
+path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_genuine_past_paid_interva1')
+
+    def synthetic_archive(admitted, age_days, path):
+        user, org, subscription, evidence = admitted
+        with connections["default"].cursor() as cursor:
+            cursor.execute("SELECT current_user,clock_timestamp()")
+            role, now = cursor.fetchone()
+>       assert role == "agentledger_owner"
+E       AssertionError: assert 'postgres' == 'agentledger_owner'
+E         
+E         - agentledger_owner
+E         + postgres
+
+tests/test_capture_archived_reads.py:49: AssertionError
+_____ test_capture2_actual_worker_chromium_storage_and_no_promotion[other] _____
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_capture2_actual_worker_ch0')
+industry = 'other'
+client = <django.test.client.Client object at 0x7d1db05a3890>
+settings = <pytest_django.fixtures.Settings object at 0x7d1db0d00e60>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7d1db1411ef0>
+
+    @pytest.mark.parametrize("industry", ["other", "accounting_bookkeeping"])
+    def test_capture2_actual_worker_chromium_storage_and_no_promotion(
+        capture_context, enabled, tmp_path, industry, client, settings, monkeypatch
+    ):
+        user, org = capture_context
+        org.industry = industry
+        org.save(update_fields=["industry"])
+        snapshot = admit(capture_context, preview(capture_context))
+        cycle = open_cycle(
+            organization_id=org.id,
+            actor_id=user.id,
+            input_snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        pack = freeze_cycle(
+            cycle_id=cycle.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            expected_revision=1,
+            using="app_runtime",
+        )
+        assert pack.manifest["schema"] == "stewardence.review_pack.v3"
+        staged = request_pack_artifact(
+            pack_id=pack.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            promote_baseline=False,
+            using="app_runtime",
+        )
+        BackgroundJob.objects.filter(id=staged.job_id).update(priority=-100)
+        with transaction.atomic(using="worker_runtime"):
+            job = claim_next_job("capture-review-qualification", using="worker_runtime")
+        assert job is not None and job.id == staged.job_id
+        with (
+            tenant_transaction(org.id, using="worker_runtime"),
+            connections["worker_runtime"].cursor() as cursor,
+        ):
+            cursor.execute("SELECT current_user,current_setting('transaction_isolation')")
+            assert cursor.fetchone() == ("agentledger_worker", "read committed")
+        renderer = ActualRenderer(tmp_path / "render")
+        delegate = ReportGenerationHandler(
+            renderer=renderer,
+            storage=LocalPrivateReportStorage(tmp_path / "private"),
+            using="worker_runtime",
+        )
+        handler = ReviewReportGenerationHandler(
+            delegate, worker_id="capture-review-qualification"
+        )
+        execute_claimed_job(
+            JobExecution(job=job, worker_id="capture-review-qualification"),
+            handler,
+            using="worker_runtime",
+        )
+        assert renderer.context["context_version"] == "AL-REVIEW-PACK-CONTEXT-2"
+        assert renderer.context["projection"]["manifest_sha256"] == pack.sha256
+        text = " ".join(
+            " ".join(
+                page.extract_text() or "" for page in PdfReader(BytesIO(renderer.pdf)).pages
+            ).split()
+        )
+        assert "Risk: not assessed" in text and "Benefit model: not supplied" in text
+        assert "Generic exposure review" in text and "Low" not in text
+        completion = PackCompletion.objects.get(request=staged)
+        assert completion.payload["verification"] == "trusted_handler_storage_readback"
+        assert completion.payload["baseline_outcome"] == "not_requested"
+        assert completion.payload["manifest_sha256"] == pack.sha256
+        assert completion.artifact.sha256 == completion.payload["artifact_sha256"]
+        assert not BaselineHead.objects.filter(organization=org).exists()
+        assert ReviewCycle.objects.get(id=cycle.id).state == "COMPLETED"
+        assert BackgroundJob.objects.get(id=job.id).status == "completed"
+        settings.ALLOWED_HOSTS = ["testserver"]
+        client.force_login(user)
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+    
+        def forbidden_legacy_context(report):
+            pytest.fail("Capture delivery invoked the legacy risk/ROI builder")
+    
+        monkeypatch.setattr(
+            "apps.reports.views.build_report_context", forbidden_legacy_context
+        )
+        monkeypatch.setattr("apps.reports.views._report_storage", lambda: delegate.storage)
+        with actual_app_default():
+            detail = client.get(
+                reverse("reports:detail", kwargs={"report_id": staged.report_id})
+            )
+            assert detail.status_code == 200
+            assert "reports/capture_status.html" in [t.name for t in detail.templates]
+            assert detail.context["completion_recorded"] is True
+            assert detail.context["has_pdf"] is True
+            assert "no-store" in detail["Cache-Control"]
+            download = client.get(
+                reverse("reports:download", kwargs={"report_id": staged.report_id})
+            )
+            assert download.status_code == 200 and download.content == renderer.pdf
+            assert "no-store" in download["Cache-Control"]
+    
+        viewer = get_user_model().objects.create_user(
+            f"capture-viewer-{industry}@example.invalid"
+        )
+        OrganizationMember.objects.create(organization=org, user=viewer, role="viewer")
+        client.force_login(viewer)
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+        # Isolate tenant/report privacy from the owner's one-to-one subscription.
+        # Authentication, tenant and identity middleware remain active.
+        settings.MIDDLEWARE = [
+            entry
+            for entry in settings.MIDDLEWARE
+            if not entry.endswith("BillingEntitlementMiddleware")
+        ]
+    
+        def forbidden_storage():
+            pytest.fail("Denied capture-pack request reached private storage")
+    
+        monkeypatch.setattr("apps.reports.views._report_storage", forbidden_storage)
+        with actual_app_default():
+            for route in ("detail", "download"):
+                denied = client.get(
+                    reverse(f"reports:{route}", kwargs={"report_id": staged.report_id})
+                )
+>               assert denied.status_code in (403, 404)
+E               assert 302 in (403, 404)
+E                +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+
+tests/test_capture_review_worker.py:167: AssertionError
+_ test_capture2_actual_worker_chromium_storage_and_no_promotion[accounting_bookkeeping] _
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_capture2_actual_worker_ch1')
+industry = 'accounting_bookkeeping'
+client = <django.test.client.Client object at 0x7d1daf33e0d0>
+settings = <pytest_django.fixtures.Settings object at 0x7d1db13bc1e0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7d1db14b3cb0>
+
+    @pytest.mark.parametrize("industry", ["other", "accounting_bookkeeping"])
+    def test_capture2_actual_worker_chromium_storage_and_no_promotion(
+        capture_context, enabled, tmp_path, industry, client, settings, monkeypatch
+    ):
+        user, org = capture_context
+        org.industry = industry
+        org.save(update_fields=["industry"])
+        snapshot = admit(capture_context, preview(capture_context))
+        cycle = open_cycle(
+            organization_id=org.id,
+            actor_id=user.id,
+            input_snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        pack = freeze_cycle(
+            cycle_id=cycle.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            expected_revision=1,
+            using="app_runtime",
+        )
+        assert pack.manifest["schema"] == "stewardence.review_pack.v3"
+        staged = request_pack_artifact(
+            pack_id=pack.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            promote_baseline=False,
+            using="app_runtime",
+        )
+        BackgroundJob.objects.filter(id=staged.job_id).update(priority=-100)
+        with transaction.atomic(using="worker_runtime"):
+            job = claim_next_job("capture-review-qualification", using="worker_runtime")
+        assert job is not None and job.id == staged.job_id
+        with (
+            tenant_transaction(org.id, using="worker_runtime"),
+            connections["worker_runtime"].cursor() as cursor,
+        ):
+            cursor.execute("SELECT current_user,current_setting('transaction_isolation')")
+            assert cursor.fetchone() == ("agentledger_worker", "read committed")
+        renderer = ActualRenderer(tmp_path / "render")
+        delegate = ReportGenerationHandler(
+            renderer=renderer,
+            storage=LocalPrivateReportStorage(tmp_path / "private"),
+            using="worker_runtime",
+        )
+        handler = ReviewReportGenerationHandler(
+            delegate, worker_id="capture-review-qualification"
+        )
+        execute_claimed_job(
+            JobExecution(job=job, worker_id="capture-review-qualification"),
+            handler,
+            using="worker_runtime",
+        )
+        assert renderer.context["context_version"] == "AL-REVIEW-PACK-CONTEXT-2"
+        assert renderer.context["projection"]["manifest_sha256"] == pack.sha256
+        text = " ".join(
+            " ".join(
+                page.extract_text() or "" for page in PdfReader(BytesIO(renderer.pdf)).pages
+            ).split()
+        )
+        assert "Risk: not assessed" in text and "Benefit model: not supplied" in text
+        assert "Generic exposure review" in text and "Low" not in text
+        completion = PackCompletion.objects.get(request=staged)
+        assert completion.payload["verification"] == "trusted_handler_storage_readback"
+        assert completion.payload["baseline_outcome"] == "not_requested"
+        assert completion.payload["manifest_sha256"] == pack.sha256
+        assert completion.artifact.sha256 == completion.payload["artifact_sha256"]
+        assert not BaselineHead.objects.filter(organization=org).exists()
+        assert ReviewCycle.objects.get(id=cycle.id).state == "COMPLETED"
+        assert BackgroundJob.objects.get(id=job.id).status == "completed"
+        settings.ALLOWED_HOSTS = ["testserver"]
+        client.force_login(user)
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+    
+        def forbidden_legacy_context(report):
+            pytest.fail("Capture delivery invoked the legacy risk/ROI builder")
+    
+        monkeypatch.setattr(
+            "apps.reports.views.build_report_context", forbidden_legacy_context
+        )
+        monkeypatch.setattr("apps.reports.views._report_storage", lambda: delegate.storage)
+        with actual_app_default():
+            detail = client.get(
+                reverse("reports:detail", kwargs={"report_id": staged.report_id})
+            )
+            assert detail.status_code == 200
+            assert "reports/capture_status.html" in [t.name for t in detail.templates]
+            assert detail.context["completion_recorded"] is True
+            assert detail.context["has_pdf"] is True
+            assert "no-store" in detail["Cache-Control"]
+            download = client.get(
+                reverse("reports:download", kwargs={"report_id": staged.report_id})
+            )
+            assert download.status_code == 200 and download.content == renderer.pdf
+            assert "no-store" in download["Cache-Control"]
+    
+        viewer = get_user_model().objects.create_user(
+            f"capture-viewer-{industry}@example.invalid"
+        )
+        OrganizationMember.objects.create(organization=org, user=viewer, role="viewer")
+        client.force_login(viewer)
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+        # Isolate tenant/report privacy from the owner's one-to-one subscription.
+        # Authentication, tenant and identity middleware remain active.
+        settings.MIDDLEWARE = [
+            entry
+            for entry in settings.MIDDLEWARE
+            if not entry.endswith("BillingEntitlementMiddleware")
+        ]
+    
+        def forbidden_storage():
+            pytest.fail("Denied capture-pack request reached private storage")
+    
+        monkeypatch.setattr("apps.reports.views._report_storage", forbidden_storage)
+        with actual_app_default():
+            for route in ("detail", "download"):
+                denied = client.get(
+                    reverse(f"reports:{route}", kwargs={"report_id": staged.report_id})
+                )
+>               assert denied.status_code in (403, 404)
+E               assert 302 in (403, 404)
+E                +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/billing/portfolio/">.status_code
+
+tests/test_capture_review_worker.py:167: AssertionError
+_____ test_first_owner_records_reviews_freezes_and_requests_exact_capture ______
+
+admitted = (<User: paid-authority@example.invalid>, <Organization: Synthetic paid authority>, <Subscription: Subscription object ...: 'd1390138-dc74-495c-9c6b-bf811828dadf', 'stripe_subscription_id': 'sub_test', 'stripe_customer_id': 'cus_test', ...})
+settings = <pytest_django.fixtures.Settings object at 0x7d1db05a44b0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7d1db14529e0>
+
+    def test_first_owner_records_reviews_freezes_and_requests_exact_capture(
+        admitted, settings, monkeypatch
+    ):
+        owner, org, _, payment_evidence = admitted
+        # This narrow issuer fixture is not a checkout or live payment qualification.
+        issue_paid_coverage(payment_evidence)
+        settings.ALLOWED_HOSTS = ["testserver"]
+        settings.CORE_EXPLICIT_INVENTORY_ENABLED = True
+        settings.DELIBERATE_CAPTURE_ENABLED = True
+        settings.CORE_REVIEW_WORKSPACE_ENABLED = True
+        settings.REVIEW_PACK_LIFECYCLE_ENABLED = True
+        for gate in (ExplicitDeclarationGate, CaptureAdmissionGate, ReviewLifecycleGate):
+            gate.objects.update_or_create(id=1, defaults={"enabled": True})
+        for model in (
+            InventoryItem,
+            AssessmentSnapshot,
+            SnapshotCaptureReceipt,
+            WorkflowProfile,
+            Report,
+            ReportArtifact,
+            ReviewCycle,
+            PackIdentity,
+            ArtifactRequest,
+            PackCompletion,
+            BackgroundJob,
+        ):
+            assert model.objects.count() == 0, model.__name__
+    
+        def no_benefit(*args, **kwargs):
+            pytest.fail("First deliberate capture invoked legacy ROI")
+    
+        monkeypatch.setattr("apps.roi.engine_v2.calculate_roi", no_benefit)
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(owner)
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+    
+        def post(route, values):
+            return client.post(
+                route,
+                {
+                    **values,
+                    "csrfmiddlewaretoken": client.cookies["csrftoken"].value,
+                },
+            )
+    
+        with actual_app_default():
+            profile_route = reverse("organizations:workflow-profile")
+            assert client.get(profile_route).status_code == 200
+            response = post(profile_route, {"profile": "business.v1", "name": "Main firm"})
+            assert response.status_code == 302, response.content.decode()
+            add_route = reverse("inventory:create")
+            assert client.get(add_route).status_code == 200
+            response = post(
+                add_route,
+                {
+                    "display_name": "First workflow helper",
+                    "declaration_as_of": "2026-01-01",
+                    "business_purpose": "Prepare draft client summaries for owner review",
+                },
+            )
+            assert response.status_code == 302, response.content.decode()
+            detail = client.get(response["Location"])
+            assert detail.status_code == 200
+            assert b"Unknown" in detail.content
+    
+            capture_route = reverse("reviews:capture")
+            review = client.get(capture_route)
+            assert review.status_code == 200, review.content.decode()
+            assert review["Cache-Control"] == "private, no-store"
+            token = review.context["form"].initial["preview_token"]
+            response = post(capture_route, {"preview_token": token, "confirm": "on"})
+            assert response.status_code == 302, response.content.decode()
+            snapshot_id = resolve(response["Location"]).kwargs["snapshot_id"]
+            snapshot_page = client.get(response["Location"])
+            assert snapshot_page.status_code == 200, snapshot_page.content.decode()
+            freeze_route = reverse("reviews:freeze", args=[snapshot_id])
+            assert freeze_route in snapshot_page.content.decode()
+            cycle_id = snapshot_page.context["freeze_form"].initial["cycle_id"]
+            response = post(freeze_route, {"cycle_id": str(cycle_id)})
+            assert response.status_code == 302, response.content.decode()
+            pack_id = resolve(response["Location"]).kwargs["pack_id"]
+            pack_page = client.get(response["Location"])
+            assert pack_page.status_code == 200, pack_page.content.decode()
+            request_route = reverse("reviews:request-artifact", args=[pack_id])
+            assert request_route in pack_page.content.decode()
+            response = post(request_route, {})
+            assert response.status_code == 302, response.content.decode()
+            pending = client.get(response["Location"])
+            assert pending.status_code == 200, pending.content.decode()
+            assert b"Queue admission is not delivery" in pending.content
+    
+        assert WorkflowProfile.objects.get(organization=org).created_by_id == owner.id
+        assert InventoryItem.objects.filter(organization=org).count() == 1
+        snapshot = AssessmentSnapshot.objects.get(id=snapshot_id)
+        assert snapshot.input_payload["snapshot_schema_version"] == 2
+        assert SnapshotCaptureReceipt.objects.filter(snapshot=snapshot).count() == 1
+        assert (
+            ReviewCycle.objects.get(id=UUID(str(cycle_id))).input_snapshot_id == snapshot.id
+        )
+        assert PackIdentity.objects.get(id=pack_id).manifest["snapshot"][
+            "snapshot_id"
+        ] == str(snapshot.id)
+        request = ArtifactRequest.objects.get(pack_id=pack_id)
+        assert request.report.assessment_snapshot_id == snapshot.id
+        assert request.job.status == BackgroundJob.Status.QUEUED
+        assert request.job.attempts == 0
+>       assert Report.objects.count() == BackgroundJob.objects.count() == 1
+E       assert 1 == 3
+E        +  where 1 = count()
+E        +    where count = <django.db.models.manager.Manager object at 0x7d1db0d0ead0>.count
+E        +      where <django.db.models.manager.Manager object at 0x7d1db0d0ead0> = Report.objects
+E        +  and   3 = count()
+E        +    where count = <django.db.models.manager.Manager object at 0x7d1db0592950>.count
+E        +      where <django.db.models.manager.Manager object at 0x7d1db0592950> = BackgroundJob.objects
+
+tests/test_core_first_capture_journey.py:141: AssertionError
+________ test_assessment_snapshots_are_tenant_isolated_and_append_only _________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7d1db0b14e30>
+sql = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('5e1b9788-590f-4c6c-97b9-1a0760060b6c'), UUID('2f64d6be-3b99-42b9-94fd-6d60643c040d'), UUID('5c924a42-b88a-4cee-..., UUID('8a8d33db-8e61-490f-9ad9-76f76ef23f8a'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7d1db0b14e30>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7d1db08c4830>
+query = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('5e1b9788-590f-4c6c-97b9-1a0760060b6c'), UUID('2f64d6be-3b99-42b9-94fd-6d60643c040d'), UUID('5c924a42-b88a-4cee-..., UUID('8a8d33db-8e61-490f-9ad9-76f76ef23f8a'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Schema-2 capture requires narrow issuance
+E           CONTEXT:  PL/pgSQL function app_private.capture_snapshot_issuance() line 5 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+isolation_fixture = IsolationFixture(user_a_id=UUID('8a8d33db-8e61-490f-9ad9-76f76ef23f8a'), user_b_id=UUID('7f66152c-badb-4758-949f-a6bbf...6d5d'), item_a_id=UUID('7ea87e59-fcf5-4196-8874-7e451138986e'), item_b_id=UUID('e8ea29ce-4c6e-444b-844c-429acffa4d84'))
+
+    def test_assessment_snapshots_are_tenant_isolated_and_append_only(isolation_fixture):
+        fixture = isolation_fixture
+        payload_a = {"tenant": "A"}
+        payload_b = {"tenant": "B"}
+>       snapshot_a = AssessmentSnapshot.objects.create(
+            organization_id=fixture.organization_a_id,
+            created_by_id=fixture.user_a_id,
+            captured_at=datetime(2026, 9, 4, tzinfo=UTC),
+            input_payload=payload_a,
+            result_payload=payload_a,
+            input_sha256=canonical_sha256(payload_a),
+            result_sha256=canonical_sha256(payload_a),
+        )
+
+tests/test_rls.py:267: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/assessments/models.py:61: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7d1db08c4830>
+query = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('5e1b9788-590f-4c6c-97b9-1a0760060b6c'), UUID('2f64d6be-3b99-42b9-94fd-6d60643c040d'), UUID('5c924a42-b88a-4cee-..., UUID('8a8d33db-8e61-490f-9ad9-76f76ef23f8a'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Schema-2 capture requires narrow issuance
+E           CONTEXT:  PL/pgSQL function app_private.capture_snapshot_issuance() line 5 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+____________ test_reports_are_tenant_isolated_and_runtime_immutable ____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7d1db15a1d30>
+sql = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('f3f78e48-bee0-4aec-adf0-1c11708a1bd0'), UUID('4b0e46bd-e49a-4a73-9fcf-c77b807c79d0'), UUID('ecfed2dc-1794-4c00-..., UUID('eded6d57-dcda-4a9d-b15c-4fc865b50b15'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7d1db15a1d30>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7d1db15743d0>
+query = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('f3f78e48-bee0-4aec-adf0-1c11708a1bd0'), UUID('4b0e46bd-e49a-4a73-9fcf-c77b807c79d0'), UUID('ecfed2dc-1794-4c00-..., UUID('eded6d57-dcda-4a9d-b15c-4fc865b50b15'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Schema-2 capture requires narrow issuance
+E           CONTEXT:  PL/pgSQL function app_private.capture_snapshot_issuance() line 5 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+isolation_fixture = IsolationFixture(user_a_id=UUID('eded6d57-dcda-4a9d-b15c-4fc865b50b15'), user_b_id=UUID('970e6288-c00a-4e98-83b9-8c0c0...eeed'), item_a_id=UUID('a7e07a04-20cf-410d-95bb-e451dddc7757'), item_b_id=UUID('a7a8e836-5d61-4e6d-baf6-c035f2df57f6'))
+
+    def test_reports_are_tenant_isolated_and_runtime_immutable(
+        isolation_fixture,
+    ):
+        fixture = isolation_fixture
+        payload_a = {"tenant": "A"}
+        payload_b = {"tenant": "B"}
+>       snapshot_a = AssessmentSnapshot.objects.create(
+            organization_id=fixture.organization_a_id,
+            created_by_id=fixture.user_a_id,
+            captured_at=datetime(2026, 9, 4, tzinfo=UTC),
+            input_payload=payload_a,
+            result_payload=payload_a,
+            input_sha256=canonical_sha256(payload_a),
+            result_sha256=canonical_sha256(payload_a),
+        )
+
+tests/test_rls.py:327: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/assessments/models.py:61: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7d1db15743d0>
+query = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('f3f78e48-bee0-4aec-adf0-1c11708a1bd0'), UUID('4b0e46bd-e49a-4a73-9fcf-c77b807c79d0'), UUID('ecfed2dc-1794-4c00-..., UUID('eded6d57-dcda-4a9d-b15c-4fc865b50b15'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Schema-2 capture requires narrow issuance
+E           CONTEXT:  PL/pgSQL function app_private.capture_snapshot_issuance() line 5 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_________________ test_report_service_uses_restricted_app_role _________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7d1db1511a30>
+sql = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('b0e65b56-fbef-4ffb-9313-f6ac5a81106e'), UUID('68ec8a81-134b-4744-b389-94ab50aed862'), UUID('0fcf94a1-44c7-4846-..., UUID('a7fe6dc8-1dbe-4d2c-a678-637851f39833'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7d1db1511a30>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7d1db1574910>
+query = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('b0e65b56-fbef-4ffb-9313-f6ac5a81106e'), UUID('68ec8a81-134b-4744-b389-94ab50aed862'), UUID('0fcf94a1-44c7-4846-..., UUID('a7fe6dc8-1dbe-4d2c-a678-637851f39833'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Schema-2 capture requires narrow issuance
+E           CONTEXT:  PL/pgSQL function app_private.capture_snapshot_issuance() line 5 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+isolation_fixture = IsolationFixture(user_a_id=UUID('a7fe6dc8-1dbe-4d2c-a678-637851f39833'), user_b_id=UUID('ebeda661-a89a-4c17-a18d-92ced...a407'), item_a_id=UUID('cc7447ca-8f9d-4cdd-8289-e2959a91ba07'), item_b_id=UUID('63156e0d-ccbc-4de6-bb9b-0803df162e5b'))
+
+    def test_report_service_uses_restricted_app_role(
+        isolation_fixture,
+    ):
+        fixture = isolation_fixture
+        payload = {"tenant": "A"}
+>       snapshot = AssessmentSnapshot.objects.create(
+            organization_id=fixture.organization_a_id,
+            created_by_id=fixture.user_a_id,
+            captured_at=datetime(2026, 9, 4, tzinfo=UTC),
+            input_payload=payload,
+            result_payload=payload,
+            input_sha256=canonical_sha256(payload),
+            result_sha256=canonical_sha256(payload),
+        )
+
+tests/test_rls.py:417: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/assessments/models.py:61: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7d1db1574910>
+query = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('b0e65b56-fbef-4ffb-9313-f6ac5a81106e'), UUID('68ec8a81-134b-4744-b389-94ab50aed862'), UUID('0fcf94a1-44c7-4846-..., UUID('a7fe6dc8-1dbe-4d2c-a678-637851f39833'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Schema-2 capture requires narrow issuance
+E           CONTEXT:  PL/pgSQL function app_private.capture_snapshot_issuance() line 5 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_________ test_app_role_cannot_link_report_to_another_tenants_snapshot _________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7d1db0babe90>
+sql = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('6e76465a-d1bb-4e73-a997-2b5dbd960666'), UUID('fb980065-8791-4961-8b7c-5fa9f8330ba8'), UUID('8c19c118-c90f-4424-..., UUID('a7fe1860-aa9d-476e-bb9f-5aec68f2dc3b'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7d1db0babe90>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7d1db1577150>
+query = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('6e76465a-d1bb-4e73-a997-2b5dbd960666'), UUID('fb980065-8791-4961-8b7c-5fa9f8330ba8'), UUID('8c19c118-c90f-4424-..., UUID('a7fe1860-aa9d-476e-bb9f-5aec68f2dc3b'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Schema-2 capture requires narrow issuance
+E           CONTEXT:  PL/pgSQL function app_private.capture_snapshot_issuance() line 5 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+isolation_fixture = IsolationFixture(user_a_id=UUID('fa4a67ce-3e54-4e94-baf6-b9b9a84c1e31'), user_b_id=UUID('a7fe1860-aa9d-476e-bb9f-5aec6...0ba8'), item_a_id=UUID('0e9cc4b3-338d-4c06-a123-871680b5942f'), item_b_id=UUID('55d8d105-3b0b-48c1-b1ee-9c06ad8805ca'))
+
+    def test_app_role_cannot_link_report_to_another_tenants_snapshot(
+        isolation_fixture,
+    ):
+        fixture = isolation_fixture
+        payload = {"tenant": "B"}
+>       snapshot_b = AssessmentSnapshot.objects.create(
+            organization_id=fixture.organization_b_id,
+            created_by_id=fixture.user_b_id,
+            captured_at=datetime(2026, 9, 4, tzinfo=UTC),
+            input_payload=payload,
+            result_payload=payload,
+            input_sha256=canonical_sha256(payload),
+            result_sha256=canonical_sha256(payload),
+        )
+
+tests/test_rls.py:451: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/assessments/models.py:61: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7d1db1577150>
+query = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('6e76465a-d1bb-4e73-a997-2b5dbd960666'), UUID('fb980065-8791-4961-8b7c-5fa9f8330ba8'), UUID('8c19c118-c90f-4424-..., UUID('a7fe1860-aa9d-476e-bb9f-5aec68f2dc3b'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Schema-2 capture requires narrow issuance
+E           CONTEXT:  PL/pgSQL function app_private.capture_snapshot_issuance() line 5 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_______ test_report_artifacts_are_tenant_isolated_and_runtime_immutable ________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7d1db0ba9370>
+sql = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('0d6f0603-5e42-4c4e-9ee8-d7a4cc7f98a7'), UUID('4bf3955d-9109-43be-81e8-fdb935149ed5'), UUID('ade793bd-ccb0-4186-..., UUID('d11a0ae8-7985-401f-835e-d29f2025b52b'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7d1db0ba9370>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7d1db0b3c830>
+query = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('0d6f0603-5e42-4c4e-9ee8-d7a4cc7f98a7'), UUID('4bf3955d-9109-43be-81e8-fdb935149ed5'), UUID('ade793bd-ccb0-4186-..., UUID('d11a0ae8-7985-401f-835e-d29f2025b52b'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Schema-2 capture requires narrow issuance
+E           CONTEXT:  PL/pgSQL function app_private.capture_snapshot_issuance() line 5 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+isolation_fixture = IsolationFixture(user_a_id=UUID('d11a0ae8-7985-401f-835e-d29f2025b52b'), user_b_id=UUID('d983faf6-59eb-4170-95b2-41b2e...eeb3'), item_a_id=UUID('694af84c-f074-4894-9ddf-143ee827b9bd'), item_b_id=UUID('233dcbb7-0199-4000-9d74-dfb4dbf54587'))
+
+    def test_report_artifacts_are_tenant_isolated_and_runtime_immutable(
+        isolation_fixture,
+    ):
+        fixture = isolation_fixture
+    
+        def make_snapshot(organization_id, user_id, label):
+            payload = {"tenant": label}
+            return AssessmentSnapshot.objects.create(
+                organization_id=organization_id,
+                created_by_id=user_id,
+                captured_at=datetime(2026, 9, 4, tzinfo=UTC),
+                input_payload=payload,
+                result_payload=payload,
+                input_sha256=canonical_sha256(payload),
+                result_sha256=canonical_sha256(payload),
+            )
+    
+        def make_report(
+            organization_id,
+            user_id,
+            snapshot,
+            sequence,
+            identifier,
+            organization_name,
+        ):
+            return Report.objects.create(
+                organization_id=organization_id,
+                assessment_snapshot=snapshot,
+                sequence=sequence,
+                identifier_year=2026,
+                report_identifier=identifier,
+                organization_display_name=organization_name,
+                created_by_id=user_id,
+            )
+    
+>       snapshot_a = make_snapshot(
+            fixture.organization_a_id,
+            fixture.user_a_id,
+            "artifact-a",
+        )
+
+tests/test_rls.py:925: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_rls.py:897: in make_snapshot
+    return AssessmentSnapshot.objects.create(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/assessments/models.py:61: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7d1db0b3c830>
+query = 'INSERT INTO "assessment_snapshots" ("id", "organization_id", "assessment_id", "version", "created_by_id", "captured_a..., "result_payload", "input_sha256", "result_sha256", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('0d6f0603-5e42-4c4e-9ee8-d7a4cc7f98a7'), UUID('4bf3955d-9109-43be-81e8-fdb935149ed5'), UUID('ade793bd-ccb0-4186-..., UUID('d11a0ae8-7985-401f-835e-d29f2025b52b'), datetime.datetime(2026, 9, 4, 0, 0, tzinfo=datetime.timezone.utc), ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Schema-2 capture requires narrow issuance
+E           CONTEXT:  PL/pgSQL function app_private.capture_snapshot_issuance() line 5 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+__________ test_metadata_assessment_version_is_exact_integer_one[1.0] __________
+
+version = 1.0
+
+    @pytest.mark.parametrize("version", [True, 1.0, "1", None, 2])
+    def test_metadata_assessment_version_is_exact_integer_one(version):
+        metadata, projection = capture_projection()
+        context = build_capture_pack_context(metadata, projection)
+        metadata["assessment_version"] = version
+        with pytest.raises(ValueError, match="integer one"):
+            build_capture_pack_context(metadata, projection)
+        context["metadata"] = metadata
+>       with pytest.raises(InvalidReportRenderPayload, match="integer one"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'integer one'
+E         Actual message: 'Payload contains an unsupported value type'
+
+tests/test_capture_review_renderer.py:209: AssertionError
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py: 2 warnings
+tests/test_billing_founder_cancellation_authority.py: 3 warnings
+tests/test_billing_founder_checkout_authority.py: 2 warnings
+tests/test_billing_portal_cancellation.py: 2 warnings
+tests/test_billing_tenant_authority.py: 10 warnings
+tests/test_core_checkout_admission.py: 21 warnings
+tests/test_csv_import.py: 10 warnings
+tests/test_discovery.py: 2 warnings
+tests/test_discovery_reconciliation.py: 2 warnings
+tests/test_inventory.py: 10 warnings
+tests/test_organization_rules.py: 9 warnings
+tests/test_payflow_deployment_gates.py: 6 warnings
+tests/test_production_security.py: 3 warnings
+tests/test_public_signup.py: 11 warnings
+tests/test_report_history.py: 3 warnings
+tests/test_reports.py: 3 warnings
+tests/test_roi_engine_v2.py: 1 warning
+tests/test_workspaces.py: 9 warnings
+tests/test_billing_standard_launch.py: 3 warnings
+tests/test_capture_report_access.py: 2 warnings
+tests/test_capture_review_ui.py: 21 warnings
+tests/test_capture_review_worker.py: 2 warnings
+tests/test_core_first_capture_journey.py: 1 warning
+tests/test_core_workflows.py: 1 warning
+tests/test_explicit_inventory.py: 6 warnings
+tests/test_lyra_authority_findings.py: 1 warning
+tests/test_operations_dashboard.py: 2 warnings
+tests/test_paid_workflow_boundary.py: 3 warnings
+tests/test_provider_lifecycle.py: 2 warnings
+tests/test_quickbooks_lifecycle.py: 13 warnings
+tests/test_quickbooks_reports.py: 6 warnings
+tests/test_report_artifacts.py: 4 warnings
+tests/test_report_recovery_states.py: 1 warning
+tests/test_review_profile_handoff.py: 3 warnings
+tests/test_review_report_read_authority.py: 3 warnings
+tests/test_review_workspace_views.py: 33 warnings
+tests/test_standard_checkout_route_durability.py: 4 warnings
+tests/test_workflow_profile_setup.py: 3 warnings
+tests/test_baseline.py: 4 warnings
+tests/test_download.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_capture_archived_reads.py::test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[30-True]
+FAILED tests/test_capture_archived_reads.py::test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[91-False]
+FAILED tests/test_capture_review_worker.py::test_capture2_actual_worker_chromium_storage_and_no_promotion[other]
+FAILED tests/test_capture_review_worker.py::test_capture2_actual_worker_chromium_storage_and_no_promotion[accounting_bookkeeping]
+FAILED tests/test_core_first_capture_journey.py::test_first_owner_records_reviews_freezes_and_requests_exact_capture
+FAILED tests/test_rls.py::test_assessment_snapshots_are_tenant_isolated_and_append_only
+FAILED tests/test_rls.py::test_reports_are_tenant_isolated_and_runtime_immutable
+FAILED tests/test_rls.py::test_report_service_uses_restricted_app_role - djan...
+FAILED tests/test_rls.py::test_app_role_cannot_link_report_to_another_tenants_snapshot
+FAILED tests/test_rls.py::test_report_artifacts_are_tenant_isolated_and_runtime_immutable
+FAILED tests/test_capture_review_renderer.py::test_metadata_assessment_version_is_exact_integer_one[1.0]
+11 failed, 1892 passed, 1 skipped, 228 warnings in 707.16s (0:11:47)

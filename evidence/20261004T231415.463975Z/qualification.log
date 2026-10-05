@@ -1,0 +1,692 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reviews.0004_capture_pack_projection... OK
+  Applying jobs.0015_legacy_action_card_schema_fence... OK
+  Applying reviews.0005_capture_proposal_admission... OK
+  Applying jobs.0016_capture_decisions... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0005_review_pack_read_authority... OK
+  Applying reports.0006_capture_owner_read... OK
+...............F..F...............FF......................F............. [ 47%]
+........................................................................ [ 94%]
+........                                                                 [100%]
+=================================== FAILURES ===================================
+_ test_sql_issuance_matches_complete_permanent_python_contract[accounting_fail] _
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+enabled = None, case = 'accounting_fail'
+
+    @pytest.mark.parametrize(
+        "case",
+        [
+            "unknown",
+            "approval",
+            "accounting_fail",
+            "non_accounting",
+            "known_no_actions",
+            "external_transfer",
+        ],
+    )
+    def test_sql_issuance_matches_complete_permanent_python_contract(
+        capture_context, enabled, case
+    ):
+        user, org = capture_context
+        if case == "non_accounting":
+            org.industry = "legal"
+            org.save(update_fields=["industry"])
+        if case in {
+            "approval",
+            "accounting_fail",
+            "known_no_actions",
+            "non_accounting",
+            "external_transfer",
+        }:
+            known_item = issue(
+                capture_context,
+                form(
+                    display_name="Explicit proposal specimen",
+                    business_owner="Responsible owner",
+                    business_purpose="Review declared workflow",
+                    human_approval="no",
+                    autonomy_level="3" if case != "known_no_actions" else "0",
+                    permissions=["write"] if case != "known_no_actions" else [NONE],
+                    capabilities={
+                        "approval": ["communication"],
+                        "accounting_fail": ["financial_transaction", "record_modification"],
+                        "non_accounting": ["financial_transaction", "record_modification"],
+                        "known_no_actions": [NONE],
+                        "external_transfer": ["external_transfer"],
+                    }[case],
+                    connected_systems=["banking"],
+                    data_categories=["payroll", "tax_records"],
+                ),
+            )
+        snapshot = admit(capture_context, preview(capture_context))
+        revision = issue_proposals(capture_context, snapshot)
+        assert revision.cards == build_review_proposals(
+            snapshot_id=snapshot.id, capture_envelope=envelope(snapshot)
+        )
+        assert issue_proposals(capture_context, snapshot).id == revision.id
+        receipt = CaptureProposalAdmissionReceipt.objects.get(revision=revision)
+        assert receipt.snapshot_id == snapshot.id
+        assert receipt.input_sha256 == snapshot.input_sha256
+        assert receipt.result_sha256 == snapshot.result_sha256
+        assert receipt.revision_sha256 == revision.sha256
+        assert all(
+            card["resolution_effect"] == "none" and card["resolution_verified"] is False
+            for card in revision.cards
+        )
+        generic = [
+            card for card in revision.cards if card["source"]["class"] != "accounting_fail"
+        ]
+        assert all("severity" not in card and "risk_score" not in card for card in generic)
+        if case == "known_no_actions":
+            normalized = next(
+                record
+                for record in snapshot.input_payload["inventory"]
+                if record["id"] == str(known_item.id)
+            )
+            assert normalized["permissions"] == []
+            assert normalized["capabilities"] == []
+            assert normalized["provenance"]["permissions"] == "Declared"
+            assert normalized["provenance"]["capabilities"] == "Declared"
+            assert normalized["human_approval"] is False
+            assert normalized["autonomy_level"] == 0
+            assert not any(
+                card["inventory_item_id"] == str(known_item.id)
+                and card["source"]["identity"] == "approval"
+                for card in revision.cards
+            )
+        if case in {"accounting_fail", "external_transfer"}:
+>           assert any(
+                card["source"]["class"] == "accounting_fail" for card in revision.cards
+            )
+E           assert False
+E            +  where False = any(<generator object test_sql_issuance_matches_complete_permanent_python_contract.<locals>.<genexpr> at 0x7b72ddedf920>)
+
+tests/test_capture_proposal_admission.py:136: AssertionError
+_ test_sql_issuance_matches_complete_permanent_python_contract[external_transfer] _
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+enabled = None, case = 'external_transfer'
+
+    @pytest.mark.parametrize(
+        "case",
+        [
+            "unknown",
+            "approval",
+            "accounting_fail",
+            "non_accounting",
+            "known_no_actions",
+            "external_transfer",
+        ],
+    )
+    def test_sql_issuance_matches_complete_permanent_python_contract(
+        capture_context, enabled, case
+    ):
+        user, org = capture_context
+        if case == "non_accounting":
+            org.industry = "legal"
+            org.save(update_fields=["industry"])
+        if case in {
+            "approval",
+            "accounting_fail",
+            "known_no_actions",
+            "non_accounting",
+            "external_transfer",
+        }:
+            known_item = issue(
+                capture_context,
+                form(
+                    display_name="Explicit proposal specimen",
+                    business_owner="Responsible owner",
+                    business_purpose="Review declared workflow",
+                    human_approval="no",
+                    autonomy_level="3" if case != "known_no_actions" else "0",
+                    permissions=["write"] if case != "known_no_actions" else [NONE],
+                    capabilities={
+                        "approval": ["communication"],
+                        "accounting_fail": ["financial_transaction", "record_modification"],
+                        "non_accounting": ["financial_transaction", "record_modification"],
+                        "known_no_actions": [NONE],
+                        "external_transfer": ["external_transfer"],
+                    }[case],
+                    connected_systems=["banking"],
+                    data_categories=["payroll", "tax_records"],
+                ),
+            )
+        snapshot = admit(capture_context, preview(capture_context))
+        revision = issue_proposals(capture_context, snapshot)
+        assert revision.cards == build_review_proposals(
+            snapshot_id=snapshot.id, capture_envelope=envelope(snapshot)
+        )
+        assert issue_proposals(capture_context, snapshot).id == revision.id
+        receipt = CaptureProposalAdmissionReceipt.objects.get(revision=revision)
+        assert receipt.snapshot_id == snapshot.id
+        assert receipt.input_sha256 == snapshot.input_sha256
+        assert receipt.result_sha256 == snapshot.result_sha256
+        assert receipt.revision_sha256 == revision.sha256
+        assert all(
+            card["resolution_effect"] == "none" and card["resolution_verified"] is False
+            for card in revision.cards
+        )
+        generic = [
+            card for card in revision.cards if card["source"]["class"] != "accounting_fail"
+        ]
+        assert all("severity" not in card and "risk_score" not in card for card in generic)
+        if case == "known_no_actions":
+            normalized = next(
+                record
+                for record in snapshot.input_payload["inventory"]
+                if record["id"] == str(known_item.id)
+            )
+            assert normalized["permissions"] == []
+            assert normalized["capabilities"] == []
+            assert normalized["provenance"]["permissions"] == "Declared"
+            assert normalized["provenance"]["capabilities"] == "Declared"
+            assert normalized["human_approval"] is False
+            assert normalized["autonomy_level"] == 0
+            assert not any(
+                card["inventory_item_id"] == str(known_item.id)
+                and card["source"]["identity"] == "approval"
+                for card in revision.cards
+            )
+        if case in {"accounting_fail", "external_transfer"}:
+>           assert any(
+                card["source"]["class"] == "accounting_fail" for card in revision.cards
+            )
+E           assert False
+E            +  where False = any(<generator object test_sql_issuance_matches_complete_permanent_python_contract.<locals>.<genexpr> at 0x7b72dde4cad0>)
+
+tests/test_capture_proposal_admission.py:136: AssertionError
+_ test_exact_proposal_statement_does_not_promote_frozen_unknown[completion_recorded] _
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7b72dd20bdd0>
+sql = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('f093144c-14d4-4599-aeea-bcae9af0864e'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7b72dd20bdd0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7b72ddc7a890>
+query = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('f093144c-14d4-4599-aeea-bcae9af0864e'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: AgentLedger tenant context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_organization_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+capture_decision_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 36595e25-8e56-45bc-8620-383b3a41c14d v1>, <ActionCardRevision: ActionCardRevision object (f093144c-14d4-4599-aeea-bcae9af0864e)>)
+state = 'completion_recorded'
+
+    @pytest.mark.parametrize("state", ["completion_recorded", "evidence_reviewed"])
+    def test_exact_proposal_statement_does_not_promote_frozen_unknown(
+        capture_decision_context, state
+    ):
+        context = capture_decision_context
+        before_cards = context[3].cards
+        before_result = context[2].result_payload
+        event = DecisionEvent.objects.get(id=decide(context, state=state))
+        assert event.payload["schema"] == "stewardence.core_decision_event.v2"
+        assert event.payload["proposal_id"] == before_cards[0]["proposal_id"]
+        assert event.payload["proposal_sha256"] == before_cards[0]["sha256"]
+        assert event.payload["original_outcome"] == "UNKNOWN"
+        assert event.payload["resolution_effect"] == "none"
+        assert event.payload["source_state_immutable"] is True
+        assert event.payload["owner_statement_only"] is True
+        assert event.payload["resolution_verified"] is False
+>       context[3].refresh_from_db()
+
+tests/test_capture_decisions.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/base.py:737: in refresh_from_db
+    db_instance = db_instance_qs.get()
+                  ^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7b72ddc7a890>
+query = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('f093144c-14d4-4599-aeea-bcae9af0864e'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: AgentLedger tenant context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_organization_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_ test_exact_proposal_statement_does_not_promote_frozen_unknown[evidence_reviewed] _
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7b72dcd53110>
+sql = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('7e37a0ef-c2a1-42cb-bbbc-cfc3f521144e'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7b72dcd53110>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7b72dddbb4d0>
+query = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('7e37a0ef-c2a1-42cb-bbbc-cfc3f521144e'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: AgentLedger tenant context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_organization_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+capture_decision_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: c690343d-7e24-425b-852a-75d10d50e27e v1>, <ActionCardRevision: ActionCardRevision object (7e37a0ef-c2a1-42cb-bbbc-cfc3f521144e)>)
+state = 'evidence_reviewed'
+
+    @pytest.mark.parametrize("state", ["completion_recorded", "evidence_reviewed"])
+    def test_exact_proposal_statement_does_not_promote_frozen_unknown(
+        capture_decision_context, state
+    ):
+        context = capture_decision_context
+        before_cards = context[3].cards
+        before_result = context[2].result_payload
+        event = DecisionEvent.objects.get(id=decide(context, state=state))
+        assert event.payload["schema"] == "stewardence.core_decision_event.v2"
+        assert event.payload["proposal_id"] == before_cards[0]["proposal_id"]
+        assert event.payload["proposal_sha256"] == before_cards[0]["sha256"]
+        assert event.payload["original_outcome"] == "UNKNOWN"
+        assert event.payload["resolution_effect"] == "none"
+        assert event.payload["source_state_immutable"] is True
+        assert event.payload["owner_statement_only"] is True
+        assert event.payload["resolution_verified"] is False
+>       context[3].refresh_from_db()
+
+tests/test_capture_decisions.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/base.py:737: in refresh_from_db
+    db_instance = db_instance_qs.get()
+                  ^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7b72dddbb4d0>
+query = 'SELECT "core_action_card_revisions"."id", "core_action_card_revisions"."organization_id", "core_action_card_revisions...ction_card_revisions"."sha256" FROM "core_action_card_revisions" WHERE "core_action_card_revisions"."id" = %s LIMIT 21'
+params = (UUID('7e37a0ef-c2a1-42cb-bbbc-cfc3f521144e'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: AgentLedger tenant context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_organization_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+____________________ test_current_admission_gates[profile] _____________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7b72dd375790>
+sql = 'DELETE FROM "organization_workflow_profiles" WHERE "organization_workflow_profiles"."organization_id" = %s'
+params = (UUID('ec74feda-26ba-4ce4-9bfe-acb14881b1af'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7b72dd375790>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7b72dddbbd90>
+query = 'DELETE FROM "organization_workflow_profiles" WHERE "organization_workflow_profiles"."organization_id" = %s'
+params = (UUID('ec74feda-26ba-4ce4-9bfe-acb14881b1af'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Workflow profile is immutable
+E           CONTEXT:  PL/pgSQL function app_private.protect_workflow_profile() line 3 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+capture_decision_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: f247619c-f4c9-4794-9a79-a2e6183c4527 v1>, <ActionCardRevision: ActionCardRevision object (5c3e2c21-5ee1-4801-a004-b22d3cba8724)>)
+settings = <pytest_django.fixtures.Settings object at 0x7b72dd3941e0>
+gate = 'profile'
+
+    @pytest.mark.parametrize("gate", ["python", "decision", "proposal", "pause", "profile"])
+    def test_current_admission_gates(capture_decision_context, settings, gate):
+        context = capture_decision_context
+        if gate == "python":
+            settings.DECISION_DESK_ENABLED = False
+            with pytest.raises(PermissionDenied):
+                decide(context)
+        else:
+            if gate == "decision":
+                DecisionDeskGate.objects.filter(id=1).update(enabled=False)
+            if gate == "proposal":
+                CoreProposalAdmissionGate.objects.filter(id=1).update(enabled=False)
+            if gate == "pause":
+                configure_control(
+                    organization_id=context[1].id,
+                    actor_id=context[0].id,
+                    mode="paused",
+                    reason="Owner stop",
+                    using="app_runtime",
+                )
+            if gate == "profile":
+>               WorkflowProfile.objects.filter(organization=context[1]).delete()
+
+tests/test_capture_decisions.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1201: in delete
+    num_deleted, num_deleted_per_model = collector.delete()
+                                         ^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/deletion.py:467: in delete
+    count = qs._raw_delete(using=self.using)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1223: in _raw_delete
+    return query.get_compiler(using).execute_sql(ROW_COUNT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7b72dddbbd90>
+query = 'DELETE FROM "organization_workflow_profiles" WHERE "organization_workflow_profiles"."organization_id" = %s'
+params = (UUID('ec74feda-26ba-4ce4-9bfe-acb14881b1af'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Workflow profile is immutable
+E           CONTEXT:  PL/pgSQL function app_private.protect_workflow_profile() line 3 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+=============================== warnings summary ===============================
+tests/test_capture_archived_reads.py::test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[30-True]
+tests/test_capture_archived_reads.py::test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[91-False]
+tests/test_capture_comparison_ui.py::test_owner_comparison_changes_and_chronology_are_read_only[False]
+tests/test_capture_comparison_ui.py::test_owner_comparison_changes_and_chronology_are_read_only[True]
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_capture_proposal_admission.py::test_sql_issuance_matches_complete_permanent_python_contract[accounting_fail]
+FAILED tests/test_capture_proposal_admission.py::test_sql_issuance_matches_complete_permanent_python_contract[external_transfer]
+FAILED tests/test_capture_decisions.py::test_exact_proposal_statement_does_not_promote_frozen_unknown[completion_recorded]
+FAILED tests/test_capture_decisions.py::test_exact_proposal_statement_does_not_promote_frozen_unknown[evidence_reviewed]
+FAILED tests/test_capture_decisions.py::test_current_admission_gates[profile]
+5 failed, 147 passed, 4 warnings in 61.74s (0:01:01)

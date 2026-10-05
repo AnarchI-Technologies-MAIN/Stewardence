@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="26.018" timestamp="2026-10-04T18:56:52.626304+00:00" hostname="920cfddc6e25"><testcase classname="tests.test_roi_engine_v2" name="test_actual_chromium_pdf_preserves_unknowns_and_known_cost" time="25.569" /></testsuite></testsuites>

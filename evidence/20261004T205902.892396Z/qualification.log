@@ -1,0 +1,222 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+F..F..F.                                                                 [100%]
+=================================== FAILURES ===================================
+____________ test_instrumented_repeated_proposal_identity_inputs[0] ____________
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: b5c61c7c-f0ac-4859-a73a-913fe9710cb4 v1>, <ActionCardRevision: ActionCardRevision object (c9e5656a-d913-46b0-b065-a84c036ea44e)>)
+client = <django.test.client.Client object at 0x7444d8ecd450>
+diagnostic_repeat = 0
+
+    @pytest.mark.parametrize("diagnostic_repeat", range(8))
+    def test_instrumented_repeated_proposal_identity_inputs(workspace, client, diagnostic_repeat):
+>       test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+            workspace, client
+        )
+
+tests/test_review_workspace_views.py:625: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: b5c61c7c-f0ac-4859-a73a-913fe9710cb4 v1>, <ActionCardRevision: ActionCardRevision object (c9e5656a-d913-46b0-b065-a84c036ea44e)>)
+client = <django.test.client.Client object at 0x7444d8ecd450>
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        for index in range(128):
+            observed = []
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+>           assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+E           AssertionError: {'index': 25, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', ...1:00:42.973624+00:00', ...}, 'bound_org': '316e9e74-3449-4182-aa1c-3654d958f76e', 'isolation': 'read committed', ...}]}
+E           assert 409 == 302
+E            +  where 409 = <HttpResponse status_code=409, "text/html; charset=utf-8">.status_code
+
+tests/test_review_workspace_views.py:606: AssertionError
+----------------------------- Captured stdout call -----------------------------
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "e1e31585-2a2e-4415-917f-865f3a2f1c08", "bound_actor": "e1e31585-2a2e-4415-917f-865f3a2f1c08", "bound_effective_pg": "2026-10-04 21:00:42.973624+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "316e9e74-3449-4182-aa1c-3654d958f76e", "clock_timestamp": "2026-10-04 21:00:42.202369+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "771255.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid INSTRUMENTED {\"profile\": \"business.v1\", \"request\": {\"schema\": \"stewardence.workflow.v1\", \"operation\": \"action_cards.reassess_from_signals\", \"receipt_ids\": [\"94737aec-f2e4-4ba0-81b4-4e1f4fc94e49\"], \"effective_at\": \"2026-10-04T21:00:42.973624+00:00\", \"branch_profile\": \"business.v1\", \"organization_id\": \"316e9e74-3449-4182-aa1c-3654d958f76e\"}, \"bound_org\": \"316e9e74-3449-4182-aa1c-3654d958f76e\", \"isolation\": \"read committed\", \"predicates\": {\"effective_future\": true, \"profile_mismatch\": false, \"operation_mismatch\": false, \"organization_mismatch\": false, \"receipt_ids_not_array\": false, \"result_schema_mismatch\": false, \"request_schema_mismatch\": false, \"request_type_not_object\": false, \"request_key_count_not_six\": false, \"result_authority_mismatch\": false, \"effective_not_explicit_utc\": false, \"effective_roundtrip_mismatch\": false}, \"bound_actor\": \"e1e31585-2a2e-4415-917f-865f3a2f1c08\", \"current_user\": \"agentledger_owner\", \"session_user\": \"postgres\", \"actor_context\": \"e1e31585-2a2e-4415-917f-865f3a2f1c08\", \"payload_schema\": \"stewardence.workflow_receipt.v1\", \"bound_operation\": \"action_cards.reassess_from_signals\", \"clock_timestamp\": \"2026-10-04 21:00:42.204559+00\", \"database_timezone\": \"UTC\", \"payload_authority\": \"proposal_only\", \"bound_effective_pg\": \"2026-10-04 21:00:42.973624+00\", \"statement_timestamp\": \"2026-10-04 21:00:42.203586+00\", \"organization_context\": \"316e9e74-3449-4182-aa1c-3654d958f76e\", \"request_effective_pg\": \"2026-10-04 21:00:42.973624+00\", \"transaction_timestamp\": \"2026-10-04 21:00:42.94322+00\", \"roundtrip_difference_microseconds\": \"0.000000\", \"effective_minus_clock_microseconds\": \"769065.000000\"}\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 69 at RAISE", "organization_context": "316e9e74-3449-4182-aa1c-3654d958f76e", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-04T21:00:42.973624+00:00", "python_clock_before_probe": "2026-10-04T21:00:42.200944+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-04T21:00:42.973624+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "316e9e74-3449-4182-aa1c-3654d958f76e", "receipt_ids": ["94737aec-f2e4-4ba0-81b4-4e1f4fc94e49"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-04 21:00:42.973624+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-04 21:00:42.201437+00", "transaction_timestamp": "2026-10-04 21:00:42.94322+00"}
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "e1e31585-2a2e-4415-917f-865f3a2f1c08", "bound_actor": "e1e31585-2a2e-4415-917f-865f3a2f1c08", "bound_effective_pg": "2026-10-04 21:00:42.973624+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "316e9e74-3449-4182-aa1c-3654d958f76e", "clock_timestamp": "2026-10-04 21:00:42.200185+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "773439.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid INSTRUMENTED {\"profile\": \"business.v1\", \"request\": {\"schema\": \"stewardence.workflow.v1\", \"operation\": \"action_cards.reassess_from_signals\", \"receipt_ids\": [\"94737aec-f2e4-4ba0-81b4-4e1f4fc94e49\"], \"effective_at\": \"2026-10-04T21:00:42.973624+00:00\", \"branch_profile\": \"business.v1\", \"organization_id\": \"316e9e74-3449-4182-aa1c-3654d958f76e\"}, \"bound_org\": \"316e9e74-3449-4182-aa1c-3654d958f76e\", \"isolation\": \"read committed\", \"predicates\": {\"effective_future\": true, \"profile_mismatch\": false, \"operation_mismatch\": false, \"organization_mismatch\": false, \"receipt_ids_not_array\": false, \"result_schema_mismatch\": false, \"request_schema_mismatch\": false, \"request_type_not_object\": false, \"request_key_count_not_six\": false, \"result_authority_mismatch\": false, \"effective_not_explicit_utc\": false, \"effective_roundtrip_mismatch\": false}, \"bound_actor\": \"e1e31585-2a2e-4415-917f-865f3a2f1c08\", \"current_user\": \"agentledger_owner\", \"session_user\": \"postgres\", \"actor_context\": \"e1e31585-2a2e-4415-917f-865f3a2f1c08\", \"payload_schema\": \"stewardence.workflow_receipt.v1\", \"bound_operation\": \"action_cards.reassess_from_signals\", \"clock_timestamp\": \"2026-10-04 21:00:42.204559+00\", \"database_timezone\": \"UTC\", \"payload_authority\": \"proposal_only\", \"bound_effective_pg\": \"2026-10-04 21:00:42.973624+00\", \"statement_timestamp\": \"2026-10-04 21:00:42.203586+00\", \"organization_context\": \"316e9e74-3449-4182-aa1c-3654d958f76e\", \"request_effective_pg\": \"2026-10-04 21:00:42.973624+00\", \"transaction_timestamp\": \"2026-10-04 21:00:42.94322+00\", \"roundtrip_difference_microseconds\": \"0.000000\", \"effective_minus_clock_microseconds\": \"769065.000000\"}\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 69 at RAISE", "organization_context": "316e9e74-3449-4182-aa1c-3654d958f76e", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-04T21:00:42.973624+00:00", "python_clock_before_probe": "2026-10-04T21:00:42.198480+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-04T21:00:42.973624+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "316e9e74-3449-4182-aa1c-3654d958f76e", "receipt_ids": ["94737aec-f2e4-4ba0-81b4-4e1f4fc94e49"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-04 21:00:42.973624+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-04 21:00:42.198818+00", "transaction_timestamp": "2026-10-04 21:00:42.94322+00"}
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:253 Conflict: /reviews/snapshots/94737aec-f2e4-4ba0-81b4-4e1f4fc94e49/proposals/
+____________ test_instrumented_repeated_proposal_identity_inputs[3] ____________
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 54e4a2f9-8e93-4812-9840-d815559dbe43 v1>, <ActionCardRevision: ActionCardRevision object (c7ec6ad4-2cd4-4705-8539-d65e69c8abb1)>)
+client = <django.test.client.Client object at 0x7444d86acc00>
+diagnostic_repeat = 3
+
+    @pytest.mark.parametrize("diagnostic_repeat", range(8))
+    def test_instrumented_repeated_proposal_identity_inputs(workspace, client, diagnostic_repeat):
+>       test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+            workspace, client
+        )
+
+tests/test_review_workspace_views.py:625: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 54e4a2f9-8e93-4812-9840-d815559dbe43 v1>, <ActionCardRevision: ActionCardRevision object (c7ec6ad4-2cd4-4705-8539-d65e69c8abb1)>)
+client = <django.test.client.Client object at 0x7444d86acc00>
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        for index in range(128):
+            observed = []
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+>           assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+E           AssertionError: {'index': 3, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', '...1:01:11.134953+00:00', ...}, 'bound_org': 'cbe862e6-81c0-4529-bfd0-e556aae41bbd', 'isolation': 'read committed', ...}]}
+E           assert 409 == 302
+E            +  where 409 = <HttpResponse status_code=409, "text/html; charset=utf-8">.status_code
+
+tests/test_review_workspace_views.py:606: AssertionError
+----------------------------- Captured stdout call -----------------------------
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "50a7fd22-1318-4cac-950c-80f039457bef", "bound_actor": "50a7fd22-1318-4cac-950c-80f039457bef", "bound_effective_pg": "2026-10-04 21:01:11.134953+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "cbe862e6-81c0-4529-bfd0-e556aae41bbd", "clock_timestamp": "2026-10-04 21:01:10.399994+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "734959.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid INSTRUMENTED {\"profile\": \"business.v1\", \"request\": {\"schema\": \"stewardence.workflow.v1\", \"operation\": \"action_cards.reassess_from_signals\", \"receipt_ids\": [\"9c616909-7303-45ea-b772-9918fc7e1ac2\"], \"effective_at\": \"2026-10-04T21:01:11.134953+00:00\", \"branch_profile\": \"business.v1\", \"organization_id\": \"cbe862e6-81c0-4529-bfd0-e556aae41bbd\"}, \"bound_org\": \"cbe862e6-81c0-4529-bfd0-e556aae41bbd\", \"isolation\": \"read committed\", \"predicates\": {\"effective_future\": true, \"profile_mismatch\": false, \"operation_mismatch\": false, \"organization_mismatch\": false, \"receipt_ids_not_array\": false, \"result_schema_mismatch\": false, \"request_schema_mismatch\": false, \"request_type_not_object\": false, \"request_key_count_not_six\": false, \"result_authority_mismatch\": false, \"effective_not_explicit_utc\": false, \"effective_roundtrip_mismatch\": false}, \"bound_actor\": \"50a7fd22-1318-4cac-950c-80f039457bef\", \"current_user\": \"agentledger_owner\", \"session_user\": \"postgres\", \"actor_context\": \"50a7fd22-1318-4cac-950c-80f039457bef\", \"payload_schema\": \"stewardence.workflow_receipt.v1\", \"bound_operation\": \"action_cards.reassess_from_signals\", \"clock_timestamp\": \"2026-10-04 21:01:10.405173+00\", \"database_timezone\": \"UTC\", \"payload_authority\": \"proposal_only\", \"bound_effective_pg\": \"2026-10-04 21:01:11.134953+00\", \"statement_timestamp\": \"2026-10-04 21:01:10.402316+00\", \"organization_context\": \"cbe862e6-81c0-4529-bfd0-e556aae41bbd\", \"request_effective_pg\": \"2026-10-04 21:01:11.134953+00\", \"transaction_timestamp\": \"2026-10-04 21:01:11.091171+00\", \"roundtrip_difference_microseconds\": \"0.000000\", \"effective_minus_clock_microseconds\": \"729780.000000\"}\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 69 at RAISE", "organization_context": "cbe862e6-81c0-4529-bfd0-e556aae41bbd", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-04T21:01:11.134953+00:00", "python_clock_before_probe": "2026-10-04T21:01:10.398012+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-04T21:01:11.134953+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "cbe862e6-81c0-4529-bfd0-e556aae41bbd", "receipt_ids": ["9c616909-7303-45ea-b772-9918fc7e1ac2"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-04 21:01:11.134953+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-04 21:01:10.398414+00", "transaction_timestamp": "2026-10-04 21:01:11.091171+00"}
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "50a7fd22-1318-4cac-950c-80f039457bef", "bound_actor": "50a7fd22-1318-4cac-950c-80f039457bef", "bound_effective_pg": "2026-10-04 21:01:11.134953+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "cbe862e6-81c0-4529-bfd0-e556aae41bbd", "clock_timestamp": "2026-10-04 21:01:10.397057+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "737896.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid INSTRUMENTED {\"profile\": \"business.v1\", \"request\": {\"schema\": \"stewardence.workflow.v1\", \"operation\": \"action_cards.reassess_from_signals\", \"receipt_ids\": [\"9c616909-7303-45ea-b772-9918fc7e1ac2\"], \"effective_at\": \"2026-10-04T21:01:11.134953+00:00\", \"branch_profile\": \"business.v1\", \"organization_id\": \"cbe862e6-81c0-4529-bfd0-e556aae41bbd\"}, \"bound_org\": \"cbe862e6-81c0-4529-bfd0-e556aae41bbd\", \"isolation\": \"read committed\", \"predicates\": {\"effective_future\": true, \"profile_mismatch\": false, \"operation_mismatch\": false, \"organization_mismatch\": false, \"receipt_ids_not_array\": false, \"result_schema_mismatch\": false, \"request_schema_mismatch\": false, \"request_type_not_object\": false, \"request_key_count_not_six\": false, \"result_authority_mismatch\": false, \"effective_not_explicit_utc\": false, \"effective_roundtrip_mismatch\": false}, \"bound_actor\": \"50a7fd22-1318-4cac-950c-80f039457bef\", \"current_user\": \"agentledger_owner\", \"session_user\": \"postgres\", \"actor_context\": \"50a7fd22-1318-4cac-950c-80f039457bef\", \"payload_schema\": \"stewardence.workflow_receipt.v1\", \"bound_operation\": \"action_cards.reassess_from_signals\", \"clock_timestamp\": \"2026-10-04 21:01:10.405173+00\", \"database_timezone\": \"UTC\", \"payload_authority\": \"proposal_only\", \"bound_effective_pg\": \"2026-10-04 21:01:11.134953+00\", \"statement_timestamp\": \"2026-10-04 21:01:10.402316+00\", \"organization_context\": \"cbe862e6-81c0-4529-bfd0-e556aae41bbd\", \"request_effective_pg\": \"2026-10-04 21:01:11.134953+00\", \"transaction_timestamp\": \"2026-10-04 21:01:11.091171+00\", \"roundtrip_difference_microseconds\": \"0.000000\", \"effective_minus_clock_microseconds\": \"729780.000000\"}\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 69 at RAISE", "organization_context": "cbe862e6-81c0-4529-bfd0-e556aae41bbd", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-04T21:01:11.134953+00:00", "python_clock_before_probe": "2026-10-04T21:01:10.395256+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-04T21:01:11.134953+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "cbe862e6-81c0-4529-bfd0-e556aae41bbd", "receipt_ids": ["9c616909-7303-45ea-b772-9918fc7e1ac2"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-04 21:01:11.134953+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-04 21:01:10.39587+00", "transaction_timestamp": "2026-10-04 21:01:11.091171+00"}
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:253 Conflict: /reviews/snapshots/9c616909-7303-45ea-b772-9918fc7e1ac2/proposals/
+____________ test_instrumented_repeated_proposal_identity_inputs[6] ____________
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 3e887675-0260-4d6b-82d5-0fd5f10d9e67 v1>, <ActionCardRevision: ActionCardRevision object (4b435f51-fba2-4ba5-8e17-9b42cedff7d1)>)
+client = <django.test.client.Client object at 0x7444d864aa50>
+diagnostic_repeat = 6
+
+    @pytest.mark.parametrize("diagnostic_repeat", range(8))
+    def test_instrumented_repeated_proposal_identity_inputs(workspace, client, diagnostic_repeat):
+>       test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+            workspace, client
+        )
+
+tests/test_review_workspace_views.py:625: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 3e887675-0260-4d6b-82d5-0fd5f10d9e67 v1>, <ActionCardRevision: ActionCardRevision object (4b435f51-fba2-4ba5-8e17-9b42cedff7d1)>)
+client = <django.test.client.Client object at 0x7444d864aa50>
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        for index in range(128):
+            observed = []
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+>           assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+E           AssertionError: {'index': 57, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', ...1:01:39.257620+00:00', ...}, 'bound_org': '20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee', 'isolation': 'read committed', ...}]}
+E           assert 409 == 302
+E            +  where 409 = <HttpResponse status_code=409, "text/html; charset=utf-8">.status_code
+
+tests/test_review_workspace_views.py:606: AssertionError
+----------------------------- Captured stdout call -----------------------------
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "82bb6244-a686-4f31-8b75-e968642391ce", "bound_actor": "82bb6244-a686-4f31-8b75-e968642391ce", "bound_effective_pg": "2026-10-04 21:01:39.25762+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee", "clock_timestamp": "2026-10-04 21:01:38.50104+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "756580.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid INSTRUMENTED {\"profile\": \"business.v1\", \"request\": {\"schema\": \"stewardence.workflow.v1\", \"operation\": \"action_cards.reassess_from_signals\", \"receipt_ids\": [\"5c7e9b4e-7f6d-46a4-8357-2385177ac6f3\"], \"effective_at\": \"2026-10-04T21:01:39.257620+00:00\", \"branch_profile\": \"business.v1\", \"organization_id\": \"20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee\"}, \"bound_org\": \"20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee\", \"isolation\": \"read committed\", \"predicates\": {\"effective_future\": true, \"profile_mismatch\": false, \"operation_mismatch\": false, \"organization_mismatch\": false, \"receipt_ids_not_array\": false, \"result_schema_mismatch\": false, \"request_schema_mismatch\": false, \"request_type_not_object\": false, \"request_key_count_not_six\": false, \"result_authority_mismatch\": false, \"effective_not_explicit_utc\": false, \"effective_roundtrip_mismatch\": false}, \"bound_actor\": \"82bb6244-a686-4f31-8b75-e968642391ce\", \"current_user\": \"agentledger_owner\", \"session_user\": \"postgres\", \"actor_context\": \"82bb6244-a686-4f31-8b75-e968642391ce\", \"payload_schema\": \"stewardence.workflow_receipt.v1\", \"bound_operation\": \"action_cards.reassess_from_signals\", \"clock_timestamp\": \"2026-10-04 21:01:38.503878+00\", \"database_timezone\": \"UTC\", \"payload_authority\": \"proposal_only\", \"bound_effective_pg\": \"2026-10-04 21:01:39.25762+00\", \"statement_timestamp\": \"2026-10-04 21:01:38.502338+00\", \"organization_context\": \"20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee\", \"request_effective_pg\": \"2026-10-04 21:01:39.25762+00\", \"transaction_timestamp\": \"2026-10-04 21:01:39.223806+00\", \"roundtrip_difference_microseconds\": \"0.000000\", \"effective_minus_clock_microseconds\": \"753742.000000\"}\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 69 at RAISE", "organization_context": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-04T21:01:39.257620+00:00", "python_clock_before_probe": "2026-10-04T21:01:38.499589+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-04T21:01:39.257620+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee", "receipt_ids": ["5c7e9b4e-7f6d-46a4-8357-2385177ac6f3"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-04 21:01:39.25762+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-04 21:01:38.500207+00", "transaction_timestamp": "2026-10-04 21:01:39.223806+00"}
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "82bb6244-a686-4f31-8b75-e968642391ce", "bound_actor": "82bb6244-a686-4f31-8b75-e968642391ce", "bound_effective_pg": "2026-10-04 21:01:39.25762+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee", "clock_timestamp": "2026-10-04 21:01:38.498727+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "758893.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid INSTRUMENTED {\"profile\": \"business.v1\", \"request\": {\"schema\": \"stewardence.workflow.v1\", \"operation\": \"action_cards.reassess_from_signals\", \"receipt_ids\": [\"5c7e9b4e-7f6d-46a4-8357-2385177ac6f3\"], \"effective_at\": \"2026-10-04T21:01:39.257620+00:00\", \"branch_profile\": \"business.v1\", \"organization_id\": \"20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee\"}, \"bound_org\": \"20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee\", \"isolation\": \"read committed\", \"predicates\": {\"effective_future\": true, \"profile_mismatch\": false, \"operation_mismatch\": false, \"organization_mismatch\": false, \"receipt_ids_not_array\": false, \"result_schema_mismatch\": false, \"request_schema_mismatch\": false, \"request_type_not_object\": false, \"request_key_count_not_six\": false, \"result_authority_mismatch\": false, \"effective_not_explicit_utc\": false, \"effective_roundtrip_mismatch\": false}, \"bound_actor\": \"82bb6244-a686-4f31-8b75-e968642391ce\", \"current_user\": \"agentledger_owner\", \"session_user\": \"postgres\", \"actor_context\": \"82bb6244-a686-4f31-8b75-e968642391ce\", \"payload_schema\": \"stewardence.workflow_receipt.v1\", \"bound_operation\": \"action_cards.reassess_from_signals\", \"clock_timestamp\": \"2026-10-04 21:01:38.503878+00\", \"database_timezone\": \"UTC\", \"payload_authority\": \"proposal_only\", \"bound_effective_pg\": \"2026-10-04 21:01:39.25762+00\", \"statement_timestamp\": \"2026-10-04 21:01:38.502338+00\", \"organization_context\": \"20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee\", \"request_effective_pg\": \"2026-10-04 21:01:39.25762+00\", \"transaction_timestamp\": \"2026-10-04 21:01:39.223806+00\", \"roundtrip_difference_microseconds\": \"0.000000\", \"effective_minus_clock_microseconds\": \"753742.000000\"}\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 69 at RAISE", "organization_context": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-04T21:01:39.257620+00:00", "python_clock_before_probe": "2026-10-04T21:01:38.496763+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-04T21:01:39.257620+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee", "receipt_ids": ["5c7e9b4e-7f6d-46a4-8357-2385177ac6f3"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-04 21:01:39.25762+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-04 21:01:38.497769+00", "transaction_timestamp": "2026-10-04 21:01:39.223806+00"}
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:253 Conflict: /reviews/snapshots/5c7e9b4e-7f6d-46a4-8357-2385177ac6f3/proposals/
+=============================== warnings summary ===============================
+tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs[0]
+tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs[1]
+tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs[2]
+tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs[3]
+tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs[4]
+tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs[5]
+tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs[6]
+tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs[7]
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs[0]
+FAILED tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs[3]
+FAILED tests/test_review_workspace_views.py::test_instrumented_repeated_proposal_identity_inputs[6]
+3 failed, 5 passed, 8 warnings in 95.39s (0:01:35)

@@ -1,0 +1,22 @@
+{
+  "schema": "anarchi.clock.observer.parser.qualification.v1",
+  "scope": "synthetic stdlib unittest; no tracefs observer execution",
+  "test_file": "scripts/test_observe_clock_parser.py",
+  "passed": 7,
+  "failed": 0,
+  "kernel_instrumentation_performed": false,
+  "raw_trace_recorded": false,
+  "claims": [
+    "closed emitted key sets",
+    "syscall arguments and pointers omitted",
+    "hex success and signed-negative exit classification",
+    "exact approved function and symbolic caller",
+    "zero and nonzero modes parsing",
+    "unrelated input discarded"
+  ],
+  "limitations": [
+    "synthetic parser evidence does not qualify installed trace output",
+    "no runtime private-instance/probe creation or cleanup qualification",
+    "no clock setter attribution"
+  ]
+}

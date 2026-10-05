@@ -1,0 +1,24 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-ec9dd43e43",
+  "image_id": "sha256:0ac12802025ea66c0384924b6deee3dbe6045731f4c2f0fbcedac00a0fb907f8",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261005T081925.756465Z",
+  "test_arguments": [
+    "tests/test_billing_webhook_concurrency.py",
+    "tests/test_billing_terminal_concurrency.py",
+    "tests/test_billing_terminal_checkout_concurrency.py",
+    "tests/test_billing_tenant_authority.py",
+    "tests/test_billing_portal_cancellation.py",
+    "tests/test_billing_account_ui.py",
+    "tests/test_billing_first_checkout_concurrency.py"
+  ],
+  "test_result_counts": {
+    "cases": 35,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "b1c9a574747493f43ea1cb65b4ec6ce462afe5fb90bea6a532a6fef2ba280323"
+}

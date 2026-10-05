@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="12.312" timestamp="2026-10-05T06:33:27.681431+00:00" hostname="266977efb3d9"><testcase classname="tests.test_run_core_worker_command" name="test_core_worker_command_delivers_report_through_http_renderer" time="12.019"><failure message="AssertionError: ('failed', 'job_requires_review', ['PermissionError'])&#10;assert 'failed' == BackgroundJob.Status.COMPLETED&#10;  &#10;  - completed&#10;  + failed">report_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;OrganizationMember: reports@example.com — Report Firm (Owner)&gt;, &lt;InventoryItem: Payroll Assistant&gt;, &lt;AssessmentSnapshot: 837b7df5-9826-4a3b-bf2f-87fa7499ed56 v1&gt;)
+settings = &lt;pytest_django.fixtures.Settings object at 0x71df50999940&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x71df50945e00&gt;
+
+    @pytest.mark.django_db(transaction=True, databases="__all__")
+    def test_core_worker_command_delivers_report_through_http_renderer(
+        report_context, settings, monkeypatch
+    ):
+        import os
+    
+        from django.db import connections
+    
+        from agentledger.tenancy.context import tenant_transaction
+        from apps.jobs.models import BackgroundJob, RecoveryReceipt
+        from apps.jobs.receipts import verify_recovery_receipt
+        from apps.jobs import worker as worker_module
+        from apps.reports.jobs import ensure_report_generation_job
+        from apps.reports.models import ReportArtifact
+        from apps.reports.services import create_report
+        from apps.reports.storage import build_pdf_object_key, build_private_report_storage
+    
+        renderer_url = os.environ.get("STEWARDENCE_HTTP_RENDER_QUALIFICATION_URL")
+        if not renderer_url:
+            pytest.skip("separate HTTP renderer is only enabled by isolated qualification")
+    
+        user, organization, _, _, snapshot = report_context
+        settings.CORE_WORKFLOWS_ENABLED = True
+        settings.REPORT_RENDERER_URL = renderer_url
+        settings.REPORTS_STORAGE_BACKEND = "local"
+        settings.DATABASES["worker_runtime"] = connections.databases[
+            "worker_runtime"
+        ].copy()
+        report = create_report(
+            organization_id=organization.id,
+            assessment_snapshot_id=snapshot.id,
+            created_by_id=user.id,
+        )
+        queued = ensure_report_generation_job(report=report)
+        BackgroundJob.objects.filter(pk=queued.id).update(priority=-100)
+        failure_types = []
+        record_failure = worker_module._record_failure
+    
+        def observe_failure(job, execution, error, retryable, using):
+            failure_types.append(type(error).__name__)
+            return record_failure(job, execution, error, retryable, using)
+    
+        monkeypatch.setattr(worker_module, "_record_failure", observe_failure)
+    
+        call_command(
+            "run_core_worker",
+            worker_id="isolated-core-worker",
+            max_jobs=1,
+        )
+    
+        with tenant_transaction(organization.id, using="worker_runtime"):
+            completed = BackgroundJob.objects.using("worker_runtime").get(pk=queued.id)
+            receipts = list(
+                RecoveryReceipt.objects.using("worker_runtime").filter(job=completed)
+            )
+&gt;       assert completed.status == BackgroundJob.Status.COMPLETED, (
+            completed.status,
+            completed.error_code,
+            failure_types,
+        )
+E       AssertionError: ('failed', 'job_requires_review', ['PermissionError'])
+E       assert 'failed' == BackgroundJob.Status.COMPLETED
+E         
+E         - completed
+E         + failed
+
+tests/test_run_core_worker_command.py:129: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,5 @@
+{
+  "exit_code": 0,
+  "stdout": "{\"elapsed_monotonic_seconds\": 64.03267336502904, \"samples\": 1249, \"minimum_residual_ns\": -1549649198, \"backward_steps_over_50ms\": [{\"wall_before_ns\": 1791149549066477612, \"wall_after_ns\": 1791149548201956760, \"monotonic_delta_ns\": 50686923, \"wall_minus_monotonic_delta_ns\": -915207775}, {\"wall_before_ns\": 1791149578150311647, \"wall_after_ns\": 1791149576650950043, \"monotonic_delta_ns\": 50287594, \"wall_minus_monotonic_delta_ns\": -1549649198}]}\n",
+  "stderr": ""
+}

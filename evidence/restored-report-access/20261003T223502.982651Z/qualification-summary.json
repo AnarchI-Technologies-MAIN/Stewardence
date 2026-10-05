@@ -1,0 +1,57 @@
+{
+  "verified_at": "2026-10-03T22:35:39.060811+00:00",
+  "qualification_passed": true,
+  "request_probe": {
+    "qualified": true,
+    "application_role": "agentledger_app",
+    "transaction_isolation": "read committed",
+    "objects": 6,
+    "counts": {
+      "authorized_downloads": 6,
+      "anonymous_denials": 6,
+      "cross_tenant_denials": 6,
+      "corrupt_object_denials": 6,
+      "missing_object_denials": 6,
+      "repaired_copy_downloads": 6,
+      "download_attempts_with_current_clone_entitlement": 0,
+      "same_length_corrupt_object_denials": 6,
+      "post_request_metadata_matches": 6,
+      "unentitled_clone_denials": 6,
+      "isolated_entitlement_mutations": 6
+    },
+    "listening_server_started": false,
+    "production_writes": false,
+    "provider_requests": false,
+    "entitlement_evidence": "Clone entitlements can be changed by explicitly synthetic fixtures during this probe. Current-clone counts are not original-snapshot or live entitlement facts.",
+    "limits": "In-process Django request pipeline with actual app role, restored existing rows/objects, explicitly synthetic clone entitlements where absent, and isolated negative tenant; no live entitlement, production HTTP or cutover proof."
+  },
+  "source_object_receipt": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\report-object-restore\\20261003T212039.504272Z\\restore-summary.json",
+  "source_backup_sha256": "0b20cd7ede2d1218e210af325f3ee19fa98a6d2cacff895728468c58981e1dbc",
+  "candidate_image_id": "sha256:95b24d4215bb6cec845a42ee8061504b95d62ba11e4c6f53c7d596c354680946",
+  "postgres_image_id": "sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722",
+  "probe_sha256": "f780781b15befc96c67e2a41b48eb19ab862e5f8474d63c9a1e3adb2d96d932d",
+  "total_plaintext_bytes_verified": 698217,
+  "host_plaintext_files_created": false,
+  "production_writes": false,
+  "candidate_migrations_on_isolated_clone": true,
+  "same_physical_host_custody": true,
+  "cleanup_passed": true,
+  "cleanup": [
+    {
+      "target": "stewardence-restored-access-15d31c5ff61947dda5da3ebb943190cc-db",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-restored-access-15d31c5ff61947dda5da3ebb943190cc-migrations",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-restored-access-15d31c5ff61947dda5da3ebb943190cc-app",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-restored-access-15d31c5ff61947dda5da3ebb943190cc",
+      "absence_verified": true
+    }
+  ]
+}

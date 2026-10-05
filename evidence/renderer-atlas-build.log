@@ -1,0 +1,98 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.renderer
+#1 transferring dockerfile:
+#1 transferring dockerfile: 1.59kB 0.1s done
+#1 DONE 0.3s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 0.8s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+#3 resolve docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+#3 resolve docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e 0.2s done
+#3 CACHED
+
+#4 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.9
+#4 ...
+
+#5 [auth] library/python:pull token for registry-1.docker.io
+#5 DONE 0.0s
+
+#6 [internal] load metadata for docker.io/library/python:3.14.7-slim
+#6 DONE 0.8s
+
+#4 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.9
+#4 DONE 0.8s
+
+#7 [internal] load .dockerignore
+#7 transferring context: 121B 0.0s done
+#7 DONE 0.1s
+
+#8 [internal] load build context
+#8 DONE 0.0s
+
+#9 [builder 1/5] FROM docker.io/library/python:3.14.7-slim@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d
+#9 resolve docker.io/library/python:3.14.7-slim@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d
+#9 resolve docker.io/library/python:3.14.7-slim@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d 0.2s done
+#9 DONE 0.2s
+
+#10 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.9@sha256:8b940d3a9d65bed080436972241af2e21c84b5e8c9193f7014ed71479ee795ff
+#10 resolve ghcr.io/astral-sh/uv:0.12.9@sha256:8b940d3a9d65bed080436972241af2e21c84b5e8c9193f7014ed71479ee795ff 0.2s done
+#10 DONE 0.2s
+
+#8 [internal] load build context
+#8 transferring context: 11.22kB 0.1s done
+#8 DONE 0.2s
+
+#11 [builder 5/5] RUN uv sync --frozen --only-group renderer --no-install-project     && uv run --no-sync playwright install --only-shell chromium     && rm -rf /tmp/* /var/lib/apt/lists/*
+#11 CACHED
+
+#12 [runtime  3/10] COPY --from=builder /app/.venv /app/.venv
+#12 CACHED
+
+#13 [builder 2/5] WORKDIR /app
+#13 CACHED
+
+#14 [builder 4/5] COPY pyproject.toml uv.lock ./
+#14 CACHED
+
+#15 [runtime  4/10] COPY --from=builder /ms-playwright /ms-playwright
+#15 CACHED
+
+#16 [runtime  5/10] RUN .venv/bin/playwright install-deps chromium     && chmod -R a+rX /ms-playwright     && rm -rf /tmp/* /var/lib/apt/lists/*
+#16 CACHED
+
+#17 [builder 3/5] COPY --from=uv /uv /bin/uv
+#17 CACHED
+
+#18 [runtime  6/10] RUN groupadd --gid 10001 renderer     && useradd --uid 10001 --gid renderer --home-dir /app --no-create-home renderer
+#18 CACHED
+
+#19 [runtime  7/10] COPY renderer ./renderer
+#19 DONE 0.3s
+
+#20 [runtime  8/10] COPY static/brand/stewardence-helix-orbit-light.png ./static/brand/stewardence-helix-orbit-light.png
+#20 DONE 0.3s
+
+#21 [runtime  9/10] COPY static/brand/atlas/reports.svg ./static/brand/atlas/reports.svg
+#21 DONE 0.4s
+
+#22 [runtime 10/10] RUN install -d -o renderer -g renderer -m 0700 /work/output
+#22 DONE 1.4s
+
+#23 exporting to image
+#23 exporting layers
+#23 exporting layers 1.9s done
+#23 exporting manifest sha256:b48b35a6c0d273f9173b9d52c2431861aa1ad5d9aa2de9e16945bd3813d35670 0.1s done
+#23 exporting config sha256:6c07890568c9cc3a3d2bdc3c33feee53ec594a1c9031e5dc7f9fd5e624bcbe60
+#23 exporting config sha256:6c07890568c9cc3a3d2bdc3c33feee53ec594a1c9031e5dc7f9fd5e624bcbe60 0.1s done
+#23 exporting attestation manifest sha256:798fa7111694f901dbd93efd699a7041631af9ca43e727149a862643bafffa4a
+#23 exporting attestation manifest sha256:798fa7111694f901dbd93efd699a7041631af9ca43e727149a862643bafffa4a 0.1s done
+#23 exporting manifest list sha256:45e9b2c15b940d94f9d8bd60ce4127d394fc6813223cd063b87ce2a2c75895a2
+#23 exporting manifest list sha256:45e9b2c15b940d94f9d8bd60ce4127d394fc6813223cd063b87ce2a2c75895a2 0.1s done
+#23 naming to docker.io/library/stewardence-renderer-local:atlas-qualified-20261003
+#23 naming to docker.io/library/stewardence-renderer-local:atlas-qualified-20261003 0.0s done
+#23 unpacking to docker.io/library/stewardence-renderer-local:atlas-qualified-20261003
+#23 unpacking to docker.io/library/stewardence-renderer-local:atlas-qualified-20261003 0.6s done
+#23 DONE 3.3s

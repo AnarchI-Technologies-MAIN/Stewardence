@@ -1,0 +1,50 @@
+{
+  "qualification_passed": true,
+  "exact_runner_main_executed": true,
+  "io_mocked": true,
+  "real_resources_created": false,
+  "cases": [
+    {
+      "scenario": "absent",
+      "network_reconciled": true,
+      "owned_or_absent_target_cleaned": true,
+      "uncertain_or_foreign_target_preserved": false,
+      "overall_pass_withheld": true
+    },
+    {
+      "scenario": "owned",
+      "network_reconciled": true,
+      "owned_or_absent_target_cleaned": true,
+      "uncertain_or_foreign_target_preserved": false,
+      "overall_pass_withheld": true
+    },
+    {
+      "scenario": "foreign",
+      "network_reconciled": true,
+      "owned_or_absent_target_cleaned": false,
+      "uncertain_or_foreign_target_preserved": true,
+      "overall_pass_withheld": true
+    },
+    {
+      "scenario": "missing-label",
+      "network_reconciled": true,
+      "owned_or_absent_target_cleaned": false,
+      "uncertain_or_foreign_target_preserved": true,
+      "overall_pass_withheld": true
+    },
+    {
+      "scenario": "inspect-error",
+      "network_reconciled": true,
+      "owned_or_absent_target_cleaned": false,
+      "uncertain_or_foreign_target_preserved": true,
+      "overall_pass_withheld": true
+    },
+    {
+      "scenario": "replaced",
+      "network_reconciled": true,
+      "owned_or_absent_target_cleaned": false,
+      "uncertain_or_foreign_target_preserved": true,
+      "overall_pass_withheld": true
+    }
+  ]
+}

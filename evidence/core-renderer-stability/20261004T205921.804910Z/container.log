@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/probe.py", line 13, in <module>
+    ROOT = Path(__file__).resolve().parents[1]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/local/lib/python3.14/pathlib/__init__.py", line 68, in __getitem__
+    raise IndexError(idx)
+IndexError: 1

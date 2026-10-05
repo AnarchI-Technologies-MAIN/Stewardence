@@ -1,0 +1,38 @@
+{
+  "exit_code": 1,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-e32df75709",
+  "image_id": "sha256:9b64e9fcc794565b659cea579e8dcbac492523f3ed90db057c23a243f855e614",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T233946.893548Z",
+  "test_arguments": [
+    "tests/test_capture_v4_packs.py",
+    "tests/test_capture_v4_renderer.py",
+    "tests/test_capture_v4_worker.py",
+    "tests/test_capture_proposal_ui.py",
+    "tests/test_capture_proposal_admission.py",
+    "tests/test_capture_decisions.py",
+    "tests/test_capture_proposals_contract.py",
+    "tests/test_core_decisions.py",
+    "tests/test_capture_archived_reads.py",
+    "tests/test_capture_context_history.py",
+    "tests/test_capture_historical_semantics.py",
+    "tests/test_legacy_issuer_dependency_boundary.py",
+    "tests/test_capture_comparison_v2.py",
+    "tests/test_capture_comparison_ui.py",
+    "tests/test_review_comparison.py",
+    "tests/test_review_workspace_views.py",
+    "tests/test_capture_pack_authority.py",
+    "tests/test_capture_review_renderer.py",
+    "tests/test_capture_review_worker.py",
+    "tests/test_capture_report_access.py",
+    "tests/test_core_first_capture_journey.py"
+  ],
+  "test_result_counts": {
+    "cases": 266,
+    "failed": 7,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "d3a94d523786c2397ae34cee3a8a7ed551413855ef6aa845590e6db4017ac078"
+}

@@ -1,0 +1,2914 @@
+STEWARDENCE: source scrutiny of proposal v1 / Decision Desk v2 / pack v4. Production unapproved; full successor suite currently running, no global-green claim. Preserve closed legacy issuer fence and permanent historical capture v1.
+Evidence:233946:259pass/7fail;234701:53pass/3fail;235226:20pass/0fail. Last run: both generic/accounting actual Chromium, private local byte readback/completion, owner pack GET/download, viewer denial; exact SQL/Python preflight;17private read negatives. Failed predecessor fixtures and realSQLcontext shape mismatch repaired without weakening authority.
+Frozen source235226 image ffc2954317ed75015468789e89fef4f73901cc6040b1771c2b43ea02e20e57fb, JUnit c61ea983114d07d2efe52cf460c1be49fca46226f9917042408a03a8b2e74ce2. All flags defaultfalse; no production, live keys/providers, worker activation, purchases or deployment. Completion/evidence-review is unverified; originalUNKNOWN/CONCERN/qualifiedFAIL immutable. Allproposals + disposition ANDexecution captured independently. No baselinepromotion/scheduledcustomercollection.
+OPEN:full finalsource, realStripe/live-mode successor, actual separateapp/rendererHTTPpackage path, DOstorage, credentials, retention/capacity allwriters, offsite reportobjectrestore, hostclock cause, finalreleaseapproval. Hostclock recurring backward jumps still failclosed; currentsetter unknown.
+NEW source-derived candidatefinding: 1MiB report contextpreflight at explicitrequest occurs AFTERfreeze committed pendingcycle +16MiBreservation. Admitted large boundeddecisions can freezecontext>1MiB; requestrejects safely but leaves solepending slot/reservation with no qualifiedproven-unused cancel/release. Noexecutedexploit yet, no crosstenantclaim. Needreview minimal bounded release onlybefore ANYrequest/jobs/external effects or exactpre-freeze metadata/context contract; neverrelease unknownoutcomes orcapguess. Please critiqueauthority/effects/locking/resourceboundaries; notproductionapproval.
+
+FILE apps/reviews/proposals_v1.py SHA256 cd4ef695b8a8699e83b49ea7bcd866dd8d18229a350120843a7eebc87fd753c0
+"""Permanent pure proposals. Reproducibility is neither issuance nor input truth."""
+
+import hashlib
+import json
+from uuid import UUID, uuid5
+
+import rfc8785
+
+from apps.assessments.capture_v1 import validate_capture_payloads
+
+from .exposure_v1 import VERSION as EXPOSURE_VERSION
+from .exposure_v1 import review_record
+
+VERSION = "stewardence.core_review_proposal.v1"
+APPLICABILITY_VERSION = "stewardence.core_review_proposal_applicability.v1"
+NAMESPACE = UUID("0b59c53e-e126-56e6-b67c-c0d5041355c2")
+
+# A finite semantic vocabulary, never prose classification or a mutable alias.
+_TEMPLATES = (
+    (
+        "business_owner",
+        "UNKNOWN",
+        "request_declaration",
+        "Record the responsible person as an owner declaration.",
+    ),
+    (
+        "business_purpose",
+        "UNKNOWN",
+        "request_declaration",
+        "Record the business purpose as an owner declaration.",
+    ),
+    (
+        "account_identity",
+        "UNKNOWN",
+        "request_evidence",
+        "Provide executing account or principal evidence for owner review.",
+    ),
+    (
+        "access_removal",
+        "UNKNOWN",
+        "request_evidence",
+        "Provide access-removal or offboarding evidence for owner review.",
+    ),
+    (
+        "approval",
+        "CONCERN",
+        "review_declared_boundary",
+        "Review the declared action and human approval boundary.",
+    ),
+)
+
+
+def _sha(value):
+    return hashlib.sha256(rfc8785.dumps(value)).hexdigest()
+
+
+def _copy(value):
+    return json.loads(rfc8785.dumps(value))
+
+
+def build_review_proposals(*, snapshot_id, capture_envelope):
+    """Recompute from exact capture v2; database admission remains separate."""
+    if type(snapshot_id) is not UUID:
+        raise ValueError("Exact snapshot UUID required")
+    try:
+        inputs = capture_envelope["input_payload"]
+        value = validate_capture_payloads(
+            capture_envelope,
+            organization_id=UUID(inputs["organization_id"]),
+            created_by_id=UUID(inputs["created_by_id"]),
+            workflow_profile_id=UUID(inputs["workflow_profile"]["id"]),
+        )
+    except (KeyError, TypeError, AttributeError, ValueError) as error:
+        raise ValueError("Exact permanent capture v2 required") from error
+    inputs, results = value["input_payload"], value["result_payload"]
+    if inputs["assessment"]["id"] != str(snapshot_id):
+        raise ValueError("Snapshot identity mismatch")
+    qualification = {
+        "schema": APPLICABILITY_VERSION,
+        "industry_applicability": inputs["industry_applicability"],
+        "ruleset": inputs["rulesets"]["industry"],
+        "engine_versions": inputs["engine_versions"],
+    }
+    qualification_sha = _sha(qualification)
+    rows = {row["inventory_item_id"]: row for row in results["inventory_results"]}
+    proposals = []
+
+    def emit(record, source, action, text, severity=None):
+        identity = str(
+            uuid5(
+                NAMESPACE,
+                rfc8785.dumps(
+                    {
+                        "snapshot_id": str(snapshot_id),
+                        "contract": VERSION,
+                        "inventory_item_id": record["id"],
+                        "source_class": source["class"],
+                        "source_identity": source["identity"],
+                        "source_digest": source["digest"],
+                    }
+                ).decode(),
+            )
+        )
+        payload = {
+            "schema": VERSION,
+            "proposal_id": identity,
+            "organization_id": inputs["organization_id"],
+            "snapshot_id": str(snapshot_id),
+            "snapshot_input_sha256": value["input_sha256"],
+            "snapshot_result_sha256": value["result_sha256"],
+            "inventory_item_id": record["id"],
+            "record_sha256": _sha(record),
+            "source": source,
+            "action_kind": action,
+            "proposal_text": text,
+            "authority": "proposal_only",
+            "verification": "not_established",
+            "original_outcome": source["outcome"],
+            "source_state_immutable": True,
+            "resolution_effect": "none",
+            "owner_statement_only": True,
+            "resolution_verified": False,
+        }
+        if severity is not None:
+            payload["severity"] = severity
+        proposals.append({**payload, "sha256": _sha(payload)})
+
+    for record in inputs["inventory"]:
+        review = _copy(review_record(record))
+        for question in review["questions"]:
+            for question_id, outcome, action, text in _TEMPLATES:
+                if (question["question_id"], question["outcome"]) != (
+                    question_id,
+                    outcome,
+                ):
+                    continue
+                definition = {
+                    "exposure_contract": EXPOSURE_VERSION,
+                    "question_id": question_id,
+                    "outcome": outcome,
+                    "action_kind": action,
+                    "proposal_text": text,
+                }
+                emit(
+                    record,
+                    {
+                        "class": "exposure_unknown"
+                        if outcome == "UNKNOWN"
+                        else "exposure_concern",
+                        "contract": EXPOSURE_VERSION,
+                        "contract_version": 1,
+                        "identity": question_id,
+                        "digest": _sha(question),
+                        "definition_sha256": _sha(definition),
+                        "outcome": outcome,
+                        "source_fields": question["source_fields"],
+                    },
+                    action,
+                    text,
+                )
+        if inputs["industry_applicability"]["policy_state"] != "applicable":
+            continue
+        ruleset = inputs["rulesets"]["industry"]
+        definitions = {rule["rule_id"]: rule for rule in ruleset["definitions"]}
+        for result in rows[record["id"]]["policy_results"]:
+            if result["result"] != "FAIL":
+                continue
+            rule = definitions[result["rule_id"]]
+            emit(
+                record,
+                {
+                    "class": "accounting_fail",
+                    "contract": ruleset["name"],
+                    "contract_version": ruleset["version"],
+                    "identity": result["rule_id"],
+                    "rule_version": result["rule_version"],
+                    "digest": _sha(result),
+                    "definition_sha256": _sha(rule),
+                    "definitions_sha256": ruleset["definitions_sha256"],
+                    "outcome": "FAIL",
+                    "source_fields": sorted(
+                        {condition["field"] for condition in rule["conditions"]}
+                    ),
+                    "applicability_contract": APPLICABILITY_VERSION,
+                    "applicability_sha256": _sha(inputs["industry_applicability"]),
+                    "qualification_sha256": qualification_sha,
+                    "policy_engine": inputs["engine_versions"]["policy"],
+                    "policy_admission": inputs["engine_versions"]["policy_admission"],
+                },
+                "address_qualified_failure",
+                result["recommended_remediation"],
+                result["severity"],
+            )
+    return _copy(
+        sorted(
+            proposals,
+            key=lambda proposal: (
+                proposal["inventory_item_id"],
+                proposal["source"]["class"],
+                proposal["source"]["identity"],
+                proposal["proposal_id"],
+            ),
+        )
+    )
+
+
+def validate_review_proposals(*, snapshot_id, capture_envelope, proposals):
+    """Exact closed recomputation; a correct caller digest never proves issuance."""
+    expected = build_review_proposals(
+        snapshot_id=snapshot_id, capture_envelope=capture_envelope
+    )
+    if type(proposals) is not list:
+        raise ValueError("Exact proposal list required")
+    try:
+        if rfc8785.dumps(proposals) != rfc8785.dumps(expected):
+            raise ValueError("Proposal semantics or identities mismatch")
+    except (TypeError, rfc8785.CanonicalizationError) as error:
+        raise ValueError("Canonical proposal list required") from error
+    return _copy(expected)
+
+
+FILE apps/reviews/migrations/0005_capture_proposal_admission.py SHA256 0186d65e082e14f346242d3d1b9d12e0e8bf0e317297c7e6ae9b27e9b85b942c
+"""Receipt-bound server proposal recomputation; no worker issuance authority."""
+
+import uuid
+
+import django.db.models.deletion
+import rfc8785
+from django.conf import settings
+from django.db import migrations, models
+
+from apps.assessments.capture_v1 import _rules
+
+RULES = rfc8785.dumps(_rules()).decode()
+
+SQL = r"""
+DO $extension$
+BEGIN
+ IF EXISTS(SELECT 1 FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace
+           WHERE e.extname='uuid-ossp' AND n.nspname<>'app_private') THEN
+  RAISE EXCEPTION 'Proposal UUIDv5 requires uuid-ossp in app_private; existing extension is not relocated';
+ END IF;
+END;$extension$;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA app_private;
+DO $privileges$
+DECLARE member record;
+BEGIN
+ FOR member IN SELECT p.oid::regprocedure AS signature FROM pg_proc p JOIN pg_depend d ON d.objid=p.oid
+  JOIN pg_extension e ON e.oid=d.refobjid WHERE d.classid='pg_proc'::regclass AND d.deptype='e' AND e.extname='uuid-ossp' LOOP
+  EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission',member.signature);
+  EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO agentledger_owner',member.signature);
+ END LOOP;
+END;$privileges$;
+
+ALTER TABLE review_core_proposal_gate OWNER TO agentledger_owner;
+ALTER TABLE review_capture_proposal_receipts OWNER TO agentledger_owner;
+REVOKE ALL ON review_core_proposal_gate,review_capture_proposal_receipts FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+ALTER TABLE review_core_proposal_gate ENABLE ROW LEVEL SECURITY;
+ALTER TABLE review_core_proposal_gate FORCE ROW LEVEL SECURITY;
+ALTER TABLE review_capture_proposal_receipts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE review_capture_proposal_receipts FORCE ROW LEVEL SECURITY;
+CREATE POLICY proposal_gate_owner ON review_core_proposal_gate TO agentledger_owner USING(true) WITH CHECK(true);
+CREATE POLICY proposal_receipt_owner ON review_capture_proposal_receipts TO agentledger_owner USING(true) WITH CHECK(true);
+CREATE POLICY proposal_receipt_owner_read ON review_capture_proposal_receipts FOR SELECT TO agentledger_app
+ USING(organization_id=app_private.current_organization_id() AND EXISTS(SELECT 1 FROM public.organizations_organizationmember
+ WHERE organization_id=review_capture_proposal_receipts.organization_id AND user_id=app_private.current_user_id() AND role='owner'));
+GRANT SELECT ON review_capture_proposal_receipts TO agentledger_app;
+INSERT INTO review_core_proposal_gate(id,enabled) VALUES(1,false);
+CREATE TRIGGER immutable_proposal_receipt BEFORE UPDATE OR DELETE ON review_capture_proposal_receipts
+ FOR EACH ROW EXECUTE FUNCTION app_private.prevent_paid_coverage_mutation();
+
+CREATE FUNCTION app_private.validate_capture_proposal_record_v1(record jsonb,captured timestamptz) RETURNS boolean
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE fields text[]:=ARRAY['display_name','vendor_name','business_owner','department','user_count','business_purpose',
+ 'monthly_cost_cents','seat_count','connected_systems','data_categories','permissions','capabilities','autonomy_level','human_approval','status'];
+ field text; value jsonb; basis text; entry jsonb;
+BEGIN
+ IF jsonb_typeof(record) IS DISTINCT FROM 'object' OR (SELECT count(*) FROM jsonb_object_keys(record))<>22
+  OR NOT record ?& (fields||ARRAY['id','product_id','source_type','declaration_contract','declaration_as_of','provenance','archived_at'])
+  OR jsonb_typeof(record->'id') IS DISTINCT FROM 'string' OR record->>'id' IS DISTINCT FROM ((record->>'id')::uuid)::text
+  OR record->'archived_at' IS DISTINCT FROM 'null'::jsonb OR record->'product_id' IS DISTINCT FROM 'null'::jsonb
+  OR record->>'source_type' IS DISTINCT FROM 'manual' OR record->>'declaration_contract' IS DISTINCT FROM 'core.inventory.declarations.v1'
+  OR jsonb_typeof(record->'declaration_as_of') IS DISTINCT FROM 'string' OR record->>'declaration_as_of' !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+  OR (record->>'declaration_as_of')::date>(captured AT TIME ZONE 'UTC')::date
+  OR jsonb_typeof(record->'provenance') IS DISTINCT FROM 'object' OR (SELECT count(*) FROM jsonb_object_keys(record->'provenance'))<>17
+  OR NOT (record->'provenance') ?& (fields||ARRAY['product_id','source_type'])
+  OR record->'provenance'->>'product_id' IS DISTINCT FROM 'Unknown' OR record->'provenance'->>'source_type' IS DISTINCT FROM 'Declared' THEN
+  RAISE EXCEPTION 'Exact permanent capture record required'; END IF;
+ FOREACH field IN ARRAY fields LOOP
+  value:=record->field; basis:=record->'provenance'->>field;
+  IF basis='Unknown' THEN
+   IF value IS DISTINCT FROM 'null'::jsonb THEN RAISE EXCEPTION 'Unknown capture values must be null'; END IF;
+  ELSIF basis='Declared' THEN
+   IF field=ANY(ARRAY['connected_systems','data_categories','permissions','capabilities']) THEN
+    IF jsonb_typeof(value) IS DISTINCT FROM 'array' OR jsonb_array_length(value)<>(SELECT count(DISTINCT v) FROM jsonb_array_elements(value) v) THEN
+     RAISE EXCEPTION 'Declared capture lists invalid'; END IF;
+    FOR entry IN SELECT v FROM jsonb_array_elements(value) v LOOP
+     IF jsonb_typeof(entry) IS DISTINCT FROM 'string' OR length(entry#>>'{}') NOT BETWEEN 1 AND 200 THEN
+      RAISE EXCEPTION 'Declared capture list member invalid'; END IF;
+    END LOOP;
+   ELSIF field=ANY(ARRAY['user_count','seat_count','monthly_cost_cents','autonomy_level']) THEN
+    IF jsonb_typeof(value) IS DISTINCT FROM 'number' OR value::text !~ '^[0-9]+$'
+     OR (value::text)::numeric>(CASE WHEN field='autonomy_level' THEN 4 ELSE 2147483647 END) THEN
+     RAISE EXCEPTION 'Declared capture integer invalid'; END IF;
+   ELSIF field='human_approval' THEN
+    IF jsonb_typeof(value) IS DISTINCT FROM 'boolean' THEN RAISE EXCEPTION 'Declared capture boolean invalid'; END IF;
+   ELSIF jsonb_typeof(value) IS DISTINCT FROM 'string' OR length(value#>>'{}')>(CASE WHEN field='business_purpose' THEN 4096 ELSE 255 END) THEN
+    RAISE EXCEPTION 'Declared capture text invalid'; END IF;
+  ELSE RAISE EXCEPTION 'Unknown capture provenance vocabulary';
+  END IF;
+ END LOOP;
+ RETURN true;
+END;$fn$;
+ALTER FUNCTION app_private.validate_capture_proposal_record_v1(jsonb,timestamptz) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.validate_capture_proposal_record_v1(jsonb,timestamptz) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.capture_policy_results_v1(record jsonb) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE rules jsonb:=$rules$__RULES__$rules$::jsonb; rule jsonb; condition jsonb; missing jsonb;
+ field text; actual jsonb; matched boolean; tested boolean; result jsonb; outputs jsonb:='[]'::jsonb;
+BEGIN
+ FOR rule IN SELECT value FROM jsonb_array_elements(rules) LOOP
+  SELECT coalesce(jsonb_agg(to_jsonb(fields.field) ORDER BY fields.field COLLATE "C"),'[]'::jsonb) INTO missing FROM
+   (SELECT DISTINCT value->>'field' AS field FROM jsonb_array_elements(rule->'conditions') WHERE
+    record->'provenance'->>(value->>'field') IS DISTINCT FROM 'Declared'
+    OR record->(value->>'field') IS NULL OR record->(value->>'field')='null'::jsonb) fields;
+  IF missing<>'[]'::jsonb THEN
+   result:=jsonb_build_object('rule_id',rule->'rule_id','rule_version',rule->'version','result','UNKNOWN',
+    'severity',NULL,'explanation','Required declarations are not established.','recommended_remediation',NULL,'effects','[]'::jsonb,'missing_fields',missing);
+  ELSE
+   matched:=true;
+   FOR condition IN SELECT value FROM jsonb_array_elements(rule->'conditions') LOOP
+    field:=condition->>'field'; actual:=record->field;
+    CASE condition->>'operator'
+     WHEN 'contains' THEN
+      IF jsonb_typeof(actual)<>'array' THEN RAISE EXCEPTION 'Permanent policy premise type invalid'; END IF;
+      tested:=actual @> jsonb_build_array(condition->'value');
+     WHEN 'is_false' THEN
+      IF jsonb_typeof(actual)<>'boolean' THEN RAISE EXCEPTION 'Permanent policy boolean premise invalid'; END IF;
+      tested:=actual='false'::jsonb;
+     WHEN 'greater_than_or_equal' THEN
+      IF jsonb_typeof(actual)<>'number' OR actual::text !~ '^[0-9]+$' THEN RAISE EXCEPTION 'Permanent policy integer premise invalid'; END IF;
+      tested:=(actual::text)::integer >= (condition->>'value')::integer;
+     WHEN 'equals' THEN tested:=actual=condition->'value';
+     WHEN 'not_equals' THEN tested:=actual<>condition->'value';
+     ELSE RAISE EXCEPTION 'Unsupported permanent policy operator';
+    END CASE;
+    matched:=matched AND tested;
+   END LOOP;
+   result:=jsonb_build_object('rule_id',rule->'rule_id','rule_version',rule->'version',
+    'result',CASE WHEN matched THEN rule->>'result_on_match' ELSE 'NOT_APPLICABLE' END,
+    'severity',CASE WHEN NOT matched THEN 'NONE' WHEN rule->>'severity'='1' THEN 'LOW'
+      WHEN rule->>'severity'='2' THEN 'MODERATE' WHEN rule->>'severity'='3' THEN 'HIGH'
+      WHEN rule->>'severity'='4' THEN 'CRITICAL' ELSE 'NONE' END,
+    'explanation',rule->'explanation','recommended_remediation',rule->'remediation',
+    'effects',CASE WHEN matched THEN rule->'effects' ELSE '[]'::jsonb END,'missing_fields','[]'::jsonb);
+  END IF;
+  outputs:=outputs||jsonb_build_array(result);
+ END LOOP;
+ RETURN outputs;
+END;$fn$;
+ALTER FUNCTION app_private.capture_policy_results_v1(jsonb) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.capture_policy_results_v1(jsonb) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.capture_proposal_v1(inputs jsonb,sid uuid,input_hash text,result_hash text,record jsonb,source jsonb,action text,description text,severity jsonb) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE identity uuid; payload jsonb; contract text:='stewardence.core_review_proposal.v1';
+BEGIN
+ identity:=app_private.uuid_generate_v5('0b59c53e-e126-56e6-b67c-c0d5041355c2'::uuid,
+  app_private.queue_canonical(jsonb_build_object('snapshot_id',sid::text,'contract',contract,
+   'inventory_item_id',record->'id','source_class',source->'class','source_identity',source->'identity','source_digest',source->'digest')));
+ payload:=jsonb_build_object('schema',contract,'proposal_id',identity::text,'organization_id',inputs->'organization_id',
+  'snapshot_id',sid::text,'snapshot_input_sha256',input_hash,'snapshot_result_sha256',result_hash,
+  'inventory_item_id',record->'id','record_sha256',encode(sha256(convert_to(app_private.queue_canonical(record),'UTF8')),'hex'),
+  'source',source,'action_kind',action,'proposal_text',description,'authority','proposal_only','verification','not_established',
+  'original_outcome',source->'outcome','source_state_immutable',true,'resolution_effect','none','owner_statement_only',true,'resolution_verified',false);
+ IF severity IS NOT NULL THEN payload:=payload||jsonb_build_object('severity',severity); END IF;
+ RETURN payload||jsonb_build_object('sha256',encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+END;$fn$;
+ALTER FUNCTION app_private.capture_proposal_v1(jsonb,uuid,text,text,jsonb,jsonb,text,text,jsonb) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.capture_proposal_v1(jsonb,uuid,text,text,jsonb,jsonb,text,text,jsonb) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.recompute_capture_proposals_v1(sid uuid,org uuid) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE s public.assessment_snapshots%ROWTYPE; inputs jsonb; record jsonb; rule jsonb; result jsonb; policy jsonb;
+ rules jsonb:=$rules$__RULES__$rules$::jsonb; expected_ruleset jsonb; qualification jsonb; qualification_hash text;
+ question jsonb; questions jsonb; source jsonb; definition jsonb; fields jsonb; field text; description text; action text;
+ proposals jsonb:='[]'::jsonb; accounting boolean;
+BEGIN
+ PERFORM app_private.review_capture_binding(sid,org);
+ SELECT * INTO s FROM public.assessment_snapshots WHERE id=sid AND organization_id=org;
+ IF jsonb_typeof(s.input_payload) IS DISTINCT FROM 'object' OR (SELECT count(*) FROM jsonb_object_keys(s.input_payload))<>14
+  OR NOT s.input_payload ?& ARRAY['snapshot_schema_version','capture_contract','assessment','organization_id','created_by_id','captured_at',
+   'industry_applicability','workflow_profile','inventory','evidence_references','benefit_model','rulesets','risk_configuration','engine_versions']
+  OR jsonb_typeof(s.result_payload) IS DISTINCT FROM 'object' OR (SELECT count(*) FROM jsonb_object_keys(s.result_payload))<>6
+  OR NOT s.result_payload ?& ARRAY['snapshot_schema_version','capture_contract','assessment','industry_applicability','benefit_model','inventory_results']
+  OR s.input_payload->'evidence_references' IS DISTINCT FROM '[]'::jsonb
+  OR s.input_payload->'risk_configuration' IS DISTINCT FROM '{"state":"not_assessed"}'::jsonb
+  OR jsonb_typeof(s.input_payload->'inventory') IS DISTINCT FROM 'array' OR jsonb_array_length(s.input_payload->'inventory') NOT BETWEEN 1 AND 100
+  OR jsonb_typeof(s.result_payload->'inventory_results') IS DISTINCT FROM 'array'
+  OR (SELECT count(DISTINCT value->>'id') FROM jsonb_array_elements(s.input_payload->'inventory'))<>jsonb_array_length(s.input_payload->'inventory')
+  OR (SELECT jsonb_agg(value->'id' ORDER BY ord) FROM jsonb_array_elements(s.input_payload->'inventory') WITH ORDINALITY t(value,ord))
+   IS DISTINCT FROM (SELECT jsonb_agg(value->'inventory_item_id' ORDER BY ord) FROM jsonb_array_elements(s.result_payload->'inventory_results') WITH ORDINALITY t(value,ord)) THEN
+  RAISE EXCEPTION 'Exact capture proposal payload and membership required'; END IF;
+ FOR result IN SELECT value FROM jsonb_array_elements(s.result_payload->'inventory_results') LOOP
+  IF jsonb_typeof(result) IS DISTINCT FROM 'object' OR (SELECT count(*) FROM jsonb_object_keys(result))<>3
+   OR NOT result ?& ARRAY['inventory_item_id','policy_results','risk']
+   OR result->'risk' IS DISTINCT FROM '{"state":"not_assessed","score":null,"band":null}'::jsonb THEN
+   RAISE EXCEPTION 'Capture proposal cannot admit new risk claims'; END IF;
+ END LOOP;
+ inputs:=s.input_payload; accounting:=inputs->'industry_applicability'->>'industry'='accounting_bookkeeping';
+ IF inputs->'industry_applicability' IS DISTINCT FROM jsonb_build_object('industry',inputs->'industry_applicability'->'industry',
+  'policy_state',CASE WHEN accounting THEN 'applicable' ELSE 'not_assessed' END,
+  'reason',CASE WHEN accounting THEN 'accounting_pack_selected' ELSE 'no_qualified_industry_pack' END,'generic_exposure','core.exposure.declarations.v1') THEN
+  RAISE EXCEPTION 'Frozen proposal applicability invalid'; END IF;
+ expected_ruleset:=jsonb_build_object('name','accounting_and_bookkeeping','version','1.1.0','definitions',rules,
+  'definitions_sha256',encode(sha256(convert_to(app_private.queue_canonical(rules),'UTF8')),'hex'));
+ IF inputs->'rulesets' IS DISTINCT FROM jsonb_build_object('industry',CASE WHEN accounting THEN expected_ruleset ELSE 'null'::jsonb END,'organization','[]'::jsonb)
+  OR inputs->'engine_versions' IS DISTINCT FROM (CASE WHEN accounting THEN
+   '{"capture":"core.capture.declarations.v1","exposure":"core.exposure.declarations.v1","policy":"AL-POLICY-1","policy_admission":"core.capture.known_policy.v1"}'::jsonb
+   ELSE '{"capture":"core.capture.declarations.v1","exposure":"core.exposure.declarations.v1"}'::jsonb END) THEN
+  RAISE EXCEPTION 'Permanent proposal rule or engine pins invalid'; END IF;
+ qualification:=jsonb_build_object('schema','stewardence.core_review_proposal_applicability.v1',
+  'industry_applicability',inputs->'industry_applicability','ruleset',inputs->'rulesets'->'industry','engine_versions',inputs->'engine_versions');
+ qualification_hash:=encode(sha256(convert_to(app_private.queue_canonical(qualification),'UTF8')),'hex');
+ FOR record IN SELECT value FROM jsonb_array_elements(inputs->'inventory') LOOP
+  PERFORM app_private.validate_capture_proposal_record_v1(record,s.captured_at);
+  SELECT value->'policy_results' INTO policy FROM jsonb_array_elements(s.result_payload->'inventory_results') WHERE value->>'inventory_item_id'=record->>'id';
+  IF policy IS DISTINCT FROM (CASE WHEN accounting THEN app_private.capture_policy_results_v1(record) ELSE '[]'::jsonb END) THEN
+   RAISE EXCEPTION 'Frozen policy result differs from independent permanent recomputation'; END IF;
+  questions:='[]'::jsonb;
+  FOREACH field IN ARRAY ARRAY['business_owner','business_purpose'] LOOP
+   IF record->'provenance'->>field IS DISTINCT FROM 'Declared' THEN
+    questions:=questions||jsonb_build_array(jsonb_build_object('question_id',field,'outcome','UNKNOWN',
+     'explanation',CASE WHEN field='business_owner' THEN 'Responsible person has not been declared.' ELSE 'Business purpose has not been declared.' END,
+     'source_fields',jsonb_build_array(field),'basis','unknown','verification','not_established'));
+   ELSIF jsonb_typeof(record->field) IS DISTINCT FROM 'string' THEN RAISE EXCEPTION 'Exposure declaration text type invalid'; END IF;
+  END LOOP;
+  questions:=questions||jsonb_build_array(jsonb_build_object('question_id','account_identity','outcome','UNKNOWN',
+   'explanation','This captured inventory schema does not identify the executing account or principal.',
+   'source_fields','[]'::jsonb,'basis','unknown','verification','not_established'))||
+   jsonb_build_array(jsonb_build_object('question_id','access_removal','outcome','UNKNOWN',
+   'explanation','This captured inventory schema does not record an access-removal procedure.',
+   'source_fields','[]'::jsonb,'basis','unknown','verification','not_established'));
+  IF record->'provenance'->>'human_approval'='Declared' AND record->'provenance'->>'autonomy_level'='Declared'
+   AND record->'provenance'->>'capabilities'='Declared' AND record->'provenance'->>'permissions'='Declared' THEN
+   IF jsonb_typeof(record->'human_approval') IS DISTINCT FROM 'boolean' OR jsonb_typeof(record->'autonomy_level') IS DISTINCT FROM 'number'
+    OR (record->>'autonomy_level') !~ '^[0-4]$' OR jsonb_typeof(record->'capabilities') IS DISTINCT FROM 'array'
+    OR jsonb_typeof(record->'permissions') IS DISTINCT FROM 'array' THEN RAISE EXCEPTION 'Exposure approval premise invalid'; END IF;
+   IF record->'human_approval'='false'::jsonb AND (record->'capabilities'<>'[]'::jsonb OR record->'permissions'<>'[]'::jsonb OR record->>'autonomy_level'<>'0') THEN
+    questions:=questions||jsonb_build_array(jsonb_build_object('question_id','approval','outcome','CONCERN',
+     'explanation','Actions or permissions are declared without a human approval requirement; review the intended boundary.',
+     'source_fields','["human_approval","autonomy_level","capabilities","permissions"]'::jsonb,'basis','customer_declaration','verification','not_established'));
+   END IF;
+  END IF;
+  FOR question IN SELECT value FROM jsonb_array_elements(questions) LOOP
+   CASE question->>'question_id'
+    WHEN 'business_owner' THEN action:='request_declaration'; description:='Record the responsible person as an owner declaration.';
+    WHEN 'business_purpose' THEN action:='request_declaration'; description:='Record the business purpose as an owner declaration.';
+    WHEN 'account_identity' THEN action:='request_evidence'; description:='Provide executing account or principal evidence for owner review.';
+    WHEN 'access_removal' THEN action:='request_evidence'; description:='Provide access-removal or offboarding evidence for owner review.';
+    WHEN 'approval' THEN action:='review_declared_boundary'; description:='Review the declared action and human approval boundary.';
+    ELSE RAISE EXCEPTION 'Unsupported permanent proposal template';
+   END CASE;
+   definition:=jsonb_build_object('exposure_contract','core.exposure.declarations.v1','question_id',question->'question_id',
+    'outcome',question->'outcome','action_kind',action,'proposal_text',description);
+   source:=jsonb_build_object('class',CASE WHEN question->>'outcome'='UNKNOWN' THEN 'exposure_unknown' ELSE 'exposure_concern' END,
+    'contract','core.exposure.declarations.v1','contract_version',1,'identity',question->'question_id',
+    'digest',encode(sha256(convert_to(app_private.queue_canonical(question),'UTF8')),'hex'),
+    'definition_sha256',encode(sha256(convert_to(app_private.queue_canonical(definition),'UTF8')),'hex'),
+    'outcome',question->'outcome','source_fields',question->'source_fields');
+   proposals:=proposals||jsonb_build_array(app_private.capture_proposal_v1(inputs,sid,s.input_sha256,s.result_sha256,record,source,action,description,NULL));
+  END LOOP;
+  IF accounting THEN
+   FOR result IN SELECT value FROM jsonb_array_elements(policy) WHERE value->>'result'='FAIL' LOOP
+    SELECT value INTO rule FROM jsonb_array_elements(rules) WHERE value->>'rule_id'=result->>'rule_id';
+    SELECT jsonb_agg(to_jsonb(f.field) ORDER BY f.field COLLATE "C") INTO fields FROM (SELECT DISTINCT value->>'field' field FROM jsonb_array_elements(rule->'conditions')) f;
+    source:=jsonb_build_object('class','accounting_fail','contract','accounting_and_bookkeeping','contract_version','1.1.0',
+     'identity',result->'rule_id','rule_version',result->'rule_version',
+     'digest',encode(sha256(convert_to(app_private.queue_canonical(result),'UTF8')),'hex'),
+     'definition_sha256',encode(sha256(convert_to(app_private.queue_canonical(rule),'UTF8')),'hex'),
+     'definitions_sha256',expected_ruleset->'definitions_sha256','outcome','FAIL','source_fields',fields,
+     'applicability_contract','stewardence.core_review_proposal_applicability.v1',
+     'applicability_sha256',encode(sha256(convert_to(app_private.queue_canonical(inputs->'industry_applicability'),'UTF8')),'hex'),
+     'qualification_sha256',qualification_hash,'policy_engine',inputs->'engine_versions'->'policy','policy_admission',inputs->'engine_versions'->'policy_admission');
+    proposals:=proposals||jsonb_build_array(app_private.capture_proposal_v1(inputs,sid,s.input_sha256,s.result_sha256,record,source,
+     'address_qualified_failure',result->>'recommended_remediation',result->'severity'));
+   END LOOP;
+  END IF;
+ END LOOP;
+ RETURN (SELECT coalesce(jsonb_agg(value ORDER BY value->>'inventory_item_id' COLLATE "C",value->'source'->>'class' COLLATE "C",value->'source'->>'identity' COLLATE "C",value->>'proposal_id' COLLATE "C"),'[]'::jsonb) FROM jsonb_array_elements(proposals));
+END;$fn$;
+ALTER FUNCTION app_private.recompute_capture_proposals_v1(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.recompute_capture_proposals_v1(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.issue_core_exposure_proposals(rid uuid,org uuid,actor uuid,sid uuid) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE s public.assessment_snapshots%ROWTYPE; capture public.assessment_capture_receipts%ROWTYPE;
+ previous public.review_capture_proposal_receipts%ROWTYPE; revision public.core_action_card_revisions%ROWTYPE;
+ cards jsonb; card_hash text; qualification_hash text; issued timestamptz;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' OR rid IS NULL OR org IS NULL OR actor IS NULL OR sid IS NULL THEN
+  RAISE EXCEPTION 'Proposal admission requires explicit identities and read committed'; END IF;
+ IF org IS DISTINCT FROM app_private.current_organization_id() OR actor IS DISTINCT FROM app_private.current_user_id() THEN
+  RAISE EXCEPTION 'Proposal identity context invalid'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':control',0));
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':proposal:'||sid::text,0));
+ PERFORM 1 FROM public.review_core_proposal_gate WHERE id=1 FOR SHARE;
+ IF NOT EXISTS(SELECT 1 FROM public.review_core_proposal_gate WHERE id=1 AND enabled)
+  OR NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org)
+  OR NOT EXISTS(SELECT 1 FROM public.organization_workflow_profiles WHERE organization_id=org) THEN
+  RAISE EXCEPTION 'Proposal admission unavailable'; END IF;
+ PERFORM 1 FROM public.accounts_user WHERE id=actor FOR KEY SHARE;
+ PERFORM 1 FROM public.organizations_organization WHERE id=org FOR KEY SHARE;
+ SELECT * INTO s FROM public.assessment_snapshots WHERE id=sid AND organization_id=org FOR KEY SHARE;
+ SELECT * INTO capture FROM public.assessment_capture_receipts WHERE snapshot_id=sid AND organization_id=org FOR KEY SHARE;
+ SELECT * INTO revision FROM public.core_action_card_revisions WHERE snapshot_id=sid AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.organization_workflow_profiles WHERE organization_id=org FOR SHARE;
+ cards:=app_private.recompute_capture_proposals_v1(sid,org);
+ card_hash:=encode(sha256(convert_to(app_private.queue_canonical(cards),'UTF8')),'hex');
+ qualification_hash:=encode(sha256(convert_to(app_private.queue_canonical(jsonb_build_object('schema','stewardence.core_review_proposal_applicability.v1',
+  'industry_applicability',s.input_payload->'industry_applicability','ruleset',s.input_payload->'rulesets'->'industry','engine_versions',s.input_payload->'engine_versions')),'UTF8')),'hex');
+ issued:=clock_timestamp();
+ IF NOT EXISTS(SELECT 1 FROM public.review_core_proposal_gate WHERE id=1 AND enabled)
+  OR NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org)
+  OR NOT EXISTS(SELECT 1 FROM public.organization_workflow_profiles WHERE organization_id=org)
+  OR s.created_by_id IS DISTINCT FROM actor OR capture.created_by_id IS DISTINCT FROM actor OR s.captured_at>issued THEN
+  RAISE EXCEPTION 'Proposal authority unavailable after waits'; END IF;
+ SELECT * INTO previous FROM public.review_capture_proposal_receipts WHERE snapshot_id=sid AND organization_id=org;
+ IF FOUND THEN
+  IF revision.id IS DISTINCT FROM previous.revision_id OR revision.created_by_id IS DISTINCT FROM actor
+   OR previous.created_by_id IS DISTINCT FROM actor OR previous.capture_receipt_id IS DISTINCT FROM capture.id
+   OR previous.contract IS DISTINCT FROM 'stewardence.core_review_proposal.v1'
+   OR previous.input_sha256 IS DISTINCT FROM s.input_sha256 OR previous.result_sha256 IS DISTINCT FROM s.result_sha256
+   OR previous.revision_sha256 IS DISTINCT FROM card_hash OR previous.qualification_sha256 IS DISTINCT FROM qualification_hash
+   OR revision.cards IS DISTINCT FROM cards OR revision.sha256 IS DISTINCT FROM card_hash OR revision.input_sha256 IS DISTINCT FROM s.result_sha256 THEN
+   RAISE EXCEPTION 'Issued proposal replay pins invalid'; END IF;
+  RETURN revision.id;
+ END IF;
+ IF revision.id IS NOT NULL THEN RAISE EXCEPTION 'Unissued legacy revision conflicts with proposal contract'; END IF;
+ INSERT INTO public.core_action_card_revisions(id,organization_id,created_by_id,created_at,snapshot_id,input_sha256,cards,sha256)
+ VALUES(rid,org,actor,issued,sid,s.result_sha256,cards,card_hash);
+ INSERT INTO public.review_capture_proposal_receipts(id,organization_id,created_by_id,created_at,snapshot_id,revision_id,capture_receipt_id,
+ contract,input_sha256,result_sha256,revision_sha256,qualification_sha256)
+ VALUES(gen_random_uuid(),org,actor,issued,sid,rid,capture.id,'stewardence.core_review_proposal.v1',s.input_sha256,s.result_sha256,card_hash,qualification_hash);
+ RETURN rid;
+END;$fn$;
+ALTER FUNCTION app_private.issue_core_exposure_proposals(uuid,uuid,uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.issue_core_exposure_proposals(uuid,uuid,uuid,uuid) FROM PUBLIC,agentledger_worker,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.issue_core_exposure_proposals(uuid,uuid,uuid,uuid) TO agentledger_app;
+""".replace("__RULES__", RULES)
+
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ("reviews", "0004_capture_pack_projection"),
+        ("jobs", "0015_legacy_action_card_schema_fence"),
+    ]
+    operations = [
+        migrations.CreateModel(
+            name="CoreProposalAdmissionGate",
+            fields=[
+                (
+                    "id",
+                    models.PositiveSmallIntegerField(
+                        primary_key=True, default=1, editable=False, serialize=False
+                    ),
+                ),
+                ("enabled", models.BooleanField(default=False)),
+            ],
+            options={
+                "db_table": "review_core_proposal_gate",
+                "constraints": [
+                    models.CheckConstraint(
+                        condition=models.Q(id=1), name="review_proposal_gate_singleton"
+                    )
+                ],
+            },
+        ),
+        migrations.CreateModel(
+            name="CaptureProposalAdmissionReceipt",
+            fields=[
+                (
+                    "id",
+                    models.UUIDField(
+                        primary_key=True,
+                        default=uuid.uuid4,
+                        editable=False,
+                        serialize=False,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(editable=False)),
+                ("contract", models.CharField(max_length=80, editable=False)),
+                ("input_sha256", models.CharField(max_length=64, editable=False)),
+                ("result_sha256", models.CharField(max_length=64, editable=False)),
+                ("revision_sha256", models.CharField(max_length=64, editable=False)),
+                (
+                    "qualification_sha256",
+                    models.CharField(max_length=64, editable=False),
+                ),
+                (
+                    "organization",
+                    models.ForeignKey(
+                        to="organizations.organization",
+                        on_delete=django.db.models.deletion.PROTECT,
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        to=settings.AUTH_USER_MODEL,
+                        on_delete=django.db.models.deletion.PROTECT,
+                    ),
+                ),
+                (
+                    "snapshot",
+                    models.OneToOneField(
+                        to="assessments.assessmentsnapshot",
+                        on_delete=django.db.models.deletion.PROTECT,
+                    ),
+                ),
+                (
+                    "revision",
+                    models.OneToOneField(
+                        to="jobs.actioncardrevision",
+                        on_delete=django.db.models.deletion.PROTECT,
+                    ),
+                ),
+                (
+                    "capture_receipt",
+                    models.ForeignKey(
+                        to="assessments.snapshotcapturereceipt",
+                        on_delete=django.db.models.deletion.PROTECT,
+                    ),
+                ),
+            ],
+            options={"db_table": "review_capture_proposal_receipts"},
+        ),
+        migrations.RunSQL(SQL),
+    ]
+
+
+FILE apps/reviews/proposal_admission.py SHA256 15a139d5c258e7cfa14d046baa0c0c9642b132a0c561c56c33b8673c1b7ca689
+"""Request identity-only database issuance; no provider actions or truth claims."""
+
+from uuid import UUID, uuid4
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db import connections
+
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+from apps.assessments.models import AssessmentSnapshot
+from apps.jobs.core_models import ActionCardRevision
+
+from .models import CaptureProposalAdmissionReceipt
+from .proposals_v1 import VERSION, validate_review_proposals
+
+
+def issue_capture_proposals(*, organization_id, actor_id, snapshot_id, using="default"):
+    """Issue one exact capture-v1 proposal revision behind both closed gates.
+
+    SQL recomputes source questions and permanent accounting results. Python
+    independently compares its permanent contract; disagreement rolls back.
+    """
+    if any(
+        type(value) is not UUID for value in (organization_id, actor_id, snapshot_id)
+    ):
+        raise ValidationError(
+            "Exact proposal owner, organization and snapshot UUIDs required"
+        )
+    if not getattr(settings, "CORE_PROPOSAL_ADMISSION_ENABLED", False):
+        raise ValidationError("Core proposal deployment gate closed")
+    with (
+        identity_transaction(actor_id, using=using),
+        tenant_transaction(organization_id, using=using),
+    ):
+        with connections[using].cursor() as cursor:
+            cursor.execute(
+                "SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)",
+                [uuid4(), organization_id, actor_id, snapshot_id],
+            )
+            revision_id = cursor.fetchone()[0]
+        revision = ActionCardRevision.objects.using(using).get(
+            id=revision_id, organization_id=organization_id, snapshot_id=snapshot_id
+        )
+        snapshot = AssessmentSnapshot.objects.using(using).get(
+            id=snapshot_id, organization_id=organization_id
+        )
+        receipt = CaptureProposalAdmissionReceipt.objects.using(using).get(
+            revision_id=revision_id,
+            snapshot_id=snapshot_id,
+            organization_id=organization_id,
+            contract=VERSION,
+        )
+        try:
+            validate_review_proposals(
+                snapshot_id=snapshot.id,
+                capture_envelope={
+                    "input_payload": snapshot.input_payload,
+                    "result_payload": snapshot.result_payload,
+                    "input_sha256": snapshot.input_sha256,
+                    "result_sha256": snapshot.result_sha256,
+                },
+                proposals=revision.cards,
+            )
+        except ValueError as error:
+            raise ValidationError("Issued proposal contract disagreement") from error
+        if receipt.revision_sha256 != revision.sha256:
+            raise ValidationError("Issued proposal receipt identity mismatch")
+        return revision
+
+
+FILE apps/jobs/migrations/0016_capture_decisions.py SHA256 0ea63f7c4186fc7ecd734253fcffd6b32d0fd85c693a331f342ca9e87e6e5d30
+"""Separate exact issued-capture decision v2; historical issuer body unchanged."""
+
+from django.db import migrations
+
+SQL = r"""
+ALTER FUNCTION app_private.issue_core_decision(uuid,uuid,jsonb) RENAME TO issue_core_decision_schema1;
+REVOKE ALL ON FUNCTION app_private.issue_core_decision_schema1(uuid,uuid,jsonb)
+ FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+CREATE FUNCTION app_private.issue_core_decision(org uuid,actor uuid,e jsonb) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE r public.core_action_card_revisions%ROWTYPE; s public.assessment_snapshots%ROWTYPE;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' OR org IS NULL OR actor IS NULL
+  OR org IS DISTINCT FROM app_private.current_organization_id() OR actor IS DISTINCT FROM app_private.current_user_id() THEN
+  RAISE EXCEPTION 'Legacy decision context invalid'; END IF;
+ SELECT * INTO r FROM public.core_action_card_revisions WHERE id=(e->>'revision_id')::uuid AND organization_id=org;
+ SELECT * INTO s FROM public.assessment_snapshots WHERE id=r.snapshot_id AND organization_id=org;
+ IF r.id IS NULL OR s.id IS NULL OR s.input_payload->'snapshot_schema_version' IS DISTINCT FROM '1'::jsonb
+  OR s.result_payload->'snapshot_schema_version' IS DISTINCT FROM '1'::jsonb
+  OR EXISTS(SELECT 1 FROM public.review_capture_proposal_receipts WHERE revision_id=r.id) THEN
+  RAISE EXCEPTION 'Legacy decision requires snapshot schema one'; END IF;
+ RETURN app_private.issue_core_decision_schema1(org,actor,e);
+END;$fn$;
+ALTER FUNCTION app_private.issue_core_decision(uuid,uuid,jsonb) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.issue_core_decision(uuid,uuid,jsonb)
+ FROM PUBLIC,agentledger_worker,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.issue_core_decision(uuid,uuid,jsonb) TO agentledger_app;
+CREATE FUNCTION app_private.issue_core_capture_decision(org uuid,actor uuid,e jsonb) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE r public.core_action_card_revisions%ROWTYPE; s public.assessment_snapshots%ROWTYPE;
+ prior public.core_decision_events%ROWTYPE; previous uuid; rid uuid; idx integer; seq integer;
+ receipt public.review_capture_proposal_receipts%ROWTYPE; capture public.assessment_capture_receipts%ROWTYPE; proposal jsonb;
+ event_id uuid:=gen_random_uuid(); issued timestamptz; card_hash text; due date; body jsonb;
+ required text[]:=ARRAY['schema','revision_id','card_index','expected_previous_event','event_kind','state',
+ 'responsible_label','due_date','notes','links','proposal_id','proposal_sha256']; key text; link jsonb;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' THEN RAISE EXCEPTION 'Decision admission requires read committed'; END IF;
+ IF org IS NULL OR actor IS NULL OR jsonb_typeof(e) IS DISTINCT FROM 'object' OR octet_length(e::text)>65536
+  OR NOT e ?& required OR EXISTS(SELECT 1 FROM jsonb_object_keys(e) k WHERE NOT k=ANY(required)) THEN
+  RAISE EXCEPTION 'Invalid decision envelope'; END IF;
+ IF (org IS DISTINCT FROM app_private.current_organization_id()
+  OR actor IS DISTINCT FROM app_private.current_user_id()) THEN RAISE EXCEPTION 'Decision identity mismatch'; END IF;
+ FOREACH key IN ARRAY ARRAY['schema','revision_id','event_kind','state','responsible_label','notes','proposal_id','proposal_sha256'] LOOP
+  IF jsonb_typeof(e->key) IS DISTINCT FROM 'string' THEN RAISE EXCEPTION 'Decision fields must be strings'; END IF;
+ END LOOP;
+ IF e->>'schema'<>'stewardence.core_decision.v2' OR e->>'proposal_sha256' !~ '^[0-9a-f]{64}$' OR jsonb_typeof(e->'card_index')<>'number'
+  OR e->>'card_index' !~ '^[0-9]{1,9}$' OR length(btrim(e->>'responsible_label')) NOT BETWEEN 1 AND 200
+  OR e->>'responsible_label' ~ '[[:cntrl:]]' OR length(e->>'notes')>4096
+  OR jsonb_typeof(e->'links') IS DISTINCT FROM 'array' OR jsonb_array_length(e->'links')>10 THEN
+  RAISE EXCEPTION 'Invalid decision bounds'; END IF;
+ IF NOT ((e->>'event_kind'='disposition' AND e->>'state' IN ('act','defer','decline','accept_risk'))
+  OR (e->>'event_kind'='execution' AND e->>'state' IN ('completion_recorded','evidence_reviewed'))) THEN
+  RAISE EXCEPTION 'Unsupported decision state'; END IF;
+ FOREACH key IN ARRAY ARRAY['expected_previous_event','due_date'] LOOP
+  IF jsonb_typeof(e->key) NOT IN ('null','string') THEN RAISE EXCEPTION 'Invalid optional decision field'; END IF;
+ END LOOP;
+ IF e->>'due_date' IS NOT NULL THEN
+  IF e->>'due_date' !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN RAISE EXCEPTION 'Invalid due date'; END IF;
+  due:=(e->>'due_date')::date;
+ END IF;
+ FOR link IN SELECT value FROM jsonb_array_elements(e->'links') LOOP
+  IF jsonb_typeof(link)<>'string' OR length(link#>>'{}')>2048
+   OR link#>>'{}' !~ '^https://[^[:space:]/?#@]+([/?#][^[:space:]]*)?$' THEN RAISE EXCEPTION 'Invalid evidence link'; END IF;
+ END LOOP;
+ rid:=(e->>'revision_id')::uuid; idx:=(e->>'card_index')::integer;
+ previous:=(e->>'expected_previous_event')::uuid;
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':control',0));
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':decision:'||rid::text||':'||idx::text,0));
+ PERFORM 1 FROM public.core_decision_desk_gate WHERE id=1 FOR SHARE;
+ PERFORM 1 FROM public.review_core_proposal_gate WHERE id=1 FOR SHARE;
+ PERFORM 1 FROM public.accounts_user WHERE id=actor FOR KEY SHARE;
+ PERFORM 1 FROM public.organizations_organization WHERE id=org FOR KEY SHARE;
+ SELECT * INTO r FROM public.core_action_card_revisions WHERE id=rid AND organization_id=org FOR KEY SHARE;
+ SELECT * INTO s FROM public.assessment_snapshots WHERE id=r.snapshot_id AND organization_id=org FOR KEY SHARE;
+ SELECT * INTO capture FROM public.assessment_capture_receipts WHERE snapshot_id=s.id AND organization_id=org FOR KEY SHARE;
+ SELECT * INTO receipt FROM public.review_capture_proposal_receipts WHERE revision_id=rid AND snapshot_id=s.id AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.organization_workflow_profiles WHERE organization_id=org FOR SHARE;
+ IF r.id IS NULL OR s.id IS NULL OR capture.id IS NULL OR receipt.id IS NULL
+  OR jsonb_typeof(r.cards) IS DISTINCT FROM 'array' OR idx>=jsonb_array_length(r.cards)
+  OR receipt.contract IS DISTINCT FROM 'stewardence.core_review_proposal.v1'
+  OR receipt.capture_receipt_id IS DISTINCT FROM capture.id
+  OR receipt.input_sha256 IS DISTINCT FROM s.input_sha256 OR receipt.result_sha256 IS DISTINCT FROM s.result_sha256
+  OR receipt.revision_sha256 IS DISTINCT FROM r.sha256 OR r.input_sha256 IS DISTINCT FROM s.result_sha256
+  OR r.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(r.cards),'UTF8')),'hex')
+  OR r.cards IS DISTINCT FROM app_private.recompute_capture_proposals_v1(s.id,org)
+  OR receipt.qualification_sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(jsonb_build_object(
+   'schema','stewardence.core_review_proposal_applicability.v1','industry_applicability',s.input_payload->'industry_applicability',
+   'ruleset',s.input_payload->'rulesets'->'industry','engine_versions',s.input_payload->'engine_versions')),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Capture proposal issuance unresolved'; END IF;
+ proposal:=r.cards->idx;
+ IF proposal->>'proposal_id' IS DISTINCT FROM (e->>'proposal_id')::uuid::text
+  OR proposal->>'sha256' IS DISTINCT FROM e->>'proposal_sha256'
+  OR proposal->>'sha256' IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(proposal-'sha256'),'UTF8')),'hex')
+  OR proposal->>'snapshot_id' IS DISTINCT FROM s.id::text OR proposal->>'snapshot_result_sha256' IS DISTINCT FROM s.result_sha256
+  OR proposal->>'resolution_effect' IS DISTINCT FROM 'none' OR proposal->'source_state_immutable' IS DISTINCT FROM 'true'::jsonb
+  OR proposal->'resolution_verified' IS DISTINCT FROM 'false'::jsonb THEN
+  RAISE EXCEPTION 'Exact proposal identity mismatch'; END IF;
+ card_hash:=encode(sha256(convert_to(app_private.queue_canonical(r.cards->idx),'UTF8')),'hex');
+ SELECT * INTO prior FROM public.core_decision_events WHERE revision_id=rid AND card_index=idx
+  ORDER BY sequence DESC LIMIT 1 FOR KEY SHARE;
+ IF (FOUND AND previous IS DISTINCT FROM prior.id) OR (NOT FOUND AND previous IS NOT NULL) THEN
+  RAISE EXCEPTION 'Stale decision history'; END IF;
+ seq:=coalesce(prior.sequence,0)+1; issued:=clock_timestamp();
+ IF NOT EXISTS(SELECT 1 FROM public.core_decision_desk_gate WHERE id=1 AND enabled)
+  OR NOT EXISTS(SELECT 1 FROM public.review_core_proposal_gate WHERE id=1 AND enabled)
+  OR NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org)
+  OR NOT EXISTS(SELECT 1 FROM public.organization_workflow_profiles WHERE organization_id=org)
+  OR s.captured_at>issued OR org IS DISTINCT FROM app_private.current_organization_id()
+  OR actor IS DISTINCT FROM app_private.current_user_id() THEN
+  RAISE EXCEPTION 'Capture decision authority unavailable after waits'; END IF;
+ body:=jsonb_build_object('schema','stewardence.core_decision_event.v2','id',event_id,'organization_id',org,
+  'created_by_id',actor,'created_at',issued,'revision_id',rid,'revision_sha256',r.sha256,
+  'snapshot_id',s.id,'snapshot_result_sha256',s.result_sha256,'card_index',idx,'card_sha256',card_hash,
+  'previous_event_id',previous,'sequence',seq,'event_kind',e->>'event_kind','state',e->>'state',
+  'responsible_label',btrim(e->>'responsible_label'),'due_date',due,'notes',e->>'notes','links',e->'links',
+  'owner_statement_only',true,'resolution_verified',false,'proposal_id',proposal->'proposal_id',
+  'proposal_sha256',proposal->'sha256','proposal_contract',proposal->'schema',
+  'proposal_receipt_id',receipt.id,'source_class',proposal->'source'->'class',
+  'source_identity',proposal->'source'->'identity','source_digest',proposal->'source'->'digest',
+  'original_outcome',proposal->'original_outcome','resolution_effect','none','source_state_immutable',true);
+ INSERT INTO public.core_decision_events(id,organization_id,created_by_id,created_at,revision_id,snapshot_id,
+  revision_sha256,snapshot_result_sha256,card_index,card_sha256,previous_event_id,sequence,event_kind,state,
+  responsible_label,due_date,notes,links,payload,sha256)
+ VALUES(event_id,org,actor,issued,rid,s.id,r.sha256,s.result_sha256,idx,card_hash,previous,seq,e->>'event_kind',
+  e->>'state',btrim(e->>'responsible_label'),due,e->>'notes',e->'links',body,
+  encode(sha256(convert_to(app_private.queue_canonical(body),'UTF8')),'hex'));
+ RETURN event_id;
+END;$fn$;
+ALTER FUNCTION app_private.issue_core_capture_decision(uuid,uuid,jsonb) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.issue_core_capture_decision(uuid,uuid,jsonb)
+ FROM PUBLIC,agentledger_worker,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.issue_core_capture_decision(uuid,uuid,jsonb) TO agentledger_app;
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ("jobs", "0015_legacy_action_card_schema_fence"),
+        ("reviews", "0005_capture_proposal_admission"),
+    ]
+    operations = [migrations.RunSQL(SQL)]
+
+
+FILE apps/jobs/core_decisions_v2.py SHA256 d05647e7a2f4371ae0f797098f71db09e86155bab59345ed63baebaffced9649
+"""Statements on exact admitted capture proposals; never source resolution."""
+
+import json
+import re
+from datetime import date
+from uuid import UUID
+
+from django.conf import settings
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.db import connections
+
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+
+
+def record_capture_decision(
+    *,
+    organization_id,
+    actor_id,
+    revision_id,
+    proposal_id,
+    proposal_sha256,
+    card_index,
+    event_kind,
+    state,
+    responsible_label,
+    expected_previous_event=None,
+    due_date=None,
+    notes="",
+    links=(),
+    using="default",
+):
+    if not getattr(settings, "DECISION_DESK_ENABLED", False) or not getattr(
+        settings, "CORE_PROPOSAL_ADMISSION_ENABLED", False
+    ):
+        raise PermissionDenied("Capture DecisionDesk admission is disabled")
+    if any(
+        type(value) is not UUID
+        for value in (
+            organization_id,
+            actor_id,
+            revision_id,
+            proposal_id,
+        )
+    ) or (
+        expected_previous_event is not None
+        and type(expected_previous_event) is not UUID
+    ):
+        raise ValidationError("Exact decision identities required")
+    if (
+        type(proposal_sha256) is not str
+        or re.fullmatch(r"[0-9a-f]{64}", proposal_sha256) is None
+        or type(card_index) is not int
+        or card_index < 0
+        or (due_date is not None and type(due_date) is not date)
+        or type(links) not in (list, tuple)
+    ):
+        raise ValidationError("Exact decision fields required")
+    envelope = {
+        "schema": "stewardence.core_decision.v2",
+        "revision_id": str(revision_id),
+        "proposal_id": str(proposal_id),
+        "proposal_sha256": proposal_sha256,
+        "card_index": card_index,
+        "expected_previous_event": str(expected_previous_event)
+        if expected_previous_event is not None
+        else None,
+        "event_kind": event_kind,
+        "state": state,
+        "responsible_label": responsible_label,
+        "due_date": due_date.isoformat() if due_date is not None else None,
+        "notes": notes,
+        "links": list(links),
+    }
+    with (
+        identity_transaction(actor_id, using=using),
+        tenant_transaction(organization_id, using=using),
+        connections[using].cursor() as cursor,
+    ):
+        cursor.execute(
+            "SELECT app_private.issue_core_capture_decision(%s,%s,%s::jsonb)",
+            [organization_id, actor_id, json.dumps(envelope)],
+        )
+        return cursor.fetchone()[0]
+
+
+FILE apps/reviews/migrations/0006_capture_proposal_packs.py SHA256 c7829ea1f12b6f3437e822de9709b13b1bf0461dbfbd02fa101faebfc2f9e59b
+"""Capture pack v4: freeze issued proposals and separate owner statement kinds."""
+
+from django.db import migrations
+
+SQL = r"""
+ALTER FUNCTION app_private.freeze_review_cycle(uuid,uuid,uuid,integer) RENAME TO freeze_review_cycle_pre_v4;
+REVOKE ALL ON FUNCTION app_private.freeze_review_cycle_pre_v4(uuid,uuid,uuid,integer) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+ALTER FUNCTION app_private.request_review_artifact(uuid,uuid,uuid,integer,uuid,uuid,boolean) RENAME TO request_review_artifact_pre_v4;
+REVOKE ALL ON FUNCTION app_private.request_review_artifact_pre_v4(uuid,uuid,uuid,integer,uuid,uuid,boolean) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+ALTER FUNCTION app_private.review_pack_projection(uuid,uuid) RENAME TO review_pack_projection_pre_v4;
+REVOKE ALL ON FUNCTION app_private.review_pack_projection_pre_v4(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+ALTER FUNCTION app_private.complete_review_pack(uuid,uuid,uuid,text,uuid) RENAME TO complete_review_pack_pre_v4;
+REVOKE ALL ON FUNCTION app_private.complete_review_pack_pre_v4(uuid,uuid,uuid,text,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.require_capture_proposal_freeze_authority(org uuid,actor uuid) RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM public.review_core_proposal_gate WHERE id=1 AND enabled)
+  OR NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org)
+  OR NOT EXISTS(SELECT 1 FROM public.organization_workflow_profiles WHERE organization_id=org) THEN
+  RAISE EXCEPTION 'Capture proposal freeze authority unavailable after waits'; END IF;
+END;$fn$;
+ALTER FUNCTION app_private.require_capture_proposal_freeze_authority(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.require_capture_proposal_freeze_authority(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.require_capture_pack_creator(sid uuid,org uuid,actor uuid) RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM public.assessment_snapshots s
+  JOIN public.assessment_capture_receipts c ON c.snapshot_id=s.id AND c.organization_id=s.organization_id
+  JOIN public.review_capture_proposal_receipts p ON p.snapshot_id=s.id AND p.organization_id=s.organization_id
+  JOIN public.core_action_card_revisions r ON r.id=p.revision_id AND r.snapshot_id=s.id AND r.organization_id=s.organization_id
+  WHERE s.id=sid AND s.organization_id=org AND s.created_by_id=actor
+   AND c.created_by_id=actor AND p.created_by_id=actor AND r.created_by_id=actor) THEN
+  RAISE EXCEPTION 'Capture proposal pack requires original admitted creator'; END IF;
+END;$fn$;
+ALTER FUNCTION app_private.require_capture_pack_creator(uuid,uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.require_capture_pack_creator(uuid,uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.review_capture_proposal_selection_v1(sid uuid,org uuid) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE s public.assessment_snapshots%ROWTYPE; c public.assessment_capture_receipts%ROWTYPE;
+ receipt public.review_capture_proposal_receipts%ROWTYPE; r public.core_action_card_revisions%ROWTYPE;
+BEGIN
+ SELECT * INTO s FROM public.assessment_snapshots WHERE id=sid AND organization_id=org;
+ SELECT * INTO c FROM public.assessment_capture_receipts WHERE snapshot_id=sid AND organization_id=org;
+ SELECT * INTO receipt FROM public.review_capture_proposal_receipts WHERE snapshot_id=sid AND organization_id=org;
+ SELECT * INTO r FROM public.core_action_card_revisions WHERE id=receipt.revision_id AND snapshot_id=sid AND organization_id=org;
+ IF s.id IS NULL OR c.id IS NULL OR receipt.id IS NULL OR r.id IS NULL
+  OR receipt.capture_receipt_id IS DISTINCT FROM c.id OR receipt.created_by_id IS DISTINCT FROM s.created_by_id
+  OR r.created_by_id IS DISTINCT FROM s.created_by_id OR receipt.contract IS DISTINCT FROM 'stewardence.core_review_proposal.v1'
+  OR receipt.input_sha256 IS DISTINCT FROM s.input_sha256 OR receipt.result_sha256 IS DISTINCT FROM s.result_sha256
+  OR receipt.revision_sha256 IS DISTINCT FROM r.sha256 OR r.input_sha256 IS DISTINCT FROM s.result_sha256
+  OR r.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(r.cards),'UTF8')),'hex')
+  OR r.cards IS DISTINCT FROM app_private.recompute_capture_proposals_v1(sid,org)
+  OR receipt.qualification_sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(jsonb_build_object(
+   'schema','stewardence.core_review_proposal_applicability.v1','industry_applicability',s.input_payload->'industry_applicability',
+   'ruleset',s.input_payload->'rulesets'->'industry','engine_versions',s.input_payload->'engine_versions')),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Frozen proposal issuance pins invalid'; END IF;
+ RETURN (SELECT coalesce(jsonb_agg(jsonb_build_object('proposal_receipt_id',receipt.id::text,'revision_id',r.id::text,
+  'revision_sha256',r.sha256,'card_index',ord-1,'card_sha256',encode(sha256(convert_to(app_private.queue_canonical(value),'UTF8')),'hex'),
+  'qualification_sha256',receipt.qualification_sha256,'proposal',value) ORDER BY ord),'[]'::jsonb)
+  FROM jsonb_array_elements(r.cards) WITH ORDINALITY t(value,ord));
+END;$fn$;
+ALTER FUNCTION app_private.review_capture_proposal_selection_v1(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.review_capture_proposal_selection_v1(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.validate_capture_decision_selection_v2(selected jsonb,proposals jsonb,sid uuid,org uuid) RETURNS boolean
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE entry jsonb; proposal jsonb; p jsonb; d public.core_decision_events%ROWTYPE;
+BEGIN
+ IF jsonb_typeof(selected) IS DISTINCT FROM 'array' OR jsonb_array_length(selected)>2*jsonb_array_length(proposals)
+  OR (SELECT count(DISTINCT value->>'event_id') FROM jsonb_array_elements(selected))<>jsonb_array_length(selected)
+  OR (SELECT count(DISTINCT (value->'payload'->>'card_index',value->'payload'->>'event_kind')) FROM jsonb_array_elements(selected))<>jsonb_array_length(selected) THEN
+  RAISE EXCEPTION 'Frozen capture statement membership invalid'; END IF;
+ FOR entry IN SELECT value FROM jsonb_array_elements(selected) LOOP
+  IF jsonb_typeof(entry) IS DISTINCT FROM 'object' OR (SELECT count(*) FROM jsonb_object_keys(entry))<>3
+   OR NOT entry ?& ARRAY['event_id','event_sha256','payload'] THEN RAISE EXCEPTION 'Frozen capture statement shape invalid'; END IF;
+  p:=entry->'payload';
+  SELECT * INTO d FROM public.core_decision_events WHERE id=(entry->>'event_id')::uuid AND snapshot_id=sid AND organization_id=org;
+  SELECT value INTO proposal FROM jsonb_array_elements(proposals) WHERE value->>'card_index'=p->>'card_index';
+  IF d.id IS NULL OR proposal IS NULL OR p IS DISTINCT FROM d.payload OR entry->>'event_sha256' IS DISTINCT FROM d.sha256
+   OR d.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(p),'UTF8')),'hex')
+   OR p->>'schema' IS DISTINCT FROM 'stewardence.core_decision_event.v2'
+   OR (SELECT count(*) FROM jsonb_object_keys(p))<>31
+   OR p->>'id' IS DISTINCT FROM d.id::text OR p->>'organization_id' IS DISTINCT FROM org::text
+   OR p->>'created_by_id' IS DISTINCT FROM d.created_by_id::text OR (p->>'created_at')::timestamptz IS DISTINCT FROM d.created_at
+   OR p->>'revision_id' IS DISTINCT FROM proposal->>'revision_id' OR d.revision_id::text IS DISTINCT FROM proposal->>'revision_id'
+   OR p->>'revision_sha256' IS DISTINCT FROM proposal->>'revision_sha256' OR d.revision_sha256 IS DISTINCT FROM proposal->>'revision_sha256'
+   OR p->>'snapshot_id' IS DISTINCT FROM sid::text OR p->>'snapshot_result_sha256' IS DISTINCT FROM proposal->'proposal'->>'snapshot_result_sha256'
+   OR d.snapshot_result_sha256 IS DISTINCT FROM p->>'snapshot_result_sha256'
+   OR p->'card_index' IS DISTINCT FROM to_jsonb(d.card_index) OR p->>'card_sha256' IS DISTINCT FROM proposal->>'card_sha256'
+   OR d.card_sha256 IS DISTINCT FROM proposal->>'card_sha256' OR p->'sequence' IS DISTINCT FROM to_jsonb(d.sequence) OR d.sequence<1
+   OR p->'previous_event_id' IS DISTINCT FROM coalesce(to_jsonb(d.previous_event_id),'null'::jsonb)
+   OR p->>'event_kind' IS DISTINCT FROM d.event_kind OR p->>'state' IS DISTINCT FROM d.state
+   OR p->>'responsible_label' IS DISTINCT FROM d.responsible_label OR p->'due_date' IS DISTINCT FROM coalesce(to_jsonb(d.due_date),'null'::jsonb)
+   OR p->>'notes' IS DISTINCT FROM d.notes OR p->'links' IS DISTINCT FROM d.links
+   OR p->>'proposal_id' IS DISTINCT FROM proposal->'proposal'->>'proposal_id'
+   OR p->>'proposal_sha256' IS DISTINCT FROM proposal->'proposal'->>'sha256'
+   OR p->>'proposal_contract' IS DISTINCT FROM proposal->'proposal'->>'schema'
+   OR p->>'proposal_receipt_id' IS DISTINCT FROM proposal->>'proposal_receipt_id'
+   OR p->>'source_class' IS DISTINCT FROM proposal->'proposal'->'source'->>'class'
+   OR p->>'source_identity' IS DISTINCT FROM proposal->'proposal'->'source'->>'identity'
+   OR p->>'source_digest' IS DISTINCT FROM proposal->'proposal'->'source'->>'digest'
+   OR p->>'original_outcome' IS DISTINCT FROM proposal->'proposal'->>'original_outcome'
+   OR p->>'resolution_effect' IS DISTINCT FROM 'none' OR p->'source_state_immutable' IS DISTINCT FROM 'true'::jsonb
+   OR p->'owner_statement_only' IS DISTINCT FROM 'true'::jsonb OR p->'resolution_verified' IS DISTINCT FROM 'false'::jsonb THEN
+   RAISE EXCEPTION 'Frozen capture statement issuance pins invalid'; END IF;
+ END LOOP;
+ RETURN true;
+END;$fn$;
+ALTER FUNCTION app_private.validate_capture_decision_selection_v2(jsonb,jsonb,uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.validate_capture_decision_selection_v2(jsonb,jsonb,uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.review_capture_decision_selection_v2(sid uuid,org uuid) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE receipt public.review_capture_proposal_receipts%ROWTYPE; selected jsonb; proposals jsonb;
+BEGIN
+ proposals:=app_private.review_capture_proposal_selection_v1(sid,org);
+ SELECT * INTO receipt FROM public.review_capture_proposal_receipts WHERE snapshot_id=sid AND organization_id=org;
+ SELECT coalesce(jsonb_agg(jsonb_build_object('event_id',d.id::text,'event_sha256',d.sha256,'payload',d.payload)
+  ORDER BY d.card_index,d.event_kind COLLATE "C",d.sequence),'[]'::jsonb) INTO selected FROM public.core_decision_events d
+ WHERE d.revision_id=receipt.revision_id AND d.snapshot_id=sid AND d.organization_id=org
+  AND NOT EXISTS(SELECT 1 FROM public.core_decision_events newer WHERE newer.revision_id=d.revision_id
+   AND newer.card_index=d.card_index AND newer.event_kind=d.event_kind AND newer.sequence>d.sequence);
+ PERFORM app_private.validate_capture_decision_selection_v2(selected,proposals,sid,org);
+ RETURN selected;
+END;$fn$;
+ALTER FUNCTION app_private.review_capture_decision_selection_v2(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.review_capture_decision_selection_v2(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.validate_capture_proposal_pack(pid uuid,org uuid) RETURNS boolean
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE p public.review_pack_identities%ROWTYPE; c public.review_cycles%ROWTYPE;
+BEGIN
+ SELECT * INTO p FROM public.review_pack_identities WHERE id=pid AND organization_id=org;
+ SELECT * INTO c FROM public.review_cycles WHERE id=p.cycle_id AND organization_id=org;
+ IF p.id IS NULL OR c.id IS NULL OR p.created_by_id IS DISTINCT FROM c.created_by_id
+  OR p.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(p.manifest),'UTF8')),'hex')
+  OR (SELECT count(*) FROM jsonb_object_keys(p.manifest))<>12
+  OR NOT p.manifest ?& ARRAY['schema','cycle_id','organization_id','baseline_pack_id','snapshot','capture','selected_proposals','selected_decisions','proposal_contract_version','selection_scope','artifact_state','baseline_promotion']
+  OR p.manifest->>'proposal_contract_version' IS DISTINCT FROM 'stewardence.core_review_proposal.v1'
+  OR p.manifest->>'schema' IS DISTINCT FROM 'stewardence.review_pack.v4' OR p.manifest->>'cycle_id' IS DISTINCT FROM c.id::text
+  OR p.manifest->>'organization_id' IS DISTINCT FROM org::text
+  OR p.manifest->'snapshot' IS DISTINCT FROM app_private.review_snapshot_manifest_capture(c.input_snapshot_id,org)
+  OR p.manifest->'capture' IS DISTINCT FROM app_private.review_capture_binding(c.input_snapshot_id,org)
+  OR p.manifest->'selected_proposals' IS DISTINCT FROM app_private.review_capture_proposal_selection_v1(c.input_snapshot_id,org)
+  OR p.manifest->>'selection_scope' IS DISTINCT FROM 'issued_capture_proposals' OR p.manifest->>'artifact_state' IS DISTINCT FROM 'not_created'
+  OR p.manifest->'baseline_pack_id' IS DISTINCT FROM 'null'::jsonb OR p.manifest->>'baseline_promotion' IS DISTINCT FROM 'blocked' THEN
+  RAISE EXCEPTION 'Capture proposal pack frozen binding invalid'; END IF;
+ PERFORM app_private.validate_capture_decision_selection_v2(p.manifest->'selected_decisions',p.manifest->'selected_proposals',c.input_snapshot_id,org);
+ RETURN true;
+END;$fn$;
+ALTER FUNCTION app_private.validate_capture_proposal_pack(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.validate_capture_proposal_pack(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE OR REPLACE FUNCTION app_private.freeze_capture_proposal_review_cycle(cid uuid,org uuid,actor uuid,expected integer) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE c public.review_cycles%ROWTYPE; event public.review_cycle_events%ROWTYPE;
+ pack public.review_pack_identities%ROWTYPE; coverage public.billing_paid_coverage%ROWTYPE;
+ snapshot jsonb; manifest jsonb; payload jsonb; rid uuid; pid uuid; retained bigint; reserved bigint;
+ decision_idx integer; decision_revision uuid;
+BEGIN
+ PERFORM app_private.require_review_owner(org,actor);
+ IF expected IS DISTINCT FROM 1 THEN RAISE EXCEPTION 'Review revision compare and swap failed'; END IF;
+ SELECT * INTO c FROM public.review_cycles WHERE id=cid AND organization_id=org FOR UPDATE;
+ IF NOT FOUND OR c.created_by_id IS DISTINCT FROM actor THEN RAISE EXCEPTION 'Review cycle owner binding invalid'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':proposal:'||c.input_snapshot_id::text,0));
+ PERFORM 1 FROM public.review_core_proposal_gate WHERE id=1 FOR SHARE;
+ PERFORM 1 FROM public.accounts_user WHERE id=actor FOR KEY SHARE;
+ PERFORM 1 FROM public.organizations_organization WHERE id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.assessment_snapshots WHERE id=c.input_snapshot_id AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.assessment_capture_receipts WHERE snapshot_id=c.input_snapshot_id AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.review_capture_proposal_receipts WHERE snapshot_id=c.input_snapshot_id AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.core_action_card_revisions WHERE snapshot_id=c.input_snapshot_id AND organization_id=org FOR KEY SHARE;
+ SELECT id INTO decision_revision FROM public.core_action_card_revisions WHERE snapshot_id=c.input_snapshot_id AND organization_id=org;
+ FOR decision_idx IN SELECT generate_series(0,jsonb_array_length(cards)-1) FROM public.core_action_card_revisions WHERE id=decision_revision LOOP
+  PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':decision:'||decision_revision::text||':'||decision_idx::text,0));
+ END LOOP;
+ PERFORM 1 FROM public.core_decision_events WHERE revision_id=decision_revision AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.organization_workflow_profiles WHERE organization_id=org FOR SHARE;
+ PERFORM app_private.require_capture_pack_creator(c.input_snapshot_id,org,actor);
+
+
+ SELECT * INTO pack FROM public.review_pack_identities WHERE cycle_id=cid;
+ IF FOUND THEN
+  IF pack.admitted_revision IS DISTINCT FROM expected
+   OR pack.organization_id IS DISTINCT FROM org OR pack.created_by_id IS DISTINCT FROM actor
+   OR pack.manifest->>'cycle_id' IS DISTINCT FROM cid::text
+   OR pack.manifest->>'organization_id' IS DISTINCT FROM org::text
+   OR pack.manifest->'snapshot'->>'snapshot_id' IS DISTINCT FROM c.input_snapshot_id::text
+   OR pack.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(pack.manifest),'UTF8')),'hex') THEN
+   RAISE EXCEPTION 'Frozen review identity replay changed'; END IF;
+  PERFORM app_private.validate_capture_proposal_pack(pack.id,org);
+  PERFORM app_private.require_capture_proposal_freeze_authority(org,actor);
+  RETURN pack.id;
+ END IF;
+ snapshot:=app_private.review_snapshot_manifest_capture(c.input_snapshot_id,org);
+
+ manifest:=jsonb_build_object('schema','stewardence.review_pack.v4',
+  'proposal_contract_version','stewardence.core_review_proposal.v1','cycle_id',c.id::text,
+  'organization_id',org::text,'baseline_pack_id',NULL,'snapshot',snapshot,
+  'capture',app_private.review_capture_binding(c.input_snapshot_id,org),
+  'selected_proposals',app_private.review_capture_proposal_selection_v1(c.input_snapshot_id,org),
+  'selected_decisions',app_private.review_capture_decision_selection_v2(c.input_snapshot_id,org),
+  'selection_scope','issued_capture_proposals','artifact_state','not_created','baseline_promotion','blocked');
+
+ SELECT * INTO event FROM public.review_cycle_events WHERE cycle_id=cid ORDER BY revision DESC LIMIT 1;
+ IF NOT FOUND OR event.revision<>expected OR event.state<>'OPEN'
+  OR event.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(event.payload),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Review state compare and swap failed'; END IF;
+ IF EXISTS(SELECT 1 FROM public.review_cycles pending WHERE pending.organization_id=org AND pending.id<>cid
+  AND (SELECT state FROM public.review_cycle_events e WHERE e.cycle_id=pending.id ORDER BY revision DESC LIMIT 1) IN ('FINALIZATION_REQUESTED','FROZEN','ARTIFACT_PENDING')) THEN
+  RAISE EXCEPTION 'Review frozen pending capacity exhausted'; END IF;
+ SELECT p.* INTO coverage FROM public.billing_paid_coverage p
+  JOIN public.billing_subscription s ON s.id=p.subscription_id
+  JOIN public.billing_billingcustomer b ON b.id=s.billing_customer_id
+  JOIN public.billing_paid_coverage_authority a ON a.id=1 AND a.stripe_account_id=p.stripe_account_id AND a.livemode=p.livemode
+  WHERE s.organization_id=org AND b.user_id=actor AND s.portfolio='core'
+   AND app_private.paid_subscription_access(s.id) AND p.stripe_subscription_id=s.stripe_subscription_id
+   AND p.stripe_customer_id=b.stripe_customer_id AND p.service_start<=clock_timestamp() AND p.service_end>clock_timestamp()
+  ORDER BY p.service_start DESC,p.service_end DESC,p.id LIMIT 1 FOR KEY SHARE OF p;
+ IF NOT FOUND THEN RAISE EXCEPTION 'Admitted billing interval required for review reservation'; END IF;
+ IF (SELECT count(*) FROM public.review_capacity_reservations r
+  JOIN public.billing_paid_coverage p ON p.id=r.paid_coverage_id
+  WHERE r.organization_id=org AND r.state IN ('reserved','reconciliation','consumed')
+   AND p.subscription_id=coverage.subscription_id AND p.stripe_subscription_id=coverage.stripe_subscription_id
+   AND p.service_start=coverage.service_start AND p.service_end=coverage.service_end)>=12 THEN
+  RAISE EXCEPTION 'Review billing interval capacity exhausted'; END IF;
+ SELECT coalesce(sum(size_bytes),0) INTO retained FROM public.report_artifacts WHERE organization_id=org;
+ SELECT coalesce(sum(reserved_bytes),0) INTO reserved FROM public.review_capacity_reservations
+  WHERE organization_id=org AND coalesce((SELECT e.state FROM public.review_reservation_events e WHERE e.reservation_id=review_capacity_reservations.id ORDER BY revision DESC LIMIT 1),state) IN ('reserved','reconciliation');
+ IF retained+reserved+16777216>3221225472 THEN RAISE EXCEPTION 'Review storage reservation capacity exhausted'; END IF;
+ IF NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org) THEN
+  RAISE EXCEPTION 'Review paid owner admission unavailable'; END IF;
+ PERFORM app_private.require_capture_proposal_freeze_authority(org,actor);
+ rid:=gen_random_uuid(); pid:=gen_random_uuid();
+ INSERT INTO public.review_capacity_reservations(id,organization_id,created_by_id,created_at,cycle_id,paid_coverage_id,reserved_bytes,state)
+ VALUES(rid,org,actor,clock_timestamp(),cid,coverage.id,16777216,'reserved');
+ payload:=jsonb_build_object('schema','stewardence.review_reservation_event.v2','reservation_id',rid::text,
+  'cycle_id',cid::text,'revision',1,'state','reserved','paid_coverage_id',coverage.id::text,'reserved_bytes',16777216);
+ INSERT INTO public.review_reservation_events(id,organization_id,created_by_id,created_at,reservation_id,revision,state,payload,sha256)
+ VALUES(gen_random_uuid(),org,actor,clock_timestamp(),rid,1,'reserved',payload,
+  encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+ payload:=jsonb_build_object('schema','stewardence.review_cycle_event.v2','cycle_id',cid::text,
+  'revision',2,'state','FINALIZATION_REQUESTED','reservation_id',rid::text);
+ INSERT INTO public.review_cycle_events(id,organization_id,created_by_id,created_at,cycle_id,revision,state,payload,sha256)
+ VALUES(gen_random_uuid(),org,actor,clock_timestamp(),cid,2,'FINALIZATION_REQUESTED',payload,
+  encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+ INSERT INTO public.review_pack_identities(id,organization_id,created_by_id,created_at,cycle_id,admitted_revision,manifest,sha256)
+ VALUES(pid,org,actor,clock_timestamp(),cid,expected,manifest,
+  encode(sha256(convert_to(app_private.queue_canonical(manifest),'UTF8')),'hex'));
+ payload:=jsonb_build_object('schema','stewardence.review_cycle_event.v2','cycle_id',cid::text,
+  'revision',3,'state','FROZEN','pack_id',pid::text,'manifest_sha256',
+  encode(sha256(convert_to(app_private.queue_canonical(manifest),'UTF8')),'hex'));
+ INSERT INTO public.review_cycle_events(id,organization_id,created_by_id,created_at,cycle_id,revision,state,payload,sha256)
+ VALUES(gen_random_uuid(),org,actor,clock_timestamp(),cid,3,'FROZEN',payload,
+  encode(sha256(convert_to(app_private.queue_canonical(payload),'UTF8')),'hex'));
+ PERFORM app_private.require_capture_proposal_freeze_authority(org,actor);
+ RETURN pid;
+END;$fn$;
+ALTER FUNCTION app_private.freeze_capture_proposal_review_cycle(uuid,uuid,uuid,integer) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.freeze_capture_proposal_review_cycle(uuid,uuid,uuid,integer) FROM PUBLIC,agentledger_worker;
+REVOKE ALL ON FUNCTION app_private.freeze_capture_proposal_review_cycle(uuid,uuid,uuid,integer) FROM agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+
+CREATE FUNCTION app_private.capture_exposure_review_v1(record jsonb,captured timestamptz) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE questions jsonb:='[]'::jsonb; field text; label text; outcome text; explanation text; fields jsonb;
+ body jsonb; whitespace text:=chr(9)||chr(10)||chr(11)||chr(12)||chr(13)||chr(28)||chr(29)||chr(30)||chr(31)||chr(32)||chr(133)||chr(160)||chr(5760)||chr(8192)||chr(8193)||chr(8194)||chr(8195)||chr(8196)||chr(8197)||chr(8198)||chr(8199)||chr(8200)||chr(8201)||chr(8202)||chr(8232)||chr(8233)||chr(8239)||chr(8287)||chr(12288);
+BEGIN
+ PERFORM app_private.validate_capture_proposal_record_v1(record,captured);
+ FOREACH field IN ARRAY ARRAY['business_owner','business_purpose','data_categories','permissions','capabilities','approval','account_identity','access_removal'] LOOP
+  fields:=jsonb_build_array(field);
+  CASE field WHEN 'business_owner' THEN label:='Responsible person'; WHEN 'business_purpose' THEN label:='Business purpose';
+   WHEN 'data_categories' THEN label:='Information categories'; WHEN 'permissions' THEN label:='Permissions'; WHEN 'capabilities' THEN label:='Actions'; ELSE label:=NULL; END CASE;
+  IF field=ANY(ARRAY['business_owner','business_purpose']) THEN
+   IF record->'provenance'->>field IS DISTINCT FROM 'Declared' THEN outcome:='UNKNOWN'; explanation:=label||' has not been declared.';
+   ELSIF btrim(record->>field,whitespace)='' THEN outcome:='CONCERN'; explanation:=label||' is blank in the declaration.';
+   ELSE outcome:='PASS'; explanation:=label||' is recorded as a declaration.'; END IF;
+  ELSIF field=ANY(ARRAY['data_categories','permissions','capabilities']) THEN
+   IF record->'provenance'->>field IS DISTINCT FROM 'Declared' THEN outcome:='UNKNOWN'; explanation:=label||' have not been declared.';
+   ELSE outcome:='PASS'; explanation:=label||' are recorded as declarations, including any stated empty list.'; END IF;
+  ELSIF field='approval' THEN
+   fields:='["human_approval","autonomy_level","capabilities","permissions"]'::jsonb;
+   IF record->'provenance'->>'human_approval' IS DISTINCT FROM 'Declared' OR record->'provenance'->>'autonomy_level' IS DISTINCT FROM 'Declared'
+    OR record->'provenance'->>'capabilities' IS DISTINCT FROM 'Declared' OR record->'provenance'->>'permissions' IS DISTINCT FROM 'Declared' THEN
+    outcome:='UNKNOWN'; explanation:='The declared action and approval boundary is incomplete.';
+   ELSIF record->'capabilities'='[]'::jsonb AND record->'permissions'='[]'::jsonb AND record->>'autonomy_level'='0' THEN
+    outcome:='NOT_APPLICABLE'; explanation:='No actions or permissions are declared; approval applicability follows that declaration only.';
+   ELSIF record->'human_approval'='true'::jsonb THEN outcome:='PASS'; explanation:='A human approval requirement is declared; enforcement has not been checked.';
+   ELSE outcome:='CONCERN'; explanation:='Actions or permissions are declared without a human approval requirement; review the intended boundary.'; END IF;
+  ELSIF field='account_identity' THEN outcome:='UNKNOWN'; fields:='[]'::jsonb; explanation:='This captured inventory schema does not identify the executing account or principal.';
+  ELSE outcome:='UNKNOWN'; fields:='[]'::jsonb; explanation:='This captured inventory schema does not record an access-removal procedure.';
+  END IF;
+  questions:=questions||jsonb_build_array(jsonb_build_object('question_id',field,'outcome',outcome,'explanation',explanation,
+   'source_fields',fields,'basis',CASE WHEN outcome='UNKNOWN' THEN 'unknown' ELSE 'customer_declaration' END,'verification','not_established'));
+ END LOOP;
+ body:=jsonb_build_object('schema','core.exposure.declarations.v1','inventory_item_id',record->'id',
+  'record_sha256',encode(sha256(convert_to(app_private.queue_canonical(record),'UTF8')),'hex'),'questions',questions,'authority','proposal_only','verification','not_established');
+ RETURN body||jsonb_build_object('sha256',encode(sha256(convert_to(app_private.queue_canonical(body),'UTF8')),'hex'));
+END;$fn$;
+ALTER FUNCTION app_private.capture_exposure_review_v1(jsonb,timestamptz) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.capture_exposure_review_v1(jsonb,timestamptz) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.capture_proposal_request_projection(request_id uuid) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE q public.review_artifact_requests%ROWTYPE; p public.review_pack_identities%ROWTYPE; c public.review_cycles%ROWTYPE;
+ s public.assessment_snapshots%ROWTYPE; r public.reports%ROWTYPE; j public.background_jobs%ROWTYPE;
+BEGIN
+ SELECT * INTO q FROM public.review_artifact_requests WHERE id=request_id;
+ SELECT * INTO p FROM public.review_pack_identities WHERE id=q.pack_id AND organization_id=q.organization_id;
+ SELECT * INTO c FROM public.review_cycles WHERE id=p.cycle_id AND organization_id=q.organization_id;
+ SELECT * INTO s FROM public.assessment_snapshots WHERE id=c.input_snapshot_id AND organization_id=q.organization_id;
+ SELECT * INTO r FROM public.reports WHERE id=q.report_id AND organization_id=q.organization_id;
+ SELECT * INTO j FROM public.background_jobs WHERE id=q.job_id AND organization_id=q.organization_id;
+ PERFORM app_private.validate_capture_proposal_pack(p.id,q.organization_id);
+ IF q.id IS NULL OR r.id IS NULL OR j.id IS NULL OR q.promote_baseline IS DISTINCT FROM false
+  OR p.created_by_id IS DISTINCT FROM q.created_by_id OR c.created_by_id IS DISTINCT FROM q.created_by_id
+  OR r.created_by_id IS DISTINCT FROM q.created_by_id OR s.created_by_id IS DISTINCT FROM q.created_by_id
+  OR q.manifest_sha256 IS DISTINCT FROM p.sha256 OR r.assessment_snapshot_id IS DISTINCT FROM s.id
+  OR j.job_type IS DISTINCT FROM 'report_generation' OR j.payload IS DISTINCT FROM jsonb_build_object('report_id',r.id::text)
+  OR j.input_sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(j.payload),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Capture proposal projection effect pins invalid'; END IF;
+ RETURN jsonb_build_object('schema','stewardence.review_worker_projection.v3','request_id',q.id::text,'job_id',j.id::text,
+  'report_id',r.id::text,'organization_id',q.organization_id::text,'pack_id',p.id::text,
+  'manifest',p.manifest,'manifest_sha256',p.sha256,'snapshot_input',s.input_payload,'snapshot_result',s.result_payload,
+  'selected_proposals',p.manifest->'selected_proposals','selected_decisions',p.manifest->'selected_decisions');
+END;$fn$;
+ALTER FUNCTION app_private.capture_proposal_request_projection(uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.capture_proposal_request_projection(uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.capture_proposal_preflight_context(request_id uuid) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE projection jsonb; metadata jsonb; exposure jsonb; r public.reports%ROWTYPE; captured timestamptz;
+BEGIN
+ projection:=app_private.capture_proposal_request_projection(request_id);
+ SELECT * INTO r FROM public.reports WHERE id=(projection->>'report_id')::uuid AND organization_id=(projection->>'organization_id')::uuid;
+ captured:=(projection->'manifest'->'snapshot'->>'captured_at')::timestamptz;
+ metadata:=jsonb_build_object('report_identifier',r.report_identifier,'organization_display_name',r.organization_display_name,
+  'assessment_date',projection->'manifest'->'snapshot'->'captured_at','assessment_id',projection->'manifest'->'snapshot'->'assessment_id',
+  'assessment_version',projection->'manifest'->'snapshot'->'assessment_version','assessment_snapshot_id',projection->'manifest'->'snapshot'->'snapshot_id',
+  'input_sha256',projection->'manifest'->'snapshot'->'input_sha256','result_sha256',projection->'manifest'->'snapshot'->'result_sha256');
+ SELECT jsonb_agg(app_private.capture_exposure_review_v1(value,captured) ORDER BY ord)
+  INTO exposure FROM jsonb_array_elements(projection->'snapshot_input'->'inventory') WITH ORDINALITY t(value,ord);
+ RETURN jsonb_build_object('context_version','AL-REVIEW-PACK-CONTEXT-3','title','Frozen Tool Exposure Evidence Pack',
+  'metadata',metadata,'projection',projection,'exposure_reviews',exposure);
+END;$fn$;
+ALTER FUNCTION app_private.capture_proposal_preflight_context(uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.capture_proposal_preflight_context(uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.freeze_review_cycle(cid uuid,org uuid,actor uuid,expected integer) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE c public.review_cycles%ROWTYPE; schema text;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' OR org IS DISTINCT FROM app_private.current_organization_id()
+  OR actor IS DISTINCT FROM app_private.current_user_id() THEN RAISE EXCEPTION 'Review freeze context invalid'; END IF;
+ PERFORM app_private.require_review_owner(org,actor);
+ SELECT * INTO c FROM public.review_cycles WHERE id=cid AND organization_id=org;
+ SELECT manifest->>'schema' INTO schema FROM public.review_pack_identities WHERE cycle_id=cid AND organization_id=org;
+ IF schema IN ('stewardence.review_pack.v2','stewardence.review_pack.v3') THEN
+  RETURN app_private.freeze_review_cycle_pre_v4(cid,org,actor,expected); END IF;
+ IF schema='stewardence.review_pack.v4' OR (schema IS NULL AND EXISTS(SELECT 1 FROM public.review_capture_proposal_receipts WHERE snapshot_id=c.input_snapshot_id AND organization_id=org)) THEN
+  RETURN app_private.freeze_capture_proposal_review_cycle(cid,org,actor,expected); END IF;
+ IF schema IS NOT NULL THEN RAISE EXCEPTION 'Unsupported frozen review version'; END IF;
+ RETURN app_private.freeze_review_cycle_pre_v4(cid,org,actor,expected);
+END;$fn$;
+ALTER FUNCTION app_private.freeze_review_cycle(uuid,uuid,uuid,integer) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.freeze_review_cycle(uuid,uuid,uuid,integer) FROM PUBLIC,agentledger_worker,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.freeze_review_cycle(uuid,uuid,uuid,integer) TO agentledger_app;
+
+CREATE FUNCTION app_private.request_review_artifact(pid uuid,org uuid,actor uuid,expected integer,rid uuid,jid uuid,promote boolean) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE schema text; target uuid; sid uuid; context jsonb; payload_bytes integer;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' OR org IS DISTINCT FROM app_private.current_organization_id()
+  OR actor IS DISTINCT FROM app_private.current_user_id() THEN RAISE EXCEPTION 'Review request context invalid'; END IF;
+ SELECT manifest->>'schema' INTO schema FROM public.review_pack_identities WHERE id=pid AND organization_id=org;
+ IF schema IN ('stewardence.review_pack.v2','stewardence.review_pack.v3') THEN
+  RETURN app_private.request_review_artifact_pre_v4(pid,org,actor,expected,rid,jid,promote); END IF;
+ IF schema IS DISTINCT FROM 'stewardence.review_pack.v4' OR promote IS DISTINCT FROM false THEN RAISE EXCEPTION 'Capture proposal request meaning unavailable'; END IF;
+ PERFORM app_private.require_review_owner(org,actor);
+ PERFORM 1 FROM public.review_lifecycle_gate WHERE id=1 FOR SHARE;
+ PERFORM 1 FROM public.review_core_proposal_gate WHERE id=1 FOR SHARE;
+ PERFORM 1 FROM public.accounts_user WHERE id=actor FOR KEY SHARE;
+ PERFORM 1 FROM public.organizations_organization WHERE id=org FOR KEY SHARE;
+ SELECT c.input_snapshot_id INTO sid FROM public.review_cycles c JOIN public.review_pack_identities p ON p.cycle_id=c.id WHERE p.id=pid AND p.organization_id=org;
+ PERFORM 1 FROM public.assessment_snapshots WHERE id=sid AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.review_pack_identities WHERE id=pid AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.review_capture_proposal_receipts WHERE snapshot_id=sid AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.reports WHERE id=rid AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.background_jobs WHERE id=jid AND organization_id=org FOR KEY SHARE;
+ PERFORM app_private.require_capture_pack_creator(sid,org,actor);
+ PERFORM app_private.validate_capture_proposal_pack(pid,org);
+ target:=app_private.request_review_artifact_v2(pid,org,actor,expected,rid,jid,false);
+ context:=app_private.capture_proposal_preflight_context(target);
+ payload_bytes:=octet_length(convert_to(app_private.queue_canonical(context),'UTF8'));
+ IF payload_bytes>1048576 THEN RAISE EXCEPTION 'Frozen capture context is % bytes; maximum is 1048576; request not admitted',payload_bytes; END IF;
+ PERFORM app_private.require_capture_proposal_freeze_authority(org,actor);
+ IF NOT EXISTS(SELECT 1 FROM public.review_lifecycle_gate WHERE id=1 AND enabled) THEN RAISE EXCEPTION 'Capture proposal request lifecycle disabled after waits'; END IF;
+ RETURN target;
+END;$fn$;
+ALTER FUNCTION app_private.request_review_artifact(uuid,uuid,uuid,integer,uuid,uuid,boolean) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.request_review_artifact(uuid,uuid,uuid,integer,uuid,uuid,boolean) FROM PUBLIC,agentledger_worker,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.request_review_artifact(uuid,uuid,uuid,integer,uuid,uuid,boolean) TO agentledger_app;
+
+CREATE FUNCTION app_private.capture_proposal_pack_projection(jid uuid,token uuid) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE target uuid; projection jsonb;
+BEGIN
+ target:=app_private.review_job_target(jid,token);
+ IF target IS NULL THEN RAISE EXCEPTION 'Capture proposal job request required'; END IF;
+ projection:=app_private.capture_proposal_request_projection(target);
+ IF app_private.review_job_target(jid,token) IS DISTINCT FROM target
+  OR NOT EXISTS(SELECT 1 FROM public.review_core_proposal_gate WHERE id=1 AND enabled) THEN
+  RAISE EXCEPTION 'Capture proposal projection authority unavailable'; END IF;
+ RETURN projection;
+END;$fn$;
+ALTER FUNCTION app_private.capture_proposal_pack_projection(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.capture_proposal_pack_projection(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.review_pack_projection(jid uuid,token uuid) RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE target uuid; schema text;
+BEGIN
+ target:=app_private.review_job_target(jid,token);
+ IF target IS NULL THEN RETURN app_private.review_pack_projection_pre_v4(jid,token); END IF;
+ SELECT p.manifest->>'schema' INTO schema FROM public.review_pack_identities p JOIN public.review_artifact_requests q ON q.pack_id=p.id WHERE q.id=target;
+ IF schema IN ('stewardence.review_pack.v2','stewardence.review_pack.v3') THEN RETURN app_private.review_pack_projection_pre_v4(jid,token); END IF;
+ IF schema='stewardence.review_pack.v4' THEN RETURN app_private.capture_proposal_pack_projection(jid,token); END IF;
+ RAISE EXCEPTION 'Unsupported review projection version';
+END;$fn$;
+ALTER FUNCTION app_private.review_pack_projection(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.review_pack_projection(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.review_pack_projection(uuid,uuid) TO agentledger_worker;
+
+CREATE FUNCTION app_private.complete_review_pack(request_id uuid,artifact_id uuid,jid uuid,worker_id text,token uuid) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE q public.review_artifact_requests%ROWTYPE; schema text; target uuid;
+BEGIN
+ SELECT * INTO q FROM public.review_artifact_requests WHERE id=request_id AND organization_id=app_private.current_organization_id();
+ SELECT manifest->>'schema' INTO schema FROM public.review_pack_identities WHERE id=q.pack_id AND organization_id=q.organization_id;
+ IF schema IN ('stewardence.review_pack.v2','stewardence.review_pack.v3') THEN RETURN app_private.complete_review_pack_pre_v4(request_id,artifact_id,jid,worker_id,token); END IF;
+ IF schema IS DISTINCT FROM 'stewardence.review_pack.v4' OR q.promote_baseline IS DISTINCT FROM false THEN RAISE EXCEPTION 'Capture proposal completion meaning unavailable'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||q.organization_id::text||':control',0));
+ PERFORM pg_advisory_xact_lock(hashtextextended('review:'||q.organization_id::text||':capacity',0));
+ PERFORM 1 FROM public.review_lifecycle_gate WHERE id=1 FOR SHARE;
+ PERFORM 1 FROM public.review_core_proposal_gate WHERE id=1 FOR SHARE;
+ PERFORM 1 FROM public.accounts_user WHERE id=q.created_by_id FOR KEY SHARE;
+ PERFORM 1 FROM public.organizations_organization WHERE id=q.organization_id FOR KEY SHARE;
+ PERFORM 1 FROM public.review_artifact_requests WHERE id=q.id FOR KEY SHARE;
+ PERFORM 1 FROM public.review_pack_identities WHERE id=q.pack_id FOR KEY SHARE;
+ PERFORM 1 FROM public.reports WHERE id=q.report_id AND organization_id=q.organization_id FOR KEY SHARE;
+ PERFORM 1 FROM public.report_artifacts WHERE id=artifact_id AND report_id=q.report_id AND organization_id=q.organization_id FOR KEY SHARE;
+ PERFORM 1 FROM public.review_capacity_reservations r JOIN public.review_pack_identities p ON p.cycle_id=r.cycle_id WHERE p.id=q.pack_id FOR KEY SHARE OF r;
+ PERFORM app_private.validate_capture_proposal_pack(q.pack_id,q.organization_id);
+ target:=app_private.complete_review_pack_v2(request_id,artifact_id,jid,worker_id,token);
+ IF app_private.review_job_target(jid,token) IS DISTINCT FROM q.id THEN RAISE EXCEPTION 'Capture proposal completion lease unavailable after waits'; END IF;
+ PERFORM app_private.require_capture_proposal_freeze_authority(q.organization_id,q.created_by_id);
+ RETURN target;
+END;$fn$;
+ALTER FUNCTION app_private.complete_review_pack(uuid,uuid,uuid,text,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.complete_review_pack(uuid,uuid,uuid,text,uuid) FROM PUBLIC,agentledger_app,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.complete_review_pack(uuid,uuid,uuid,text,uuid) TO agentledger_worker;
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ("reviews", "0005_capture_proposal_admission"),
+        ("jobs", "0016_capture_decisions"),
+    ]
+    operations = [migrations.RunSQL(SQL)]
+
+
+FILE apps/reviews/capture_event_v2.py SHA256 afae387cfb5e6381a69788ad95a03fcd16207b9e8b089354949bf9196fd77d17
+"""Closed standalone successor; deterministic consistency is not issuance."""
+
+import json
+import re
+from copy import deepcopy
+from datetime import date, datetime
+from uuid import UUID
+
+from apps.assessments.capture_v1 import validate_capture_payloads
+
+from .capture_context import build_capture_pack_context
+from .capture_context import digest as _digest
+from .exposure_v1 import review_record
+from .proposals_v1 import APPLICABILITY_VERSION, build_review_proposals
+
+
+def validate_capture_render_payload(report):
+    return build_capture_pack_context(report["metadata"], report["projection"])
+
+
+MAX_PAYLOAD_BYTES = 1048576
+InvalidReportRenderPayload = ValueError
+
+
+def _closed(value, keys):
+    if type(value) is not dict or set(value) != keys:
+        raise ValueError("Closed v4 fields required")
+
+
+def _sha(value):
+    if type(value) is not str or re.fullmatch("[0-9a-f]{64}", value) is None:
+        raise ValueError("Exact SHA required")
+
+
+def _uuid(value):
+    if type(value) is not str or str(UUID(value)) != value:
+        raise ValueError("Canonical UUID required")
+
+
+def _timestamp(value):
+    if type(value) is not str:
+        raise ValueError("Timestamp required")
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError("Aware timestamp required")
+
+
+VERSION = "AL-REVIEW-PACK-CONTEXT-3"
+PROPOSAL_KEYS = {
+    "proposal_receipt_id",
+    "revision_id",
+    "revision_sha256",
+    "card_index",
+    "card_sha256",
+    "qualification_sha256",
+    "proposal",
+}
+EVENT_KEYS = {
+    "schema",
+    "id",
+    "organization_id",
+    "created_by_id",
+    "created_at",
+    "revision_id",
+    "revision_sha256",
+    "snapshot_id",
+    "snapshot_result_sha256",
+    "card_index",
+    "card_sha256",
+    "previous_event_id",
+    "sequence",
+    "event_kind",
+    "state",
+    "responsible_label",
+    "due_date",
+    "notes",
+    "links",
+    "owner_statement_only",
+    "resolution_verified",
+    "proposal_id",
+    "proposal_sha256",
+    "proposal_contract",
+    "proposal_receipt_id",
+    "source_class",
+    "source_identity",
+    "source_digest",
+    "original_outcome",
+    "resolution_effect",
+    "source_state_immutable",
+}
+
+
+def legacy_capture(report):
+    """Private validation view; never emitted or used as an admitted manifest."""
+    value = deepcopy(report)
+    value["context_version"] = "AL-REVIEW-PACK-CONTEXT-2"
+    p = value["projection"]
+    p["schema"] = "stewardence.review_worker_projection.v2"
+    p.pop("selected_proposals")
+    p["selected_decisions"] = []
+    m = p["manifest"]
+    m["schema"] = "stewardence.review_pack.v3"
+    m.pop("selected_proposals")
+    m.pop("proposal_contract_version")
+    m["selected_decisions"] = []
+    m["selection_scope"] = "empty_capture_kernel"
+    p["manifest_sha256"] = _digest(m)
+    return value
+
+
+def validate_capture_v4_render_payload(report):
+    try:
+        return _validate(report)
+    except (KeyError, TypeError, ValueError, AttributeError) as error:
+        if isinstance(error, InvalidReportRenderPayload):
+            raise
+        raise InvalidReportRenderPayload("Malformed capture v4 contract") from error
+
+
+def _validate(report):
+    _closed(
+        report,
+        {"context_version", "title", "metadata", "projection", "exposure_reviews"},
+    )
+    if (
+        report["context_version"] != VERSION
+        or report["title"] != "Frozen Tool Exposure Evidence Pack"
+    ):
+        raise InvalidReportRenderPayload("Unsupported capture v4 context")
+    if (
+        len(
+            json.dumps(
+                report, ensure_ascii=False, allow_nan=False, separators=(",", ":")
+            ).encode()
+        )
+        > MAX_PAYLOAD_BYTES
+    ):
+        raise InvalidReportRenderPayload("Payload is too large")
+    _validate_tree(report)
+    p = report["projection"]
+    _closed(
+        p,
+        {
+            "schema",
+            "request_id",
+            "job_id",
+            "report_id",
+            "organization_id",
+            "pack_id",
+            "manifest",
+            "manifest_sha256",
+            "snapshot_input",
+            "snapshot_result",
+            "selected_proposals",
+            "selected_decisions",
+        },
+    )
+    m = p["manifest"]
+    _closed(
+        m,
+        {
+            "schema",
+            "cycle_id",
+            "organization_id",
+            "baseline_pack_id",
+            "snapshot",
+            "capture",
+            "proposal_contract_version",
+            "selected_proposals",
+            "selected_decisions",
+            "selection_scope",
+            "artifact_state",
+            "baseline_promotion",
+        },
+    )
+    if (
+        p["schema"] != "stewardence.review_worker_projection.v3"
+        or m["schema"] != "stewardence.review_pack.v4"
+        or m["selection_scope"] != "issued_capture_proposals"
+        or m["proposal_contract_version"] != "stewardence.core_review_proposal.v1"
+        or (_digest(m) != p["manifest_sha256"])
+    ):
+        raise InvalidReportRenderPayload("Capture v4 manifest mismatch")
+    for name in ("selected_proposals", "selected_decisions"):
+        if type(p[name]) is not list or p[name] != m[name]:
+            raise InvalidReportRenderPayload("Capture v4 frozen selection mismatch")
+    validate_capture_render_payload(legacy_capture(report))
+    validate_frozen_capture_selection(
+        manifest=m,
+        snapshot_input=p["snapshot_input"],
+        snapshot_result=p["snapshot_result"],
+    )
+    exposures = json.loads(
+        json.dumps([review_record(row) for row in p["snapshot_input"]["inventory"]])
+    )
+    if report["exposure_reviews"] != exposures:
+        raise InvalidReportRenderPayload("Permanent exposure meaning mismatch")
+    return report
+
+
+MAX_NESTING_DEPTH = 12
+MAX_STRING_LENGTH = 4096
+MAX_COLLECTION_ITEMS = 2000
+FORBIDDEN_KEYS = {
+    "url",
+    "filesystem_path",
+    "path",
+    "javascript",
+    "output_path",
+    "script",
+    "css",
+    "file",
+    "src",
+    "href",
+    "html",
+}
+
+
+def _validate_tree(value: object, *, depth: int = 0) -> None:
+    if depth > MAX_NESTING_DEPTH:
+        raise InvalidReportRenderPayload("Payload nesting is too deep")
+    if value is None or isinstance(value, (bool, int)):
+        return
+    if isinstance(value, str):
+        if len(value) > MAX_STRING_LENGTH:
+            raise InvalidReportRenderPayload("Payload string is too long")
+        if "\x00" in value:
+            raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+        return
+    if isinstance(value, list):
+        if len(value) > MAX_COLLECTION_ITEMS:
+            raise InvalidReportRenderPayload("Payload collection is too large")
+        for item in value:
+            _validate_tree(item, depth=depth + 1)
+        return
+    if isinstance(value, dict):
+        if len(value) > MAX_COLLECTION_ITEMS:
+            raise InvalidReportRenderPayload("Payload collection is too large")
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise InvalidReportRenderPayload("Payload keys must be strings")
+            if key.casefold() in FORBIDDEN_KEYS:
+                raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+            _validate_tree(item, depth=depth + 1)
+        return
+    raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+
+
+def validate_frozen_capture_selection(*, manifest, snapshot_input, snapshot_result):
+    try:
+        return _validate_frozen_capture_selection(
+            manifest=manifest,
+            snapshot_input=snapshot_input,
+            snapshot_result=snapshot_result,
+        )
+    except (KeyError, TypeError, ValueError, AttributeError) as error:
+        if isinstance(error, InvalidReportRenderPayload):
+            raise
+        raise InvalidReportRenderPayload(
+            "Malformed frozen capture selection"
+        ) from error
+
+
+def _validate_frozen_capture_selection(*, manifest, snapshot_input, snapshot_result):
+    """Pure pre-request validation. Does not prove admitted database issuance."""
+    m = manifest
+    _closed(
+        m,
+        {
+            "schema",
+            "cycle_id",
+            "organization_id",
+            "baseline_pack_id",
+            "snapshot",
+            "capture",
+            "selected_proposals",
+            "selected_decisions",
+            "selection_scope",
+            "artifact_state",
+            "baseline_promotion",
+            "proposal_contract_version",
+        },
+    )
+    if (
+        m["schema"] != "stewardence.review_pack.v4"
+        or m["proposal_contract_version"] != "stewardence.core_review_proposal.v1"
+        or m["selection_scope"] != "issued_capture_proposals"
+        or m["artifact_state"] != "not_created"
+        or m["baseline_promotion"] != "blocked"
+        or m["baseline_pack_id"] is not None
+    ):
+        raise InvalidReportRenderPayload("Frozen capture v4 meaning invalid")
+    _uuid(m["cycle_id"])
+    _uuid(m["organization_id"])
+    capture, pin = m["capture"], m["snapshot"]
+    _closed(capture, {"receipt_id", "request_sha256", "contract", "exposure_contract"})
+    _uuid(capture["receipt_id"])
+    _sha(capture["request_sha256"])
+    if (
+        capture["contract"] != "core.capture.declarations.v1"
+        or capture["exposure_contract"] != "core.exposure.declarations.v1"
+    ):
+        raise InvalidReportRenderPayload("Frozen capture contract invalid")
+    _closed(
+        pin,
+        {
+            "snapshot_id",
+            "assessment_id",
+            "assessment_version",
+            "input_sha256",
+            "result_sha256",
+            "captured_at",
+            "snapshot_schema",
+            "workflow_profile_id",
+            "workflow_profile",
+            "workflow_settings_sha256",
+            "rules_sha256",
+            "configuration_sha256",
+            "engine_versions",
+            "capture_contract",
+        },
+    )
+    for field in ("snapshot_id", "assessment_id", "workflow_profile_id"):
+        _uuid(pin[field])
+    for field in (
+        "input_sha256",
+        "result_sha256",
+        "workflow_settings_sha256",
+        "rules_sha256",
+        "configuration_sha256",
+    ):
+        _sha(pin[field])
+    _timestamp(pin["captured_at"])
+    if (
+        type(pin["assessment_version"]) is not int
+        or pin["assessment_version"] != 1
+        or type(pin["snapshot_schema"]) is not int
+        or pin["snapshot_schema"] != 2
+        or pin["capture_contract"] != "core.capture.declarations.v1"
+        or capture["receipt_id"] != pin["snapshot_id"]
+        or pin["snapshot_id"] != pin["assessment_id"]
+    ):
+        raise InvalidReportRenderPayload("Frozen capture snapshot identity invalid")
+    inputs = snapshot_input
+    validate_capture_payloads(
+        {
+            "input_payload": inputs,
+            "result_payload": snapshot_result,
+            "input_sha256": pin["input_sha256"],
+            "result_sha256": pin["result_sha256"],
+        },
+        organization_id=UUID(m["organization_id"]),
+        created_by_id=UUID(inputs["created_by_id"]),
+        workflow_profile_id=UUID(pin["workflow_profile_id"]),
+    )
+    if (
+        inputs["assessment"]
+        != {"id": pin["assessment_id"], "version": pin["assessment_version"]}
+        or inputs["captured_at"] != pin["captured_at"]
+        or inputs["workflow_profile"]["id"] != pin["workflow_profile_id"]
+        or inputs["workflow_profile"]["profile"] != pin["workflow_profile"]
+        or inputs["workflow_profile"]["settings_sha256"]
+        != pin["workflow_settings_sha256"]
+        or _digest(inputs["rulesets"]) != pin["rules_sha256"]
+        or _digest(inputs["risk_configuration"]) != pin["configuration_sha256"]
+        or inputs["engine_versions"] != pin["engine_versions"]
+    ):
+        raise InvalidReportRenderPayload("Frozen capture snapshot semantics mismatch")
+    if (
+        type(m["selected_proposals"]) is not list
+        or type(m["selected_decisions"]) is not list
+    ):
+        raise InvalidReportRenderPayload("Frozen capture selection must be arrays")
+    p = {
+        "manifest": m,
+        "snapshot_input": inputs,
+        "snapshot_result": snapshot_result,
+        "organization_id": m["organization_id"],
+        "selected_proposals": m["selected_proposals"],
+        "selected_decisions": m["selected_decisions"],
+    }
+    pin = m["snapshot"]
+    envelope = {
+        "input_payload": p["snapshot_input"],
+        "result_payload": p["snapshot_result"],
+        "input_sha256": pin["input_sha256"],
+        "result_sha256": pin["result_sha256"],
+    }
+    expected = build_review_proposals(
+        snapshot_id=UUID(pin["snapshot_id"]), capture_envelope=envelope
+    )
+    selected = p["selected_proposals"]
+    if len(selected) != len(expected):
+        raise InvalidReportRenderPayload("Complete issued proposal scope required")
+    qualification = _digest(
+        {
+            "schema": APPLICABILITY_VERSION,
+            "industry_applicability": p["snapshot_input"]["industry_applicability"],
+            "ruleset": p["snapshot_input"]["rulesets"]["industry"],
+            "engine_versions": p["snapshot_input"]["engine_versions"],
+        }
+    )
+    revision = _digest(expected)
+    common = None
+    for index, (entry, proposal) in enumerate(zip(selected, expected, strict=True)):
+        _closed(entry, PROPOSAL_KEYS)
+        _uuid(entry["proposal_receipt_id"])
+        _uuid(entry["revision_id"])
+        for key in ("revision_sha256", "card_sha256", "qualification_sha256"):
+            _sha(entry[key])
+        if (
+            type(entry["card_index"]) is not int
+            or entry["card_index"] != index
+            or entry["proposal"] != proposal
+            or (entry["card_sha256"] != _digest(proposal))
+            or (entry["revision_sha256"] != revision)
+            or (entry["qualification_sha256"] != qualification)
+        ):
+            raise InvalidReportRenderPayload(
+                "Permanent proposal semantics or pins mismatch"
+            )
+        identity = (entry["proposal_receipt_id"], entry["revision_id"])
+        if common is not None and identity != common:
+            raise InvalidReportRenderPayload("Mixed proposal issuance identities")
+        common = identity
+    seen = set()
+    ordering = []
+    for item in p["selected_decisions"]:
+        _closed(item, {"event_id", "event_sha256", "payload"})
+        event = item["payload"]
+        _closed(event, EVENT_KEYS)
+        _uuid(item["event_id"])
+        _sha(item["event_sha256"])
+        if type(event["card_index"]) is not int or not 0 <= event["card_index"] < len(
+            selected
+        ):
+            raise InvalidReportRenderPayload("Decision proposal index invalid")
+        entry = selected[event["card_index"]]
+        proposal = entry["proposal"]
+        key = (event["card_index"], event["event_kind"])
+        if (
+            key in seen
+            or event["schema"] != "stewardence.core_decision_event.v2"
+            or item["event_id"] != event["id"]
+            or (item["event_sha256"] != _digest(event))
+        ):
+            raise InvalidReportRenderPayload("Decision identity or digest mismatch")
+        seen.add(key)
+        if type(event["sequence"]) is not int or event["sequence"] < 1:
+            raise InvalidReportRenderPayload("Decision sequence invalid")
+        ordering.append((*key, event["sequence"]))
+        for field, expected_value in {
+            "organization_id": p["organization_id"],
+            "created_by_id": p["snapshot_input"]["created_by_id"],
+            "revision_id": entry["revision_id"],
+            "revision_sha256": entry["revision_sha256"],
+            "snapshot_id": pin["snapshot_id"],
+            "snapshot_result_sha256": pin["result_sha256"],
+            "card_sha256": entry["card_sha256"],
+            "proposal_id": proposal["proposal_id"],
+            "proposal_sha256": proposal["sha256"],
+            "proposal_contract": proposal["schema"],
+            "proposal_receipt_id": entry["proposal_receipt_id"],
+            "source_class": proposal["source"]["class"],
+            "source_identity": proposal["source"]["identity"],
+            "source_digest": proposal["source"]["digest"],
+            "original_outcome": proposal["original_outcome"],
+            "resolution_effect": "none",
+        }.items():
+            if event[field] != expected_value:
+                raise InvalidReportRenderPayload(
+                    "Decision exact proposal binding mismatch"
+                )
+        if (
+            event["owner_statement_only"] is not True
+            or event["resolution_verified"] is not False
+            or event["source_state_immutable"] is not True
+        ):
+            raise InvalidReportRenderPayload("Decision cannot resolve original finding")
+        if not (
+            event["event_kind"] == "disposition"
+            and event["state"] in {"act", "defer", "decline", "accept_risk"}
+            or (
+                event["event_kind"] == "execution"
+                and event["state"] in {"completion_recorded", "evidence_reviewed"}
+            )
+        ):
+            raise InvalidReportRenderPayload("Decision state invalid")
+        _timestamp(event["created_at"])
+        if datetime.fromisoformat(
+            event["created_at"].replace("Z", "+00:00")
+        ) < datetime.fromisoformat(pin["captured_at"].replace("Z", "+00:00")):
+            raise InvalidReportRenderPayload("Decision predates capture")
+        if event["previous_event_id"] is not None:
+            _uuid(event["previous_event_id"])
+        if (event["sequence"] == 1) != (event["previous_event_id"] is None):
+            raise InvalidReportRenderPayload("Decision predecessor shape invalid")
+        person = event["responsible_label"]
+        if (
+            type(person) is not str
+            or not 1 <= len(person) <= 200
+            or person != person.strip()
+            or any(ord(c) < 32 or ord(c) == 127 for c in person)
+            or (type(event["notes"]) is not str)
+            or (len(event["notes"]) > 4096)
+        ):
+            raise InvalidReportRenderPayload("Decision owner statement bounds invalid")
+        if event["due_date"] is not None and (
+            type(event["due_date"]) is not str
+            or date.fromisoformat(event["due_date"]).isoformat() != event["due_date"]
+        ):
+            raise InvalidReportRenderPayload("Decision due date invalid")
+        links = event["links"]
+        if (
+            type(links) is not list
+            or len(links) > 10
+            or any(
+                type(link) is not str
+                or len(link) > 2048
+                or re.fullmatch("https://[^\\s/?#@]+([/?#][^\\s]*)?", link) is None
+                for link in links
+            )
+        ):
+            raise InvalidReportRenderPayload("Decision evidence reference invalid")
+    if ordering != sorted(ordering):
+        raise InvalidReportRenderPayload("Decision selection ordering invalid")
+    return deepcopy(manifest)
+
+
+FILE apps/reviews/capture_context_v3.py SHA256 893bd97fc1b1ad4b92e6e112b67d31cc3d87d2dfa0592c47439017704ed6510f
+"""Exact v4 frozen proposals/statements; no database issuance claim here."""
+
+from copy import deepcopy
+from uuid import UUID
+
+from apps.reviews.proposals_v1 import validate_review_proposals
+
+from .capture_context import build_capture_pack_context, digest
+from .capture_event_v2 import validate_capture_v4_render_payload
+
+VERSION = "AL-REVIEW-PACK-CONTEXT-3"
+
+
+def build_capture_v4_pack_context(metadata, projection):
+    original = deepcopy(projection)
+    base = deepcopy(projection)
+    if base.get("schema") != "stewardence.review_worker_projection.v3":
+        raise ValueError("Exact v4 projection required")
+    base["schema"] = "stewardence.review_worker_projection.v2"
+    base.pop("selected_proposals")
+    base["selected_decisions"] = []
+    manifest = base["manifest"]
+    if manifest.get("schema") != "stewardence.review_pack.v4":
+        raise ValueError("Exact v4 manifest required")
+    manifest["schema"] = "stewardence.review_pack.v3"
+    manifest.pop("selected_proposals")
+    manifest.pop("proposal_contract_version")
+    manifest["selected_decisions"] = []
+    manifest["selection_scope"] = "empty_capture_kernel"
+    base["manifest_sha256"] = digest(manifest)
+    context = build_capture_pack_context(metadata, base)
+    context["context_version"] = VERSION
+    context["projection"] = original
+    pin = original["manifest"]["snapshot"]
+    validate_review_proposals(
+        snapshot_id=UUID(pin["snapshot_id"]),
+        capture_envelope={
+            "input_payload": original["snapshot_input"],
+            "result_payload": original["snapshot_result"],
+            "input_sha256": pin["input_sha256"],
+            "result_sha256": pin["result_sha256"],
+        },
+        proposals=[entry["proposal"] for entry in original["selected_proposals"]],
+    )
+    # Performs exact byte/resource preflight before external rendering. SQL
+    # admission must separately enforce preflight before queue creation.
+    return validate_capture_v4_render_payload(context)
+
+
+FILE apps/reviews/capture_pack_reads.py SHA256 8815a3b61a3d23f9569135394afafd4dbec576ab539b46e4758b564d1dfab535
+"""Owner-read binding of frozen v4 content to actual immutable issuance rows."""
+
+from datetime import datetime
+
+from .capture_context import digest
+from .capture_event_v2 import validate_frozen_capture_selection
+from .models import CaptureProposalAdmissionReceipt
+from .proposals_v1 import APPLICABILITY_VERSION, VERSION
+
+
+def read_frozen_capture_entries(pack, snapshot):
+    from apps.assessments.models import SnapshotCaptureReceipt
+    from apps.jobs.core_models import DecisionEvent
+
+    manifest = pack.manifest
+    validate_frozen_capture_selection(
+        manifest=manifest,
+        snapshot_input=snapshot.input_payload,
+        snapshot_result=snapshot.result_payload,
+    )
+    if (
+        digest(manifest) != pack.sha256
+        or manifest["cycle_id"] != str(pack.cycle_id)
+        or manifest["organization_id"] != str(pack.organization_id)
+        or manifest["snapshot"]["snapshot_id"] != str(snapshot.id)
+        or pack.organization_id != snapshot.organization_id
+    ):
+        raise ValueError("Frozen capture pack identity mismatch")
+    capture = SnapshotCaptureReceipt.objects.filter(
+        snapshot_id=snapshot.id,
+        organization_id=pack.organization_id,
+        created_by_id=snapshot.created_by_id,
+    ).first()
+    receipt = (
+        CaptureProposalAdmissionReceipt.objects.select_related("revision")
+        .filter(
+            snapshot_id=snapshot.id,
+            organization_id=pack.organization_id,
+            created_by_id=snapshot.created_by_id,
+        )
+        .first()
+    )
+    if capture is None or receipt is None:
+        raise ValueError("Frozen capture proposal issuance missing")
+    expected_capture = {
+        "receipt_id": str(capture.id),
+        "request_sha256": capture.request_sha256,
+        "contract": "core.capture.declarations.v1",
+        "exposure_contract": "core.exposure.declarations.v1",
+    }
+    revision = receipt.revision
+    qualification = digest(
+        {
+            "schema": APPLICABILITY_VERSION,
+            "industry_applicability": snapshot.input_payload["industry_applicability"],
+            "ruleset": snapshot.input_payload["rulesets"]["industry"],
+            "engine_versions": snapshot.input_payload["engine_versions"],
+        }
+    )
+    if (
+        manifest["capture"] != expected_capture
+        or capture.id != snapshot.id
+        or digest(capture.reviewed_frame) != capture.request_sha256
+        or receipt.capture_receipt_id != capture.id
+        or receipt.contract != VERSION
+        or receipt.input_sha256 != snapshot.input_sha256
+        or receipt.result_sha256 != snapshot.result_sha256
+        or receipt.revision_sha256 != revision.sha256
+        or receipt.qualification_sha256 != qualification
+        or revision.input_sha256 != snapshot.result_sha256
+        or revision.organization_id != pack.organization_id
+        or revision.snapshot_id != snapshot.id
+        or revision.created_by_id != snapshot.created_by_id
+        or digest(revision.cards) != revision.sha256
+    ):
+        raise ValueError("Frozen capture proposal receipt mismatch")
+    for index, selected in enumerate(manifest["selected_proposals"]):
+        if (
+            selected["proposal_receipt_id"] != str(receipt.id)
+            or selected["revision_id"] != str(revision.id)
+            or selected["revision_sha256"] != revision.sha256
+            or selected["card_index"] != index
+            or selected["proposal"] != revision.cards[index]
+            or selected["qualification_sha256"] != receipt.qualification_sha256
+        ):
+            raise ValueError("Frozen capture selection issuance mismatch")
+    selected_events = manifest["selected_decisions"]
+    events = {
+        str(event.id): event
+        for event in DecisionEvent.objects.filter(
+            id__in=[selected["event_id"] for selected in selected_events],
+            organization_id=pack.organization_id,
+            snapshot_id=snapshot.id,
+            revision_id=revision.id,
+        )
+    }
+    entries = []
+    for selected in selected_events:
+        event = events.get(selected["event_id"])
+        if (
+            event is None
+            or type(event.card_index) is not int
+            or not 0 <= event.card_index < len(revision.cards)
+        ):
+            raise ValueError("Frozen capture statement index invalid")
+        if (
+            selected["payload"] != event.payload
+            or selected["event_sha256"] != event.sha256
+            or digest(event.payload) != event.sha256
+            or event.card_sha256 != digest(revision.cards[event.card_index])
+            or event.revision_sha256 != revision.sha256
+            or event.snapshot_result_sha256 != snapshot.result_sha256
+            or event.payload["revision_sha256"] != event.revision_sha256
+            or event.payload["snapshot_result_sha256"] != event.snapshot_result_sha256
+            or event.payload["card_sha256"] != event.card_sha256
+            or event.payload["id"] != str(event.id)
+            or event.payload["organization_id"] != str(event.organization_id)
+            or event.payload["created_by_id"] != str(event.created_by_id)
+            or event.payload["revision_id"] != str(event.revision_id)
+            or event.payload["snapshot_id"] != str(event.snapshot_id)
+            or event.payload["previous_event_id"]
+            != (str(event.previous_event_id) if event.previous_event_id else None)
+            or event.payload["due_date"]
+            != (event.due_date.isoformat() if event.due_date else None)
+            or datetime.fromisoformat(
+                event.payload["created_at"].replace("Z", "+00:00")
+            )
+            != event.created_at
+            or any(
+                event.payload[field] != getattr(event, field)
+                for field in (
+                    "card_index",
+                    "sequence",
+                    "event_kind",
+                    "state",
+                    "responsible_label",
+                    "notes",
+                    "links",
+                )
+            )
+        ):
+            raise ValueError("Frozen capture statement issuance mismatch")
+        entries.append(
+            {
+                "selection": selected,
+                "event": event,
+                "proposal": revision.cards[event.card_index],
+            }
+        )
+    return entries
+
+
+FILE apps/reports/capture_delivery.py SHA256 d4731925218c99ead3f0938743a3da2aa456841d313676e661afbdbefb550689
+"""Read-only capture delivery receipts; byte verification remains separate."""
+
+from apps.assessments.snapshots import canonical_sha256
+from apps.reviews.models import PackCompletion
+
+from .storage import ReportStorageError
+
+
+def require_capture_completion(artifact):
+    try:
+        return _require_capture_completion(artifact)
+    except (ValueError, TypeError, KeyError, AttributeError) as error:
+        raise ReportStorageError("Malformed capture delivery receipt") from error
+
+
+def _require_capture_completion(artifact):
+    completion = (
+        PackCompletion.objects.filter(
+            artifact_id=artifact.id,
+            organization_id=artifact.organization_id,
+            request__report_id=artifact.report_id,
+        )
+        .select_related("request__pack")
+        .first()
+    )
+    if completion is None:
+        raise ReportStorageError("Committed capture delivery receipt missing")
+    request, pack = completion.request, completion.request.pack
+    payload = completion.payload
+    if type(payload) is not dict or type(pack.manifest) is not dict:
+        raise ReportStorageError("Capture delivery receipt structure invalid")
+    if (
+        pack.organization_id != artifact.organization_id
+        or request.organization_id != artifact.organization_id
+        or canonical_sha256(payload) != completion.sha256
+        or canonical_sha256(pack.manifest) != pack.sha256
+        or request.manifest_sha256 != pack.sha256
+        or payload.get("schema") != "stewardence.review_pack_completion.v2"
+        or payload.get("request_id") != str(request.id)
+        or payload.get("pack_id") != str(pack.id)
+        or payload.get("manifest_sha256") != pack.sha256
+        or payload.get("artifact_id") != str(artifact.id)
+        or payload.get("artifact_sha256") != artifact.sha256
+        or type(payload.get("artifact_bytes")) is not int
+        or payload.get("artifact_bytes") != artifact.size_bytes
+        or payload.get("verification") != "trusted_handler_storage_readback"
+        or pack.manifest.get("schema")
+        not in {"stewardence.review_pack.v3", "stewardence.review_pack.v4"}
+        or pack.manifest.get("snapshot", {}).get("snapshot_id")
+        != str(artifact.assessment_snapshot_id)
+        or pack.manifest.get("organization_id") != str(artifact.organization_id)
+    ):
+        raise ReportStorageError("Capture delivery receipt integrity failed")
+    if pack.manifest["schema"] == "stewardence.review_pack.v4":
+        from apps.reviews.capture_pack_reads import read_frozen_capture_entries
+
+        read_frozen_capture_entries(pack, artifact.assessment_snapshot)
+    return completion
+
+
+FILE tests/test_capture_v4_worker.py SHA256 b251fc2281a6374c950334e84b2bed01e8ec4e6a72e3d70780bc12bdeb11e7ad
+"""Actual roles and local private storage; no live provider or deployment claims."""
+
+from io import BytesIO
+from uuid import UUID
+
+import pytest
+from django.contrib.auth import get_user_model
+from django.db import connections, transaction
+from django.test import Client
+from django.urls import reverse
+from pypdf import PdfReader
+
+from agentledger.tenancy.context import tenant_transaction
+from apps.jobs.core_decisions_v2 import record_capture_decision
+from apps.jobs.core_models import DecisionDeskGate, DecisionEvent
+from apps.jobs.models import BackgroundJob
+from apps.jobs.queue import claim_next_job
+from apps.jobs.worker import JobExecution, execute_claimed_job
+from apps.organizations.models import OrganizationMember
+from apps.reports.jobs import ReportGenerationHandler
+from apps.reports.storage import LocalPrivateReportStorage
+from apps.reviews.jobs import ReviewReportGenerationHandler
+from apps.reviews.models import (
+    BaselineHead,
+    CoreProposalAdmissionGate,
+    PackCompletion,
+    ReviewCycle,
+)
+from apps.reviews.proposal_admission import issue_capture_proposals
+from apps.reviews.services import freeze_cycle, open_cycle, request_pack_artifact
+from renderer.render import render_pdf
+from tests.test_capture_admission import admit, preview
+from tests.test_capture_admission import capture_context as capture_context
+from tests.test_capture_admission import explicit_context as explicit_context
+from tests.test_review_pack_lifecycle import enabled as enabled
+from tests.test_standard_checkout_route_durability import actual_app_default
+
+__all__ = ["capture_context", "explicit_context", "enabled"]
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+
+
+class ActualRenderer:
+    def __init__(self, path):
+        self.path = path
+        self.context = None
+        self.pdf = None
+
+    def render(self, context):
+        self.context = context
+        self.pdf = render_pdf(context, output_directory=self.path)
+        return self.pdf
+
+
+@pytest.mark.parametrize("industry", ["other", "accounting_bookkeeping"])
+def test_capture_v4_actual_worker_chromium_private_owner_delivery(
+    capture_context, enabled, tmp_path, industry, client, settings, monkeypatch
+):
+    user, org = capture_context
+    org.industry = industry
+    org.save(update_fields=["industry"])
+    settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+    settings.DECISION_DESK_ENABLED = True
+    settings.CORE_REVIEW_WORKSPACE_ENABLED = True
+    CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+    DecisionDeskGate.objects.update_or_create(id=1, defaults={"enabled": True})
+    snapshot = admit(capture_context, preview(capture_context))
+    revision = issue_capture_proposals(
+        organization_id=org.id,
+        actor_id=user.id,
+        snapshot_id=snapshot.id,
+        using="app_runtime",
+    )
+    prior = None
+    event_ids = []
+    for kind, state in (("disposition", "act"), ("execution", "completion_recorded")):
+        prior = record_capture_decision(
+            organization_id=org.id,
+            actor_id=user.id,
+            revision_id=revision.id,
+            proposal_id=UUID(revision.cards[0]["proposal_id"]),
+            proposal_sha256=revision.cards[0]["sha256"],
+            card_index=0,
+            event_kind=kind,
+            state=state,
+            responsible_label="Named responsible owner",
+            expected_previous_event=prior,
+            notes="Owner statement is not verified resolution.",
+            links=["https://example.invalid/reference"],
+            using="app_runtime",
+        )
+        event_ids.append(prior)
+    cycle = open_cycle(
+        organization_id=org.id,
+        actor_id=user.id,
+        input_snapshot_id=snapshot.id,
+        using="app_runtime",
+    )
+    pack = freeze_cycle(
+        cycle_id=cycle.id,
+        organization_id=org.id,
+        actor_id=user.id,
+        expected_revision=1,
+        using="app_runtime",
+    )
+    assert pack.manifest["schema"] == "stewardence.review_pack.v4"
+    assert len(pack.manifest["selected_proposals"]) == len(revision.cards)
+    assert {item["event_id"] for item in pack.manifest["selected_decisions"]} == {
+        str(value) for value in event_ids
+    }
+    assert all(
+        DecisionEvent.objects.get(id=value).payload["resolution_verified"] is False
+        for value in event_ids
+    )
+    staged = request_pack_artifact(
+        pack_id=pack.id,
+        organization_id=org.id,
+        actor_id=user.id,
+        promote_baseline=False,
+        using="app_runtime",
+    )
+    BackgroundJob.objects.filter(id=staged.job_id).update(priority=-100)
+    with transaction.atomic(using="worker_runtime"):
+        job = claim_next_job("capture-review-qualification", using="worker_runtime")
+    assert job is not None and job.id == staged.job_id
+    with (
+        tenant_transaction(org.id, using="worker_runtime"),
+        connections["worker_runtime"].cursor() as cursor,
+    ):
+        cursor.execute("SELECT current_user,current_setting('transaction_isolation')")
+        assert cursor.fetchone() == ("agentledger_worker", "read committed")
+    renderer = ActualRenderer(tmp_path / "render")
+    delegate = ReportGenerationHandler(
+        renderer=renderer,
+        storage=LocalPrivateReportStorage(tmp_path / "private"),
+        using="worker_runtime",
+    )
+    handler = ReviewReportGenerationHandler(
+        delegate, worker_id="capture-review-qualification"
+    )
+    execute_claimed_job(
+        JobExecution(job=job, worker_id="capture-review-qualification"),
+        handler,
+        using="worker_runtime",
+    )
+    assert renderer.context["context_version"] == "AL-REVIEW-PACK-CONTEXT-3"
+    assert renderer.context["projection"]["manifest_sha256"] == pack.sha256
+    text = " ".join(
+        " ".join(
+            page.extract_text() or "" for page in PdfReader(BytesIO(renderer.pdf)).pages
+        ).split()
+    )
+    assert "Risk: not assessed" in text and "Benefit model: not supplied" in text
+    assert "Generic exposure review" in text and "Low" not in text
+    assert "disposition: act" in text and "execution: completion_recorded" in text
+    assert "Original outcome: UNKNOWN" in text
+    completion = PackCompletion.objects.get(request=staged)
+    assert completion.payload["verification"] == "trusted_handler_storage_readback"
+    assert completion.payload["baseline_outcome"] == "not_requested"
+    assert completion.payload["manifest_sha256"] == pack.sha256
+    assert completion.artifact.sha256 == completion.payload["artifact_sha256"]
+    assert not BaselineHead.objects.filter(organization=org).exists()
+    assert ReviewCycle.objects.get(id=cycle.id).state == "COMPLETED"
+    assert BackgroundJob.objects.get(id=job.id).status == "completed"
+    settings.ALLOWED_HOSTS = ["testserver"]
+    client.force_login(user)
+    session = client.session
+    session["active_organization_id"] = str(org.id)
+    session.save()
+
+    def forbidden_legacy_context(report):
+        pytest.fail("Capture delivery invoked the legacy risk/ROI builder")
+
+    monkeypatch.setattr(
+        "apps.reports.views.build_report_context", forbidden_legacy_context
+    )
+    monkeypatch.setattr("apps.reports.views._report_storage", lambda: delegate.storage)
+    with actual_app_default():
+        pack_page = client.get(
+            reverse("reviews:pack-detail", kwargs={"pack_id": pack.id})
+        )
+        assert pack_page.status_code == 200
+        body = pack_page.content.decode()
+        assert "All frozen proposals" in body
+        assert "disposition: act" in body and "execution: completion_recorded" in body
+        assert "Original captured outcome: UNKNOWN" in body
+        assert "Verified resolution is not established" in body
+        assert all(
+            entry["proposal"]["proposal_id"] in body
+            for entry in pack.manifest["selected_proposals"]
+        )
+        assert all(
+            entry["proposal"]["proposal_text"] in body
+            for entry in pack.manifest["selected_proposals"]
+        )
+        assert str(event_ids[0]) in body and str(event_ids[1]) in body
+        detail = client.get(
+            reverse("reports:detail", kwargs={"report_id": staged.report_id})
+        )
+        assert detail.status_code == 200
+        assert "reports/capture_status.html" in [t.name for t in detail.templates]
+        assert detail.context["completion_recorded"] is True
+        assert detail.context["has_pdf"] is True
+        assert "no-store" in detail["Cache-Control"]
+        download = client.get(
+            reverse("reports:download", kwargs={"report_id": staged.report_id})
+        )
+        assert download.status_code == 200 and download.content == renderer.pdf
+        assert "no-store" in download["Cache-Control"]
+
+    viewer = get_user_model().objects.create_user(
+        f"capture-viewer-{industry}@example.invalid"
+    )
+    OrganizationMember.objects.create(organization=org, user=viewer, role="viewer")
+    client.force_login(viewer)
+    session = client.session
+    session["active_organization_id"] = str(org.id)
+    session.save()
+    # Isolate tenant/report privacy from the owner's one-to-one subscription.
+    # Authentication, tenant and identity middleware remain active.
+    settings.MIDDLEWARE = [
+        entry
+        for entry in settings.MIDDLEWARE
+        if not entry.endswith("BillingEntitlementMiddleware")
+    ]
+    # A previously used Client retains the owner's original middleware stack.
+    # Rebuild it to prove report privacy, not merely a billing redirect.
+    viewer_client = Client()
+    viewer_client.force_login(viewer)
+    session = viewer_client.session
+    session["active_organization_id"] = str(org.id)
+    session.save()
+
+    def forbidden_storage():
+        pytest.fail("Denied capture-pack request reached private storage")
+
+    monkeypatch.setattr("apps.reports.views._report_storage", forbidden_storage)
+    with actual_app_default():
+        for route in ("detail", "download"):
+            denied = viewer_client.get(
+                reverse(f"reports:{route}", kwargs={"report_id": staged.report_id})
+            )
+            assert denied.status_code in (403, 404)
+
+
+FILE tests/test_capture_v4_packs.py SHA256 58b6c62ce55f130bfc8e69d0da650bc5be88602d93d22698a2980ad25bb0d1c4
+"""Actual-role v4 freeze and projection; PDF delivery is qualified separately."""
+
+import json
+from uuid import uuid4
+
+import pytest
+from django.db import DatabaseError, connections
+
+from agentledger.tenancy.context import tenant_transaction
+from apps.reviews.capture_context_v3 import build_capture_v4_pack_context
+from apps.reviews.models import ReviewLifecycleGate
+from apps.reviews.services import freeze_cycle, open_cycle
+from tests.test_capture_admission import admit, preview
+from tests.test_capture_admission import capture_context as capture_context
+from tests.test_capture_decisions import (
+    capture_decision_context as capture_decision_context,
+)
+from tests.test_capture_decisions import decide
+from tests.test_capture_pack_authority import requested
+from tests.test_explicit_inventory import explicit_context as explicit_context
+from tests.test_review_pack_lifecycle import claimed
+
+__all__ = ["capture_context", "capture_decision_context", "explicit_context"]
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+
+
+def frozen(context):
+    user, org, snapshot = context[:3]
+    cycle = open_cycle(
+        organization_id=org.id,
+        actor_id=user.id,
+        input_snapshot_id=snapshot.id,
+        using="app_runtime",
+    )
+    pack = freeze_cycle(
+        cycle_id=cycle.id,
+        organization_id=org.id,
+        actor_id=user.id,
+        expected_revision=1,
+        using="app_runtime",
+    )
+    return user, org, snapshot, pack
+
+
+def replay(context):
+    user, org, _, pack = context
+    return freeze_cycle(
+        cycle_id=pack.cycle_id,
+        organization_id=org.id,
+        actor_id=user.id,
+        expected_revision=1,
+        using="app_runtime",
+    )
+
+
+@pytest.fixture
+def lifecycle(settings):
+    settings.REVIEW_PACK_LIFECYCLE_ENABLED = True
+    ReviewLifecycleGate.objects.update_or_create(id=1, defaults={"enabled": True})
+
+
+def test_v4_freezes_all_issued_proposals_without_claiming_statements(
+    capture_decision_context,
+):
+    context = frozen(capture_decision_context)
+    manifest = context[3].manifest
+    assert len(manifest) == 12
+    assert manifest["schema"] == "stewardence.review_pack.v4"
+    assert (
+        manifest["proposal_contract_version"] == "stewardence.core_review_proposal.v1"
+    )
+    assert manifest["selection_scope"] == "issued_capture_proposals"
+    assert manifest["selected_decisions"] == []
+    assert manifest["baseline_pack_id"] is None
+    assert manifest["baseline_promotion"] == "blocked"
+    assert [
+        entry["proposal"] for entry in manifest["selected_proposals"]
+    ] == capture_decision_context[3].cards
+    assert all(len(entry) == 7 for entry in manifest["selected_proposals"])
+    assert replay(context).manifest == manifest
+
+
+def test_disposition_and_execution_freeze_independently_and_replay_old_history(
+    capture_decision_context,
+):
+    first = decide(capture_decision_context, event_kind="disposition", state="defer")
+    execution = decide(capture_decision_context, expected_previous_event=str(first))
+    context = frozen(capture_decision_context)
+    selected = context[3].manifest["selected_decisions"]
+    assert {entry["event_id"] for entry in selected} == {
+        str(first),
+        str(execution),
+    }
+    assert {entry["payload"]["event_kind"] for entry in selected} == {
+        "disposition",
+        "execution",
+    }
+    later = decide(
+        capture_decision_context,
+        event_kind="disposition",
+        state="act",
+        expected_previous_event=str(execution),
+    )
+    assert str(later) not in {entry["event_id"] for entry in selected}
+    assert replay(context).manifest["selected_decisions"] == selected
+    assert all(entry["payload"]["resolution_verified"] is False for entry in selected)
+
+
+def test_v3_replay_never_changes_when_proposals_are_issued_later(
+    capture_context, settings
+):
+    from apps.reviews.models import CoreProposalAdmissionGate
+    from apps.reviews.proposal_admission import issue_capture_proposals
+
+    user, org = capture_context
+    snapshot = admit(capture_context, preview(capture_context))
+    context = frozen((user, org, snapshot))
+    before = context[3].manifest
+    assert before["schema"] == "stewardence.review_pack.v3"
+    settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+    CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+    issue_capture_proposals(
+        organization_id=org.id,
+        actor_id=user.id,
+        snapshot_id=snapshot.id,
+        using="app_runtime",
+    )
+    assert replay(context).manifest == before
+
+
+def test_exact_preflight_matches_permanent_context_and_actual_worker_projection(
+    capture_decision_context, lifecycle
+):
+    decide(capture_decision_context, notes="Owner statement <script>literal</script>")
+    context = frozen(capture_decision_context)
+    request = requested(context)
+    with connections["default"].cursor() as cursor:
+        cursor.execute(
+            "SELECT app_private.capture_proposal_preflight_context(%s)", [request.id]
+        )
+        value = cursor.fetchone()[0]
+    sql_context = json.loads(value) if isinstance(value, str) else value
+    python_context = build_capture_v4_pack_context(
+        sql_context["metadata"], sql_context["projection"]
+    )
+    assert sql_context == python_context
+    encoded = json.dumps(
+        python_context, ensure_ascii=False, allow_nan=False, separators=(",", ":")
+    ).encode()
+    with connections["default"].cursor() as cursor:
+        cursor.execute(
+            "SELECT octet_length(convert_to(app_private.queue_canonical("
+            "app_private.capture_proposal_preflight_context(%s)),'UTF8'))",
+            [request.id],
+        )
+        assert cursor.fetchone()[0] == len(encoded)
+    job = claimed(context)
+    with (
+        tenant_transaction(job.organization_id, using="worker_runtime"),
+        connections["worker_runtime"].cursor() as cursor,
+    ):
+        cursor.execute(
+            "SELECT app_private.review_pack_projection(%s,%s)",
+            [job.id, job.claim_token],
+        )
+        value = cursor.fetchone()[0]
+    projection = json.loads(value) if isinstance(value, str) else value
+    assert len(projection) == 12
+    assert projection == sql_context["projection"]
+    assert projection["schema"] == "stewardence.review_worker_projection.v3"
+    with pytest.raises(DatabaseError):
+        with (
+            tenant_transaction(job.organization_id, using="worker_runtime"),
+            connections["worker_runtime"].cursor() as cursor,
+        ):
+            cursor.execute(
+                "SELECT app_private.review_pack_projection(%s,%s)", [job.id, uuid4()]
+            )
+
+
+@pytest.mark.parametrize("using", ["app_runtime", "worker_runtime"])
+def test_private_v4_issuers_and_preflight_are_not_role_authority(using):
+    signatures = [
+        "app_private.freeze_review_cycle_pre_v4(uuid,uuid,uuid,integer)",
+        "app_private.freeze_capture_proposal_review_cycle(uuid,uuid,uuid,integer)",
+        "app_private.review_capture_proposal_selection_v1(uuid,uuid)",
+        "app_private.review_capture_decision_selection_v2(uuid,uuid)",
+        "app_private.capture_proposal_request_projection(uuid)",
+        "app_private.capture_proposal_preflight_context(uuid)",
+        "app_private.capture_proposal_pack_projection(uuid,uuid)",
+    ]
+    with connections[using].cursor() as cursor:
+        for signature in signatures:
+            cursor.execute(
+                "SELECT has_function_privilege(current_user,%s,'EXECUTE')", [signature]
+            )
+            assert cursor.fetchone() == (False,)
+
+
+def test_v4_request_cannot_authorize_baseline(capture_decision_context, lifecycle):
+    from apps.reports.models import Report
+    from apps.reviews.models import ArtifactRequest
+
+    context = frozen(capture_decision_context)
+    before = Report.objects.count()
+    with pytest.raises(DatabaseError):
+        requested(context, promote_baseline=True)
+    assert Report.objects.count() == before
+    assert not ArtifactRequest.objects.exists()
+
+
+FILE tests/test_capture_v4_reads.py SHA256 7c77694d0bab7b8634dfb87f4d5cd4cc6c12b6c425a827e629fc4e17cd08c615
+"""Owner v4 reads bind frozen selections to actual immutable issuance rows."""
+
+from copy import copy, deepcopy
+from uuid import uuid4
+
+import pytest
+from django.contrib.auth import get_user_model
+from django.db import connections
+from django.urls import reverse
+
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+from apps.jobs.core_models import DecisionEvent
+from apps.organizations.models import Organization, OrganizationMember
+from apps.reviews.capture_context import digest
+from apps.reviews.capture_pack_reads import read_frozen_capture_entries
+from tests.test_capture_admission import capture_context as capture_context
+from tests.test_capture_decisions import (
+    capture_decision_context as capture_decision_context,
+)
+from tests.test_capture_decisions import decide
+from tests.test_capture_proposal_ui import effects, owner_client
+from tests.test_capture_v4_packs import frozen
+from tests.test_explicit_inventory import explicit_context as explicit_context
+from tests.test_standard_checkout_route_durability import actual_app_default
+
+__all__ = ["capture_context", "capture_decision_context", "explicit_context"]
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+
+
+@pytest.fixture
+def selected_pack(capture_decision_context):
+    context = capture_decision_context
+    first = decide(
+        context,
+        event_kind="disposition",
+        state="defer",
+        notes="Frozen disposition before later history",
+    )
+    second = decide(
+        context,
+        expected_previous_event=str(first),
+        notes="Frozen completion is an unverified owner statement",
+    )
+    pack_context = frozen(context)
+    return context, pack_context, first, second
+
+
+def pack_route(pack_context):
+    return reverse("reviews:pack-detail", args=[pack_context[3].id])
+
+
+def test_owner_reads_all_proposals_and_exact_frozen_events_after_later_history(
+    selected_pack, settings
+):
+    context, pack_context, first, second = selected_pack
+    later = decide(
+        context,
+        event_kind="disposition",
+        state="act",
+        expected_previous_event=str(second),
+        notes="Later live-only note",
+    )
+    client = owner_client(context, settings)
+    before = effects()
+    with (
+        actual_app_default(),
+        identity_transaction(context[0].id, using="app_runtime"),
+        tenant_transaction(context[1].id, using="app_runtime"),
+    ):
+        assert len(read_frozen_capture_entries(pack_context[3], context[2])) == 2
+    with actual_app_default():
+        response = client.get(pack_route(pack_context))
+    assert response.status_code == 200, response.content.decode()
+    assert response["Cache-Control"] == "private, no-store"
+    assert effects() == before
+    assert {entry["event"].id for entry in response.context["entries"]} == {
+        first,
+        second,
+    }
+    assert later not in {entry["event"].id for entry in response.context["entries"]}
+    assert [
+        entry["proposal"] for entry in response.context["frozen_proposals"]
+    ] == context[3].cards
+    text = response.content.decode()
+    assert "All frozen proposals" in text
+    assert "Frozen disposition before later history" in text
+    assert "Frozen completion is an unverified owner statement" in text
+    assert "Later live-only note" not in text
+    assert "Verified resolution is not established" in text
+    assert "UNKNOWN" in text
+
+
+@pytest.mark.parametrize("visitor", ["viewer", "assessor", "foreign_owner"])
+def test_viewer_and_foreign_owner_cannot_read_frozen_capture_content(
+    selected_pack, settings, visitor
+):
+    context, pack_context, _, _ = selected_pack
+    if visitor in {"viewer", "assessor"}:
+        user = get_user_model().objects.create_user(f"v4-{visitor}@example.invalid")
+        org = context[1]
+        OrganizationMember.objects.create(organization=org, user=user, role=visitor)
+    if visitor == "foreign_owner":
+        user = context[0]
+        org = Organization.objects.create(name="Other frozen-pack workspace")
+        OrganizationMember.objects.create(organization=org, user=user, role="owner")
+    client = owner_client((user, org), settings)
+    # Keep actual identity/tenant/authentication middleware. Billing redirect
+    # is a separate guard; isolate the owner-only read boundary here.
+    settings.MIDDLEWARE = [
+        entry
+        for entry in settings.MIDDLEWARE
+        if not entry.endswith("BillingEntitlementMiddleware")
+    ]
+    before = effects()
+    with actual_app_default():
+        response = client.get(pack_route(pack_context))
+    assert response.status_code == (404 if visitor == "foreign_owner" else 403)
+    assert b"Frozen disposition before later history" not in response.content
+    assert effects() == before
+
+
+@pytest.mark.parametrize("missing", ["proposal_receipt", "events"])
+def test_real_missing_issuance_rows_withhold_frozen_pack(
+    selected_pack, settings, missing
+):
+    context, pack_context, _, _ = selected_pack
+    client = owner_client(context, settings)
+    # Privileged disposable fixture corruption; ordinary app has no CRUD grant.
+    with connections["default"].cursor() as cursor:
+        table = {
+            "proposal_receipt": "review_capture_proposal_receipts",
+            "events": "core_decision_events",
+        }[missing]
+        cursor.execute(f"TRUNCATE {table}")
+    before = effects()
+    with actual_app_default():
+        response = client.get(pack_route(pack_context))
+    assert response.status_code == 503
+    assert b"Content is withheld" in response.content
+    assert b"Frozen disposition before later history" not in response.content
+    assert effects() == before
+
+
+@pytest.mark.parametrize(
+    "field", ["proposal_receipt_id", "revision_id", "qualification_sha256"]
+)
+def test_self_consistent_manifest_metadata_does_not_replace_actual_issuance(
+    capture_decision_context, field
+):
+    user, org, snapshot, pack = frozen(capture_decision_context)
+    # In-memory adversarial object only; no immutable-row trigger is disabled.
+    forged = copy(pack)
+    forged.manifest = deepcopy(pack.manifest)
+    replacement = "a" * 64 if field == "qualification_sha256" else str(uuid4())
+    for selected in forged.manifest["selected_proposals"]:
+        selected[field] = replacement
+    forged.sha256 = digest(forged.manifest)
+    with (
+        actual_app_default(),
+        identity_transaction(user.id, using="app_runtime"),
+        tenant_transaction(org.id, using="app_runtime"),
+        pytest.raises(ValueError),
+    ):
+        read_frozen_capture_entries(forged, snapshot)
+
+
+def test_real_row_selection_checks_are_actual_app_owner_role(selected_pack):
+    context, pack_context, first, second = selected_pack
+    user, org, snapshot, pack = pack_context
+    with (
+        actual_app_default(),
+        identity_transaction(user.id, using="app_runtime"),
+        tenant_transaction(org.id, using="app_runtime"),
+    ):
+        with connections["default"].cursor() as cursor:
+            cursor.execute("SELECT current_user")
+            assert cursor.fetchone()[0] == "agentledger_app"
+        entries = read_frozen_capture_entries(pack, snapshot)
+    assert {entry["event"].id for entry in entries} == {first, second}
+    assert all(
+        entry["event"].payload["resolution_verified"] is False for entry in entries
+    )
+
+
+@pytest.mark.parametrize("bad_index", [-1, 9999, True, None])
+def test_malformed_persisted_event_index_is_bounded_before_card_access(
+    selected_pack, monkeypatch, bad_index
+):
+    _, pack_context, _, _ = selected_pack
+    user, org, snapshot, pack = pack_context
+    manager = DecisionEvent.objects
+    original = manager.filter
+
+    def corrupted_row(**filters):
+        # In-memory corruption of actual queried immutable rows, not a grant
+        # expansion or disabled database trigger. Payload and manifest stay
+        # unchanged so row-bound validation must reject the malformed index.
+        rows = [copy(row) for row in original(**filters)]
+        rows[0].card_index = bad_index
+        return rows
+
+    monkeypatch.setattr(manager, "filter", corrupted_row)
+    with (
+        actual_app_default(),
+        identity_transaction(user.id, using="app_runtime"),
+        tenant_transaction(org.id, using="app_runtime"),
+        pytest.raises(ValueError),
+    ):
+        read_frozen_capture_entries(pack, snapshot)
+
+
+@pytest.mark.parametrize(
+    "field", ["revision_sha256", "snapshot_result_sha256", "card_sha256"]
+)
+def test_event_row_digest_pins_cannot_disagree_with_frozen_payload(
+    selected_pack, monkeypatch, field
+):
+    _, pack_context, _, _ = selected_pack
+    user, org, snapshot, pack = pack_context
+    manager = DecisionEvent.objects
+    original = manager.filter
+
+    def corrupted_row(**filters):
+        rows = [copy(row) for row in original(**filters)]
+        setattr(rows[0], field, "a" * 64)
+        return rows
+
+    monkeypatch.setattr(manager, "filter", corrupted_row)
+    with (
+        actual_app_default(),
+        identity_transaction(user.id, using="app_runtime"),
+        tenant_transaction(org.id, using="app_runtime"),
+        pytest.raises(ValueError),
+    ):
+        read_frozen_capture_entries(pack, snapshot)
+

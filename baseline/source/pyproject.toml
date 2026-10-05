@@ -1,0 +1,70 @@
+[project]
+name = "agentledger"
+version = "0.1.0.dev0"
+description = "Stewardence: deterministic AI software risk and ROI assessments"
+requires-python = ">=3.14.7,<3.15"
+dependencies = [
+    "boto3>=1.40,<2",
+    "cryptography==50.0.1",
+    "django>=5.2.13,<5.3",
+    "gunicorn>=23,<24",
+    "httpx>=0.28,<0.29",
+    "idna==3.19",
+    "psycopg[binary]>=3.3,<3.4",
+    "rfc8785==0.1.4",
+    "stripe>=13,<14",
+    "whitenoise>=6.12,<7",
+]
+
+[dependency-groups]
+dev = [
+    "coverage[toml]>=7.10,<8",
+    "pyinstaller>=6.16,<7",
+    "pytest>=9,<10",
+    "pytest-cov>=7,<8",
+    "pytest-django>=4.11,<5",
+    "ruff>=0.14,<0.15",
+]
+renderer = [
+    "django>=5.2.13,<5.3",
+    "playwright==1.62.0",
+]
+
+[tool.uv]
+package = false
+default-groups = ["dev", "renderer"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "agentledger.settings.development"
+pythonpath = [".", "src"]
+testpaths = ["tests"]
+addopts = "--strict-config --strict-markers"
+markers = [
+    "rls: PostgreSQL row-level-security tests under restricted database roles",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["apps", "renderer", "src"]
+omit = [
+    "src/agentledger/settings/production.py",
+    "src/agentledger/wsgi.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 80
+
+[tool.ruff]
+target-version = "py314"
+line-length = 88
+extend-exclude = ["docs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "S", "DJ"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/agentledger/settings/*.py" = ["F403", "F405"]
+"apps/*/migrations/*.py" = ["E501"]
+"tests/*.py" = ["S101", "S105", "S106", "S603"]

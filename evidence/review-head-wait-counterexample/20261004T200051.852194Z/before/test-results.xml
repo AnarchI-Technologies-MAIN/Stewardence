@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="13.649" timestamp="2026-10-04T20:01:14.728978+00:00" hostname="86341a24ca78"><testcase classname="tests.test_review_pack_lifecycle" name="test_head_lock_wait_cannot_reuse_pre_expiry_lease" time="12.849"><failure message="AssertionError: assert (not False and ['admitted'] == ['denied']&#10; +  where False = is_alive()&#10; +    where is_alive = &lt;Thread(Thread-1 (attempt), stopped 134696750020288)&gt;.is_alive&#10;  &#10;  At index 0 diff: 'admitted' != 'denied'&#10;  Use -v to get more diff)">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 78f4219c-c385-4868-b749-5b23c275bf98 v1&gt;, &lt;PackIdentity: PackIdentity object (ed6c40ad-a21a-4887-8835-f9243b95289c)&gt;)
+report_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;OrganizationMember: reports@example.com — Report Firm (Owner)&gt;, &lt;InventoryItem: Payroll Assistant&gt;, &lt;AssessmentSnapshot: 78f4219c-c385-4868-b749-5b23c275bf98 v1&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_head_lock_wait_cannot_reu0')
+
+    def test_head_lock_wait_cannot_reuse_pre_expiry_lease(pack_context,report_context,enabled,tmp_path):
+        import threading
+        import time
+        user,org,snapshot,firstpack=pack_context
+        request(pack_context,promote_baseline=True)
+        firstjob=claimed(pack_context)
+        execute_claimed_job(JobExecution(job=firstjob,worker_id='review-qualification'),handler(tmp_path),using='worker_runtime')
+        next_snapshot=create_assessment_snapshot(organization_id=org.id,created_by_id=user.id,
+            assessed_item_id=report_context[3].id,roi_inputs=_roi_inputs(),
+            captured_at=snapshot.captured_at+timedelta(days=1),previous_snapshot=snapshot)
+        cycle=open_cycle(organization_id=org.id,actor_id=user.id,input_snapshot_id=next_snapshot.id,using='app_runtime')
+        pack=freeze_cycle(cycle_id=cycle.id,organization_id=org.id,actor_id=user.id,expected_revision=1,using='app_runtime')
+        staged=request((user,org,next_snapshot,pack),promote_baseline=True)
+        BackgroundJob.objects.filter(id=staged.job_id).update(priority=-200)
+        job=claim_next_job('review-qualification',using='worker_runtime')
+        assert job.id==staged.job_id
+        wrapped=handler(tmp_path)
+        with tenant_transaction(org.id,using='worker_runtime'):
+            prepared=wrapped.prepare(job)
+        result=wrapped.execute_external(prepared,lambda:None)
+        with connections['default'].cursor() as cursor:
+            cursor.execute("UPDATE background_jobs SET lock_expires_at=clock_timestamp()+interval '3 seconds' WHERE id=%s",[job.id])
+        outcome=[]
+        def attempt():
+            try:
+                with tenant_transaction(org.id,using='worker_runtime'):
+                    wrapped.persist(job,result)
+                outcome.append('admitted')
+            except DatabaseError as error:
+                outcome.append('denied' if 'completion authority unavailable' in str(error) else type(error).__name__)
+            finally:
+                connections['worker_runtime'].close()
+        thread=threading.Thread(target=attempt)
+        try:
+            with transaction.atomic():
+                with connections['default'].cursor() as cursor:
+                    cursor.execute('SELECT revision FROM review_baseline_heads WHERE organization_id=%s FOR UPDATE',[org.id])
+                    assert cursor.fetchone()[0]==1
+                thread.start()
+                deadline=time.monotonic()+8
+                observed=False
+                expired=False
+                while time.monotonic()&lt;deadline:
+                    with connections['default'].cursor() as cursor:
+                        # The observer holds a row-lock transaction. Refresh its
+                        # statistics snapshot instead of replaying its first view
+                        # of pg_stat_activity throughout the barrier wait.
+                        cursor.execute('SELECT pg_stat_clear_snapshot()')
+                        cursor.execute("SELECT EXISTS(SELECT 1 FROM pg_stat_activity a JOIN pg_locks l ON l.pid=a.pid WHERE a.usename='agentledger_worker' AND position('app_private.complete_review_pack' in a.query)&gt;0 AND l.locktype='transactionid' AND NOT l.granted)")
+                        observed=observed or cursor.fetchone()[0]
+                        cursor.execute('SELECT clock_timestamp()&gt;lock_expires_at FROM background_jobs WHERE id=%s',[job.id])
+                        expired=cursor.fetchone()[0]
+                    if observed and expired:
+                        break
+                    threading.Event().wait(.02)
+                assert observed,f'Actual worker did not reach the head row-lock barrier: {outcome}'
+                assert expired,'Database lease did not expire at the observed barrier'
+        finally:
+            thread.join(timeout=15)
+&gt;       assert not thread.is_alive() and outcome==['denied']
+E       AssertionError: assert (not False and ['admitted'] == ['denied']
+E        +  where False = is_alive()
+E        +    where is_alive = &lt;Thread(Thread-1 (attempt), stopped 134696750020288)&gt;.is_alive
+E         
+E         At index 0 diff: 'admitted' != 'denied'
+E         Use -v to get more diff)
+
+tests/test_review_pack_lifecycle.py:264: AssertionError</failure></testcase></testsuite></testsuites>

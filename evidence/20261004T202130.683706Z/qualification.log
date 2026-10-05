@@ -1,0 +1,859 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+FFFF..                                                                   [100%]
+=================================== FAILURES ===================================
+___ test_hidden_request_cannot_turn_review_pack_into_ordinary_report[viewer] ___
+
+self = <QuerySet [<Subscription: Subscription object (45d08398-e98b-44d2-b4d8-e15091595777)>]>
+defaults = {'organization': <Organization: Report Firm>, 'portfolio': Subscription.Portfolio.CORE, 'status': Subscription.Status.ACTIVE, 'current_price_cents': 9900}
+kwargs = {'billing_customer': <BillingCustomer: BillingCustomer object (15db64c1-70e0-4b9a-8335-e6bcd7900f7c)>}
+
+    def get_or_create(self, defaults=None, **kwargs):
+        """
+        Look up an object with the given kwargs, creating one if necessary.
+        Return a tuple of (object, created), where created is a boolean
+        specifying whether an object was created.
+        """
+        # The get() needs to be targeted at the write database in order
+        # to avoid potential transaction consistency problems.
+        self._for_write = True
+        try:
+>           return self.get(**kwargs), False
+                   ^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:948: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <QuerySet [<Subscription: Subscription object (45d08398-e98b-44d2-b4d8-e15091595777)>]>
+args = ()
+kwargs = {'billing_customer': <BillingCustomer: BillingCustomer object (15db64c1-70e0-4b9a-8335-e6bcd7900f7c)>}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           apps.billing.models.Subscription.DoesNotExist: Subscription matching query does not exist.
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:635: DoesNotExist
+
+During handling of the above exception, another exception occurred:
+
+self = <django.db.backends.utils.CursorWrapper object at 0x75eb8959b170>
+sql = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('3b3aa214-6eec-4cbf-ac63-2a6e781c96ff'), UUID('15db64c1-70e0-4b9a-8335-e6bcd7900f7c'), UUID('7c601849-98e0-45af-8ae2-b8c03ddefc81'), Subscription.Portfolio.CORE, None, None, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x75eb8959b170>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x75eb899c4c90>
+query = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('3b3aa214-6eec-4cbf-ac63-2a6e781c96ff'), UUID('15db64c1-70e0-4b9a-8335-e6bcd7900f7c'), UUID('7c601849-98e0-45af-8ae2-b8c03ddefc81'), Subscription.Portfolio.CORE, None, None, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UniqueViolation: duplicate key value violates unique constraint "billing_subscription_organization_id_key"
+E           DETAIL:  Key (organization_id)=(7c601849-98e0-45af-8ae2-b8c03ddefc81) already exists.
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+stored_reports = (<User: reports@example.com>, <Organization: Report Firm>, <ArtifactRequest: ArtifactRequest object (e13f05d7-eff5-42d...e2-29c1604e7ec0)>, <Report: AL-2026-000002>, <apps.reports.storage.LocalPrivateReportStorage object at 0x75eb8a392a50>)
+role = 'viewer'
+
+    @pytest.mark.parametrize("role", ["viewer", "assessor"])
+    def test_hidden_request_cannot_turn_review_pack_into_ordinary_report(stored_reports, role):
+        _, org, staged, ordinary, _ = stored_reports
+>       user = member(org, role)
+               ^^^^^^^^^^^^^^^^^
+
+tests/test_review_report_read_authority.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_review_report_read_authority.py:47: in member
+    grant_core_entitlement(user, org)
+tests/conftest.py:28: in grant_core_entitlement
+    subscription, _ = Subscription.objects.get_or_create(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:955: in get_or_create
+    return self.create(**params), True
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x75eb899c4c90>
+query = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('3b3aa214-6eec-4cbf-ac63-2a6e781c96ff'), UUID('15db64c1-70e0-4b9a-8335-e6bcd7900f7c'), UUID('7c601849-98e0-45af-8ae2-b8c03ddefc81'), Subscription.Portfolio.CORE, None, None, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: duplicate key value violates unique constraint "billing_subscription_organization_id_key"
+E           DETAIL:  Key (organization_id)=(7c601849-98e0-45af-8ae2-b8c03ddefc81) already exists.
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+__ test_hidden_request_cannot_turn_review_pack_into_ordinary_report[assessor] __
+
+self = <QuerySet [<Subscription: Subscription object (9e699d45-ec79-4a4f-a806-27bc18ae5eff)>]>
+defaults = {'organization': <Organization: Report Firm>, 'portfolio': Subscription.Portfolio.CORE, 'status': Subscription.Status.ACTIVE, 'current_price_cents': 9900}
+kwargs = {'billing_customer': <BillingCustomer: BillingCustomer object (d7d2bd7e-f0b1-4d15-b852-f3ccadaafe43)>}
+
+    def get_or_create(self, defaults=None, **kwargs):
+        """
+        Look up an object with the given kwargs, creating one if necessary.
+        Return a tuple of (object, created), where created is a boolean
+        specifying whether an object was created.
+        """
+        # The get() needs to be targeted at the write database in order
+        # to avoid potential transaction consistency problems.
+        self._for_write = True
+        try:
+>           return self.get(**kwargs), False
+                   ^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:948: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <QuerySet [<Subscription: Subscription object (9e699d45-ec79-4a4f-a806-27bc18ae5eff)>]>
+args = ()
+kwargs = {'billing_customer': <BillingCustomer: BillingCustomer object (d7d2bd7e-f0b1-4d15-b852-f3ccadaafe43)>}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           apps.billing.models.Subscription.DoesNotExist: Subscription matching query does not exist.
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:635: DoesNotExist
+
+During handling of the above exception, another exception occurred:
+
+self = <django.db.backends.utils.CursorWrapper object at 0x75eb893d12b0>
+sql = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('bab51e22-1238-4304-9219-77c10987bc02'), UUID('d7d2bd7e-f0b1-4d15-b852-f3ccadaafe43'), UUID('3d7855a7-518b-4279-9bf7-82ea611113bb'), Subscription.Portfolio.CORE, None, None, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x75eb893d12b0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x75eb89fb84b0>
+query = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('bab51e22-1238-4304-9219-77c10987bc02'), UUID('d7d2bd7e-f0b1-4d15-b852-f3ccadaafe43'), UUID('3d7855a7-518b-4279-9bf7-82ea611113bb'), Subscription.Portfolio.CORE, None, None, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UniqueViolation: duplicate key value violates unique constraint "billing_subscription_organization_id_key"
+E           DETAIL:  Key (organization_id)=(3d7855a7-518b-4279-9bf7-82ea611113bb) already exists.
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+stored_reports = (<User: reports@example.com>, <Organization: Report Firm>, <ArtifactRequest: ArtifactRequest object (2040e7ec-9dc4-42a...64-7fd57724c3de)>, <Report: AL-2026-000004>, <apps.reports.storage.LocalPrivateReportStorage object at 0x75eb8a010410>)
+role = 'assessor'
+
+    @pytest.mark.parametrize("role", ["viewer", "assessor"])
+    def test_hidden_request_cannot_turn_review_pack_into_ordinary_report(stored_reports, role):
+        _, org, staged, ordinary, _ = stored_reports
+>       user = member(org, role)
+               ^^^^^^^^^^^^^^^^^
+
+tests/test_review_report_read_authority.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_review_report_read_authority.py:47: in member
+    grant_core_entitlement(user, org)
+tests/conftest.py:28: in grant_core_entitlement
+    subscription, _ = Subscription.objects.get_or_create(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:955: in get_or_create
+    return self.create(**params), True
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x75eb89fb84b0>
+query = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('bab51e22-1238-4304-9219-77c10987bc02'), UUID('d7d2bd7e-f0b1-4d15-b852-f3ccadaafe43'), UUID('3d7855a7-518b-4279-9bf7-82ea611113bb'), Subscription.Portfolio.CORE, None, None, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: duplicate key value violates unique constraint "billing_subscription_organization_id_key"
+E           DETAIL:  Key (organization_id)=(3d7855a7-518b-4279-9bf7-82ea611113bb) already exists.
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+_________ test_routed_nonowner_reads_hide_pack_before_storage[viewer] __________
+
+self = <QuerySet [<Subscription: Subscription object (b58d8c93-cb92-4b79-abc9-53ff7ab2efee)>]>
+defaults = {'organization': <Organization: Report Firm>, 'portfolio': Subscription.Portfolio.CORE, 'status': Subscription.Status.ACTIVE, 'current_price_cents': 9900}
+kwargs = {'billing_customer': <BillingCustomer: BillingCustomer object (5a56f744-a340-49ce-ae8c-7674079068f3)>}
+
+    def get_or_create(self, defaults=None, **kwargs):
+        """
+        Look up an object with the given kwargs, creating one if necessary.
+        Return a tuple of (object, created), where created is a boolean
+        specifying whether an object was created.
+        """
+        # The get() needs to be targeted at the write database in order
+        # to avoid potential transaction consistency problems.
+        self._for_write = True
+        try:
+>           return self.get(**kwargs), False
+                   ^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:948: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <QuerySet [<Subscription: Subscription object (b58d8c93-cb92-4b79-abc9-53ff7ab2efee)>]>
+args = ()
+kwargs = {'billing_customer': <BillingCustomer: BillingCustomer object (5a56f744-a340-49ce-ae8c-7674079068f3)>}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           apps.billing.models.Subscription.DoesNotExist: Subscription matching query does not exist.
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:635: DoesNotExist
+
+During handling of the above exception, another exception occurred:
+
+self = <django.db.backends.utils.CursorWrapper object at 0x75eb890efe30>
+sql = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('3532278a-df61-4039-ad85-84bd56157de4'), UUID('5a56f744-a340-49ce-ae8c-7674079068f3'), UUID('415cd65f-3e04-4755-87dd-0ca9d9e827d5'), Subscription.Portfolio.CORE, None, None, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x75eb890efe30>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x75eb89fb8670>
+query = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('3532278a-df61-4039-ad85-84bd56157de4'), UUID('5a56f744-a340-49ce-ae8c-7674079068f3'), UUID('415cd65f-3e04-4755-87dd-0ca9d9e827d5'), Subscription.Portfolio.CORE, None, None, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UniqueViolation: duplicate key value violates unique constraint "billing_subscription_organization_id_key"
+E           DETAIL:  Key (organization_id)=(415cd65f-3e04-4755-87dd-0ca9d9e827d5) already exists.
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+stored_reports = (<User: reports@example.com>, <Organization: Report Firm>, <ArtifactRequest: ArtifactRequest object (5c5b27fb-dcde-4a1...ff-fcddb830b181)>, <Report: AL-2026-000006>, <apps.reports.storage.LocalPrivateReportStorage object at 0x75eb8a011090>)
+role = 'viewer', client = <django.test.client.Client object at 0x75eb8a03c170>
+settings = <pytest_django.fixtures.Settings object at 0x75eb8a010b90>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x75eb894eecf0>
+
+    @pytest.mark.parametrize("role", ["viewer", "assessor"])
+    def test_routed_nonowner_reads_hide_pack_before_storage(stored_reports, role, client, settings, monkeypatch):
+        _, org, staged, ordinary, storage = stored_reports
+>       user = member(org, role)
+               ^^^^^^^^^^^^^^^^^
+
+tests/test_review_report_read_authority.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_review_report_read_authority.py:47: in member
+    grant_core_entitlement(user, org)
+tests/conftest.py:28: in grant_core_entitlement
+    subscription, _ = Subscription.objects.get_or_create(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:955: in get_or_create
+    return self.create(**params), True
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x75eb89fb8670>
+query = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('3532278a-df61-4039-ad85-84bd56157de4'), UUID('5a56f744-a340-49ce-ae8c-7674079068f3'), UUID('415cd65f-3e04-4755-87dd-0ca9d9e827d5'), Subscription.Portfolio.CORE, None, None, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: duplicate key value violates unique constraint "billing_subscription_organization_id_key"
+E           DETAIL:  Key (organization_id)=(415cd65f-3e04-4755-87dd-0ca9d9e827d5) already exists.
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+________ test_routed_nonowner_reads_hide_pack_before_storage[assessor] _________
+
+self = <QuerySet [<Subscription: Subscription object (c8d37663-4340-4aaa-bd62-fb2775ede1c2)>]>
+defaults = {'organization': <Organization: Report Firm>, 'portfolio': Subscription.Portfolio.CORE, 'status': Subscription.Status.ACTIVE, 'current_price_cents': 9900}
+kwargs = {'billing_customer': <BillingCustomer: BillingCustomer object (6cdf89cf-5003-477a-8cd6-ded5f9357dbf)>}
+
+    def get_or_create(self, defaults=None, **kwargs):
+        """
+        Look up an object with the given kwargs, creating one if necessary.
+        Return a tuple of (object, created), where created is a boolean
+        specifying whether an object was created.
+        """
+        # The get() needs to be targeted at the write database in order
+        # to avoid potential transaction consistency problems.
+        self._for_write = True
+        try:
+>           return self.get(**kwargs), False
+                   ^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:948: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <QuerySet [<Subscription: Subscription object (c8d37663-4340-4aaa-bd62-fb2775ede1c2)>]>
+args = ()
+kwargs = {'billing_customer': <BillingCustomer: BillingCustomer object (6cdf89cf-5003-477a-8cd6-ded5f9357dbf)>}
+
+    def get(self, *args, **kwargs):
+        """
+        Perform the query and return a single object matching the given
+        keyword arguments.
+        """
+        if self.query.combinator and (args or kwargs):
+            raise NotSupportedError(
+                "Calling QuerySet.get(...) with filters after %s() is not "
+                "supported." % self.query.combinator
+            )
+        clone = self._chain() if self.query.combinator else self.filter(*args, **kwargs)
+        if self.query.can_filter() and not self.query.distinct_fields:
+            clone = clone.order_by()
+        limit = None
+        if (
+            not clone.query.select_for_update
+            or connections[clone.db].features.supports_select_for_update_with_limit
+        ):
+            limit = MAX_GET_RESULTS
+            clone.query.set_limits(high=limit)
+        num = len(clone)
+        if num == 1:
+            return clone._result_cache[0]
+        if not num:
+>           raise self.model.DoesNotExist(
+                "%s matching query does not exist." % self.model._meta.object_name
+            )
+E           apps.billing.models.Subscription.DoesNotExist: Subscription matching query does not exist.
+
+.venv/lib/python3.14/site-packages/django/db/models/query.py:635: DoesNotExist
+
+During handling of the above exception, another exception occurred:
+
+self = <django.db.backends.utils.CursorWrapper object at 0x75eb89fb7e90>
+sql = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('6f5be05f-8fc3-4eb9-9f6b-6c2e9d28c00f'), UUID('6cdf89cf-5003-477a-8cd6-ded5f9357dbf'), UUID('cb5eef9d-359c-4767-8ed3-4aade425e22d'), Subscription.Portfolio.CORE, None, None, ...)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x75eb89fb7e90>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x75eb89fb83d0>
+query = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('6f5be05f-8fc3-4eb9-9f6b-6c2e9d28c00f'), UUID('6cdf89cf-5003-477a-8cd6-ded5f9357dbf'), UUID('cb5eef9d-359c-4767-8ed3-4aade425e22d'), Subscription.Portfolio.CORE, None, None, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UniqueViolation: duplicate key value violates unique constraint "billing_subscription_organization_id_key"
+E           DETAIL:  Key (organization_id)=(cb5eef9d-359c-4767-8ed3-4aade425e22d) already exists.
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UniqueViolation
+
+The above exception was the direct cause of the following exception:
+
+stored_reports = (<User: reports@example.com>, <Organization: Report Firm>, <ArtifactRequest: ArtifactRequest object (5ae1b78f-247a-4eb...fb-60b349936ad5)>, <Report: AL-2026-000008>, <apps.reports.storage.LocalPrivateReportStorage object at 0x75eb89f9c770>)
+role = 'assessor', client = <django.test.client.Client object at 0x75eb894ef9b0>
+settings = <pytest_django.fixtures.Settings object at 0x75eb89f9c050>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x75eb894ef8a0>
+
+    @pytest.mark.parametrize("role", ["viewer", "assessor"])
+    def test_routed_nonowner_reads_hide_pack_before_storage(stored_reports, role, client, settings, monkeypatch):
+        _, org, staged, ordinary, storage = stored_reports
+>       user = member(org, role)
+               ^^^^^^^^^^^^^^^^^
+
+tests/test_review_report_read_authority.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_review_report_read_authority.py:47: in member
+    grant_core_entitlement(user, org)
+tests/conftest.py:28: in grant_core_entitlement
+    subscription, _ = Subscription.objects.get_or_create(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:955: in get_or_create
+    return self.create(**params), True
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x75eb89fb83d0>
+query = 'INSERT INTO "billing_subscription" ("id", "billing_customer_id", "organization_id", "portfolio", "stripe_subscription...el_at_period_end", "created_at", "updated_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('6f5be05f-8fc3-4eb9-9f6b-6c2e9d28c00f'), UUID('6cdf89cf-5003-477a-8cd6-ded5f9357dbf'), UUID('cb5eef9d-359c-4767-8ed3-4aade425e22d'), Subscription.Portfolio.CORE, None, None, ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.IntegrityError: duplicate key value violates unique constraint "billing_subscription_organization_id_key"
+E           DETAIL:  Key (organization_id)=(cb5eef9d-359c-4767-8ed3-4aade425e22d) already exists.
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: IntegrityError
+=============================== warnings summary ===============================
+tests/test_review_report_read_authority.py::test_owner_reads_pack_and_ordinary_report_with_actual_app_role
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_review_report_read_authority.py::test_hidden_request_cannot_turn_review_pack_into_ordinary_report[viewer]
+FAILED tests/test_review_report_read_authority.py::test_hidden_request_cannot_turn_review_pack_into_ordinary_report[assessor]
+FAILED tests/test_review_report_read_authority.py::test_routed_nonowner_reads_hide_pack_before_storage[viewer]
+FAILED tests/test_review_report_read_authority.py::test_routed_nonowner_reads_hide_pack_before_storage[assessor]
+4 failed, 2 passed, 1 warning in 29.20s

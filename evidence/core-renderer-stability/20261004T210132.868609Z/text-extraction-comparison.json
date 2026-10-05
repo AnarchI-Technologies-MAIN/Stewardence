@@ -1,0 +1,20 @@
+{
+  "-raw": {
+    "stability-ref-0": true,
+    "stability-ref-9": true,
+    "all_exact_reference_text": false
+  },
+  "-layout": {
+    "stability-ref-0": true,
+    "stability-ref-9": true,
+    "all_exact_reference_text": false
+  },
+  "pypdf": {
+    "all_exact_reference_text": false,
+    "missing_indices": [
+      1,
+      5,
+      9
+    ]
+  }
+}

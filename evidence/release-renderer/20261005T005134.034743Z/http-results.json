@@ -1,0 +1,22 @@
+[
+  {
+    "industry": "other",
+    "elapsed_seconds": 7.197558723040856,
+    "pdf_bytes": 94082,
+    "pdf_sha256": "95cf6fbe5a4517e304fec2c0a05f7eb6e5e6a33371568d347360a6865367987f",
+    "context_sha256": "e28d54d0bf6853e7d9d99211b598573b78cbcd3b79d223c9bf042dae7c98ce59",
+    "context_bytes": 26555,
+    "transport": "actual_app_HTTPReportRenderer_to_actual_renderer_v1_render",
+    "database_issuance": false
+  },
+  {
+    "industry": "accounting_bookkeeping",
+    "elapsed_seconds": 3.7214230290264823,
+    "pdf_bytes": 96911,
+    "pdf_sha256": "e2f9c3a43627a6fa83eba22ad7791930a9a1df7775195779a3468ce9f8518347",
+    "context_sha256": "213a8ecc0facbe14c0eda1f07198a891c09458a2457e48e1cb97667790dbcdf8",
+    "context_bytes": 47639,
+    "transport": "actual_app_HTTPReportRenderer_to_actual_renderer_v1_render",
+    "database_issuance": false
+  }
+]

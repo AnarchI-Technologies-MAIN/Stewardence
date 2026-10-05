@@ -1,0 +1,800 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reviews.0004_capture_pack_projection... OK
+  Applying jobs.0015_legacy_action_card_schema_fence... OK
+  Applying reviews.0005_capture_proposal_admission... OK
+  Applying jobs.0016_capture_decisions... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0005_review_pack_read_authority... OK
+  Applying reports.0006_capture_owner_read... OK
+  Applying reviews.0006_capture_proposal_packs... OK
+  Applying reviews.0007_unused_stop... OK
+  Applying reviews.0008_proposal_post_effect_authority... OK
+........................................................................ [  3%]
+........................................................................ [  6%]
+........................................................................ [  9%]
+........................................................................ [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 19%]
+........................................................................ [ 23%]
+....................................................s................... [ 26%]
+........................................................................ [ 29%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+...........s............................................................ [ 39%]
+........................................................................ [ 43%]
+........................................................................ [ 46%]
+........................................................................ [ 49%]
+...................................................................F.... [ 53%]
+......................................................................FF [ 56%]
+........................................................................ [ 59%]
+........................................................................ [ 63%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 73%]
+............................................................FF...FFFF.F. [ 76%]
+........................................................................ [ 79%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+........................................................................ [ 89%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 99%]
+.                                                                        [100%]
+=================================== FAILURES ===================================
+___ test_actual_process_termination_and_independent_recovery[before_commit] ____
+
+stage = 'before_commit'
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_actual_process_terminatio3')
+report_context = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: 164c5d58-f138-4012-9811-ac0c15d52181 v1>)
+
+    @pytest.mark.skipif(
+        sys.platform == "win32",
+        reason="SIGKILL qualification runs in Linux qualification image",
+    )
+    @pytest.mark.parametrize(
+        "stage", ["claimed", "external", "persistence", "before_commit", "after_commit"]
+    )
+    def test_actual_process_termination_and_independent_recovery(
+        stage, tmp_path, report_context
+    ):
+        user, org, _, _, snapshot = report_context
+        report = create_report(
+            organization_id=org.id,
+            assessment_snapshot_id=snapshot.id,
+            created_by_id=user.id,
+        )
+        job = ensure_report_generation_job(report=report)
+        BackgroundJob.objects.filter(pk=job.id).update(priority=-100)
+        env = os.environ.copy()
+        for variable in (
+            "DATABASE_URL",
+            "OWNER_DATABASE_URL",
+            "APP_DATABASE_URL",
+            "WORKER_DATABASE_URL",
+        ):
+            parts = urlsplit(env[variable])
+            env[variable] = urlunsplit(
+                (
+                    parts.scheme,
+                    parts.netloc,
+                    "/" + connections["default"].settings_dict["NAME"],
+                    parts.query,
+                    parts.fragment,
+                )
+            )
+        env.update(CRASH_STAGE=stage, CRASH_ROOT=str(tmp_path))
+        killed = subprocess.run(
+            [sys.executable, "-c", CHILD], env=env, capture_output=True, timeout=30
+        )
+        assert killed.returncode == -9, "Child must terminate by SIGKILL, not setup error"
+        import json
+    
+        barrier = json.loads((tmp_path / "kill-barrier.json").read_text())
+        assert barrier["stage"] == stage and barrier["job_id"] == str(job.id)
+        assert barrier["process_id"] > 0
+        assert barrier["database_role"] == "agentledger_worker"
+        assert barrier["isolation"] == "read committed"
+        if stage == "before_commit":
+            assert barrier["outcome"] == "completed"
+        # Process exit alone does not prove PostgreSQL has noticed socket loss and
+        # rolled back the uncommitted persistence transaction. Observe that boundary.
+        deadline = time.monotonic() + 5
+        backend_present = True
+        while backend_present and time.monotonic() < deadline:
+            with connections["default"].cursor() as c:
+                c.execute(
+                    "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE pid=%s)",
+                    [barrier["database_backend"]],
+                )
+                backend_present = c.fetchone()[0]
+            if backend_present:
+                time.sleep(0.01)
+        assert not backend_present, "Killed worker database backend must disappear"
+        job.refresh_from_db()
+        if stage == "after_commit":
+            assert job.status == "completed"
+            assert ReportArtifact.objects.filter(report=report).count() == 1
+            assert verify_recovery_receipt(RecoveryReceipt.objects.get(job=job))
+            assert recover_expired_jobs() == 0
+            return
+        assert job.status == "running"
+        assert job.attempts == 1 and job.locked_by == "terminated-process"
+        assert job.claim_token is not None
+        with connections["default"].cursor() as c:
+            c.execute(
+                "SELECT lock_expires_at-clock_timestamp() FROM background_jobs WHERE id=%s",
+                [job.id],
+            )
+>           assert c.fetchone()[0] <= __import__("datetime").timedelta(seconds=1)
+E           AssertionError: assert datetime.timedelta(seconds=1, microseconds=748793) <= datetime.timedelta(seconds=1)
+E            +  where datetime.timedelta(seconds=1) = <class 'datetime.timedelta'>(seconds=1)
+E            +    where <class 'datetime.timedelta'> = <module 'datetime' from '/usr/local/lib/python3.14/datetime.py'>.timedelta
+E            +      where <module 'datetime' from '/usr/local/lib/python3.14/datetime.py'> = __import__('datetime')
+
+tests/test_worker_process_crash.py:158: AssertionError
+__ BaselineTests.test_production_settings_import_with_explicit_configuration ___
+
+self = <test_baseline.BaselineTests testMethod=test_production_settings_import_with_explicit_configuration>
+
+    def test_production_settings_import_with_explicit_configuration(self):
+        environment = os.environ.copy()
+        environment.update(
+            {
+                "DJANGO_SECRET_KEY": "phase19-test-" + ("S3cur3!" * 8),
+                "DATABASE_URL": "postgresql://app:secret@db.internal/agentledger",
+                "ALLOWED_HOSTS": "agentledger.example",
+                "CSRF_TRUSTED_ORIGINS": "https://agentledger.example",
+                "REPORTS_BUCKET_NAME": "agentledger-test-reports",
+                "REPORTS_BUCKET_ENDPOINT": "https://storage.railway.app",
+                "REPORTS_BUCKET_ACCESS_KEY_ID": "test-access-key",
+                "REPORTS_BUCKET_SECRET_ACCESS_KEY": "test-secret-key",
+                "REPORTS_BUCKET_REGION": "auto",
+                "REPORTS_BUCKET_URL_STYLE": "virtual",
+                "REPORT_RENDERER_URL": "http://renderer:8080",
+                "PYTHONPATH": os.pathsep.join(["src", "."]),
+            }
+        )
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                (
+                    "import os; "
+                    "os.environ['DJANGO_SETTINGS_MODULE']="
+                    "'agentledger.settings.production'; "
+                    "import django; django.setup()"
+                ),
+            ],
+            cwd=os.getcwd(),
+            env=environment,
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+>       assert completed.returncode == 0, completed.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 1, in <module>
+E             import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.settings.production'; import django; django.setup()
+E                                                                                                               ~~~~~~~~~~~~^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/__init__.py", line 19, in setup
+E             configure_logging(settings.LOGGING_CONFIG, settings.LOGGING)
+E                               ^^^^^^^^^^^^^^^^^^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 81, in __getattr__
+E             self._setup(name)
+E             ~~~~~~~~~~~^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 68, in _setup
+E             self._wrapped = Settings(settings_module)
+E                             ~~~~~~~~^^^^^^^^^^^^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 166, in __init__
+E             mod = importlib.import_module(self.SETTINGS_MODULE)
+E           File "/usr/local/lib/python3.14/importlib/__init__.py", line 88, in import_module
+E             return _bootstrap._gcd_import(name[level:], package, level)
+E                    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+E           File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+E           File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+E           File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+E           File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+E           File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+E           File "/app/src/agentledger/settings/production.py", line 39, in <module>
+E             raise ImproperlyConfigured(
+E                 "WORKER_DATABASE_URL must target the application database"
+E             )
+E         django.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/app/.venv/bin/python', '-c', "import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.se...base"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n').returncode
+
+tests/test_baseline.py:113: AssertionError
+_________ BaselineTests.test_production_settings_reject_wildcard_host __________
+
+self = <test_baseline.BaselineTests testMethod=test_production_settings_reject_wildcard_host>
+
+    def test_production_settings_reject_wildcard_host(self):
+        environment = os.environ.copy()
+        environment.update(
+            {
+                "DJANGO_SECRET_KEY": "phase19-test-" + ("S3cur3!" * 8),
+                "DATABASE_URL": "postgresql://app:secret@db.internal/agentledger",
+                "ALLOWED_HOSTS": "*",
+                "CSRF_TRUSTED_ORIGINS": "https://agentledger.example",
+                "PYTHONPATH": os.pathsep.join(["src", "."]),
+            }
+        )
+        completed = subprocess.run(
+            [sys.executable, "-c", "import agentledger.settings.production"],
+            cwd=os.getcwd(),
+            env=environment,
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+        assert completed.returncode != 0
+>       assert "Wildcard ALLOWED_HOSTS is forbidden" in completed.stderr
+E       assert 'Wildcard ALLOWED_HOSTS is forbidden' in 'Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    import agentledger.settings.productio...abase"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n'
+E        +  where 'Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    import agentledger.settings.productio...abase"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n' = CompletedProcess(args=['/app/.venv/bin/python', '-c', 'import agentledger.settings.production'], returncode=1, stdout=...base"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n').stderr
+
+tests/test_baseline.py:135: AssertionError
+_________ test_production_security_settings_are_explicit_and_hardened __________
+
+    def test_production_security_settings_are_explicit_and_hardened():
+        completed = import_production_settings(production_environment())
+    
+>       assert completed.returncode == 0, completed.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 1, in <module>
+E             import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.settings.production'; import django; django.setup(); from django.conf import settings; print(repr(settings.ALLOWED_HOSTS)); print(repr(settings.CSRF_TRUSTED_ORIGINS))
+E                                                                                                               ~~~~~~~~~~~~^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/__init__.py", line 19, in setup
+E             configure_logging(settings.LOGGING_CONFIG, settings.LOGGING)
+E                               ^^^^^^^^^^^^^^^^^^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 81, in __getattr__
+E             self._setup(name)
+E             ~~~~~~~~~~~^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 68, in _setup
+E             self._wrapped = Settings(settings_module)
+E                             ~~~~~~~~^^^^^^^^^^^^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 166, in __init__
+E             mod = importlib.import_module(self.SETTINGS_MODULE)
+E           File "/usr/local/lib/python3.14/importlib/__init__.py", line 88, in import_module
+E             return _bootstrap._gcd_import(name[level:], package, level)
+E                    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+E           File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+E           File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+E           File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+E           File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+E           File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+E           File "/app/src/agentledger/settings/production.py", line 39, in <module>
+E             raise ImproperlyConfigured(
+E                 "WORKER_DATABASE_URL must target the application database"
+E             )
+E         django.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/app/.venv/bin/python', '-c', "import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.se...base"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n').returncode
+
+tests/test_production_security.py:69: AssertionError
+___ test_production_collectstatic_serves_the_branded_login_without_database ____
+
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_production_collectstatic_0')
+
+    def test_production_collectstatic_serves_the_branded_login_without_database(tmp_path):
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "import sys, re; import django; django.setup(); "
+                "from django.conf import settings; "
+                "settings.STATIC_ROOT = sys.argv[1]; "
+                "from django.core.management import call_command; "
+                "call_command('collectstatic', interactive=False, verbosity=0); "
+                "from django.test import Client; client = Client(); "
+                "page = client.get('/accounts/login/', secure=True, "
+                "HTTP_HOST='agentledger.example'); "
+                "assert page.status_code == 200; "
+                "html = page.content.decode(); assert 'Stewardence' in html; "
+                r"asset = re.search(r'/static/agentledger\.[a-f0-9]+\.css', html).group(); "
+                "css = client.get(asset, secure=True, HTTP_HOST='agentledger.example'); "
+                "assert css.status_code == 200; "
+                "assert css['Content-Type'].startswith('text/css'); "
+                "assert b'--ink-950' in b''.join(css.streaming_content)",
+                str(tmp_path / "static"),
+            ],
+            env=production_environment(),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert completed.returncode == 0, completed.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 1, in <module>
+E             import sys, re; import django; django.setup(); from django.conf import settings; settings.STATIC_ROOT = sys.argv[1]; from django.core.management import call_command; call_command('collectstatic', interactive=False, verbosity=0); from django.test import Client; client = Client(); page = client.get('/accounts/login/', secure=True, HTTP_HOST='agentledger.example'); assert page.status_code == 200; html = page.content.decode(); assert 'Stewardence' in html; asset = re.search(r'/static/agentledger\.[a-f0-9]+\.css', html).group(); css = client.get(asset, secure=True, HTTP_HOST='agentledger.example'); assert css.status_code == 200; assert css['Content-Type'].startswith('text/css'); assert b'--ink-950' in b''.join(css.streaming_content)
+E                                            ~~~~~~~~~~~~^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/__init__.py", line 19, in setup
+E             configure_logging(settings.LOGGING_CONFIG, settings.LOGGING)
+E                               ^^^^^^^^^^^^^^^^^^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 81, in __getattr__
+E             self._setup(name)
+E             ~~~~~~~~~~~^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 68, in _setup
+E             self._wrapped = Settings(settings_module)
+E                             ~~~~~~~~^^^^^^^^^^^^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 166, in __init__
+E             mod = importlib.import_module(self.SETTINGS_MODULE)
+E           File "/usr/local/lib/python3.14/importlib/__init__.py", line 88, in import_module
+E             return _bootstrap._gcd_import(name[level:], package, level)
+E                    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+E           File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+E           File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+E           File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+E           File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+E           File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+E           File "/app/src/agentledger/settings/production.py", line 39, in <module>
+E             raise ImproperlyConfigured(
+E                 "WORKER_DATABASE_URL must target the application database"
+E             )
+E         django.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/app/.venv/bin/python', '-c', "import sys, re; import django; django.setup(); from django.conf...base"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n').returncode
+
+tests/test_production_security.py:104: AssertionError
+_ test_production_rejects_non_explicit_or_insecure_csrf_origins[http://agentledger.example] _
+
+origin = 'http://agentledger.example'
+
+    @pytest.mark.parametrize(
+        "origin",
+        [
+            "http://agentledger.example",
+            "https://*.example.com",
+            "https://",
+        ],
+    )
+    def test_production_rejects_non_explicit_or_insecure_csrf_origins(origin):
+        completed = import_production_settings(
+            production_environment(
+                CSRF_TRUSTED_ORIGINS=origin,
+            )
+        )
+    
+        assert completed.returncode != 0
+>       assert (
+            "CSRF_TRUSTED_ORIGINS must contain explicit HTTPS origins" in completed.stderr
+        )
+E       assert 'CSRF_TRUSTED_ORIGINS must contain explicit HTTPS origins' in 'Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    import os; os.environ[\'DJANGO_SETTIN...abase"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n'
+E        +  where 'Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    import os; os.environ[\'DJANGO_SETTIN...abase"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n' = CompletedProcess(args=['/app/.venv/bin/python', '-c', "import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.se...base"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n').stderr
+
+tests/test_production_security.py:142: AssertionError
+_ test_production_rejects_non_explicit_or_insecure_csrf_origins[https://*.example.com] _
+
+origin = 'https://*.example.com'
+
+    @pytest.mark.parametrize(
+        "origin",
+        [
+            "http://agentledger.example",
+            "https://*.example.com",
+            "https://",
+        ],
+    )
+    def test_production_rejects_non_explicit_or_insecure_csrf_origins(origin):
+        completed = import_production_settings(
+            production_environment(
+                CSRF_TRUSTED_ORIGINS=origin,
+            )
+        )
+    
+        assert completed.returncode != 0
+>       assert (
+            "CSRF_TRUSTED_ORIGINS must contain explicit HTTPS origins" in completed.stderr
+        )
+E       assert 'CSRF_TRUSTED_ORIGINS must contain explicit HTTPS origins' in 'Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    import os; os.environ[\'DJANGO_SETTIN...abase"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n'
+E        +  where 'Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    import os; os.environ[\'DJANGO_SETTIN...abase"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n' = CompletedProcess(args=['/app/.venv/bin/python', '-c', "import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.se...base"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n').stderr
+
+tests/test_production_security.py:142: AssertionError
+___ test_production_rejects_non_explicit_or_insecure_csrf_origins[https://] ____
+
+origin = 'https://'
+
+    @pytest.mark.parametrize(
+        "origin",
+        [
+            "http://agentledger.example",
+            "https://*.example.com",
+            "https://",
+        ],
+    )
+    def test_production_rejects_non_explicit_or_insecure_csrf_origins(origin):
+        completed = import_production_settings(
+            production_environment(
+                CSRF_TRUSTED_ORIGINS=origin,
+            )
+        )
+    
+        assert completed.returncode != 0
+>       assert (
+            "CSRF_TRUSTED_ORIGINS must contain explicit HTTPS origins" in completed.stderr
+        )
+E       assert 'CSRF_TRUSTED_ORIGINS must contain explicit HTTPS origins' in 'Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    import os; os.environ[\'DJANGO_SETTIN...abase"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n'
+E        +  where 'Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    import os; os.environ[\'DJANGO_SETTIN...abase"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n' = CompletedProcess(args=['/app/.venv/bin/python', '-c', "import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.se...base"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n').stderr
+
+tests/test_production_security.py:142: AssertionError
+________________ test_production_rejects_wildcard_allowed_hosts ________________
+
+    def test_production_rejects_wildcard_allowed_hosts():
+        completed = import_production_settings(
+            production_environment(
+                ALLOWED_HOSTS="*",
+            )
+        )
+    
+        assert completed.returncode != 0
+>       assert "Wildcard ALLOWED_HOSTS is forbidden" in completed.stderr
+E       assert 'Wildcard ALLOWED_HOSTS is forbidden' in 'Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    import os; os.environ[\'DJANGO_SETTIN...abase"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n'
+E        +  where 'Traceback (most recent call last):\n  File "<string>", line 1, in <module>\n    import os; os.environ[\'DJANGO_SETTIN...abase"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n' = CompletedProcess(args=['/app/.venv/bin/python', '-c', "import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.se...base"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n').stderr
+
+tests/test_production_security.py:155: AssertionError
+______________ test_production_hsts_is_deliberate_initial_ramp_up ______________
+
+    def test_production_hsts_is_deliberate_initial_ramp_up():
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                (
+                    "import os; "
+                    "os.environ['DJANGO_SETTINGS_MODULE']="
+                    "'agentledger.settings.production'; "
+                    "import django; django.setup(); "
+                    "from django.conf import settings; "
+                    "assert settings.DEBUG is False; "
+                    "assert settings.SECURE_SSL_REDIRECT is True; "
+                    "assert settings.SECURE_REDIRECT_EXEMPT == "
+                    "['^healthz$', '^readyz$']; "
+                    "assert settings.SESSION_COOKIE_SECURE is True; "
+                    "assert settings.CSRF_COOKIE_SECURE is True; "
+                    "assert settings.SECURE_HSTS_SECONDS == 3600; "
+                    "assert settings.SECURE_HSTS_INCLUDE_SUBDOMAINS is True; "
+                    "assert settings.SECURE_HSTS_PRELOAD is False; "
+                    "assert settings.SECURE_CONTENT_TYPE_NOSNIFF is True; "
+                    "assert settings.X_FRAME_OPTIONS == 'DENY'; "
+                    "assert settings.STATIC_URL == '/static/'; "
+                    "assert settings.MIDDLEWARE[0] == 'apps.integrations.provider_views.ProviderBoundaryMiddleware'; "
+                    "assert settings.MIDDLEWARE[1] == 'apps.integrations.quickbooks_views.QuickBooksBoundaryMiddleware'; "
+                    "assert settings.MIDDLEWARE[2] == 'django.middleware.security.SecurityMiddleware'; "
+                    "assert settings.MIDDLEWARE[3] == "
+                    "'whitenoise.middleware.WhiteNoiseMiddleware'; "
+                    "assert settings.STORAGES['staticfiles']['BACKEND'] == "
+                    "'whitenoise.storage.CompressedManifestStaticFilesStorage'; "
+                    "assert settings.SECURE_PROXY_SSL_HEADER == "
+                    "('HTTP_X_FORWARDED_PROTO', 'https')"
+                ),
+            ],
+            cwd=os.getcwd(),
+            env=production_environment(),
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+    
+>       assert completed.returncode == 0, completed.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 1, in <module>
+E             import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.settings.production'; import django; django.setup(); from django.conf import settings; assert settings.DEBUG is False; assert settings.SECURE_SSL_REDIRECT is True; assert settings.SECURE_REDIRECT_EXEMPT == ['^healthz$', '^readyz$']; assert settings.SESSION_COOKIE_SECURE is True; assert settings.CSRF_COOKIE_SECURE is True; assert settings.SECURE_HSTS_SECONDS == 3600; assert settings.SECURE_HSTS_INCLUDE_SUBDOMAINS is True; assert settings.SECURE_HSTS_PRELOAD is False; assert settings.SECURE_CONTENT_TYPE_NOSNIFF is True; assert settings.X_FRAME_OPTIONS == 'DENY'; assert settings.STATIC_URL == '/static/'; assert settings.MIDDLEWARE[0] == 'apps.integrations.provider_views.ProviderBoundaryMiddleware'; assert settings.MIDDLEWARE[1] == 'apps.integrations.quickbooks_views.QuickBooksBoundaryMiddleware'; assert settings.MIDDLEWARE[2] == 'django.middleware.security.SecurityMiddleware'; assert settings.MIDDLEWARE[3] == 'whitenoise.middleware.WhiteNoiseMiddleware'; assert settings.STORAGES['staticfiles']['BACKEND'] == 'whitenoise.storage.CompressedManifestStaticFilesStorage'; assert settings.SECURE_PROXY_SSL_HEADER == ('HTTP_X_FORWARDED_PROTO', 'https')
+E                                                                                                               ~~~~~~~~~~~~^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/__init__.py", line 19, in setup
+E             configure_logging(settings.LOGGING_CONFIG, settings.LOGGING)
+E                               ^^^^^^^^^^^^^^^^^^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 81, in __getattr__
+E             self._setup(name)
+E             ~~~~~~~~~~~^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 68, in _setup
+E             self._wrapped = Settings(settings_module)
+E                             ~~~~~~~~^^^^^^^^^^^^^^^^^
+E           File "/app/.venv/lib/python3.14/site-packages/django/conf/__init__.py", line 166, in __init__
+E             mod = importlib.import_module(self.SETTINGS_MODULE)
+E           File "/usr/local/lib/python3.14/importlib/__init__.py", line 88, in import_module
+E             return _bootstrap._gcd_import(name[level:], package, level)
+E                    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+E           File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+E           File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+E           File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+E           File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+E           File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+E           File "/app/src/agentledger/settings/production.py", line 39, in <module>
+E             raise ImproperlyConfigured(
+E                 "WORKER_DATABASE_URL must target the application database"
+E             )
+E         django.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/app/.venv/bin/python', '-c', "import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.se...base"\n    )\ndjango.core.exceptions.ImproperlyConfigured: WORKER_DATABASE_URL must target the application database\n').returncode
+
+tests/test_production_security.py:281: AssertionError
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py: 2 warnings
+tests/test_billing_founder_cancellation_authority.py: 3 warnings
+tests/test_billing_founder_checkout_authority.py: 2 warnings
+tests/test_billing_portal_cancellation.py: 2 warnings
+tests/test_billing_tenant_authority.py: 10 warnings
+tests/test_core_checkout_admission.py: 21 warnings
+tests/test_csv_import.py: 10 warnings
+tests/test_discovery.py: 2 warnings
+tests/test_discovery_reconciliation.py: 2 warnings
+tests/test_inventory.py: 10 warnings
+tests/test_organization_rules.py: 9 warnings
+tests/test_payflow_deployment_gates.py: 6 warnings
+tests/test_production_security.py: 3 warnings
+tests/test_public_signup.py: 11 warnings
+tests/test_report_history.py: 3 warnings
+tests/test_reports.py: 3 warnings
+tests/test_roi_engine_v2.py: 1 warning
+tests/test_workspaces.py: 9 warnings
+tests/test_billing_standard_launch.py: 3 warnings
+tests/test_capture_archived_reads.py: 2 warnings
+tests/test_capture_comparison_ui.py: 2 warnings
+tests/test_capture_proposal_ui.py: 10 warnings
+tests/test_capture_report_access.py: 2 warnings
+tests/test_capture_review_ui.py: 21 warnings
+tests/test_capture_review_worker.py: 2 warnings
+tests/test_capture_v4_reads.py: 6 warnings
+tests/test_capture_v4_worker.py: 2 warnings
+tests/test_core_first_capture_journey.py: 1 warning
+tests/test_core_workflows.py: 1 warning
+tests/test_explicit_inventory.py: 6 warnings
+tests/test_lyra_authority_findings.py: 1 warning
+tests/test_operations_dashboard.py: 2 warnings
+tests/test_paid_workflow_boundary.py: 3 warnings
+tests/test_provider_lifecycle.py: 2 warnings
+tests/test_quickbooks_lifecycle.py: 13 warnings
+tests/test_quickbooks_reports.py: 6 warnings
+tests/test_report_artifacts.py: 4 warnings
+tests/test_report_recovery_states.py: 1 warning
+tests/test_review_profile_handoff.py: 3 warnings
+tests/test_review_report_read_authority.py: 3 warnings
+tests/test_review_unused_stop_ui.py: 9 warnings
+tests/test_review_workspace_views.py: 33 warnings
+tests/test_standard_checkout_route_durability.py: 4 warnings
+tests/test_workflow_profile_setup.py: 3 warnings
+tests/test_baseline.py: 4 warnings
+tests/test_download.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.14.7-final-0 ________________
+
+Name                                                                          Stmts   Miss Branch BrPart  Cover   Missing
+-------------------------------------------------------------------------------------------------------------------------
+apps/accounts/forms.py                                                           41      1     10      2    94%   98->116, 120
+apps/accounts/models.py                                                          31      2      0      0    94%   35-36
+apps/accounts/views.py                                                           24      4      4      1    82%   15, 25-27
+apps/assessments/accounting_pack_v1.py                                           16      2      4      2    80%   25, 29
+apps/assessments/capture_admission.py                                            37      4      8      2    87%   24, 68, 85-86
+apps/assessments/capture_v1.py                                                  134     12     68      9    90%   86, 89-90, 100, 119, 123, 150, 152, 221, 309, 312, 327
+apps/assessments/models.py                                                       62      7      8      1    86%   60, 82, 98, 101-103, 106
+apps/assessments/policy_engine_v1.py                                            154     37     66     26    68%   107-111, 122, 124, 126, 131, 146, 150, 154, 161, 163, 165, 185, 187, 191, 195, 197, 199, 201, 203, 225, 230, 234, 250, 252, 255, 266, 269-273, 299-302
+apps/assessments/snapshots.py                                                    97      3     22      3    95%   258, 271, 300
+apps/assessments/views.py                                                        14      1      4      1    89%   13
+apps/assessments/workflow_profile_v1.py                                          24      6     14      6    68%   17, 23, 31, 33, 37, 44
+apps/audit/append.py                                                             73      5     26      3    92%   41, 131-132, 138, 146
+apps/audit/management/commands/verify_audit.py                                   17      2      0      0    88%   23-24
+apps/audit/merkle.py                                                             56      6     22      6    85%   48, 57, 61, 95, 98, 101
+apps/audit/models.py                                                             55      3      0      0    95%   102, 147, 212
+apps/audit/sealing.py                                                            80      7     20      5    88%   43, 65-66, 71, 147, 249, 274
+apps/audit/verification.py                                                       73     10     30      8    83%   78, 106, 116, 124, 152, 198-199, 207, 215, 230
+apps/billing/admin.py                                                             4      4      0      0     0%   1-6
+apps/billing/admission.py                                                        76     10     32     10    81%   42, 58, 60, 78, 107, 110, 118, 124, 127, 130
+apps/billing/admission_views.py                                                  32      1      4      2    92%   20, 25->29
+apps/billing/coverage.py                                                         50      4     26      4    89%   21, 29, 32, 36
+apps/billing/founder_slots.py                                                   113     23     56     19    75%   77, 89-106, 161, 164, 167, 170, 217, 220, 223, 226, 228->235, 264, 267, 270, 314, 317, 320, 323, 326
+apps/billing/middleware.py                                                       77     11     36      2    87%   62-63, 95-98, 105-114, 133, 145-146
+apps/billing/models.py                                                          173     18      2      0    90%   152, 209, 256-257, 260-261, 285-286, 289-290, 319-320, 323-324, 345-346, 349-350
+apps/billing/paid_evidence.py                                                    64      9     30      9    81%   22, 24, 44, 65, 73, 78, 92, 97, 101
+apps/billing/pricing.py                                                          46      3     18      1    94%   49-50, 67
+apps/billing/security.py                                                         32      5      6      2    82%   19-21, 45, 47
+apps/billing/standard_checkout_flow.py                                          104     17     48     13    80%   34, 36, 41, 78, 81-82, 92, 111, 115, 128, 152, 160, 173, 203, 208, 213, 235
+apps/billing/stripe_schedules.py                                                160     42     82     30    66%   54, 59, 70, 73, 92, 106-113, 119, 174, 182, 204-217, 223, 244, 258, 280-295, 304, 322-325, 345, 350, 364, 432, 459, 464, 469, 478-486, 508->553, 510, 517, 554, 572, 591
+apps/billing/views.py                                                           453     94    196     47    74%   49, 70, 104, 128, 134, 137, 170->175, 180, 187, 197, 203-231, 254-261, 299->306, 318, 337, 351, 366, 375-411, 418-441, 474->477, 493-495, 552->558, 559, 562, 569, 572, 575, 578, 585, 635-667, 681, 705, 708, 709->712, 722, 728-729, 764->769, 767, 800, 808, 812-813, 864, 873-875, 878, 901->904, 959, 966, 969, 996->exit, 1020, 1039->1053, 1060, 1075
+apps/catalog/matching.py                                                         39      2     10      0    96%   42-43
+apps/catalog/models.py                                                           62      3      0      0    95%   30, 56, 109
+apps/catalog/normalization.py                                                    69      7      8      3    87%   21, 40, 72, 75-76, 116-117
+apps/credentials/crypto.py                                                      138     21     36     14    80%   43, 46, 49, 52, 55, 58, 64-65, 96, 119, 124, 140-141, 151, 154, 158->exit, 162-163, 232, 245, 310-311
+apps/funnels/views.py                                                            33      1      8      2    93%   12, 19->23
+apps/imports/models.py                                                           41      2      0      0    95%   45, 78
+apps/imports/parsing.py                                                          79     16     26      8    77%   31-33, 35-36, 47, 58, 69-70, 74-75, 87, 112, 115-116, 129
+apps/imports/views.py                                                           123      8     28      8    89%   35, 96->130, 140, 156, 168, 187-190, 213, 258
+apps/integrations/analysis.py                                                    95      9     44      9    87%   33, 46, 48, 50, 52, 66, 68, 70, 72
+apps/integrations/forms.py                                                       16      2      2      0    89%   30-31
+apps/integrations/logging.py                                                     10      1      4      1    86%   17
+apps/integrations/models.py                                                      73      6      0      0    92%   32, 46, 56, 77, 92, 102
+apps/integrations/provider_client.py                                            180      7     40      3    95%   52-53, 121-122, 227, 237, 245->249, 270
+apps/integrations/provider_crypto.py                                             44      5      6      3    84%   29, 31-32, 59, 64
+apps/integrations/provider_services.py                                          203     15     28      5    90%   40-42, 55-56, 78, 209, 253-262, 263->265, 266, 347
+apps/integrations/provider_views.py                                             114     45     32      4    57%   33, 49-54, 56, 61, 72-73, 79-126, 133-170
+apps/integrations/quickbooks_client.py                                          114      6     44      3    94%   42, 67, 126-127, 139, 233
+apps/integrations/quickbooks_crypto.py                                           63      8     12      5    83%   29, 32, 35, 53-55, 81, 86
+apps/integrations/quickbooks_reports.py                                          48      1     18      1    97%   56
+apps/integrations/quickbooks_services.py                                        208     11     62      9    93%   49, 59-60, 82, 103, 108, 158, 166, 220, 248, 324
+apps/integrations/quickbooks_views.py                                           135     28     24      3    81%   40, 55-60, 81, 89-90, 98-103, 115-116, 127-133, 150-160, 189
+apps/integrations/semantics/adapters.py                                          86     11     42     11    83%   53, 69, 72, 78, 86, 98, 112-114, 230, 242, 247
+apps/integrations/semantics/contracts.py                                        342     41    184     37    85%   80, 93, 112, 116, 121, 142, 163->exit, 173-174, 176, 178, 188, 206, 260, 262, 274, 276, 279, 286, 298, 312, 353, 359, 388, 400-401, 403, 426, 436, 438, 440, 485, 490, 522, 534, 550, 558, 560, 564, 568, 582, 584
+apps/inventory/discovery_views.py                                                41      3     10      2    90%   27->40, 30, 38-39
+apps/inventory/explicit_declarations.py                                          19      1      2      1    90%   17
+apps/inventory/explicit_forms.py                                                 69      4     34      4    92%   104, 106, 108, 124
+apps/inventory/explicit_views.py                                                 69     12     26      8    79%   28, 47, 70-79, 89, 92, 100, 102, 104, 106
+apps/inventory/forms.py                                                          29      1      4      2    91%   123->exit, 134
+apps/inventory/management/commands/seed_demo_company.py                          84      9     16      6    85%   37-38, 170-171, 213, 220, 272, 276, 287
+apps/inventory/management/commands/seed_demo_inventory.py                        27      4      2      0    86%   206-207, 211-212
+apps/inventory/migrations/0006_detectionevidence_inventory_item_and_more.py      12      3      2      1    71%   15-17
+apps/inventory/models.py                                                        102      3      0      0    97%   139, 167, 234
+apps/inventory/views.py                                                         142      7     32      7    92%   46, 112, 178, 234-235, 272-273
+apps/jobs/automation_contracts.py                                                48      5     26      5    86%   41, 57, 61, 68, 76
+apps/jobs/contracts.py                                                           60      6     30      6    87%   28, 37, 56, 58, 60, 84
+apps/jobs/core_decisions_v2.py                                                   19      2      6      2    84%   48, 57
+apps/jobs/core_models.py                                                         89      2      2      1    97%   20->exit, 24, 120
+apps/jobs/core_views.py                                                          87     17     26     12    74%   38->exit, 41->exit, 43->exit, 53-54, 56-59, 61-62, 64-65, 67-68, 76, 80-84, 98->exit
+apps/jobs/core_workflows.py                                                     189     25    102     27    79%   54, 56, 57->exit, 63, 73, 84, 86, 91, 93->exit, 109->exit, 110->exit, 114->exit, 120, 122, 124->exit, 130->exit, 135, 138, 140, 167->exit, 187-188, 193, 197-207, 212->exit, 218->exit, 221->220, 225->exit, 240->exit
+apps/jobs/listener.py                                                            32      1      4      1    94%   51
+apps/jobs/management/commands/run_core_tick.py                                   17      4      2      1    74%   16->exit, 18-21
+apps/jobs/migrations/0005_atomic_recovery_admission.py                           11      1      2      1    85%   15
+apps/jobs/models.py                                                              69      5      4      2    90%   113, 116->120, 142-143, 147-148
+apps/jobs/queue.py                                                               60      1     10      5    91%   29->exit, 33->exit, 34->exit, 65, 70->exit
+apps/jobs/receipts.py                                                            53     16     32     12    67%   9, 11, 22, 29-30, 36, 44, 47, 54, 57, 59, 61, 63-65, 68-69
+apps/jobs/views.py                                                               25      1      2      1    93%   19
+apps/jobs/worker.py                                                              65      4     12      4    90%   50->55, 53, 103, 128, 143
+apps/organizations/models.py                                                     57      3      2      1    93%   86, 91-92
+apps/organizations/views.py                                                     124     23     36     12    76%   49-75, 89, 121->139, 189-193, 226, 242, 249, 261, 279, 282, 293-307, 343
+apps/organizations/workflow_profiles.py                                          49      2     10      2    93%   23, 38
+apps/policies/context.py                                                          8      1      2      1    80%   10
+apps/policies/detector_mappings.py                                               31      1      6      1    95%   72
+apps/policies/engine.py                                                         154     12     66     12    89%   106, 108, 129, 183, 185, 193, 195, 197, 199, 201, 253, 271
+apps/policies/forms.py                                                           75      2     34     10    89%   100->103, 113->103, 122->124, 125, 145, 150->158, 158->162, 162->169, 169->176, 176->183
+apps/policies/models.py                                                          44      1      0      0    98%   123
+apps/policies/organization_rules.py                                              28      3     12      3    85%   27, 32, 38
+apps/policies/registry.py                                                        25      1      6      1    94%   20
+apps/policies/risk.py                                                           125      8     42      8    90%   54, 59, 63, 91, 93, 95, 174, 231
+apps/policies/views.py                                                          133      5     22      5    94%   34, 83, 91->110, 189, 199-200
+apps/reports/artifact_services.py                                                34      2      8      0    95%   96-97
+apps/reports/capture_delivery.py                                                 22      3      8      2    83%   13, 31, 53
+apps/reports/context.py                                                         115     18     40     12    79%   32, 37-48, 54, 83, 85, 98, 108, 129, 133, 145->152, 167, 171, 180->168
+apps/reports/jobs.py                                                             78     13     14      5    80%   45, 102, 113-114, 127-128, 161, 166, 172-173, 178, 187-188
+apps/reports/models.py                                                           68      9     16      7    81%   71, 79, 137, 141, 149, 155, 160, 164->168, 166, 168->exit, 170
+apps/reports/render_client.py                                                    71      1     26      1    98%   49
+apps/reports/services.py                                                         44      6     10      4    81%   22, 24, 39-40, 85, 89
+apps/reports/storage.py                                                         159     35     52     19    73%   54, 56, 58, 77, 92, 120-121, 124-129, 160, 162, 164, 166, 168, 178, 208, 219, 221, 225, 253-255, 261, 266-272, 288, 295, 301-327
+apps/reports/views.py                                                           107      4     20      4    94%   35, 138, 190, 193
+apps/reviews/capture_comparison_v2.py                                            43      2     22      2    94%   16, 109
+apps/reviews/capture_context.py                                                  60      5     26      5    88%   71, 76, 83, 98, 185
+apps/reviews/capture_context_v3.py                                               29      2      4      2    88%   18, 24
+apps/reviews/capture_event_v2.py                                                208     31    106     31    80%   32, 37, 42, 45, 117, 129, 186, 197, 221, 226, 228, 232, 238, 241, 243, 246, 259, 292, 303, 343, 368, 373, 394, 424, 437, 493, 497, 507, 512, 524, 526
+apps/reviews/capture_pack_reads.py                                               35      2     16      2    92%   28, 76
+apps/reviews/capture_views.py                                                    72      1     22      1    98%   67
+apps/reviews/comparison.py                                                       56      5     34      5    89%   17, 21, 67, 79, 93
+apps/reviews/context.py                                                          46      8     18      6    78%   23-25, 30-32, 37, 60, 89, 93
+apps/reviews/exposure_v1.py                                                      61      3     26      3    93%   45, 49, 75
+apps/reviews/jobs.py                                                             70      6     24      6    87%   50, 56, 82, 92, 124, 134
+apps/reviews/migrations/0002_pack_lifecycle.py                                   29      4      8      4    78%   25, 32, 50, 71
+apps/reviews/migrations/0004_capture_pack_projection.py                          25      1      2      1    93%   15
+apps/reviews/models.py                                                          141     14      2      1    90%   23, 27, 40, 75, 90, 105, 127, 143, 161, 176, 190, 208, 226, 249
+apps/reviews/proposal_admission.py                                               28      4      6      2    82%   26, 64-65, 67
+apps/reviews/proposals_v1.py                                                     64      1     24      0    99%   226
+apps/reviews/services.py                                                         67      4     28      4    92%   83, 106, 135, 169
+apps/reviews/unused_stop.py                                                      18      2      6      2    83%   34, 36
+apps/reviews/views.py                                                           259     22     76     14    89%   67, 105, 187, 190-192, 259, 280-281, 284, 298-299, 311, 324, 340, 452, 460, 487, 554, 597, 622-623
+apps/roi/engine.py                                                               75      2     16      2    96%   30, 55
+renderer/canonical_pdf.py                                                        18      0      2      1    95%   16->exit
+renderer/capture_pack_v4_schema.py                                              157     27     70     27    76%   93, 105, 114, 159, 162, 173, 186, 220, 231, 271, 296, 301, 322, 347, 352, 365, 375, 378, 399, 407, 418, 423, 427, 437, 442, 454, 456
+renderer/capture_schema.py                                                      133     27     88     24    75%   25, 39, 48, 69, 95, 122, 138, 184, 241, 254, 274, 286, 289, 322, 335, 355, 414, 419, 432, 439-442, 447, 453-455, 477-479
+renderer/render.py                                                               91     21     16      6    71%   40-45, 63->66, 67-71, 73, 77-78, 137, 139, 141, 144, 146-149
+renderer/schema.py                                                              252     38    162     28    84%   63, 68, 70, 74, 80, 83, 94, 101, 107, 134-135, 144, 146, 160, 162, 166-167, 171, 204-205, 213, 222, 230-232, 252, 278, 285, 330, 345, 426, 437, 461, 506-507, 516, 523, 535
+renderer/semantics_v1/accounting_pack.py                                         16      2      4      2    80%   25, 29
+renderer/semantics_v1/capture.py                                                134     30     68     25    72%   74, 80, 86, 89-90, 97, 100, 105, 107, 113, 119, 121, 123, 128, 136, 138-141, 144, 148-150, 152, 216, 219, 221, 224, 230, 309, 312, 326-327
+renderer/semantics_v1/exposure.py                                                61     18     26      5    62%   45, 49, 74-84, 96, 118-145
+renderer/semantics_v1/policy_engine.py                                          154     42     66     25    64%   107-111, 122, 124, 126, 131, 146, 150, 154, 161, 163, 165, 185, 187, 191, 195, 197, 199, 201, 203, 225, 229-243, 250, 252, 255, 264, 266, 269-273, 299-302
+renderer/semantics_v1/proposals.py                                               64     13     24      2    78%   71, 80-81, 84, 216-226
+renderer/semantics_v1/workflow_profile.py                                        24      6     14      6    68%   17, 23, 31, 33, 37, 44
+renderer/server.py                                                               56      8     10      2    85%   33-35, 37-38, 70-71, 75
+src/agentledger/billing_urls.py                                                   3      3      0      0     0%   1-3
+src/agentledger/gunicorn.conf.py                                                 26      2      2      0    93%   9-10
+src/agentledger/settings/base.py                                                 80      1      4      1    98%   21
+src/agentledger/settings/billing_admission.py                                    28     28      8      0     0%   2-30
+src/agentledger/settings/development.py                                          12      0      4      1    94%   16->9
+src/agentledger/settings/qualification.py                                        10     10      0      0     0%   2-11
+src/agentledger/tenancy/context.py                                               39      2      6      0    96%   69-70
+src/agentledger/tenancy/middleware.py                                            37      3     12      0    94%   49-51
+src/agentledger/urls.py                                                          11      1      2      1    85%   12
+-------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                         11588   1300   3494    813    85%
+
+163 files skipped due to complete coverage.
+Required test coverage of 80.0% reached. Total coverage: 85.15%
+=========================== short test summary info ============================
+FAILED tests/test_worker_process_crash.py::test_actual_process_termination_and_independent_recovery[before_commit]
+FAILED tests/test_baseline.py::BaselineTests::test_production_settings_import_with_explicit_configuration
+FAILED tests/test_baseline.py::BaselineTests::test_production_settings_reject_wildcard_host
+FAILED tests/test_production_security.py::test_production_security_settings_are_explicit_and_hardened
+FAILED tests/test_production_security.py::test_production_collectstatic_serves_the_branded_login_without_database
+FAILED tests/test_production_security.py::test_production_rejects_non_explicit_or_insecure_csrf_origins[http://agentledger.example]
+FAILED tests/test_production_security.py::test_production_rejects_non_explicit_or_insecure_csrf_origins[https://*.example.com]
+FAILED tests/test_production_security.py::test_production_rejects_non_explicit_or_insecure_csrf_origins[https://]
+FAILED tests/test_production_security.py::test_production_rejects_wildcard_allowed_hosts
+FAILED tests/test_production_security.py::test_production_hsts_is_deliberate_initial_ramp_up
+10 failed, 2149 passed, 2 skipped, 259 warnings in 663.86s (0:11:03)

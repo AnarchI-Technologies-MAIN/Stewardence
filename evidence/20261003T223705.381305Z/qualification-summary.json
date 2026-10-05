@@ -1,0 +1,13 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-cd42760fb9",
+  "image_id": "sha256:927c091876cec985029dc5599cafaac671bea1cd9566e92810e4d03a9d7d8526",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T223705.381305Z",
+  "test_arguments": [
+    "tests/test_renderer.py",
+    "tests/test_roi_engine_v2.py",
+    "tests/test_reports.py"
+  ]
+}

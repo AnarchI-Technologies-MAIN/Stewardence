@@ -1,21 +1,55 @@
 # Repository Guidelines
 
-## Project Structure
+## Project Structure & Module Organization
 
-- `apps/` contains Django domains such as billing, inventory, assessments, jobs, and reports.
-- `src/agentledger/` contains project settings and application entrypoints.
-- `templates/` and `static/` contain the server-rendered interface and assets.
-- `renderer/` contains report rendering code; `collector/` contains the Windows inventory collector.
-- `tests/` contains pytest and pytest-django qualification suites; `docs/` records architecture and release evidence.
+This workspace preserves deployed changes beyond Git HEAD.
 
-## Build and Test
+- `source/apps/`: Django domain modules, including inventory, assessments, billing, jobs and reports.
+- `source/src/agentledger/`: settings and application entrypoints.
+- `source/templates/` and `source/static/`: server-rendered UI and assets.
+- `source/renderer/`: structured PDF rendering.
+- `source/tests/`: pytest qualification.
+- `scripts/`: isolated qualification and packaging utilities.
+- `docs/`: architecture and release gates.
+- `baseline/`: preserved source capture; do not modify.
+- `evidence/`: qualification receipts, manifests and logs.
 
-Use Python 3.14 and the frozen dependency lock. From the parent development workspace, run `py -3.14 scripts/qualify_local.py` for isolated PostgreSQL qualification. In this repository, run `uv sync --frozen`, `uv run --no-sync ruff check .`, `uv run --no-sync ruff format --check .`, and `uv run --no-sync pytest --cov --cov-report=term-missing`. Direct database tests require configured local PostgreSQL; prefer the isolated qualifier for role and RLS checks.
+## Build, Test, and Development Commands
 
-## Style and Tests
+From the workspace root:
 
-Use four-space Python indentation, Ruff formatting, `snake_case` functions and modules, and `PascalCase` classes. Name test modules `test_*.py` and tests `test_*`. Add successor migrations instead of editing applied migrations. Exercise tenant boundaries, actual database roles, idempotency, expiry, recovery, and denied paths.
+```powershell
+py -3.14 scripts/qualify_local.py
+```
 
-## Changes and Security
+Builds the frozen candidate and qualifies it against disposable PostgreSQL containers. Docker Desktop must be running.
 
-Use concise imperative commit subjects; `feat:` prefixes appear in existing project history. Pull requests should explain behavior, qualification, authority effects, and rollback. Keep secrets out of source, UI, logs, and evidence. Preserve tenant boundaries, append-only evidence, and customer authorization. Local tests are bounded evidence, not production approval; deployment requires separate release authorization.
+From `source/`:
+
+```powershell
+uv sync --frozen
+uv run --no-sync ruff check .
+uv run --no-sync ruff format --check .
+uv run --no-sync pytest --cov --cov-report=term-missing
+uv run --no-sync python manage.py runserver
+```
+
+Direct Django tests require an appropriately configured local PostgreSQL database. Prefer the isolated qualifier for database-authority checks.
+
+## Coding Style & Naming Conventions
+
+Use four-space Python indentation, an 88-character line limit and Ruff formatting. Use `snake_case` for functions and modules, and `PascalCase` for classes. Preserve existing `agentledger` identifiers for compatibility. Add successor migrations instead of editing historical migrations.
+
+## Testing Guidelines
+
+Use pytest and pytest-django; name tests `test_*.py` and functions `test_*`. Configured branch-coverage minimum is 80%. Test tenant isolation, restricted-role SQL, idempotency, expiry, recovery and negative admission paths. Preserve failed evidence; passing reruns do not explain earlier failures.
+
+## Commit & Pull Request Guidelines
+
+Observed history mixes `feat:` prefixes with imperative milestone subjects. Use concise imperative subjects describing the final behavior. PRs should explain the problem, change, validation, authority implications and rollback considerations. Include screenshots for UI changes. Do not commit, push or deploy without session authorization.
+
+## Security & Agent Instructions
+
+Use the name Lyra when communicating with Alexander. Keep secrets out of source, UI, logs and evidence packets. Distinguish observations, declarations, calculations and unknowns. Proposal cards never authorize provider writes.
+
+Preserve deployed worktree changes, strict SSH host-key checking, tenant boundaries and release restrictions. Local tests establish bounded evidence—not production readiness. Production changes require qualified evidence, Lyra’s review and Alexander’s final approval.

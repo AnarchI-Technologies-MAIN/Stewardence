@@ -1,0 +1,14 @@
+{
+  "run_name": "stewardence-local-09abeac6a9",
+  "app_name": "stewardence-local-09abeac6a9-app",
+  "db_name": "stewardence-local-09abeac6a9-db",
+  "network_name": "stewardence-local-09abeac6a9",
+  "production_touched": false,
+  "restore_export": true,
+  "restore_export_operator_id": "0c3151c1-ebd1-48ca-ad16-9440124915d3",
+  "http_renderer": true,
+  "renderer_name": "stewardence-local-09abeac6a9-renderer",
+  "deployment_parity": false,
+  "harness_sha256": "f432c0c9ebe06fc60ff4b962c4f5730d86d2efce54c32a019ea799b262eaec77",
+  "cleanup_harness_sha256": "69192d2ba501112027605a1d7a76b3e4932b0a7d701d388bd9326bbbdb489ada"
+}

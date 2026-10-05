@@ -1,0 +1,11 @@
+{
+  "exit_code": 1,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-c41644c251",
+  "image_id": "sha256:13f2b1d3cbeb1e6c0ff3994dfc3a8da547b29eaeda5fcbf231fbfec79c91cedc",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T003752.630844Z",
+  "test_arguments": [
+    "tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit"
+  ]
+}

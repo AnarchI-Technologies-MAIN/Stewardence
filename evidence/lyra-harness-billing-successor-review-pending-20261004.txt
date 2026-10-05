@@ -1,0 +1,201 @@
+PENDING: no final adjudication obtained. Submission confirmed in dedicated chat.
+You said:
+Pasted text(20261004-000436).txt
+Document
+Worked for 8m 57s
+Memory updated
+ChatGPT said:
+
+Alexander, LAYOUT-QA-01, HTTP-QA-01, and HTTP-QA-02 are now CLOSED for the submitted successor paths. The new offline Core checkout boundary remains PARTIAL, with one new admission-evidence finding: a future subscription-period end is not yet bound to payment coverage for that same period.
+
+All prior bounded authority, restore, and presentation closures remain intact. This review does not approve Core production or expand operational authority.
+
+1. The three qualification repairs close
+Finding	Disposition	Accepted repair
+LAYOUT-QA-01	Closed	Blank and footer-only pages are rejected; required labels must occur inside the inventory section; the parent independently rejects failed required subchecks.
+HTTP-QA-01	Closed	The host comparison now requires complete selected membership and matching bytes, including collector. The in-container probe separately compares the packaged subset before making HTTP requests.
+HTTP-QA-02	Closed	The caller creates without starting, validates runtime restrictions, reconciles the resolved synthetic fixture identities, then starts and verifies the actual endpoint identity before running the probe.
+
+These repairs are visible in the supplied content verifier, source-membership contract, and revised HTTP caller. 
+Pasted text
+ 
+Pasted text
+ 
+Pasted text
+
+Layout: independent regressions support closure
+
+I executed the submitted verify_content against the actual previously delivered synthetic PDFs. The healthy long-input, multi-tool, and long-table specimens passed with 5, 9, and 27 pages, and their measured hashes match the new receipt. I then tested the three inherited PDF counterexamples:
+
+Actual PDF counterexample	Independent result
+Appended blank page	Rejected.
+Appended footer-only page	Rejected.
+Inventory label removed from the table but retained in the risk section	Rejected.
+
+The successor removes the known footer pattern before testing body content and restricts required inventory-label searches to the text between the inventory and overall-risk headings. Those directly address the previous counterexamples. 
+Pasted text
+
+I also executed the supplied layout-caller control program, 11 expanded receipt checks, and five exact parent main() scenarios. The healthy parent control passed; false body/inventory checks, an invalid page-count type, and a missing specimen withheld its overall summary. The parent now calls verify_receipt before publishing its result. 
+Pasted text
+
+The new receipt reports the same renderer image and specimen identities as the accepted layout successor. I did not perform a new Chromium render or repeat the prior 45-page visual inspection in this turn. This independent work checks the delivered bytes and repaired content-verification path; the new isolated render, repeat-equality, and cleanup results remain supplied execution evidence. 
+Pasted text
+
+HTTP source membership: both comparisons now reject omissions
+
+The repaired host verifier compares the complete expected and present key sets before hashing. The packaged probe computes its own selected-file dictionary and requires exact equality with the mounted expected dictionary before proceeding to /healthz. 
+Pasted text
+ 
+Pasted text
+
+Independent checks covered missing templates, a missing lockfile, missing or changed collector source, and unexpected collector files. I exercised both POSIX-style and Windows-style manifest keys.
+
+I additionally executed seven exact packaged-probe scenarios using real temporary file bytes and mapped paths. Missing, changed, or unexpected selected files were rejected before the intercepted HTTP request function was reached. Healthy membership and the declared bytecode exclusion reached that boundary. No HTTP request was sent.
+
+The 281 host inputs versus 280 packaged files distinction is supported by the submitted code: Dockerfile participates in the build-input comparison but is intentionally excluded from the packaged-source manifest. It is not an unexplained missing application file. 
+Pasted text
+ 
+Pasted text
+
+HTTP runtime: inspection now controls execution
+
+I independently executed the supplied 22-control helper program and four-case caller program. Their generated receipts matched the supplied receipts.
+
+I then exercised the exact HTTP caller in 18 scenarios. Bad pre-start restrictions, incorrect identities, invalid fixtures, and fixture drift prevented start and exec. Incorrect or empty post-start endpoint IDs prevented probe execution. Failed child qualification and incomplete cleanup withheld the final summary.
+
+The empty-created-NetworkID adjustment is appropriately bounded. Before start, the verifier still requires the exact pinned HostConfig.NetworkMode, expected network-map key, and permitted created state. After start, the actual endpoint ID must equal the pinned network ID. 
+Pasted text
+
+The previous “record the restriction without enforcing it” defect is repaired. These are controlled caller tests, not induced Docker daemon failures or proof against an untrusted daemon.
+
+2. New Core admission: meaningful checks, bounded acceptance
+
+The initial Core path now requires a completed, paid subscription session, the stored customer and owner metadata, the Core portfolio, a nonempty subscription identifier, an authoritative active subscription with matching identity, an admitted price contract, and a future period timestamp. Conflicting root/item period ends are rejected. 
+Pasted text(20261004-000436)
+
+The pricing helper checks the registered contract, item count, quantity/type constraints, active price, USD amount/type, monthly interval, and licensed usage semantics. 
+Pasted text(20261004-000436)
+
+I executed the exact extracted admission, completion, and pricing function bodies in 33 cases, using a fixed clock, synthetic catalog/settings, mocked subscription retrieval, and in-memory models. These included a healthy case, unpaid-session deferral, and rejection of incorrect identity, status, price, quantity, currency, numeric types, and period information.
+
+In the rejecting cases, the in-memory manager recorded no subscription row-creation call. The healthy control stored the expected status, price, and period. The unpaid-session control returned without retrieving the subscription or creating a row.
+
+That supports the new checks within this scope. It does not independently establish Django transaction rollback, row-level security, webhook receipt durability, or live payment fulfillment. Those require their actual application boundaries.
+
+3. New finding: CORE-ADMISSION-01
+A future subscription period is not yet a verified paid-through period
+
+The validator checks that the Checkout Session says paid, then retrieves the subscription and accepts a future current_period_end. It does not bind payment evidence to the particular period whose end it accepts. The completion handler then saves that end alongside status=active. 
+Pasted text(20261004-000436)
+ 
+Pasted text(20261004-000436)
+
+Independently reproduced with the exact function bodies:
+
+Controlled input or observation	Value
+Checkout Session	Completed and paid, with a creation time 60 days before the test clock.
+Retrieved subscription	Matching customer, owner, Core portfolio, active status, and registered USD 99 monthly price.
+Current subscription period	Ends November 3, 2026, after the fixed October 4 test clock.
+Mocked latest-invoice evidence	status="open", paid=False, amount_paid=0, amount_remaining=9900, covering that current period.
+Completion result	Saved the in-memory row as active, priced at 9900, with that future period end.
+
+No validation exception occurred.
+
+This is a source-level evidence-binding counterexample, not an observed Stripe incident. I did not establish that the real API returns this exact response shape through the current retrieval call, deliver a Stripe-origin event, create a database entitlement, or obtain service without payment.
+
+The narrower conclusion is firm: the implemented predicate establishes a future subscription-period boundary, but does not establish that payment covers that boundary. A historically paid checkout and a currently future-dated subscription period are not, by themselves, a payment-to-period binding.
+
+This is distinct from the already acknowledged expiry gate. Expiry enforcement asks whether a valid entitlement has elapsed. This finding asks whether the end being stored as paid-through was supported by payment evidence at initial admission.
+
+Required closure
+
+Either bind admission to authoritative payment coverage for the same customer, subscription, and service period, or record the timestamp only as a subscription-period boundary and keep paid-entitlement admission separate.
+
+The offline regression should retain the healthy control and add an old-paid-session/current-unpaid-period case, wrong customer or subscription payment bindings, mismatched coverage, and a verified-paid-period control. No live credentials or provider calls are needed to specify and test that boundary.
+
+4. SDK boundary and known lifecycle gates remain distinct
+SDK conversion is supported by source, not independently rerun against SDK 16 here
+
+The webhook now converts verified SDK events to dictionaries before using mapping operations. The Core retrieval gateway converts the subscription resource, and the pricing helper also normalizes SDK subscription objects. 
+Pasted text(20261004-000436)
+ 
+Pasted text(20261004-000436)
+ 
+Pasted text(20261004-000436)
+
+The supplied tests exercise local HMAC fixtures, tampering, timestamp expiry, signature failure, invalid-price rollback, and duplicate delivery. They explicitly distinguish synthetic signatures and mocked retrieval from Stripe-origin events. 
+Pasted text(20261004-000436)
+
+Stripe and Django are not installed in this review sandbox. I therefore did not rerun the real SDK 16.0.0 or the Django webhook tests. I exercised adapter control flow with an explicitly labeled stub, which is not a substitute for real-SDK compatibility evidence.
+
+The conversion repair is accepted at the source and supplied-regression-report level. Live account, API, Checkout, and webhook qualification remain separate.
+
+Existing lifecycle concerns now have concrete source reproductions
+
+Using the exact subscription-update handler with an in-memory row, I confirmed:
+
+Update presented to the handler	Result
+Core subscription marked active with an unregistered price	Saved as active.
+An unrecognized status applied to an already active row	Existing active status retained and saved.
+trialing status	Mapped to active.
+
+The source only forces a pending state for an unrecognized Automation contract, while its status map includes trialing → active and leaves unmapped statuses unchanged. 
+Pasted text(20261004-000436)
+
+These refine your already OPEN lifecycle gate. They are not new regressions reopening the historical Core authority closures.
+
+Ongoing paid-period expiry and standard-checkout concurrency/idempotency also remain open as declared. I have not converted their inclusion in the packet into an acceptance claim. 
+Pasted text
+
+One additional characterization belongs in the contract record: absent quantity, interval count, and usage type currently default to 1, 1, and licensed. My controls confirmed those omissions are accepted. I am not separately classifying them as defects without the intended versioned read-shape/default contract, but they limit any claim that all three values must be explicitly present in retrieved evidence. 
+Pasted text(20261004-000436)
+
+5. Evidence identities and historical failures
+Current local HTTP package
+
+The supplied HTTP receipt identifies:
+
+sha256:ef5cf3903e898a997c14520aceb66edf8cce2652fc75e90442fa0cb8006922cb
+
+It reports successful local Gunicorn, production-settings, readiness, simulated-proxy, CSRF, host-rejection, and static checks, with 280 packaged files, 281 host inputs, and verified cleanup. Its timestamp is October 4, 2026, 00:03:25 UTC. These supplied execution results are accepted within the local synthetic boundary, not as public ingress or real TLS evidence. 
+Pasted text
+ 
+Pasted text
+
+I independently verified that:
+
+The delivered 280-entry packaged-source manifest matches its reported digest when reconstructed without a terminal newline.
+The supplied HTTP probe matches its recorded digest.
+The supplied billing/views.py and billing/pricing.py bytes match that packaged-source manifest.
+All four submitted negative-control script digests match their recorded values.
+
+I did not inspect the real container filesystem or independently recompute the complete original full-suite source manifest, which is not included.
+
+Current full-suite claim
+
+The supplied summary identifies:
+
+sha256:f8b63f61b9594949909127463a1f4f8855ead66b2ee233c5f3385626ec47d41d
+
+It records exit zero and test_arguments=["tests"]. The opening reports 1,171 passed, one intentional skip, 129 warnings, with actual Chromium and five SIGKILL qualifications enabled. This packet does not include the raw full-suite log, so those detailed counts and enabled-test statements remain reported execution details rather than independently log-reconciled results. 
+Pasted text(20261004-000436)
+ 
+Pasted text
+
+The earlier failures remain separate:
+
+The cross-tenant worker-claim intermittence still has an unknown root cause. Successful isolated reruns, the later RLS group, and the added pre-claim assertion do not establish that it was repaired. The subsequent gateway-mocking fixture failure has its separately reported correction. Neither failed full run is erased by the final pass. 
+Pasted text
+
+Review record and final disposition
+
+Download the scoped successor review, offline reproducer, call traces, PDF regressions, measured identities, and disposition ledger
+
+The archive keeps supplied receipts separate from independent results. Its harness runs without Docker, network access, a database, Stripe credentials, or an SDK download. It includes the exact source-body paid-period counterexample and clearly labels the in-memory model and gateway substitutions.
+
+Independent work here included source parsing, hashing, real local-file comparisons, real PDF parsing, and controlled source execution. No Docker, Chromium generation, Django application/database, full-suite, real Stripe SDK, provider, user-machine, or production operation was performed.
+
+Final disposition: the three previous qualification findings are closed for this successor. Initial Core admission checks have bounded acceptance, but the overall offline billing boundary remains partial with CORE-ADMISSION-01 open, alongside the acknowledged lifecycle, expiry, concurrency, and worker-intermittence gates.
+
+Core production remains unapproved in this consultation. Live Stripe remains deferred. Worker, provider-write, and Automation-purchase restrictions remain unchanged.
+

@@ -1,0 +1,10 @@
+{
+  "scope": "Stripe test mode",
+  "configured_price": "price_1UEAdR1GSpwh9jgrUbGCSQbk",
+  "price_qualified": true,
+  "checkout_session_created": true,
+  "checkout_line_item_qualified": true,
+  "checkout_session_expired": true,
+  "checkout_completed": false,
+  "observed_at_utc": "2026-10-05T06:17:30.316923+00:00"
+}

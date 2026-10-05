@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="39" time="59.310" timestamp="2026-10-04T22:46:50.932021+00:00" hostname="09632ee9b5c6"><testcase classname="tests.test_rls" name="test_restricted_alias_uses_the_expected_database_identity[owner_runtime-agentledger_owner]" time="8.511" /><testcase classname="tests.test_rls" name="test_restricted_alias_uses_the_expected_database_identity[app_runtime-agentledger_app]" time="2.431" /><testcase classname="tests.test_rls" name="test_restricted_alias_uses_the_expected_database_identity[worker_runtime-agentledger_worker]" time="2.466" /><testcase classname="tests.test_rls" name="test_app_runtime_can_read_global_catalog_without_write_authority" time="1.137" /><testcase classname="tests.test_rls" name="test_database_roles_have_the_required_privilege_boundary" time="1.117" /><testcase classname="tests.test_rls" name="test_organization_scoped_tables_have_required_column_and_forced_rls" time="1.640" /><testcase classname="tests.test_rls" name="test_assessment_snapshots_are_tenant_isolated_and_append_only" time="4.452" /><testcase classname="tests.test_rls" name="test_reports_are_tenant_isolated_and_runtime_immutable" time="3.784" /><testcase classname="tests.test_rls" name="test_report_service_uses_restricted_app_role" time="3.025" /><testcase classname="tests.test_rls" name="test_app_role_cannot_link_report_to_another_tenants_snapshot" time="4.100" /><testcase classname="tests.test_rls" name="test_organization_rules_are_tenant_isolated_for_app_and_worker" time="2.451" /><testcase classname="tests.test_rls" name="test_identity_bootstrap_exposes_only_the_users_own_membership" time="1.761" /><testcase classname="tests.test_rls" name="test_public_onboarding_works_under_restricted_app_role" time="2.207" /><testcase classname="tests.test_rls" name="test_public_registration_cannot_create_privileged_account" time="1.331" /><testcase classname="tests.test_rls" name="test_onboarding_does_not_grant_direct_membership_insert" time="1.653" /><testcase classname="tests.test_rls" name="test_worker_cannot_provision_workspace" time="0.983" /><testcase classname="tests.test_rls" name="test_app_role_unfiltered_orm_and_raw_sql_are_tenant_isolated" time="1.308" /><testcase classname="tests.test_rls" name="test_direct_cross_tenant_primary_key_lookup_is_inaccessible" time="0.871" /><testcase classname="tests.test_rls" name="test_cross_tenant_insert_is_rejected" time="0.729" /><testcase classname="tests.test_rls" name="test_cross_tenant_update_affects_no_rows" time="1.416" /><testcase classname="tests.test_rls" name="test_missing_tenant_context_fails_closed" time="0.621" /><testcase classname="tests.test_rls" name="test_context_on_default_connection_does_not_unlock_app_runtime" time="0.561" /><testcase classname="tests.test_rls" name="test_worker_role_cannot_read_another_tenants_business_rows" time="0.797" /><testcase classname="tests.test_rls" name="test_csv_staging_is_tenant_isolated_under_app_role" time="0.669" /><testcase classname="tests.test_rls" name="test_background_jobs_are_tenant_scoped_for_app_runtime" time="0.616" /><testcase classname="tests.test_rls" name="test_app_runtime_cannot_insert_background_job_for_another_tenant" time="0.637" /><testcase classname="tests.test_rls" name="test_app_runtime_has_no_background_job_update_authority" time="0.609" /><testcase classname="tests.test_rls" name="test_worker_runtime_can_claim_across_tenants_without_tenant_context" time="0.749" /><testcase classname="tests.test_rls" name="test_worker_queue_scope_does_not_unlock_business_table_scope" time="0.731" /><testcase classname="tests.test_rls" name="test_report_artifacts_are_tenant_isolated_and_runtime_immutable" time="0.938" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_direct_app_sql_cannot_issue_legacy_cards_for_admitted_capture2" time="0.578"><failure message="Failed: DID NOT RAISE DatabaseError">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+
+    def test_direct_app_sql_cannot_issue_legacy_cards_for_admitted_capture2(
+        capture_context,
+    ):
+        snapshot = admit(capture_context, preview(capture_context))
+&gt;       with pytest.raises(DatabaseError, match="snapshot schema one"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE DatabaseError
+
+tests/test_legacy_action_card_schema_fence.py:42: Failed</failure></testcase><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_direct_app_sql_unresolved_snapshot_cannot_bypass_schema_dispatch" time="0.500"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'snapshot schema one'&#10;  Actual message: 'Action-card assessment unresolved\nCONTEXT:  PL/pgSQL function app_private.issue_action_cards(uuid,uuid,uuid,uuid) line 14 at RAISE'">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+
+    def test_direct_app_sql_unresolved_snapshot_cannot_bypass_schema_dispatch(
+        capture_context,
+    ):
+&gt;       with pytest.raises(DatabaseError, match="snapshot schema one"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'snapshot schema one'
+E         Actual message: 'Action-card assessment unresolved\nCONTEXT:  PL/pgSQL function app_private.issue_action_cards(uuid,uuid,uuid,uuid) line 14 at RAISE'
+
+tests/test_legacy_action_card_schema_fence.py:50: AssertionError</failure></testcase><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_schema1_issuance_and_exact_replay_keep_legacy_meaning" time="0.498" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[app_runtime]" time="0.290"><failure message="django.db.utils.ProgrammingError: function &quot;app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)&quot; does not exist">self = &lt;django.db.backends.utils.CursorWrapper object at 0x7fb5989a7950&gt;
+sql = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='app_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x7fb5989a7950&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7fb5987844b0&gt;
+query = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedFunction: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UndefinedFunction
+
+The above exception was the direct cause of the following exception:
+
+using = 'app_runtime'
+
+    @pytest.mark.parametrize("using", ["app_runtime", "worker_runtime"])
+    def test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass(using):
+        with connections[using].cursor() as cursor:
+&gt;           cursor.execute(
+                "SELECT has_function_privilege(current_user,%s,'EXECUTE')",
+                ["app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)"],
+            )
+
+tests/test_legacy_action_card_schema_fence.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7fb5987844b0&gt;
+query = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[worker_runtime]" time="0.258"><failure message="django.db.utils.ProgrammingError: function &quot;app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)&quot; does not exist">self = &lt;django.db.backends.utils.CursorWrapper object at 0x7fb5989156d0&gt;
+sql = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='worker_runtime'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x7fb5989156d0&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_worker database=test_qualification) at 0x7fb5987842f0&gt;
+query = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedFunction: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UndefinedFunction
+
+The above exception was the direct cause of the following exception:
+
+using = 'worker_runtime'
+
+    @pytest.mark.parametrize("using", ["app_runtime", "worker_runtime"])
+    def test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass(using):
+        with connections[using].cursor() as cursor:
+&gt;           cursor.execute(
+                "SELECT has_function_privilege(current_user,%s,'EXECUTE')",
+                ["app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)"],
+            )
+
+tests/test_legacy_action_card_schema_fence.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_worker database=test_qualification) at 0x7fb5987842f0&gt;
+query = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_worker_cannot_execute_public_legacy_issuer" time="0.431" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_renamed_schema1_delegate_body_and_searchpath_are_preserved" time="0.258"><failure message="django.db.utils.ProgrammingError: function &quot;app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)&quot; does not exist&#10;LINE 1: ...p JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid='app_priva...&#10;                                                             ^">self = &lt;django.db.backends.utils.CursorWrapper object at 0x7fb598914110&gt;
+sql = 'SELECT p.prosrc,p.proconfig,r.rolname FROM pg_proc p JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid=%s::regprocedure'
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x7fb598914110&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7fb598f70c90&gt;
+query = 'SELECT p.prosrc,p.proconfig,r.rolname FROM pg_proc p JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid=%s::regprocedure'
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedFunction: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+E           LINE 1: ...p JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid='app_priva...
+E                                                                        ^
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UndefinedFunction
+
+The above exception was the direct cause of the following exception:
+
+    def test_renamed_schema1_delegate_body_and_searchpath_are_preserved():
+        predecessor = importlib.import_module(
+            "apps.jobs.migrations.0012_core_authority_successor"
+        ).SQL
+        start = predecessor.index(
+            "CREATE OR REPLACE FUNCTION app_private.issue_action_cards"
+        )
+        start = predecessor.index("AS $fn$", start) + len("AS $fn$")
+        end = predecessor.index("$fn$;", start)
+        expected_body = predecessor[start:end]
+        with connections["default"].cursor() as cursor:
+&gt;           cursor.execute(
+                "SELECT p.prosrc,p.proconfig,r.rolname FROM pg_proc p "
+                "JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid=%s::regprocedure",
+                ["app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)"],
+            )
+
+tests/test_legacy_action_card_schema_fence.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7fb598f70c90&gt;
+query = 'SELECT p.prosrc,p.proconfig,r.rolname FROM pg_proc p JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid=%s::regprocedure'
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+E           LINE 1: ...p JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid='app_priva...
+E                                                                        ^
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_wrong_app_context_is_rejected_before_definer_snapshot_lookup[existing_capture]" time="0.346" /><testcase classname="tests.test_legacy_action_card_schema_fence" name="test_wrong_app_context_is_rejected_before_definer_snapshot_lookup[unresolved]" time="0.744" /></testsuite></testsuites>

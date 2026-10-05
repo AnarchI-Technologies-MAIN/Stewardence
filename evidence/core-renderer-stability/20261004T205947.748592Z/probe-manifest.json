@@ -1,0 +1,9 @@
+{
+  "sha256": "8c6906998c304b726a05ccc8f5279a1836d8a2f46b09eb1824829b79d091a631",
+  "image": "sha256:afd7c85b5339b47489a927c86dd036f893bc54d2e9c602dffcf1bc3edc292f1a",
+  "source_evidence": "20261004T204824.067533Z",
+  "network": "none",
+  "init": true,
+  "memory_bytes": 1073741824,
+  "pids_limit": 512
+}

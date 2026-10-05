@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-c4b19fc3d9",
+  "image_id": "sha256:a3b11cb508a0cd4e7671a6edb01b8e6ee8675aee930acce9d4d0dbce008ae51e",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T225620.709874Z",
+  "test_arguments": [
+    "tests"
+  ]
+}

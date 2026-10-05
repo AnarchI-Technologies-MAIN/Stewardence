@@ -1,0 +1,24 @@
+{
+  "exit_code": 3,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-3a1f59619d",
+  "image_id": "sha256:acb68d23b5398c8dc0bbebe7ea374a143bc4d7db794251210b0d5c60a7feed2b",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261005T005705.037231Z",
+  "test_arguments": [
+    "tests",
+    "--cov",
+    "--cov-report=term-missing",
+    "--cov-report=xml:/qualification-evidence/coverage.xml"
+  ],
+  "http_renderer": true,
+  "deployment_parity": false,
+  "test_result_counts": {
+    "cases": 2152,
+    "failed": 2,
+    "errors": 1,
+    "skipped": 1
+  },
+  "test_results_sha256": "87f9389a2775e0eec9c62242103c57343c2f11e6e84449c2f04ccd2674eb00d2",
+  "cleanup_verified": true
+}

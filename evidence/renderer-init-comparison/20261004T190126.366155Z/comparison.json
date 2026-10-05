@@ -1,0 +1,16 @@
+[
+  {
+    "init": false,
+    "image": "sha256:6999e54b4cb3df3db88893d79d2274b885f046e90b7c988333448217e229c772",
+    "zombie_count_after": 8,
+    "render_count": 4,
+    "container_exit_code": 0
+  },
+  {
+    "init": true,
+    "image": "sha256:6999e54b4cb3df3db88893d79d2274b885f046e90b7c988333448217e229c772",
+    "zombie_count_after": 0,
+    "render_count": 4,
+    "container_exit_code": 0
+  }
+]

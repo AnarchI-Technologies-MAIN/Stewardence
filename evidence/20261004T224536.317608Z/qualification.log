@@ -1,0 +1,442 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reports.0005_review_pack_read_authority... OK
+  Applying reports.0006_capture_owner_read... OK
+  Applying reviews.0004_capture_pack_projection... OK
+..............................FF.FF.F..                                  [100%]
+=================================== FAILURES ===================================
+_____ test_direct_app_sql_cannot_issue_legacy_cards_for_admitted_capture2 ______
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+
+    def test_direct_app_sql_cannot_issue_legacy_cards_for_admitted_capture2(
+        capture_context,
+    ):
+        snapshot = admit(capture_context, preview(capture_context))
+>       with pytest.raises(DatabaseError, match="snapshot schema one"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE DatabaseError
+
+tests/test_legacy_action_card_schema_fence.py:42: Failed
+____ test_direct_app_sql_unresolved_snapshot_cannot_bypass_schema_dispatch _____
+
+capture_context = (<User: reports@example.com>, <Organization: Report Firm>)
+
+    def test_direct_app_sql_unresolved_snapshot_cannot_bypass_schema_dispatch(
+        capture_context,
+    ):
+>       with pytest.raises(DatabaseError, match="snapshot schema one"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'snapshot schema one'
+E         Actual message: 'Action-card assessment unresolved\nCONTEXT:  PL/pgSQL function app_private.issue_action_cards(uuid,uuid,uuid,uuid) line 14 at RAISE'
+
+tests/test_legacy_action_card_schema_fence.py:50: AssertionError
+___ test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[app_runtime] ___
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7fb5989a7950>
+sql = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7fb5989a7950>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7fb5987844b0>
+query = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedFunction: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UndefinedFunction
+
+The above exception was the direct cause of the following exception:
+
+using = 'app_runtime'
+
+    @pytest.mark.parametrize("using", ["app_runtime", "worker_runtime"])
+    def test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass(using):
+        with connections[using].cursor() as cursor:
+>           cursor.execute(
+                "SELECT has_function_privilege(current_user,%s,'EXECUTE')",
+                ["app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)"],
+            )
+
+tests/test_legacy_action_card_schema_fence.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7fb5987844b0>
+query = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_ test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[worker_runtime] __
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7fb5989156d0>
+sql = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='worker_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7fb5989156d0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_worker database=test_qualification) at 0x7fb5987842f0>
+query = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedFunction: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UndefinedFunction
+
+The above exception was the direct cause of the following exception:
+
+using = 'worker_runtime'
+
+    @pytest.mark.parametrize("using", ["app_runtime", "worker_runtime"])
+    def test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass(using):
+        with connections[using].cursor() as cursor:
+>           cursor.execute(
+                "SELECT has_function_privilege(current_user,%s,'EXECUTE')",
+                ["app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)"],
+            )
+
+tests/test_legacy_action_card_schema_fence.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_worker database=test_qualification) at 0x7fb5987842f0>
+query = "SELECT has_function_privilege(current_user,%s,'EXECUTE')"
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_______ test_renamed_schema1_delegate_body_and_searchpath_are_preserved ________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7fb598914110>
+sql = 'SELECT p.prosrc,p.proconfig,r.rolname FROM pg_proc p JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid=%s::regprocedure'
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='default'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7fb598914110>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7fb598f70c90>
+query = 'SELECT p.prosrc,p.proconfig,r.rolname FROM pg_proc p JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid=%s::regprocedure'
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedFunction: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+E           LINE 1: ...p JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid='app_priva...
+E                                                                        ^
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: UndefinedFunction
+
+The above exception was the direct cause of the following exception:
+
+    def test_renamed_schema1_delegate_body_and_searchpath_are_preserved():
+        predecessor = importlib.import_module(
+            "apps.jobs.migrations.0012_core_authority_successor"
+        ).SQL
+        start = predecessor.index(
+            "CREATE OR REPLACE FUNCTION app_private.issue_action_cards"
+        )
+        start = predecessor.index("AS $fn$", start) + len("AS $fn$")
+        end = predecessor.index("$fn$;", start)
+        expected_body = predecessor[start:end]
+        with connections["default"].cursor() as cursor:
+>           cursor.execute(
+                "SELECT p.prosrc,p.proconfig,r.rolname FROM pg_proc p "
+                "JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid=%s::regprocedure",
+                ["app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)"],
+            )
+
+tests/test_legacy_action_card_schema_fence.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x7fb598f70c90>
+query = 'SELECT p.prosrc,p.proconfig,r.rolname FROM pg_proc p JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid=%s::regprocedure'
+params = ['app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)']
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: function "app_private.issue_action_cards_schema1(uuid,uuid,uuid,uuid)" does not exist
+E           LINE 1: ...p JOIN pg_roles r ON r.oid=p.proowner WHERE p.oid='app_priva...
+E                                                                        ^
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+=========================== short test summary info ============================
+FAILED tests/test_legacy_action_card_schema_fence.py::test_direct_app_sql_cannot_issue_legacy_cards_for_admitted_capture2
+FAILED tests/test_legacy_action_card_schema_fence.py::test_direct_app_sql_unresolved_snapshot_cannot_bypass_schema_dispatch
+FAILED tests/test_legacy_action_card_schema_fence.py::test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[app_runtime]
+FAILED tests/test_legacy_action_card_schema_fence.py::test_renamed_legacy_delegate_is_not_an_app_or_worker_bypass[worker_runtime]
+FAILED tests/test_legacy_action_card_schema_fence.py::test_renamed_schema1_delegate_body_and_searchpath_are_preserved
+5 failed, 34 passed in 59.37s

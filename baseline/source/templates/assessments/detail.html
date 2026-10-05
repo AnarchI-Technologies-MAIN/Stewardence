@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Assessment {{ snapshot.assessment_id }} — Stewardence{% endblock %}
+{% block content %}
+  <section class="page-heading"><p class="eyebrow">Immutable assessment · version {{ snapshot.version }}</p><h1>Assessment snapshot</h1><p>Captured {{ snapshot.captured_at }} for the selected firm.</p></section>
+  <dl class="card detail-grid">
+    <div class="wide"><dt>Assessment ID</dt><dd>{{ snapshot.assessment_id }}</dd></div>
+    <div class="wide"><dt>Input SHA-256</dt><dd class="hash-value">{{ snapshot.input_sha256 }}</dd></div>
+    <div class="wide"><dt>Result SHA-256</dt><dd class="hash-value">{{ snapshot.result_sha256 }}</dd></div>
+    <div><dt>Integrity check</dt><dd>{% if hashes_valid %}Hashes match the stored snapshot{% else %}Hash verification failed{% endif %}</dd></div>
+    <div><dt>Schema version</dt><dd>{{ snapshot.input_payload.snapshot_schema_version }}</dd></div>
+  </dl>
+  {% if hashes_valid %}
+    <form method="post" action="{% url 'reports:generate' snapshot.id %}">
+      {% csrf_token %}
+      <button class="button" type="submit">Open browser report</button>
+    </form>
+  {% endif %}
+  <details class="card"><summary>View technical details</summary><h2>Captured input</h2><pre>{{ snapshot.input_payload }}</pre><h2>Captured result</h2><pre>{{ snapshot.result_payload }}</pre></details>
+{% endblock %}

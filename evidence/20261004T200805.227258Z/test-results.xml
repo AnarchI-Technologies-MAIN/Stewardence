@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="47" time="4.582" timestamp="2026-10-04T20:09:20.936708+00:00" hostname="236017fd535a"><testcase classname="tests.test_review_renderer" name="test_legacy_contract_remains_exact_and_review_contract_is_separate" time="0.008"><failure message="renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type">def test_legacy_contract_remains_exact_and_review_contract_is_separate():
+        assert validate_report_render_payload(valid_payload())['context_version']=='AL-REPORT-CONTEXT-2'
+&gt;       assert validate_report_render_payload(review_payload())['context_version']=='AL-REVIEW-PACK-CONTEXT-1'
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_review_renderer.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+renderer/schema.py:125: in validate_report_render_payload
+    _validate_tree(payload)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:75: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:75: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ('business_owner',), depth = 7
+
+    def _validate_tree(value: Any, *, depth: int = 0) -&gt; None:
+        if depth &gt; MAX_NESTING_DEPTH:
+            raise InvalidReportRenderPayload("Payload nesting is too deep")
+        if value is None or isinstance(value, (bool, int)):
+            return
+        if isinstance(value, str):
+            if len(value) &gt; MAX_STRING_LENGTH:
+                raise InvalidReportRenderPayload("Payload string is too long")
+            if "\x00" in value:
+                raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+            return
+        if isinstance(value, list):
+            if len(value) &gt; MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for item in value:
+                _validate_tree(item, depth=depth + 1)
+            return
+        if isinstance(value, dict):
+            if len(value) &gt; MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise InvalidReportRenderPayload("Payload keys must be strings")
+                if key.casefold() in FORBIDDEN_KEYS:
+                    raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+                _validate_tree(item, depth=depth + 1)
+            return
+&gt;       raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+E       renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type
+
+renderer/schema.py:87: InvalidReportRenderPayload</failure></testcase><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[extra_top]" time="0.007" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[missing_pack]" time="0.005" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[manifest_hash]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[event_hash]" time="0.003" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[proposal_changed]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[missing_decision]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[foreign_snapshot]" time="0.005" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[foreign_org]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[verified]" time="0.003" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[provider_authority]" time="0.005" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[unknown_state]" time="0.003" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[null_label]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[eleven_links]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[http_link]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[userinfo_link]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[extra_event]" time="0.005" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[card_bool]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[duplicate_selection]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[exposure_record_changed]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[exposure_review_changed]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[missing_exposure]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[verified_exposure]" time="0.003" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[extra_exposure]" time="0.003" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[unknown_question]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[bad_question_basis]" time="0.005" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[foreign_cycle]" time="0.005" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[snapshot_schema_bool]" time="0.005" /><testcase classname="tests.test_review_renderer" name="test_exact_selection_order_cannot_be_changed_by_renderer_envelope" time="0.005"><failure message="renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type">def test_exact_selection_order_cannot_be_changed_by_renderer_envelope():
+        report=review_payload();second=deepcopy(report['review_pack']['selected_decisions'][0])
+        second['payload'].update(id=str(uuid4()),card_index=1)
+        second['selection'].update(event_id=second['payload']['id'],card_index=1)
+        report['review_pack']['selected_decisions'].append(second);reseal(report)
+&gt;       validate_report_render_payload(report)
+
+tests/test_review_renderer.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+renderer/schema.py:125: in validate_report_render_payload
+    _validate_tree(payload)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:75: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:75: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ('business_owner',), depth = 7
+
+    def _validate_tree(value: Any, *, depth: int = 0) -&gt; None:
+        if depth &gt; MAX_NESTING_DEPTH:
+            raise InvalidReportRenderPayload("Payload nesting is too deep")
+        if value is None or isinstance(value, (bool, int)):
+            return
+        if isinstance(value, str):
+            if len(value) &gt; MAX_STRING_LENGTH:
+                raise InvalidReportRenderPayload("Payload string is too long")
+            if "\x00" in value:
+                raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+            return
+        if isinstance(value, list):
+            if len(value) &gt; MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for item in value:
+                _validate_tree(item, depth=depth + 1)
+            return
+        if isinstance(value, dict):
+            if len(value) &gt; MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise InvalidReportRenderPayload("Payload keys must be strings")
+                if key.casefold() in FORBIDDEN_KEYS:
+                    raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+                _validate_tree(item, depth=depth + 1)
+            return
+&gt;       raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+E       renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type
+
+renderer/schema.py:87: InvalidReportRenderPayload</failure></testcase><testcase classname="tests.test_review_renderer" name="test_real_chromium_pdf_contains_frozen_identity_exposure_and_owner_statement" time="0.017"><failure message="renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type">tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_real_chromium_pdf_contain0')
+
+    def test_real_chromium_pdf_contains_frozen_identity_exposure_and_owner_statement(tmp_path):
+        report=review_payload()
+&gt;       pdf=render_pdf(report,output_directory=tmp_path,timeout_seconds=30)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_review_renderer.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+renderer/render.py:88: in render_pdf
+    validated = validate_report_render_payload(payload)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+renderer/schema.py:125: in validate_report_render_payload
+    _validate_tree(payload)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:75: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:75: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ('business_owner',), depth = 7
+
+    def _validate_tree(value: Any, *, depth: int = 0) -&gt; None:
+        if depth &gt; MAX_NESTING_DEPTH:
+            raise InvalidReportRenderPayload("Payload nesting is too deep")
+        if value is None or isinstance(value, (bool, int)):
+            return
+        if isinstance(value, str):
+            if len(value) &gt; MAX_STRING_LENGTH:
+                raise InvalidReportRenderPayload("Payload string is too long")
+            if "\x00" in value:
+                raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+            return
+        if isinstance(value, list):
+            if len(value) &gt; MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for item in value:
+                _validate_tree(item, depth=depth + 1)
+            return
+        if isinstance(value, dict):
+            if len(value) &gt; MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise InvalidReportRenderPayload("Payload keys must be strings")
+                if key.casefold() in FORBIDDEN_KEYS:
+                    raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+                _validate_tree(item, depth=depth + 1)
+            return
+&gt;       raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+E       renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type
+
+renderer/schema.py:87: InvalidReportRenderPayload</failure></testcase><testcase classname="tests.test_review_renderer" name="test_real_chromium_customer_content_and_evidence_links_remain_inert" time="0.004"><failure message="renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type">def test_real_chromium_customer_content_and_evidence_links_remain_inert():
+        report=review_payload();event=report['review_pack']['selected_decisions'][0]['payload']
+        event['notes']='&lt;script&gt;fetch("https://example.invalid/attack")&lt;/script&gt;&lt;img src="https://example.invalid/leak"&gt;'
+&gt;       reseal(report);validate_report_render_payload(report)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_review_renderer.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+renderer/schema.py:125: in validate_report_render_payload
+    _validate_tree(payload)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:75: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:75: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+renderer/schema.py:85: in _validate_tree
+    _validate_tree(item, depth=depth + 1)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = ('business_owner',), depth = 7
+
+    def _validate_tree(value: Any, *, depth: int = 0) -&gt; None:
+        if depth &gt; MAX_NESTING_DEPTH:
+            raise InvalidReportRenderPayload("Payload nesting is too deep")
+        if value is None or isinstance(value, (bool, int)):
+            return
+        if isinstance(value, str):
+            if len(value) &gt; MAX_STRING_LENGTH:
+                raise InvalidReportRenderPayload("Payload string is too long")
+            if "\x00" in value:
+                raise InvalidReportRenderPayload("Payload strings cannot contain NUL")
+            return
+        if isinstance(value, list):
+            if len(value) &gt; MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for item in value:
+                _validate_tree(item, depth=depth + 1)
+            return
+        if isinstance(value, dict):
+            if len(value) &gt; MAX_COLLECTION_ITEMS:
+                raise InvalidReportRenderPayload("Payload collection is too large")
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise InvalidReportRenderPayload("Payload keys must be strings")
+                if key.casefold() in FORBIDDEN_KEYS:
+                    raise InvalidReportRenderPayload(f"Forbidden payload field: {key}")
+                _validate_tree(item, depth=depth + 1)
+            return
+&gt;       raise InvalidReportRenderPayload("Payload contains an unsupported value type")
+E       renderer.schema.InvalidReportRenderPayload: Payload contains an unsupported value type
+
+renderer/schema.py:87: InvalidReportRenderPayload</failure></testcase><testcase classname="tests.test_renderer" name="test_renderer_accepts_only_the_canonical_structured_payload" time="0.003" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_nested_active_content_and_location_fields[src]" time="0.003" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_nested_active_content_and_location_fields[url]" time="0.002" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_nested_active_content_and_location_fields[file]" time="0.002" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_nested_active_content_and_location_fields[href]" time="0.003" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_nested_active_content_and_location_fields[script]" time="0.003" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_oversized_payload" time="0.007" /><testcase classname="tests.test_renderer" name="test_customer_strings_are_escaped_and_inert" time="0.021" /><testcase classname="tests.test_renderer" name="test_container_sandbox_controls_and_generated_output_path" time="0.018" /><testcase classname="tests.test_renderer" name="test_renderer_compose_boundary_has_no_public_port_or_secrets" time="0.003" /><testcase classname="tests.test_renderer" name="test_renderer_image_is_non_root_and_never_disables_the_sandbox" time="0.002" /><testcase classname="tests.test_renderer" name="test_render_timeout_terminates_the_isolated_process" time="0.007" /><testcase classname="tests.test_renderer" name="test_seccomp_profile_permits_namespaces_without_sys_admin" time="0.003" /><testcase classname="tests.test_renderer" name="test_renderer_http_health_and_fixed_render_endpoint" time="0.531" /><testcase classname="tests.test_renderer" name="test_renderer_http_fails_closed_for_unknown_and_invalid_requests" time="0.520" /><testcase classname="tests.test_renderer" name="test_renderer_http_returns_retryable_failure_without_details" time="0.513" /></testsuite></testsuites>

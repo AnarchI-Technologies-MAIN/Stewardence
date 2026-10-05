@@ -1,0 +1,11 @@
+{
+  "command": [
+    "w32tm",
+    "/query",
+    "/status",
+    "/verbose"
+  ],
+  "exit_code": 2147943462,
+  "stdout": "The following error occurred: The service has not been started. (0x80070426)\n",
+  "stderr": ""
+}

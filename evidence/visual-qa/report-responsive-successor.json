@@ -1,0 +1,46 @@
+{
+  "image_id": "sha256:dc394bf48f8c42167434f6a5d06800adc1d3241d0e3b9662fb48f9a599b70e11",
+  "checked_at": "2026-10-03T22:28:40.420Z",
+  "synthetic_only": true,
+  "checks": [
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 375,
+      "mobileMenuDisplay": "block",
+      "sidebarDisplay": "none",
+      "tableWidth": 560,
+      "tableWrapWidth": 335.20001220703125,
+      "topbarDisplay": "flex",
+      "width": 390
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "documentWidth": 753,
+      "mobileMenuDisplay": "none",
+      "sidebarDisplay": "flex",
+      "tableWidth": 560,
+      "tableWrapWidth": 471.8000183105469,
+      "topbarDisplay": "flex",
+      "width": 768
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "documentWidth": 1265,
+      "mobileMenuDisplay": "none",
+      "sidebarDisplay": "flex",
+      "tableWidth": 983.7999877929688,
+      "tableWrapWidth": 983.7999877929688,
+      "topbarDisplay": "flex",
+      "width": 1280
+    }
+  ]
+}

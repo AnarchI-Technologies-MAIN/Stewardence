@@ -1,0 +1,20 @@
+{
+  "verified_at": "2026-10-03T18:31:48.952420+00:00",
+  "restore_passed": true,
+  "live_export_read_only": true,
+  "production_writes": false,
+  "isolated_target": true,
+  "plaintext_dump_file_created": false,
+  "source_database_bytes": 11900607,
+  "backup_sha256": "36033c132da003a95a49ad6a39380af3a11bf1ba71e62358e88fdf0f924f8f57",
+  "encrypted_backup": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\restore\\20261003T183137.539209Z\\live-database.dump.age",
+  "private_key_file": "C:\\Users\\alexg\\.stewardence-recovery\\backup.agekey",
+  "restored_metadata": {
+    "migrations": 49,
+    "forced_rls_tables": 25,
+    "database_bytes": 11900607,
+    "catalog_ownership_acl_match": true,
+    "catalog_objects_checked": 64
+  },
+  "limits": "Schema/data archive restore and relation/function ownership/ACL comparison; roles have no superuser/BYPASSRLS. Login authentication, tenant replay, offsite key custody and report object recovery remain open."
+}

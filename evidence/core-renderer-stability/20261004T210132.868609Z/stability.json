@@ -1,0 +1,101 @@
+{
+  "image": "sha256:afd7c85b5339b47489a927c86dd036f893bc54d2e9c602dffcf1bc3edc292f1a",
+  "specimen": "100 inventory records; one decision; max note/link fields",
+  "inventory_count": 100,
+  "decision_count": 1,
+  "notes_chars": 4096,
+  "link_count": 10,
+  "link_chars_each": 2048,
+  "payload_bytes": 353472,
+  "payload_sha256": "7de6b4c457c84a0b47e8f1a495190c36eb91469ce9079bb5aee638122c9ae0fd",
+  "customer_maximum_proven": false,
+  "admitted_or_stored_pack": false,
+  "concurrency": 1,
+  "timeout_seconds": 60,
+  "renders": [
+    {
+      "index": 0,
+      "elapsed_seconds": 27.22109768097289,
+      "pdf_bytes": 361124,
+      "sha256": "8299eae8dd3811def2438bf62b27e0126f931e9c6f8e93439064f55c343d0704",
+      "missing_markers": [
+        "stability-ref-0",
+        "stability-ref-9"
+      ],
+      "zombie_pids": [],
+      "resources": {
+        "process_id": 7,
+        "memory.current": "65208320\n",
+        "memory.peak": "339509248\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "2\n",
+        "pids.max": "512\n",
+        "cpu.stat": "usage_usec 38129432\nuser_usec 17691981\nsystem_usec 20437451\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+        "direct_children": "",
+        "processes": [
+          {
+            "Name": "docker-init",
+            "State": "S (sleeping)",
+            "Pid": "1",
+            "PPid": "0"
+          },
+          {
+            "Name": "python",
+            "State": "R (running)",
+            "Pid": "7",
+            "PPid": "1"
+          }
+        ]
+      }
+    }
+  ],
+  "before": {
+    "process_id": 7,
+    "memory.current": "58908672\n",
+    "memory.peak": "85344256\n",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "pids.current": "2\n",
+    "pids.max": "512\n",
+    "cpu.stat": "usage_usec 6992574\nuser_usec 4356284\nsystem_usec 2636289\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+    "direct_children": "",
+    "processes": [
+      {
+        "Name": "docker-init",
+        "State": "S (sleeping)",
+        "Pid": "1",
+        "PPid": "0"
+      },
+      {
+        "Name": "python",
+        "State": "R (running)",
+        "Pid": "7",
+        "PPid": "1"
+      }
+    ]
+  },
+  "failure_type": "AssertionError",
+  "after": {
+    "process_id": 7,
+    "memory.current": "65208320\n",
+    "memory.peak": "339509248\n",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "pids.current": "2\n",
+    "pids.max": "512\n",
+    "cpu.stat": "usage_usec 38137924\nuser_usec 17700473\nsystem_usec 20437451\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+    "direct_children": "",
+    "processes": [
+      {
+        "Name": "docker-init",
+        "State": "S (sleeping)",
+        "Pid": "1",
+        "PPid": "0"
+      },
+      {
+        "Name": "python",
+        "State": "R (running)",
+        "Pid": "7",
+        "PPid": "1"
+      }
+    ]
+  }
+}

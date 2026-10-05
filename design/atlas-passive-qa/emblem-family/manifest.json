@@ -1,0 +1,2218 @@
+{
+  "revision": "transparent-purple-v2",
+  "canvas": [
+    512,
+    512
+  ],
+  "seed_scheme": "stewardence-emblem-v1:<page-slug>",
+  "geometry_shared": true,
+  "variant_count": 12,
+  "overview_master": true,
+  "variants": [
+    {
+      "page": "Overview",
+      "id": "overview",
+      "gradient_angle_degrees": 0,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": 1.21091,
+          "opacity": 0.6229
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": -1.32064,
+          "opacity": 0.77552
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": -1.4548,
+          "opacity": 0.66462
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": -0.30288,
+          "opacity": 0.71761
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": -1.08514,
+          "opacity": 0.7119
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": 0.23984,
+          "opacity": 0.75287
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": -1.12717,
+          "opacity": 0.71175
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": 0.01907,
+          "opacity": 0.66869
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": 0.74821,
+          "opacity": 0.68782
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": -0.03783,
+          "opacity": 0.67247
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": -0.12697,
+          "opacity": 0.63291
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": 0.5738,
+          "opacity": 0.7472
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": -0.97222,
+          "opacity": 0.6386
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": 1.25974,
+          "opacity": 0.7565
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": -0.48333,
+          "opacity": 0.64135
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": -0.84136,
+          "opacity": 0.72156
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": 1.0776,
+          "opacity": 0.72354
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": 0.40543,
+          "opacity": 0.66185
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": -0.61087,
+          "opacity": 0.76829
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": -0.75278,
+          "opacity": 0.72141
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": 0.83282,
+          "opacity": 0.62963
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": 0.43665,
+          "opacity": 0.66557
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": 1.07156,
+          "opacity": 0.63729
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": -0.20251,
+          "opacity": 0.66104
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": 0.60912,
+          "opacity": 0.66341
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": 0.05018,
+          "opacity": 0.75131
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": 0.39394,
+          "opacity": 0.75942
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": -0.20533,
+          "opacity": 0.63779
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": -0.12851,
+          "opacity": 0.65219
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": 0.30439,
+          "opacity": 0.633
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": -0.93582,
+          "opacity": 0.71942
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": 1.09577,
+          "opacity": 0.64135
+        }
+      ],
+      "sha256": "f6e3f0e8c3bdcbc2ebb8d304c91cfaac097883b66d4402a51fb14349633ab965",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "Inventory",
+      "id": "inventory",
+      "gradient_angle_degrees": 13,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": -1.05682,
+          "opacity": 0.62454
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": -1.17653,
+          "opacity": 0.69096
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": -0.13861,
+          "opacity": 0.66279
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": -1.24081,
+          "opacity": 0.6749
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": 1.12033,
+          "opacity": 0.6599
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": -0.2799,
+          "opacity": 0.66724
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": -0.89541,
+          "opacity": 0.66624
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": 1.21309,
+          "opacity": 0.64252
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": -0.25359,
+          "opacity": 0.73349
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": 0.26568,
+          "opacity": 0.64347
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": 0.99622,
+          "opacity": 0.6904
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": -0.61932,
+          "opacity": 0.73174
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": -1.29436,
+          "opacity": 0.67336
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": -0.10267,
+          "opacity": 0.68468
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": -1.34473,
+          "opacity": 0.65401
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": 1.02001,
+          "opacity": 0.74924
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": 0.85845,
+          "opacity": 0.64198
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": -0.91554,
+          "opacity": 0.76196
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": -0.47239,
+          "opacity": 0.73191
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": 0.68641,
+          "opacity": 0.66374
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": 0.01534,
+          "opacity": 0.72312
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": 0.24754,
+          "opacity": 0.76563
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": -0.86025,
+          "opacity": 0.6927
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": -0.5986,
+          "opacity": 0.70709
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": 0.17299,
+          "opacity": 0.71206
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": -0.25925,
+          "opacity": 0.70767
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": 0.06384,
+          "opacity": 0.70246
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": -0.73967,
+          "opacity": 0.6295
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": -0.47397,
+          "opacity": 0.75051
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": -0.81577,
+          "opacity": 0.70953
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": 0.00822,
+          "opacity": 0.76242
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": -1.20179,
+          "opacity": 0.72303
+        }
+      ],
+      "sha256": "29cd02a18a28d2f02f8d84120568fb67145904985c46aeed294eb5d500c5ef0d",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "ROI",
+      "id": "roi",
+      "gradient_angle_degrees": 26,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": 0.4014,
+          "opacity": 0.73663
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": 1.46966,
+          "opacity": 0.62719
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": 1.37131,
+          "opacity": 0.73563
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": 0.95487,
+          "opacity": 0.72977
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": -0.68646,
+          "opacity": 0.7304
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": 0.44315,
+          "opacity": 0.73076
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": -0.69408,
+          "opacity": 0.6524
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": 0.90146,
+          "opacity": 0.69525
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": -1.37672,
+          "opacity": 0.62797
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": -0.36176,
+          "opacity": 0.65992
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": -0.76658,
+          "opacity": 0.71093
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": -1.17394,
+          "opacity": 0.69903
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": -0.9677,
+          "opacity": 0.72211
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": 0.89748,
+          "opacity": 0.67906
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": -1.22227,
+          "opacity": 0.71425
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": -0.48265,
+          "opacity": 0.76305
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": 0.41869,
+          "opacity": 0.71644
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": -0.87132,
+          "opacity": 0.70152
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": 0.13803,
+          "opacity": 0.715
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": 0.0466,
+          "opacity": 0.77124
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": -1.44987,
+          "opacity": 0.64645
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": -1.13669,
+          "opacity": 0.75728
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": 1.43568,
+          "opacity": 0.76474
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": 1.29005,
+          "opacity": 0.6236
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": 0.79976,
+          "opacity": 0.74288
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": -0.58771,
+          "opacity": 0.72686
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": -0.40897,
+          "opacity": 0.67798
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": 1.20781,
+          "opacity": 0.65097
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": -1.09356,
+          "opacity": 0.67968
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": 0.93917,
+          "opacity": 0.73115
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": 0.75368,
+          "opacity": 0.68108
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": -0.22663,
+          "opacity": 0.72232
+        }
+      ],
+      "sha256": "457a08bb171c9a8d21ef10c02c713e19049209f7f63a802feefab9dd9bdb6802",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "Policies",
+      "id": "policies",
+      "gradient_angle_degrees": 39,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": -0.45299,
+          "opacity": 0.76835
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": -0.30915,
+          "opacity": 0.62485
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": 1.0378,
+          "opacity": 0.64872
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": -1.03191,
+          "opacity": 0.66087
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": -0.33705,
+          "opacity": 0.74289
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": 0.89112,
+          "opacity": 0.74972
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": -0.65497,
+          "opacity": 0.72169
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": -0.61969,
+          "opacity": 0.74589
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": 1.217,
+          "opacity": 0.77711
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": 0.3033,
+          "opacity": 0.66889
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": 0.40598,
+          "opacity": 0.77483
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": 0.86942,
+          "opacity": 0.67644
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": 1.38018,
+          "opacity": 0.62672
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": 0.66703,
+          "opacity": 0.69961
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": 1.35945,
+          "opacity": 0.62071
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": 0.55122,
+          "opacity": 0.71731
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": 0.22745,
+          "opacity": 0.73126
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": -0.13548,
+          "opacity": 0.72342
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": -1.14947,
+          "opacity": 0.64339
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": -0.13738,
+          "opacity": 0.7381
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": 0.63233,
+          "opacity": 0.75398
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": 0.80733,
+          "opacity": 0.69269
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": -1.11496,
+          "opacity": 0.70477
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": 1.10273,
+          "opacity": 0.73025
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": -0.41417,
+          "opacity": 0.7562
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": -0.98772,
+          "opacity": 0.76782
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": 0.65243,
+          "opacity": 0.68612
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": 0.95246,
+          "opacity": 0.62735
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": -0.64603,
+          "opacity": 0.72833
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": 1.01981,
+          "opacity": 0.68578
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": 0.28807,
+          "opacity": 0.70866
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": -0.12097,
+          "opacity": 0.62812
+        }
+      ],
+      "sha256": "201acad3586eb6b794fdf4c069e3098952728ae05aa453543e410c741618d582",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "Reports",
+      "id": "reports",
+      "gradient_angle_degrees": 52,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": -0.94327,
+          "opacity": 0.72766
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": -0.57503,
+          "opacity": 0.62608
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": 0.6794,
+          "opacity": 0.66729
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": 1.46183,
+          "opacity": 0.77641
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": 1.13509,
+          "opacity": 0.7629
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": -0.67348,
+          "opacity": 0.67849
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": 0.36811,
+          "opacity": 0.73294
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": -0.8575,
+          "opacity": 0.6798
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": 0.8937,
+          "opacity": 0.71336
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": -0.08984,
+          "opacity": 0.75144
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": -0.76894,
+          "opacity": 0.6291
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": 0.06634,
+          "opacity": 0.65148
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": 0.0527,
+          "opacity": 0.66552
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": 0.61416,
+          "opacity": 0.66547
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": 1.23372,
+          "opacity": 0.7742
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": 1.24899,
+          "opacity": 0.67817
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": -1.46392,
+          "opacity": 0.73551
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": 1.2627,
+          "opacity": 0.64306
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": -0.63298,
+          "opacity": 0.6821
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": 0.83021,
+          "opacity": 0.69068
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": 0.53246,
+          "opacity": 0.77018
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": -0.86124,
+          "opacity": 0.77605
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": -0.16584,
+          "opacity": 0.70199
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": 1.02939,
+          "opacity": 0.73062
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": -0.33114,
+          "opacity": 0.73133
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": -0.172,
+          "opacity": 0.77545
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": -0.98744,
+          "opacity": 0.72859
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": 0.70421,
+          "opacity": 0.67127
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": 0.1444,
+          "opacity": 0.76448
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": -0.56192,
+          "opacity": 0.7459
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": -0.45558,
+          "opacity": 0.7144
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": -1.16628,
+          "opacity": 0.6655
+        }
+      ],
+      "sha256": "173afd2fa4df14b9067df281d539368b1f74e00985a2174cd7dc06a5921903f1",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "Evidence Library",
+      "id": "evidence-library",
+      "gradient_angle_degrees": 65,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": -0.2664,
+          "opacity": 0.74068
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": -1.17381,
+          "opacity": 0.64715
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": -0.14225,
+          "opacity": 0.67959
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": -0.95968,
+          "opacity": 0.639
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": -0.4636,
+          "opacity": 0.7565
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": -0.24839,
+          "opacity": 0.69423
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": -1.25886,
+          "opacity": 0.73911
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": -0.26199,
+          "opacity": 0.62972
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": 0.91942,
+          "opacity": 0.74234
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": -0.44929,
+          "opacity": 0.70413
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": -0.89095,
+          "opacity": 0.67487
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": -1.09921,
+          "opacity": 0.71735
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": 1.14803,
+          "opacity": 0.6356
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": -0.29356,
+          "opacity": 0.71247
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": 1.17793,
+          "opacity": 0.76053
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": -0.99798,
+          "opacity": 0.62709
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": 0.04574,
+          "opacity": 0.64402
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": -0.24684,
+          "opacity": 0.72842
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": -0.76491,
+          "opacity": 0.68702
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": -1.47312,
+          "opacity": 0.64195
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": -0.12006,
+          "opacity": 0.70774
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": -0.79635,
+          "opacity": 0.76753
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": 0.81549,
+          "opacity": 0.66329
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": -0.21522,
+          "opacity": 0.70482
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": -0.50937,
+          "opacity": 0.64174
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": -0.07979,
+          "opacity": 0.66712
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": -0.58912,
+          "opacity": 0.7284
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": 1.04788,
+          "opacity": 0.72622
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": -0.50969,
+          "opacity": 0.70329
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": -0.81766,
+          "opacity": 0.63354
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": -1.23861,
+          "opacity": 0.64624
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": -0.70362,
+          "opacity": 0.68911
+        }
+      ],
+      "sha256": "df452da45ee25e67fd6b3294b75d9d1bd27799e90e24b8c8f31ac0076dc5615c",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "Billing",
+      "id": "billing",
+      "gradient_angle_degrees": 78,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": -1.34415,
+          "opacity": 0.66472
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": -0.67339,
+          "opacity": 0.77656
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": 1.36606,
+          "opacity": 0.66581
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": -0.82345,
+          "opacity": 0.72422
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": 1.41619,
+          "opacity": 0.68629
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": 0.59465,
+          "opacity": 0.73915
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": -0.91179,
+          "opacity": 0.64947
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": -1.49819,
+          "opacity": 0.75541
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": 0.29893,
+          "opacity": 0.77392
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": -1.38596,
+          "opacity": 0.74002
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": 1.46861,
+          "opacity": 0.62325
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": 0.01311,
+          "opacity": 0.75124
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": 0.24859,
+          "opacity": 0.6476
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": -0.13663,
+          "opacity": 0.66295
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": 0.29861,
+          "opacity": 0.73099
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": 0.39519,
+          "opacity": 0.66604
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": 1.18303,
+          "opacity": 0.71317
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": 1.18845,
+          "opacity": 0.62997
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": -1.00988,
+          "opacity": 0.62053
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": 1.38487,
+          "opacity": 0.67458
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": 0.83138,
+          "opacity": 0.63996
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": 0.06793,
+          "opacity": 0.6492
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": 0.75515,
+          "opacity": 0.69569
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": -0.36381,
+          "opacity": 0.63958
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": -0.19615,
+          "opacity": 0.68922
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": 0.28478,
+          "opacity": 0.77381
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": -1.18278,
+          "opacity": 0.62914
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": -0.60782,
+          "opacity": 0.77467
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": -0.98486,
+          "opacity": 0.65328
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": -0.26899,
+          "opacity": 0.6606
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": -0.7182,
+          "opacity": 0.68999
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": 1.41046,
+          "opacity": 0.67059
+        }
+      ],
+      "sha256": "1448256f01552c64638f8875fb38c03d334035094a513b396765f58e705707e5",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "Admin",
+      "id": "admin",
+      "gradient_angle_degrees": 91,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": 0.78704,
+          "opacity": 0.65748
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": -0.122,
+          "opacity": 0.75003
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": 0.20122,
+          "opacity": 0.70112
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": -1.10637,
+          "opacity": 0.65828
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": 0.18861,
+          "opacity": 0.71554
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": 0.48308,
+          "opacity": 0.65321
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": -1.33867,
+          "opacity": 0.62289
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": 1.08213,
+          "opacity": 0.66565
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": -1.30009,
+          "opacity": 0.69851
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": -0.85547,
+          "opacity": 0.72573
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": 0.04782,
+          "opacity": 0.65198
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": 0.73576,
+          "opacity": 0.69486
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": 0.20264,
+          "opacity": 0.72468
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": -1.39483,
+          "opacity": 0.74971
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": 1.04959,
+          "opacity": 0.74564
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": 1.0796,
+          "opacity": 0.64978
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": 1.29056,
+          "opacity": 0.7674
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": -0.59956,
+          "opacity": 0.64255
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": -1.07866,
+          "opacity": 0.65777
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": 0.13502,
+          "opacity": 0.62742
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": 1.32964,
+          "opacity": 0.6784
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": 1.44622,
+          "opacity": 0.70278
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": 1.02043,
+          "opacity": 0.74061
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": 1.21182,
+          "opacity": 0.67457
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": -1.2116,
+          "opacity": 0.71942
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": 1.21319,
+          "opacity": 0.64676
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": -0.65268,
+          "opacity": 0.75589
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": 1.37691,
+          "opacity": 0.66191
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": 0.72743,
+          "opacity": 0.71059
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": 1.45465,
+          "opacity": 0.64868
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": 0.55833,
+          "opacity": 0.70703
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": -1.20003,
+          "opacity": 0.74608
+        }
+      ],
+      "sha256": "d0b699e1722f06678f6fcfb458431696f31f709f0245bc9dbc40c194468eadd5",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "Funnels",
+      "id": "funnels",
+      "gradient_angle_degrees": 104,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": 0.55602,
+          "opacity": 0.6531
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": 0.26843,
+          "opacity": 0.65166
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": 0.92602,
+          "opacity": 0.68697
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": -0.22923,
+          "opacity": 0.69533
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": -1.11104,
+          "opacity": 0.68068
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": -0.74006,
+          "opacity": 0.71282
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": 0.36291,
+          "opacity": 0.63039
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": 0.62457,
+          "opacity": 0.65983
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": 0.18738,
+          "opacity": 0.67128
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": -0.95419,
+          "opacity": 0.70385
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": 1.38189,
+          "opacity": 0.72212
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": 0.02279,
+          "opacity": 0.68348
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": 0.09068,
+          "opacity": 0.71739
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": 0.31033,
+          "opacity": 0.63222
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": -1.26849,
+          "opacity": 0.65909
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": 0.39116,
+          "opacity": 0.65735
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": -1.32794,
+          "opacity": 0.73805
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": -0.4323,
+          "opacity": 0.70134
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": 0.65388,
+          "opacity": 0.7562
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": 0.56129,
+          "opacity": 0.66751
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": -1.28403,
+          "opacity": 0.73215
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": 0.44795,
+          "opacity": 0.70622
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": -1.18451,
+          "opacity": 0.7076
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": 0.34745,
+          "opacity": 0.64067
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": -0.87044,
+          "opacity": 0.68155
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": -0.74807,
+          "opacity": 0.70941
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": -1.09223,
+          "opacity": 0.69194
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": -0.38126,
+          "opacity": 0.71316
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": 0.65879,
+          "opacity": 0.76658
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": -0.82293,
+          "opacity": 0.68418
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": 0.91856,
+          "opacity": 0.75486
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": -0.03051,
+          "opacity": 0.75809
+        }
+      ],
+      "sha256": "49f52fe8e75f532d01b6d38eeacd102b6d47d4bf61f1785100892e7bac38faba",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "Contact",
+      "id": "contact",
+      "gradient_angle_degrees": 117,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": 0.65145,
+          "opacity": 0.72127
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": -1.08058,
+          "opacity": 0.69153
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": -0.37808,
+          "opacity": 0.64818
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": 1.43023,
+          "opacity": 0.72603
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": 0.58969,
+          "opacity": 0.72688
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": 1.02317,
+          "opacity": 0.76566
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": 0.8489,
+          "opacity": 0.63675
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": -1.3265,
+          "opacity": 0.76303
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": 1.46627,
+          "opacity": 0.6531
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": 0.56531,
+          "opacity": 0.72793
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": 0.61344,
+          "opacity": 0.62881
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": -1.12054,
+          "opacity": 0.72534
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": 0.18158,
+          "opacity": 0.71888
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": 0.5453,
+          "opacity": 0.66037
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": 0.99215,
+          "opacity": 0.74923
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": 0.00508,
+          "opacity": 0.67178
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": 0.33419,
+          "opacity": 0.76339
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": -1.16365,
+          "opacity": 0.73692
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": 1.49269,
+          "opacity": 0.62305
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": 1.46779,
+          "opacity": 0.69693
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": 1.29428,
+          "opacity": 0.75062
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": 0.65257,
+          "opacity": 0.65488
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": -0.59727,
+          "opacity": 0.77656
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": -0.66365,
+          "opacity": 0.67149
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": -1.10969,
+          "opacity": 0.66465
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": 0.12724,
+          "opacity": 0.6537
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": 0.35574,
+          "opacity": 0.74908
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": 0.74704,
+          "opacity": 0.65804
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": 0.78246,
+          "opacity": 0.73288
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": -0.76595,
+          "opacity": 0.64414
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": -0.13506,
+          "opacity": 0.70986
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": -1.38393,
+          "opacity": 0.76582
+        }
+      ],
+      "sha256": "6b58acfbcfbd0efb32b724d0d2aaff8d323bca43a2dac48c76f15f3fa2ec7a4f",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "Pricing",
+      "id": "pricing",
+      "gradient_angle_degrees": 130,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": 0.73746,
+          "opacity": 0.75165
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": -0.07268,
+          "opacity": 0.67449
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": -0.52343,
+          "opacity": 0.72138
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": -0.96861,
+          "opacity": 0.77077
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": 1.16397,
+          "opacity": 0.71182
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": -0.89153,
+          "opacity": 0.70924
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": -1.12312,
+          "opacity": 0.62582
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": -0.09752,
+          "opacity": 0.77717
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": -0.41097,
+          "opacity": 0.75971
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": -1.26397,
+          "opacity": 0.65497
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": 0.73656,
+          "opacity": 0.62916
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": 0.86049,
+          "opacity": 0.66335
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": 0.5449,
+          "opacity": 0.65035
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": 0.56642,
+          "opacity": 0.68979
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": -0.33037,
+          "opacity": 0.75939
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": 0.45519,
+          "opacity": 0.7585
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": -1.32008,
+          "opacity": 0.67296
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": 0.77707,
+          "opacity": 0.64066
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": -0.21357,
+          "opacity": 0.73774
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": -0.88658,
+          "opacity": 0.65614
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": -1.07827,
+          "opacity": 0.72258
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": 0.13066,
+          "opacity": 0.75383
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": -0.71501,
+          "opacity": 0.75063
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": 1.15838,
+          "opacity": 0.70014
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": -0.88475,
+          "opacity": 0.6419
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": 0.8371,
+          "opacity": 0.70327
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": -0.89342,
+          "opacity": 0.70434
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": -0.07708,
+          "opacity": 0.73437
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": -0.46292,
+          "opacity": 0.64964
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": -0.70965,
+          "opacity": 0.63042
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": -0.79053,
+          "opacity": 0.7084
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": 0.38489,
+          "opacity": 0.77726
+        }
+      ],
+      "sha256": "c5f4b85c4a666d8fee4e4a7200cf2b90d068e1e5dfa20e2a665de8f8d76bfffb",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "Login",
+      "id": "login",
+      "gradient_angle_degrees": 143,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": 0.63384,
+          "opacity": 0.64867
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": 0.20449,
+          "opacity": 0.67741
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": -0.23879,
+          "opacity": 0.64458
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": -0.69906,
+          "opacity": 0.66641
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": 0.29978,
+          "opacity": 0.68773
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": 0.05334,
+          "opacity": 0.70692
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": 1.18649,
+          "opacity": 0.69941
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": -0.34449,
+          "opacity": 0.67738
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": -0.10692,
+          "opacity": 0.69861
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": 0.1194,
+          "opacity": 0.738
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": 1.39095,
+          "opacity": 0.68454
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": 0.11231,
+          "opacity": 0.63413
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": -0.03813,
+          "opacity": 0.67359
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": 0.42232,
+          "opacity": 0.70842
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": -0.90906,
+          "opacity": 0.72046
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": 1.42061,
+          "opacity": 0.64427
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": 0.79207,
+          "opacity": 0.77596
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": 1.42017,
+          "opacity": 0.74587
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": -0.95588,
+          "opacity": 0.775
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": -1.44192,
+          "opacity": 0.67331
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": 0.57522,
+          "opacity": 0.71342
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": -0.42655,
+          "opacity": 0.76924
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": 0.81175,
+          "opacity": 0.76701
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": -0.80386,
+          "opacity": 0.71872
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": -0.39776,
+          "opacity": 0.68068
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": 0.78843,
+          "opacity": 0.71167
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": -0.56438,
+          "opacity": 0.77959
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": -0.65904,
+          "opacity": 0.62372
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": -0.25451,
+          "opacity": 0.63689
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": 0.09697,
+          "opacity": 0.68459
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": -0.41627,
+          "opacity": 0.76204
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": 0.54896,
+          "opacity": 0.72737
+        }
+      ],
+      "sha256": "9e86a3ea80f02a1ac6de80cd0e3cabd3a9d60d12c7b912469f7d7dfeef9a5e68",
+      "status": "presentation asset; not wired to application or evidence data"
+    },
+    {
+      "page": "Signup",
+      "id": "signup",
+      "gradient_angle_degrees": 156,
+      "tick_signature": [
+        {
+          "index": 0,
+          "angle_jitter_degrees": -0.17302,
+          "opacity": 0.73564
+        },
+        {
+          "index": 1,
+          "angle_jitter_degrees": -1.48711,
+          "opacity": 0.7269
+        },
+        {
+          "index": 2,
+          "angle_jitter_degrees": -0.61683,
+          "opacity": 0.71648
+        },
+        {
+          "index": 3,
+          "angle_jitter_degrees": -1.26708,
+          "opacity": 0.71897
+        },
+        {
+          "index": 4,
+          "angle_jitter_degrees": 1.45705,
+          "opacity": 0.72346
+        },
+        {
+          "index": 5,
+          "angle_jitter_degrees": 0.35059,
+          "opacity": 0.68671
+        },
+        {
+          "index": 6,
+          "angle_jitter_degrees": 1.34175,
+          "opacity": 0.76818
+        },
+        {
+          "index": 7,
+          "angle_jitter_degrees": -0.90543,
+          "opacity": 0.69263
+        },
+        {
+          "index": 8,
+          "angle_jitter_degrees": 0.6012,
+          "opacity": 0.68198
+        },
+        {
+          "index": 9,
+          "angle_jitter_degrees": -1.4644,
+          "opacity": 0.63333
+        },
+        {
+          "index": 10,
+          "angle_jitter_degrees": 0.34078,
+          "opacity": 0.73026
+        },
+        {
+          "index": 11,
+          "angle_jitter_degrees": 0.29911,
+          "opacity": 0.67186
+        },
+        {
+          "index": 12,
+          "angle_jitter_degrees": 1.16756,
+          "opacity": 0.67273
+        },
+        {
+          "index": 13,
+          "angle_jitter_degrees": 0.88848,
+          "opacity": 0.68341
+        },
+        {
+          "index": 14,
+          "angle_jitter_degrees": -0.80053,
+          "opacity": 0.77327
+        },
+        {
+          "index": 15,
+          "angle_jitter_degrees": 0.3387,
+          "opacity": 0.65142
+        },
+        {
+          "index": 16,
+          "angle_jitter_degrees": 1.31272,
+          "opacity": 0.71697
+        },
+        {
+          "index": 17,
+          "angle_jitter_degrees": -0.44485,
+          "opacity": 0.6543
+        },
+        {
+          "index": 18,
+          "angle_jitter_degrees": -1.08608,
+          "opacity": 0.75738
+        },
+        {
+          "index": 19,
+          "angle_jitter_degrees": -0.83598,
+          "opacity": 0.63854
+        },
+        {
+          "index": 20,
+          "angle_jitter_degrees": 0.9508,
+          "opacity": 0.68279
+        },
+        {
+          "index": 21,
+          "angle_jitter_degrees": -0.48983,
+          "opacity": 0.68372
+        },
+        {
+          "index": 22,
+          "angle_jitter_degrees": -0.35324,
+          "opacity": 0.76449
+        },
+        {
+          "index": 23,
+          "angle_jitter_degrees": -0.96625,
+          "opacity": 0.63602
+        },
+        {
+          "index": 24,
+          "angle_jitter_degrees": -1.4621,
+          "opacity": 0.72778
+        },
+        {
+          "index": 25,
+          "angle_jitter_degrees": 0.25694,
+          "opacity": 0.65895
+        },
+        {
+          "index": 26,
+          "angle_jitter_degrees": -0.52456,
+          "opacity": 0.77172
+        },
+        {
+          "index": 27,
+          "angle_jitter_degrees": 1.32371,
+          "opacity": 0.7645
+        },
+        {
+          "index": 28,
+          "angle_jitter_degrees": 1.32751,
+          "opacity": 0.62714
+        },
+        {
+          "index": 29,
+          "angle_jitter_degrees": 0.62643,
+          "opacity": 0.71675
+        },
+        {
+          "index": 30,
+          "angle_jitter_degrees": -0.38751,
+          "opacity": 0.76208
+        },
+        {
+          "index": 31,
+          "angle_jitter_degrees": -1.37767,
+          "opacity": 0.68922
+        }
+      ],
+      "sha256": "7c0c6373d85b84405be02fdca58a43c7a154f30ace34455db2ccbfde155b67c2",
+      "status": "presentation asset; not wired to application or evidence data"
+    }
+  ],
+  "background": "transparent",
+  "highlight_palette": {
+    "#4FF2FF": "#7441B7",
+    "#2CD9FF": "#8651C9",
+    "#2CC7C7": "#9565D5",
+    "#C8F8FF": "#8955C6"
+  },
+  "raster_renderer": "resvg-py; native SVG raster export with alpha"
+}

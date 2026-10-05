@@ -1,0 +1,116 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+..........................F.......................................       [100%]
+=================================== FAILURES ===================================
+_ test_exact_replay_survives_issuance_config_change_without_new_effect[removed] _
+
+service = (<BillingCustomer: BillingCustomer object (deef1026-9504-40a6-acdc-f9dca97ee15c)>, {'id': 'in_qualified', 'object': 'i... True, 'currency': 'usd', 'unit_amount': 9900, ...}}]}, ...}, <Mock id='132710813414272'>, <Mock id='132710800928992'>)
+settings = <pytest_django.fixtures.Settings object at 0x78b32486f890>
+authority_change = 'removed'
+
+    @pytest.mark.parametrize("authority_change", ["removed", "price_changed"])
+    def test_exact_replay_survives_issuance_config_change_without_new_effect(
+        service, settings, authority_change
+    ):
+        import stripe
+    
+        request = delivery(settings)
+        with dedicated_default():
+            assert paid_webhook(request).status_code == 200
+        before = Subscription.objects.values().get()
+        coverage_id = PaidCoverage.objects.get().id
+        if authority_change == "removed":
+            PaidCoverageAuthority.objects.all().delete()
+        if authority_change == "price_changed":
+            authority = PaidCoverageAuthority.objects.get()
+            authority.contracts["standard"]["price_id"] = "price_reconfigured"
+            authority.save()
+            settings.STRIPE_CORE_STANDARD_PRICE_ID = "price_reconfigured"
+        service[3].side_effect = stripe.APIConnectionError("Synthetic provider outage")
+        with dedicated_default():
+>           assert paid_webhook(delivery(settings)).status_code == 200
+E           assert 503 == 200
+E            +  where 503 = <HttpResponse status_code=503, "text/html; charset=utf-8">.status_code
+E            +    where <HttpResponse status_code=503, "text/html; charset=utf-8"> = paid_webhook(<WSGIRequest: POST '/billing/paid-webhook/'>)
+E            +      where <WSGIRequest: POST '/billing/paid-webhook/'> = delivery(<pytest_django.fixtures.Settings object at 0x78b32486f890>)
+
+tests/test_billing_admission_service.py:471: AssertionError
+=============================== warnings summary ===============================
+tests/test_billing_standard_launch.py::test_standard_only_portfolio_has_no_founder_offer
+tests/test_billing_standard_launch.py::test_standard_only_checkout_ignores_submitted_founder_fields
+tests/test_billing_standard_launch.py::test_missing_standard_price_stops_before_stripe_or_reservation
+tests/test_paid_workflow_boundary.py::test_expired_customer_can_read_existing_reports_but_not_generate
+tests/test_paid_workflow_boundary.py::test_expired_read_exception_cannot_select_another_workspace
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_billing_admission_service.py::test_exact_replay_survives_issuance_config_change_without_new_effect[removed]
+1 failed, 65 passed, 5 warnings in 47.49s

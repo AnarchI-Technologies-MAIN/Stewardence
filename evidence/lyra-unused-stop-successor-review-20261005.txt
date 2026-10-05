@@ -1,0 +1,2026 @@
+STEWARDENCE CORE SUCCESSOR: UNUSED-ONLY RECOVERY / PARTIAL PROPOSAL CONTRACT
+Please scrutinize and give bounded disposition, not production approval. Your prior REVIEW-PREFLIGHT-RESERVATION-DEADEND-01 allows exact proven-unused transition as second-best repair. New default-closed SQL+Python stop appends immutable termination/release receipts; never refunds monthly admitted usage; preserves original pack/capture and denies any admitted request/report/job/completion. Owner can stop after expiry/pause. Report insert fence shares snapshot lock under READ COMMITTED. All18 service cases PASS in frozen004000 (oversized admitted fixture hits earlier Queue input exceeds admission bounds; then exactstop/freshcapture succeeds). Overall141cases140PASS1FAIL: foreignowner UI fixture acquired CSRF via paidportfolio which intentionally redirects; successor test now gets actualoriginalpackcookie before foreignmembership. Thus corrected404stillpending successor qualification. Partial proposal-v1 OptionB is explicitstate-map+UIcopy, no semantic changes. Later renderer elapsed-bound changes and releaseharness are separatelypending. Production unchanged; fullsuccessor/Stripe/DOstorage/retention/allwriterquota/restore/clock/credentials/operations stillopen. Oldbridge kits+identitykeys revoked by user report; no enrollment attempted.
+
+
+===== source/apps/reviews/migrations/0007_unused_stop.py SHA256 d2764ca4b58af987a0dd0cbb1b6a672e6f31b4dbf2566c839b976f554d64169b =====
+"""Explicit original owner may terminate only positively unused frozen work."""
+
+from django.db import migrations, models
+
+SQL = r"""
+ALTER TABLE public.review_unused_stop_gate OWNER TO agentledger_owner;
+REVOKE ALL ON public.review_unused_stop_gate FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+ALTER TABLE public.review_unused_stop_gate ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.review_unused_stop_gate FORCE ROW LEVEL SECURITY;
+CREATE POLICY review_unused_stop_operator ON public.review_unused_stop_gate TO agentledger_owner USING(true) WITH CHECK(true);
+INSERT INTO public.review_unused_stop_gate(id,enabled) VALUES(1,false);
+
+CREATE FUNCTION app_private.require_unused_stop_owner(org uuid,actor uuid) RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+BEGIN
+ IF NOT EXISTS(SELECT 1 FROM public.review_unused_stop_gate WHERE id=1 AND enabled)
+  OR NOT EXISTS(SELECT 1 FROM public.organizations_organizationmember
+   WHERE organization_id=org AND user_id=actor AND role='owner') THEN
+  RAISE EXCEPTION 'Unused review stop owner authority unavailable'; END IF;
+END;$fn$;
+ALTER FUNCTION app_private.require_unused_stop_owner(uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.require_unused_stop_owner(uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.require_unused_review_work_absence(pid uuid,sid uuid,org uuid) RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+BEGIN
+ IF EXISTS(SELECT 1 FROM public.review_artifact_requests WHERE pack_id=pid OR (organization_id=org AND report_id IN (SELECT id FROM public.reports WHERE assessment_snapshot_id=sid)))
+  OR EXISTS(SELECT 1 FROM public.review_pack_completions c JOIN public.review_artifact_requests q ON q.id=c.request_id WHERE q.pack_id=pid)
+  OR EXISTS(SELECT 1 FROM public.reports WHERE assessment_snapshot_id=sid)
+  OR EXISTS(SELECT 1 FROM public.report_artifacts WHERE assessment_snapshot_id=sid)
+  OR EXISTS(SELECT 1 FROM public.background_jobs j JOIN public.reports r ON j.payload->>'report_id'=r.id::text WHERE r.assessment_snapshot_id=sid) THEN
+  RAISE EXCEPTION 'Unused stop cannot release admitted or ambiguous report work'; END IF;
+END;$fn$;
+ALTER FUNCTION app_private.require_unused_review_work_absence(uuid,uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.require_unused_review_work_absence(uuid,uuid,uuid) FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+
+CREATE FUNCTION app_private.stop_unused_review_pack(pid uuid,org uuid,actor uuid,reason text) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE p public.review_pack_identities%ROWTYPE; c public.review_cycles%ROWTYPE;
+ r public.review_capacity_reservations%ROWTYPE; e public.review_cycle_events%ROWTYPE;
+ re public.review_reservation_events%ROWTYPE; receipt jsonb; release jsonb; target uuid; issued timestamptz;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' OR pid IS NULL OR org IS NULL OR actor IS NULL
+  OR org IS DISTINCT FROM app_private.current_organization_id() OR actor IS DISTINCT FROM app_private.current_user_id() THEN
+  RAISE EXCEPTION 'Unused review stop context invalid'; END IF;
+ IF reason IS NULL OR reason NOT IN ('context_too_large','owner_stopped') THEN RAISE EXCEPTION 'Unused review stop reason invalid'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':control',0));
+ PERFORM pg_advisory_xact_lock(hashtextextended('review:'||org::text||':capacity',0));
+ PERFORM 1 FROM public.review_unused_stop_gate WHERE id=1 FOR SHARE;
+ PERFORM app_private.require_unused_stop_owner(org,actor);
+ SELECT * INTO p FROM public.review_pack_identities WHERE id=pid AND organization_id=org;
+ SELECT * INTO c FROM public.review_cycles WHERE id=p.cycle_id AND organization_id=org FOR UPDATE;
+ IF p.id IS NULL OR c.id IS NULL OR p.created_by_id IS DISTINCT FROM actor OR c.created_by_id IS DISTINCT FROM actor
+  OR p.manifest->>'schema' IS DISTINCT FROM 'stewardence.review_pack.v4' THEN RAISE EXCEPTION 'Unused review stop original pack owner required'; END IF;
+ PERFORM 1 FROM public.accounts_user WHERE id=actor FOR KEY SHARE;
+ PERFORM 1 FROM public.organizations_organization WHERE id=org FOR KEY SHARE;
+ -- Report admission takes a conflicting snapshot key-share lock and checks
+ -- terminal history after its wait. This closes the absence-read phantom.
+ PERFORM 1 FROM public.assessment_snapshots WHERE id=c.input_snapshot_id AND organization_id=org FOR UPDATE;
+ PERFORM 1 FROM public.review_pack_identities WHERE id=p.id FOR KEY SHARE;
+ SELECT * INTO r FROM public.review_capacity_reservations WHERE cycle_id=c.id AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.organizations_organizationmember WHERE organization_id=org AND user_id=actor FOR SHARE;
+ SELECT * INTO e FROM public.review_cycle_events WHERE cycle_id=c.id ORDER BY revision DESC LIMIT 1 FOR KEY SHARE;
+ SELECT * INTO re FROM public.review_reservation_events WHERE reservation_id=r.id ORDER BY revision DESC LIMIT 1 FOR KEY SHARE;
+ PERFORM app_private.validate_capture_proposal_pack(p.id,org);
+ PERFORM app_private.require_capture_pack_creator(c.input_snapshot_id,org,actor);
+ PERFORM app_private.require_unused_review_work_absence(p.id,c.input_snapshot_id,org);
+ PERFORM app_private.require_unused_stop_owner(org,actor);
+ IF r.id IS NULL OR r.created_by_id IS DISTINCT FROM actor OR e.id IS NULL OR re.id IS NULL
+  OR e.created_by_id IS DISTINCT FROM actor OR e.organization_id IS DISTINCT FROM org
+  OR re.created_by_id IS DISTINCT FROM actor OR re.organization_id IS DISTINCT FROM org
+  OR e.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(e.payload),'UTF8')),'hex')
+  OR re.sha256 IS DISTINCT FROM encode(sha256(convert_to(app_private.queue_canonical(re.payload),'UTF8')),'hex') THEN
+  RAISE EXCEPTION 'Unused review stop event integrity invalid'; END IF;
+ receipt:=jsonb_build_object('schema','stewardence.review_unused_stop.v1','cycle_id',c.id::text,'pack_id',p.id::text,
+  'manifest_sha256',p.sha256,'reservation_id',r.id::text,'actor_id',actor::text,'reason',reason,
+  'state','TERMINATED_UNUSED','reservation_state','proven_unused','monthly_allowance_refunded',false,
+  'proof_scope','no_admitted_report_work');
+ IF e.state='TERMINATED_UNUSED' THEN
+  IF e.revision<>4 OR e.created_by_id IS DISTINCT FROM actor OR e.payload IS DISTINCT FROM receipt
+   OR re.revision<>2 OR re.state IS DISTINCT FROM 'proven_unused'
+   OR re.payload IS DISTINCT FROM jsonb_build_object('schema','stewardence.review_unused_release.v1',
+    'reservation_id',r.id::text,'revision',2,'state','proven_unused','stop_event_id',e.id::text,
+    'pack_id',p.id::text,'manifest_sha256',p.sha256,'monthly_allowance_refunded',false,
+    'proof_scope','no_admitted_report_work') THEN RAISE EXCEPTION 'Unused review stop replay changed'; END IF;
+  RETURN e.id;
+ END IF;
+ IF e.state IS DISTINCT FROM 'FROZEN' OR e.revision<>3 OR re.state IS DISTINCT FROM 'reserved' OR re.revision<>1
+  OR r.state IS DISTINCT FROM 'reserved'
+  OR e.payload IS DISTINCT FROM jsonb_build_object('schema','stewardence.review_cycle_event.v2',
+   'cycle_id',c.id::text,'revision',3,'state','FROZEN','pack_id',p.id::text,'manifest_sha256',p.sha256)
+  OR re.payload IS DISTINCT FROM jsonb_build_object('schema','stewardence.review_reservation_event.v2',
+   'reservation_id',r.id::text,'cycle_id',c.id::text,'revision',1,'state','reserved',
+   'paid_coverage_id',r.paid_coverage_id::text,'reserved_bytes',r.reserved_bytes) THEN
+  RAISE EXCEPTION 'Unused review stop requires unused frozen reservation'; END IF;
+ issued:=clock_timestamp();
+ IF issued<p.created_at OR issued<e.created_at OR issued<re.created_at THEN RAISE EXCEPTION 'Unused review stop clock discontinuity'; END IF;
+ -- No further row/FK waits precede effects: all identity targets are locked.
+ PERFORM app_private.require_unused_stop_owner(org,actor);
+ PERFORM app_private.require_unused_review_work_absence(p.id,c.input_snapshot_id,org);
+ target:=gen_random_uuid();
+ INSERT INTO public.review_cycle_events(id,organization_id,created_by_id,created_at,cycle_id,revision,state,payload,sha256)
+ VALUES(target,org,actor,issued,c.id,4,'TERMINATED_UNUSED',receipt,
+  encode(sha256(convert_to(app_private.queue_canonical(receipt),'UTF8')),'hex'));
+ release:=jsonb_build_object('schema','stewardence.review_unused_release.v1','reservation_id',r.id::text,
+  'revision',2,'state','proven_unused','stop_event_id',target::text,'pack_id',p.id::text,
+  'manifest_sha256',p.sha256,'monthly_allowance_refunded',false,'proof_scope','no_admitted_report_work');
+ INSERT INTO public.review_reservation_events(id,organization_id,created_by_id,created_at,reservation_id,revision,state,payload,sha256)
+ VALUES(gen_random_uuid(),org,actor,issued,r.id,2,'proven_unused',release,
+  encode(sha256(convert_to(app_private.queue_canonical(release),'UTF8')),'hex'));
+ RETURN target;
+END;$fn$;
+ALTER FUNCTION app_private.stop_unused_review_pack(uuid,uuid,uuid,text) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.stop_unused_review_pack(uuid,uuid,uuid,text) FROM PUBLIC,agentledger_worker,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.stop_unused_review_pack(uuid,uuid,uuid,text) TO agentledger_app;
+
+CREATE FUNCTION app_private.fence_unused_capture_report() RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE schema jsonb;
+BEGIN
+ IF session_user IN ('agentledger_app','agentledger_worker')
+  AND NEW.organization_id IS DISTINCT FROM app_private.current_organization_id() THEN
+  RAISE EXCEPTION 'Report tenant context unavailable' USING ERRCODE='42501'; END IF;
+ SELECT input_payload->'snapshot_schema_version' INTO schema FROM public.assessment_snapshots
+  WHERE id=NEW.assessment_snapshot_id AND organization_id=NEW.organization_id;
+ IF schema IS DISTINCT FROM '2'::jsonb THEN RETURN NEW; END IF;
+ IF current_setting('transaction_isolation')<>'read committed' THEN
+  RAISE EXCEPTION 'Capture report admission requires read committed'; END IF;
+ PERFORM 1 FROM public.assessment_snapshots WHERE id=NEW.assessment_snapshot_id
+  AND organization_id=NEW.organization_id FOR KEY SHARE;
+ IF EXISTS(SELECT 1 FROM public.review_cycles c
+  JOIN public.review_cycle_events e ON e.cycle_id=c.id
+  WHERE c.input_snapshot_id=NEW.assessment_snapshot_id AND c.organization_id=NEW.organization_id
+   AND e.state='TERMINATED_UNUSED') THEN
+  RAISE EXCEPTION 'Unused terminated capture cannot admit report work'; END IF;
+ RETURN NEW;
+END;$fn$;
+ALTER FUNCTION app_private.fence_unused_capture_report() OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.fence_unused_capture_report() FROM PUBLIC,agentledger_app,agentledger_worker,agentledger_billing_admission;
+CREATE TRIGGER capture_unused_report_fence BEFORE INSERT ON public.reports FOR EACH ROW EXECUTE FUNCTION app_private.fence_unused_capture_report();
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies = [("reviews", "0006_capture_proposal_packs")]
+    operations = [
+        migrations.CreateModel(
+            name="UnusedStopGate",
+            fields=[
+                (
+                    "id",
+                    models.PositiveSmallIntegerField(
+                        default=1, primary_key=True, editable=False, serialize=False
+                    ),
+                ),
+                ("enabled", models.BooleanField(default=False)),
+            ],
+            options={
+                "db_table": "review_unused_stop_gate",
+                "constraints": [
+                    models.CheckConstraint(
+                        condition=models.Q(id=1),
+                        name="review_unused_stop_gate_singleton",
+                    )
+                ],
+            },
+        ),
+        migrations.RunSQL(SQL),
+    ]
+
+
+===== source/apps/reviews/unused_stop.py SHA256 32c725b747b6242b0fec32aeb2ef7353970d6dcedc223ce717d56ef30c90c8b6 =====
+"""Explicit owner stop of positively unused frozen work; no object deletion."""
+
+from uuid import UUID
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db import connections
+
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+
+from .models import CycleEvent
+
+REASONS = frozenset({"context_too_large", "owner_stopped"})
+
+
+def stop_unused_pack(
+    *,
+    pack_id,
+    organization_id,
+    actor_id,
+    reason,
+    using="default",
+):
+    """Return the immutable stop receipt; admission and replay use current owner.
+
+    Paid expiry and pause do not remove the ability to stop unused work. This
+    operation cannot cancel admitted jobs or erase an ambiguous storage outcome.
+    """
+    if not getattr(settings, "REVIEW_UNUSED_STOP_ENABLED", False):
+        raise ValidationError("Unused review stop deployment gate closed")
+    if any(
+        not isinstance(value, UUID) for value in (pack_id, organization_id, actor_id)
+    ):
+        raise ValidationError("Exact unused review identities required")
+    if type(reason) is not str or reason not in REASONS:
+        raise ValidationError("Explicit unused review stop reason required")
+    with (
+        identity_transaction(actor_id, using=using),
+        tenant_transaction(organization_id, using=using),
+        connections[using].cursor() as cursor,
+    ):
+        cursor.execute(
+            "SELECT app_private.stop_unused_review_pack(%s,%s,%s,%s)",
+            [pack_id, organization_id, actor_id, reason],
+        )
+        event_id = cursor.fetchone()[0]
+        return CycleEvent.objects.using(using).get(
+            id=event_id,
+            organization_id=organization_id,
+        )
+
+
+===== source/apps/reviews/views.py SHA256 c6e539d61397e864833f14596e882aec87aa1fb0759b5525bc94b52811955ac8 =====
+"""Gated owner journey over admitted evidence; GET never admits new work."""
+
+from functools import wraps
+from uuid import UUID, uuid4
+
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
+from django.core.paginator import Paginator
+from django.db import DatabaseError, transaction
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
+
+from apps.assessments.models import AssessmentSnapshot
+from apps.assessments.snapshots import canonical_sha256, verify_snapshot
+from apps.jobs.contracts import BranchProfile, Operation, WorkflowRequest
+from apps.jobs.core_decisions import record_decision
+from apps.jobs.core_models import ActionCardRevision, DecisionEvent
+from apps.jobs.core_workflows import dispatch, require_owner
+from apps.organizations.models import OrganizationMember, WorkflowProfile
+
+from .comparison import compare_snapshots
+from .exposure import review_record
+from .forms import ComparisonForm, DecisionForm, FreezeForm, UnusedStopForm
+from .models import ArtifactRequest, PackIdentity
+from .services import freeze_cycle, open_cycle, request_pack_artifact
+
+
+def _private(response):
+    response["Cache-Control"] = "private, no-store"
+    return response
+
+
+def owner_workspace(view):
+    @login_required
+    @wraps(view)
+    def guarded(request, *args, **kwargs):
+        if not getattr(settings, "CORE_REVIEW_WORKSPACE_ENABLED", False):
+            return _private(
+                HttpResponse(
+                    "Core evidence review workspace is unavailable "
+                    "while qualification gates are closed.",
+                    status=503,
+                )
+            )
+        org = getattr(request, "organization_id", None)
+        if org is None:
+            raise Http404("Choose a workspace first")
+        member = get_object_or_404(
+            OrganizationMember, organization_id=org, user_id=request.user.id
+        )
+        if member.role != OrganizationMember.Role.OWNER:
+            raise PermissionDenied("Evidence review requires workspace owner authority")
+        return _private(view(request, *args, **kwargs))
+
+    return guarded
+
+
+def _snapshot(org, identity):
+    snapshot = get_object_or_404(AssessmentSnapshot, id=identity, organization_id=org)
+    if not verify_snapshot(snapshot):
+        raise ValidationError("Captured evidence integrity failed")
+    schema = snapshot.input_payload.get("snapshot_schema_version")
+    if type(schema) is not int or schema not in {1, 2}:
+        raise ValidationError("Unsupported captured evidence contract")
+    if schema == 2:
+        from apps.assessments.capture_contract import validate_capture_payloads
+        from apps.assessments.models import SnapshotCaptureReceipt
+
+        if not SnapshotCaptureReceipt.objects.filter(
+            snapshot_id=snapshot.id,
+            organization_id=org,
+            created_by_id=snapshot.created_by_id,
+        ).exists():
+            raise ValidationError("Capture issuance receipt missing")
+        validate_capture_payloads(
+            {
+                "input_payload": snapshot.input_payload,
+                "result_payload": snapshot.result_payload,
+                "input_sha256": snapshot.input_sha256,
+                "result_sha256": snapshot.result_sha256,
+            },
+            organization_id=org,
+            created_by_id=snapshot.created_by_id,
+            workflow_profile_id=UUID(snapshot.input_payload["workflow_profile"]["id"]),
+        )
+    return snapshot
+
+
+def _revision(org, identity):
+    revision = get_object_or_404(
+        ActionCardRevision.objects.select_related("snapshot"),
+        id=identity,
+        organization_id=org,
+    )
+    if (
+        type(revision.cards) is not list
+        or any(type(card) is not dict for card in revision.cards)
+        or not verify_snapshot(revision.snapshot)
+        or revision.input_sha256 != revision.snapshot.result_sha256
+        or canonical_sha256(revision.cards) != revision.sha256
+    ):
+        raise ValidationError("Proposal evidence integrity failed")
+    if revision.snapshot.input_payload.get("snapshot_schema_version") == 2:
+        from .models import CaptureProposalAdmissionReceipt
+        from .proposals_v1 import (
+            APPLICABILITY_VERSION,
+            VERSION,
+            validate_review_proposals,
+        )
+
+        snapshot = _snapshot(org, revision.snapshot_id)
+        receipt = CaptureProposalAdmissionReceipt.objects.filter(
+            organization_id=org,
+            revision_id=revision.id,
+            snapshot_id=snapshot.id,
+            created_by_id=revision.created_by_id,
+            capture_receipt_id=snapshot.id,
+            contract=VERSION,
+            input_sha256=snapshot.input_sha256,
+            result_sha256=snapshot.result_sha256,
+            revision_sha256=revision.sha256,
+            qualification_sha256=canonical_sha256(
+                {
+                    "schema": APPLICABILITY_VERSION,
+                    "industry_applicability": snapshot.input_payload[
+                        "industry_applicability"
+                    ],
+                    "ruleset": snapshot.input_payload["rulesets"]["industry"],
+                    "engine_versions": snapshot.input_payload["engine_versions"],
+                }
+            ),
+        ).first()
+        if receipt is None:
+            raise ValidationError("Proposal issuance receipt missing")
+        validate_review_proposals(
+            snapshot_id=snapshot.id,
+            capture_envelope={
+                "input_payload": snapshot.input_payload,
+                "result_payload": snapshot.result_payload,
+                "input_sha256": snapshot.input_sha256,
+                "result_sha256": snapshot.result_sha256,
+            },
+            proposals=revision.cards,
+        )
+    return revision
+
+
+def _integrity_unavailable():
+    return HttpResponse(
+        "Recorded evidence could not be verified. Content is withheld for review.",
+        status=503,
+    )
+
+
+def _admission_unavailable():
+    return HttpResponse(
+        "This request could not be admitted under current deployment, owner, "
+        "paid coverage, profile and health controls. No completion is claimed.",
+        status=409,
+    )
+
+
+@owner_workspace
+@require_GET
+def history(request):
+    org = request.organization_id
+    snapshots = list(
+        AssessmentSnapshot.objects.filter(organization_id=org).order_by(
+            "-captured_at", "-id"
+        )[:25]
+    )
+    page = Paginator(
+        PackIdentity.objects.filter(organization_id=org)
+        .select_related("cycle")
+        .order_by("-created_at", "-id"),
+        25,
+    ).get_page(request.GET.get("page"))
+    rows = []
+    try:
+        for pack in page.object_list:
+            if canonical_sha256(pack.manifest) != pack.sha256 or pack.manifest.get(
+                "organization_id"
+            ) != str(org):
+                raise ValidationError("Frozen identity invalid")
+            rows.append({"pack": pack, "state": pack.cycle.state})
+        if any(not verify_snapshot(snapshot) for snapshot in snapshots):
+            raise ValidationError("Snapshot integrity invalid")
+    except ValueError, ValidationError, KeyError, TypeError:
+        return _integrity_unavailable()
+    return render(
+        request,
+        "reviews/history.html",
+        {
+            "snapshots": snapshots,
+            "rows": rows,
+            "page": page,
+            "deliberate_capture_enabled": getattr(
+                settings, "DELIBERATE_CAPTURE_ENABLED", False
+            ),
+            "workflow_profile_recorded": WorkflowProfile.objects.filter(
+                organization_id=org
+            ).exists(),
+        },
+    )
+
+
+@owner_workspace
+@require_GET
+def snapshot_review(request, snapshot_id):
+    try:
+        snapshot = _snapshot(request.organization_id, snapshot_id)
+        exposures = [
+            {"record": row, "review": review_record(row)}
+            for row in snapshot.input_payload["inventory"]
+        ]
+        revision = ActionCardRevision.objects.filter(
+            organization_id=request.organization_id, snapshot_id=snapshot.id
+        ).first()
+        if revision is not None:
+            revision = _revision(request.organization_id, revision.id)
+    except ValidationError, ValueError, KeyError, TypeError:
+        return _integrity_unavailable()
+    return render(
+        request,
+        "reviews/snapshot.html",
+        {
+            "snapshot": snapshot,
+            "exposures": exposures,
+            "revision": revision,
+            "freeze_form": FreezeForm(initial={"cycle_id": uuid4()}),
+            "proposals_enabled": (
+                (
+                    snapshot.input_payload.get("snapshot_schema_version") == 1
+                    and getattr(settings, "CORE_WORKFLOWS_ENABLED", False)
+                )
+                or (
+                    snapshot.input_payload.get("snapshot_schema_version") == 2
+                    and getattr(settings, "CORE_PROPOSAL_ADMISSION_ENABLED", False)
+                )
+            ),
+            "freeze_enabled": (
+                snapshot.input_payload.get("snapshot_schema_version") == 1
+                or getattr(settings, "REVIEW_PACK_LIFECYCLE_ENABLED", False)
+            ),
+        },
+    )
+
+
+@owner_workspace
+@require_POST
+def issue_proposals(request, snapshot_id):
+    if not (
+        getattr(settings, "CORE_WORKFLOWS_ENABLED", False)
+        or getattr(settings, "CORE_PROPOSAL_ADMISSION_ENABLED", False)
+    ):
+        return HttpResponse(
+            "Proposal admission is unavailable while its deployment gate is closed.",
+            status=503,
+        )
+    try:
+        snapshot = _snapshot(request.organization_id, snapshot_id)
+    except ValidationError, ValueError, KeyError, TypeError:
+        return _integrity_unavailable()
+    if snapshot.input_payload.get("snapshot_schema_version") == 2:
+        if not getattr(settings, "CORE_PROPOSAL_ADMISSION_ENABLED", False):
+            return HttpResponse(
+                "Capture proposal admission is unavailable.", status=503
+            )
+        from .proposal_admission import issue_capture_proposals
+
+        try:
+            issue_capture_proposals(
+                organization_id=request.organization_id,
+                actor_id=request.user.id,
+                snapshot_id=snapshot.id,
+            )
+        except ValidationError, DatabaseError, ObjectDoesNotExist, ValueError:
+            return _admission_unavailable()
+        return redirect("reviews:snapshot", snapshot_id=snapshot.id)
+    if not getattr(settings, "CORE_WORKFLOWS_ENABLED", False):
+        return HttpResponse("Legacy proposal admission is unavailable.", status=503)
+    try:
+        with transaction.atomic():
+            profile = require_owner(request.organization_id, request.user.id)
+            dispatch(
+                WorkflowRequest(
+                    organization_id=request.organization_id,
+                    operation=Operation.REASSESS,
+                    receipt_ids=(snapshot.id,),
+                    effective_at=timezone.now(),
+                    branch_profile=BranchProfile(profile.profile),
+                ),
+                actor_id=request.user.id,
+            )
+    except ValidationError, DatabaseError, ObjectDoesNotExist, ValueError:
+        return _admission_unavailable()
+    return redirect("reviews:snapshot", snapshot_id=snapshot.id)
+
+
+@owner_workspace
+@require_http_methods(["GET", "POST"])
+def decision(request, revision_id, card_index):
+    try:
+        revision = _revision(request.organization_id, revision_id)
+    except ValidationError, ValueError, KeyError, TypeError:
+        return _integrity_unavailable()
+    if card_index >= len(revision.cards):
+        raise Http404("Proposal not found")
+    events = list(
+        DecisionEvent.objects.filter(
+            organization_id=request.organization_id,
+            revision_id=revision.id,
+            card_index=card_index,
+        ).order_by("-sequence")[:25]
+    )
+    if any(
+        canonical_sha256(event.payload) != event.sha256
+        or event.card_sha256 != canonical_sha256(revision.cards[card_index])
+        for event in events
+    ):
+        return _integrity_unavailable()
+    capture = revision.snapshot.input_payload.get("snapshot_schema_version") == 2
+    proposal = revision.cards[card_index]
+    if capture and any(
+        event.payload.get("schema") != "stewardence.core_decision_event.v2"
+        or event.payload.get("proposal_id") != proposal["proposal_id"]
+        or event.payload.get("proposal_sha256") != proposal["sha256"]
+        or event.payload.get("source_class") != proposal["source"]["class"]
+        or event.payload.get("source_identity") != proposal["source"]["identity"]
+        or event.payload.get("source_digest") != proposal["source"]["digest"]
+        or event.payload.get("original_outcome") != proposal["original_outcome"]
+        or event.payload.get("resolution_effect") != "none"
+        or event.payload.get("owner_statement_only") is not True
+        or event.payload.get("resolution_verified") is not False
+        for event in events
+    ):
+        return _integrity_unavailable()
+    enabled = getattr(settings, "DECISION_DESK_ENABLED", False)
+    if capture:
+        enabled = enabled and getattr(
+            settings, "CORE_PROPOSAL_ADMISSION_ENABLED", False
+        )
+    form = DecisionForm(
+        request.POST if request.method == "POST" else None,
+        initial={"expected_previous_event": events[0].id if events else None},
+    )
+    status = 200
+    if request.method == "POST":
+        if not enabled:
+            return HttpResponse(
+                "Owner statement admission is unavailable "
+                "while its deployment gate is closed.",
+                status=503,
+            )
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    issuer = record_decision
+                    binding = {}
+                    if capture:
+                        from apps.jobs.core_decisions_v2 import record_capture_decision
+
+                        issuer = record_capture_decision
+                        binding = {
+                            "proposal_id": UUID(proposal["proposal_id"]),
+                            "proposal_sha256": proposal["sha256"],
+                        }
+                    issuer(
+                        organization_id=request.organization_id,
+                        actor_id=request.user.id,
+                        revision_id=revision.id,
+                        card_index=card_index,
+                        **binding,
+                        **form.cleaned_data,
+                    )
+            except ValidationError, DatabaseError, ObjectDoesNotExist, ValueError:
+                form.add_error(
+                    None,
+                    "The exact proposal history changed or admission is unavailable. "
+                    "Review current evidence before submitting again.",
+                )
+                status = 409
+            else:
+                return redirect(
+                    "reviews:decision", revision_id=revision.id, card_index=card_index
+                )
+        else:
+            status = 400
+    return render(
+        request,
+        "reviews/capture_decision.html" if capture else "reviews/decision.html",
+        {
+            "revision": revision,
+            "card": revision.cards[card_index],
+            "card_index": card_index,
+            "events": events,
+            "form": form,
+            "decisions_enabled": enabled,
+        },
+        status=status,
+    )
+
+
+@owner_workspace
+@require_POST
+def freeze(request, snapshot_id):
+    try:
+        snapshot = _snapshot(request.organization_id, snapshot_id)
+    except ValidationError, ValueError, KeyError, TypeError:
+        return _integrity_unavailable()
+    form = FreezeForm(request.POST)
+    if not form.is_valid():
+        return HttpResponse(
+            "A valid exact freeze request identity is required.", status=400
+        )
+    try:
+        with transaction.atomic():
+            cycle = open_cycle(
+                organization_id=request.organization_id,
+                actor_id=request.user.id,
+                input_snapshot_id=snapshot.id,
+                cycle_id=form.cleaned_data["cycle_id"],
+            )
+            pack = freeze_cycle(
+                cycle_id=cycle.id,
+                organization_id=request.organization_id,
+                actor_id=request.user.id,
+                expected_revision=1,
+            )
+    except ValidationError, DatabaseError, ObjectDoesNotExist, ValueError:
+        return _admission_unavailable()
+    return redirect("reviews:pack-detail", pack_id=pack.id)
+
+
+def _frozen_entries(pack, snapshot):
+    manifest = pack.manifest
+    if manifest.get("schema") == "stewardence.review_pack.v4":
+        from .capture_pack_reads import read_frozen_capture_entries
+
+        return read_frozen_capture_entries(pack, snapshot)
+    if (
+        canonical_sha256(manifest) != pack.sha256
+        or manifest.get("organization_id") != str(pack.organization_id)
+        or manifest.get("cycle_id") != str(pack.cycle_id)
+        or manifest["snapshot"]["snapshot_id"] != str(snapshot.id)
+        or manifest["snapshot"]["input_sha256"] != snapshot.input_sha256
+        or manifest["snapshot"]["result_sha256"] != snapshot.result_sha256
+    ):
+        raise ValidationError("Frozen pack pins invalid")
+    entries = []
+    for selected in manifest["selected_decisions"]:
+        event = DecisionEvent.objects.select_related("revision").get(
+            id=UUID(selected["event_id"]), organization_id=pack.organization_id
+        )
+        revision = event.revision
+        if event.card_index >= len(revision.cards):
+            raise ValidationError("Frozen card index invalid")
+        proposal = revision.cards[event.card_index]
+        if (
+            canonical_sha256(event.payload) != event.sha256
+            or event.sha256 != selected["event_sha256"]
+            or canonical_sha256(revision.cards) != revision.sha256
+            or revision.sha256 != selected["revision_sha256"]
+            or canonical_sha256(proposal) != selected["card_sha256"]
+            or revision.snapshot_id != snapshot.id
+            or event.snapshot_id != snapshot.id
+            or event.payload["id"] != selected["event_id"]
+            or event.payload["owner_statement_only"] is not True
+            or event.payload["resolution_verified"] is not False
+            or any(
+                event.payload[key] != selected[key]
+                for key in (
+                    "revision_id",
+                    "revision_sha256",
+                    "card_index",
+                    "card_sha256",
+                    "snapshot_id",
+                    "snapshot_result_sha256",
+                    "event_kind",
+                    "state",
+                )
+            )
+        ):
+            raise ValidationError("Frozen owner statement invalid")
+        entries.append({"selection": selected, "event": event, "proposal": proposal})
+    return entries
+
+
+@owner_workspace
+@require_GET
+def pack_detail(request, pack_id):
+    pack = get_object_or_404(
+        PackIdentity.objects.select_related("cycle"),
+        id=pack_id,
+        organization_id=request.organization_id,
+    )
+    try:
+        snapshot = _snapshot(request.organization_id, pack.cycle.input_snapshot_id)
+        entries = _frozen_entries(pack, snapshot)
+        exposures = [
+            {"record": row, "review": review_record(row)}
+            for row in snapshot.input_payload["inventory"]
+        ]
+    except ValidationError, ValueError, KeyError, TypeError, ObjectDoesNotExist:
+        return _integrity_unavailable()
+    artifact_request = (
+        ArtifactRequest.objects.filter(
+            pack_id=pack.id, organization_id=request.organization_id
+        )
+        .select_related("job", "report")
+        .first()
+    )
+    completed = artifact_request is not None and hasattr(artifact_request, "completion")
+    return render(
+        request,
+        "reviews/pack.html",
+        {
+            "pack": pack,
+            "snapshot": snapshot,
+            "entries": entries,
+            "frozen_proposals": pack.manifest.get("selected_proposals", []),
+            "exposures": exposures,
+            "artifact_request": artifact_request,
+            "completed": completed,
+            "state": pack.cycle.state,
+            "artifact_enabled": getattr(
+                settings, "REVIEW_PACK_LIFECYCLE_ENABLED", False
+            )
+            and pack.cycle.state == "FROZEN",
+            "unused_stop_enabled": (
+                getattr(settings, "REVIEW_UNUSED_STOP_ENABLED", False)
+                and pack.manifest.get("schema") == "stewardence.review_pack.v4"
+                and pack.cycle.state == "FROZEN"
+                and artifact_request is None
+            ),
+            "unused_stop_form": UnusedStopForm(),
+        },
+    )
+
+
+@owner_workspace
+@require_POST
+def stop_unused_pack_view(request, pack_id):
+    pack = get_object_or_404(
+        PackIdentity, id=pack_id, organization_id=request.organization_id
+    )
+    if not getattr(settings, "REVIEW_UNUSED_STOP_ENABLED", False):
+        return HttpResponse("Unused report stopping is unavailable.", status=503)
+    form = UnusedStopForm(request.POST)
+    if not form.is_valid():
+        return HttpResponse("Choose an exact unused-stop reason.", status=400)
+    from .unused_stop import stop_unused_pack
+
+    try:
+        event = stop_unused_pack(
+            pack_id=pack.id,
+            organization_id=request.organization_id,
+            actor_id=request.user.id,
+            reason=form.cleaned_data["reason"],
+        )
+        if (
+            type(event.payload) is not dict
+            or set(event.payload)
+            != {
+                "schema",
+                "cycle_id",
+                "pack_id",
+                "manifest_sha256",
+                "reservation_id",
+                "actor_id",
+                "reason",
+                "state",
+                "reservation_state",
+                "monthly_allowance_refunded",
+                "proof_scope",
+            }
+            or event.payload.get("schema") != "stewardence.review_unused_stop.v1"
+            or canonical_sha256(event.payload) != event.sha256
+            or event.organization_id != request.organization_id
+            or event.created_by_id != request.user.id
+            or event.payload.get("pack_id") != str(pack.id)
+            or event.payload.get("manifest_sha256") != pack.sha256
+            or event.payload.get("cycle_id") != str(pack.cycle_id)
+            or event.payload.get("actor_id") != str(request.user.id)
+            or event.payload.get("reason") != form.cleaned_data["reason"]
+            or event.payload.get("state") != "TERMINATED_UNUSED"
+            or event.payload.get("reservation_state") != "proven_unused"
+            or event.payload.get("monthly_allowance_refunded") is not False
+            or event.payload.get("proof_scope") != "no_admitted_report_work"
+            or event.cycle_id != pack.cycle_id
+            or event.revision != 4
+            or event.state != "TERMINATED_UNUSED"
+        ):
+            raise ValidationError("Unused-stop receipt binding failed")
+    except ValidationError, DatabaseError, ObjectDoesNotExist, ValueError:
+        return _admission_unavailable()
+    return render(request, "reviews/unused_stop.html", {"pack": pack, "event": event})
+
+
+@owner_workspace
+@require_POST
+def request_artifact(request, pack_id):
+    get_object_or_404(PackIdentity, id=pack_id, organization_id=request.organization_id)
+    if not getattr(settings, "REVIEW_PACK_LIFECYCLE_ENABLED", False):
+        return HttpResponse(
+            "Private PDF preparation is unavailable "
+            "while its deployment gate is closed.",
+            status=503,
+        )
+    try:
+        with transaction.atomic():
+            request_pack_artifact(
+                pack_id=pack_id,
+                organization_id=request.organization_id,
+                actor_id=request.user.id,
+                expected_revision=3,
+                promote_baseline=False,
+            )
+    except ValidationError, DatabaseError, ObjectDoesNotExist, ValueError:
+        return _admission_unavailable()
+    return redirect("reviews:pack-detail", pack_id=pack_id)
+
+
+@owner_workspace
+@require_GET
+def comparison(request):
+    form = ComparisonForm(request.GET or None, organization_id=request.organization_id)
+    result = None
+    status = 200
+    if request.GET:
+        if form.is_valid():
+            try:
+                result = compare_snapshots(
+                    baseline=_snapshot(
+                        request.organization_id, form.cleaned_data["baseline"].id
+                    ),
+                    current=_snapshot(
+                        request.organization_id, form.cleaned_data["current"].id
+                    ),
+                    organization_id=request.organization_id,
+                )
+            except ValidationError, ValueError, KeyError, TypeError:
+                form.add_error(
+                    None,
+                    "Comparison requires intact same-workspace snapshots "
+                    "in captured-time order.",
+                )
+                status = 400
+        else:
+            status = 400
+    return render(
+        request,
+        "reviews/comparison.html",
+        {"form": form, "comparison": result},
+        status=status,
+    )
+
+
+===== source/apps/reviews/forms.py SHA256 4ed66df1219ed3fb12dbf9f7d2f8e2df82d6b45bf9bd76dd7911f4e38354a53a =====
+from django import forms
+
+from apps.assessments.models import AssessmentSnapshot
+
+
+class FreezeForm(forms.Form):
+    cycle_id = forms.UUIDField(widget=forms.HiddenInput)
+
+
+class DecisionForm(forms.Form):
+    expected_previous_event = forms.UUIDField(required=False, widget=forms.HiddenInput)
+    event_kind = forms.ChoiceField(
+        choices=[
+            ("disposition", "Owner decision"),
+            ("execution", "Owner execution statement"),
+        ]
+    )
+    state = forms.ChoiceField(
+        choices=[
+            (value, value.replace("_", " "))
+            for value in (
+                "act",
+                "defer",
+                "decline",
+                "accept_risk",
+                "completion_recorded",
+                "evidence_reviewed",
+            )
+        ]
+    )
+    responsible_label = forms.CharField(
+        max_length=200, label="Responsible person (recorded name)"
+    )
+    due_date = forms.DateField(
+        required=False, widget=forms.DateInput(attrs={"type": "date"})
+    )
+    notes = forms.CharField(
+        required=False,
+        max_length=4096,
+        widget=forms.Textarea,
+        label="Reason and evidence boundary",
+    )
+    links = forms.CharField(
+        required=False,
+        max_length=20489,
+        widget=forms.Textarea,
+        label="Evidence references: one HTTPS address per line; never fetched",
+    )
+
+    def clean_links(self):
+        links = [
+            line.strip()
+            for line in self.cleaned_data["links"].splitlines()
+            if line.strip()
+        ]
+        import re
+
+        if len(links) > 10 or any(
+            len(link) > 2048
+            or not re.fullmatch(r"https://[^\s/?#@]+(?:[/?#][^\s]*)?", link)
+            for link in links
+        ):
+            raise forms.ValidationError(
+                "Use at most ten HTTPS references without credentials, "
+                "each at most 2048 characters."
+            )
+        return links
+
+    def clean(self):
+        cleaned = super().clean()
+        kind, state = cleaned.get("event_kind"), cleaned.get("state")
+        if (
+            kind == "disposition"
+            and state not in ("act", "defer", "decline", "accept_risk")
+            or kind == "execution"
+            and state not in ("completion_recorded", "evidence_reviewed")
+        ):
+            self.add_error("state", "Choose a state matching the statement kind.")
+        return cleaned
+
+
+class UnusedStopForm(forms.Form):
+    reason = forms.ChoiceField(
+        choices=(
+            ("context_too_large", "The frozen report exceeds its supported size"),
+            ("owner_stopped", "I want to stop this unused report preparation"),
+        )
+    )
+
+
+class ComparisonForm(forms.Form):
+    baseline = forms.ModelChoiceField(
+        queryset=AssessmentSnapshot.objects.none(), label="Earlier captured snapshot"
+    )
+    current = forms.ModelChoiceField(
+        queryset=AssessmentSnapshot.objects.none(), label="Current captured snapshot"
+    )
+
+    def __init__(self, *args, organization_id, **kwargs):
+        super().__init__(*args, **kwargs)
+        snapshots = AssessmentSnapshot.objects.filter(
+            organization_id=organization_id
+        ).order_by("-captured_at", "-id")
+        self.fields["baseline"].queryset = snapshots
+        self.fields["current"].queryset = snapshots
+
+
+===== source/apps/reviews/urls.py SHA256 f5bd3d39a711b9319b83422a49e84ade2bff3d12f98b052d546238a0c1ab4de7 =====
+from django.urls import path
+
+from . import views
+from .capture_views import capture_review
+
+app_name = "reviews"
+urlpatterns = [
+    path("", views.history, name="history"),
+    path("capture/", capture_review, name="capture"),
+    path("compare/", views.comparison, name="comparison"),
+    path("snapshots/<uuid:snapshot_id>/", views.snapshot_review, name="snapshot"),
+    path(
+        "snapshots/<uuid:snapshot_id>/proposals/",
+        views.issue_proposals,
+        name="issue-proposals",
+    ),
+    path("snapshots/<uuid:snapshot_id>/freeze/", views.freeze, name="freeze"),
+    path("cards/<uuid:revision_id>/<int:card_index>/", views.decision, name="decision"),
+    path("packs/<uuid:pack_id>/", views.pack_detail, name="pack-detail"),
+    path(
+        "packs/<uuid:pack_id>/stop-unused/",
+        views.stop_unused_pack_view,
+        name="stop-unused-pack",
+    ),
+    path(
+        "packs/<uuid:pack_id>/request/", views.request_artifact, name="request-artifact"
+    ),
+]
+
+
+===== source/apps/billing/middleware.py SHA256 470c14f7c04912cbe0bcccb11d7e852ffc98d640f92b901878dc2f8e8926000f =====
+from __future__ import annotations
+
+from uuid import UUID
+
+from django.shortcuts import redirect
+from django.urls import Resolver404, resolve
+
+from agentledger.tenancy.context import identity_transaction
+from apps.billing.models import Subscription
+
+
+class BillingEntitlementMiddleware:
+    ALLOWED_PREFIXES = (
+        "/accounts/",
+        "/admin/",
+        "/billing/",
+        "/static/",
+        "/healthz",
+        "/readyz",
+        "/core/pause/",
+    )
+
+    WORKSPACE_SELECTION_PATH = "/workspaces/"
+    WORKSPACE_SETUP_PREFIX = "/workspaces/new/"
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # This sandbox-only module owns independent authorization transactions.
+        if request.path.startswith(
+            (
+                "/integrations/quickbooks/",
+                "/integrations/microsoft/",
+                "/integrations/xero/",
+            )
+        ):
+            return self.get_response(request)
+
+        user = request.user
+
+        if not user.is_authenticated:
+            return self.get_response(request)
+
+        # This exact purchase entrypoint commits durable requests before any
+        # provider call. Its view/service owns short owner-bound transactions.
+        if request.method == "POST" and request.path_info == "/billing/checkout/core/":
+            return self.get_response(request)
+
+        with identity_transaction(user.id):
+            return self._authenticated(request, user)
+
+    def _authenticated(self, request, user):
+        if request.path.startswith(self.ALLOWED_PREFIXES):
+            return self.get_response(request)
+
+        # Stopping proven-unused work retains its own original-owner checks.
+        # This exact POST never grants paid access or admits report creation.
+        if request.method == "POST":
+            try:
+                stop_route = resolve(request.path_info).view_name
+            except Resolver404:
+                stop_route = None
+            if stop_route == "reviews:stop-unused-pack":
+                return self.get_response(request)
+
+        subscription = (
+            Subscription.objects.filter(
+                billing_customer__user_id=user.id,
+            )
+            .only(
+                "status",
+                "cancel_at_period_end",
+                "organization_id",
+                "id",
+            )
+            .first()
+        )
+
+        if subscription is not None and self._retained_read_allowed(
+            request, subscription
+        ):
+            return self.get_response(request)
+
+        if subscription is None or not subscription.grants_access:
+            return redirect("billing:portfolio")
+
+        if request.path.startswith(self.WORKSPACE_SETUP_PREFIX):
+            if subscription.organization_id is not None:
+                return redirect("organizations:workspace-selection")
+
+            return self.get_response(request)
+
+        if subscription.organization_id is None:
+            if request.path == self.WORKSPACE_SELECTION_PATH:
+                return self.get_response(request)
+
+            return redirect("organizations:workspace-selection")
+
+        raw_organization_id = request.session.get("active_organization_id")
+
+        if raw_organization_id:
+            try:
+                active_organization_id = UUID(str(raw_organization_id))
+            except (
+                TypeError,
+                ValueError,
+                AttributeError,
+            ):
+                request.session.pop(
+                    "active_organization_id",
+                    None,
+                )
+                return redirect("organizations:workspace-selection")
+
+            if active_organization_id != subscription.organization_id:
+                request.session.pop(
+                    "active_organization_id",
+                    None,
+                )
+                return redirect("organizations:workspace-selection")
+
+        return self.get_response(request)
+
+    @staticmethod
+    def _retained_read_allowed(request, subscription):
+        """Expiry permits existing private report reads, never new generation."""
+        from apps.billing.entitlements import paid_subscription_export_access
+
+        if request.method not in {"GET", "HEAD"}:
+            return False
+        if subscription.organization_id is None:
+            return False
+        try:
+            active = UUID(str(request.session.get("active_organization_id")))
+        except TypeError, ValueError, AttributeError:
+            return False
+        if active != subscription.organization_id:
+            return False
+        # Exact existing-report reads qualify; no generation route is admitted.
+        from django.urls import Resolver404, resolve
+
+        try:
+            route = resolve(request.path_info)
+        except Resolver404:
+            return False
+        if route.view_name not in {
+            "reports:history",
+            "reports:detail",
+            "reports:download",
+            "reviews:history",
+            "reviews:pack-detail",
+        }:
+            return False
+        return paid_subscription_export_access(
+            subscription.id, using=subscription._state.db or "default"
+        )
+
+
+===== source/tests/test_review_unused_stop.py SHA256 e6c09538fb9baa144f309ef665a37c192f1087f2107fe30a7c9969ef7de827e6 =====
+"""Unused-only stop releases held capacity, never admitted or ambiguous work."""
+
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
+from time import monotonic, sleep
+from uuid import UUID, uuid4
+
+import pytest
+from django.core.exceptions import ValidationError
+from django.db import DatabaseError, connections
+
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+from apps.billing.models import Subscription
+from apps.jobs.core_workflows import configure_control
+from apps.reports.models import Report
+from apps.reports.services import create_report
+from apps.reviews.models import (
+    ArtifactRequest,
+    CapacityReservation,
+    CycleEvent,
+    ReservationEvent,
+    UnusedStopGate,
+)
+from apps.reviews.unused_stop import stop_unused_pack
+from tests.test_capture_admission import admit, preview
+from tests.test_capture_admission import capture_context as capture_context
+from tests.test_capture_decisions import (
+    capture_decision_context as capture_decision_context,
+)
+from tests.test_capture_pack_authority import requested
+from tests.test_capture_v4_packs import frozen
+from tests.test_capture_v4_packs import lifecycle as lifecycle
+from tests.test_explicit_inventory import explicit_context as explicit_context
+
+__all__ = [
+    "capture_context",
+    "capture_decision_context",
+    "explicit_context",
+    "lifecycle",
+]
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+
+
+@pytest.fixture
+def unused_pack(capture_decision_context, settings):
+    settings.REVIEW_UNUSED_STOP_ENABLED = True
+    UnusedStopGate.objects.update_or_create(id=1, defaults={"enabled": True})
+    return frozen(capture_decision_context)
+
+
+def stop(context, *, reason="owner_stopped"):
+    user, org, _, pack = context
+    return stop_unused_pack(
+        pack_id=pack.id,
+        organization_id=org.id,
+        actor_id=user.id,
+        reason=reason,
+        using="app_runtime",
+    )
+
+
+def test_stop_receipt_replay_keeps_evidence_and_monthly_admission(unused_pack):
+    user, org, _, pack = unused_pack
+    reservation = CapacityReservation.objects.get(cycle_id=pack.cycle_id)
+    before = pack.manifest
+    event = stop(unused_pack, reason="context_too_large")
+    assert event.state == "TERMINATED_UNUSED" and event.revision == 4
+    assert len(event.payload) == 11
+    assert event.payload["schema"] == "stewardence.review_unused_stop.v1"
+    assert event.payload["proof_scope"] == "no_admitted_report_work"
+    assert event.payload["monthly_allowance_refunded"] is False
+    assert stop(unused_pack, reason="context_too_large").id == event.id
+    with (
+        identity_transaction(user.id, using="app_runtime"),
+        tenant_transaction(org.id, using="app_runtime"),
+    ):
+        pack.refresh_from_db()
+    reservation.refresh_from_db()
+    assert pack.manifest == before and reservation.state == "reserved"
+    assert CapacityReservation.objects.filter(organization=org).count() == 1
+    latest = ReservationEvent.objects.filter(reservation=reservation).latest("revision")
+    assert latest.state == "proven_unused" and latest.revision == 2
+    assert latest.payload["stop_event_id"] == str(event.id)
+    assert CycleEvent.objects.filter(cycle_id=pack.cycle_id).count() == 4
+    with pytest.raises(DatabaseError, match="replay changed"):
+        stop(unused_pack)
+
+
+def test_paid_expiry_and_pause_do_not_remove_unused_owner_stop(unused_pack):
+    user, org, _, _ = unused_pack
+    configure_control(
+        organization_id=org.id,
+        actor_id=user.id,
+        mode="paused",
+        reason="Owner stop",
+        using="app_runtime",
+    )
+    Subscription.objects.filter(organization=org).update(status="canceled")
+    assert stop(unused_pack).state == "TERMINATED_UNUSED"
+
+
+def test_fresh_capture_freezes_after_stop_without_refunding_monthly_slot(unused_pack):
+    user, org, _, _ = unused_pack
+    stop(unused_pack)
+    from apps.reviews.proposal_admission import issue_capture_proposals
+
+    snapshot = admit((user, org), preview((user, org)))
+    revision = issue_capture_proposals(
+        organization_id=org.id,
+        actor_id=user.id,
+        snapshot_id=snapshot.id,
+        using="app_runtime",
+    )
+    next_context = frozen((user, org, snapshot, revision))
+    assert next_context[3].manifest["schema"] == "stewardence.review_pack.v4"
+    assert CapacityReservation.objects.filter(organization=org).count() == 2
+
+
+def test_terminated_snapshot_cannot_admit_report_or_request(unused_pack, lifecycle):
+    user, org, snapshot, _ = unused_pack
+    stop(unused_pack)
+    with pytest.raises(DatabaseError, match="terminated capture"):
+        with (
+            identity_transaction(user.id, using="app_runtime"),
+            tenant_transaction(org.id, using="app_runtime"),
+        ):
+            create_report(
+                organization_id=org.id,
+                assessment_snapshot_id=snapshot.id,
+                created_by_id=user.id,
+                using="app_runtime",
+            )
+    with pytest.raises(DatabaseError, match="terminated capture"):
+        requested(unused_pack)
+    assert not Report.objects.filter(assessment_snapshot=snapshot).exists()
+    assert not ArtifactRequest.objects.exists()
+
+
+@pytest.mark.parametrize("isolation", ["REPEATABLE READ", "SERIALIZABLE"])
+def test_capture_report_cannot_use_pretermination_snapshot_authority(
+    unused_pack, isolation
+):
+    from django.db import transaction
+
+    user, org, snapshot, _ = unused_pack
+    with pytest.raises(DatabaseError, match="requires read committed"):
+        with transaction.atomic(using="app_runtime"):
+            with connections["app_runtime"].cursor() as cursor:
+                cursor.execute("SET TRANSACTION ISOLATION LEVEL " + isolation)
+            with (
+                identity_transaction(user.id, using="app_runtime"),
+                tenant_transaction(org.id, using="app_runtime"),
+            ):
+                create_report(
+                    organization_id=org.id,
+                    assessment_snapshot_id=snapshot.id,
+                    created_by_id=user.id,
+                    using="app_runtime",
+                )
+    assert not Report.objects.filter(assessment_snapshot=snapshot).exists()
+
+
+@pytest.mark.parametrize("existing", ["report", "request"])
+def test_any_admitted_report_work_is_ineligible(unused_pack, lifecycle, existing):
+    user, org, snapshot, _ = unused_pack
+    if existing == "report":
+        with (
+            identity_transaction(user.id, using="app_runtime"),
+            tenant_transaction(org.id, using="app_runtime"),
+        ):
+            create_report(
+                organization_id=org.id,
+                assessment_snapshot_id=snapshot.id,
+                created_by_id=user.id,
+                using="app_runtime",
+            )
+    if existing == "request":
+        requested(unused_pack)
+    with pytest.raises(DatabaseError, match="admitted or ambiguous"):
+        stop(unused_pack)
+    assert not CycleEvent.objects.filter(state="TERMINATED_UNUSED").exists()
+    assert not ReservationEvent.objects.filter(state="proven_unused").exists()
+
+
+def test_stop_request_race_commits_exactly_one_outcome(unused_pack, lifecycle):
+    start = Barrier(2)
+
+    def attempt(operation):
+        connections.close_all()
+        start.wait(timeout=15)
+        try:
+            result = operation(unused_pack)
+            return "admitted", result.id
+        except DatabaseError as error:
+            return "denied", None, str(error)
+        finally:
+            connections.close_all()
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        stopping = pool.submit(attempt, stop)
+        requesting = pool.submit(attempt, requested)
+        outcomes = [stopping.result(timeout=30), requesting.result(timeout=30)]
+    assert sorted(value[0] for value in outcomes) == ["admitted", "denied"]
+    stopped = CycleEvent.objects.filter(state="TERMINATED_UNUSED").exists()
+    assert ArtifactRequest.objects.exists() is not stopped
+    assert ReservationEvent.objects.filter(state="proven_unused").exists() is stopped
+
+
+@pytest.mark.parametrize("gate", ["application", "operator"])
+def test_closed_stop_gate_has_no_effects(unused_pack, settings, gate):
+    if gate == "application":
+        settings.REVIEW_UNUSED_STOP_ENABLED = False
+        with pytest.raises(ValidationError):
+            stop(unused_pack)
+    if gate == "operator":
+        UnusedStopGate.objects.filter(id=1).update(enabled=False)
+        with pytest.raises(DatabaseError, match="authority unavailable"):
+            stop(unused_pack)
+    assert not CycleEvent.objects.filter(state="TERMINATED_UNUSED").exists()
+
+
+@pytest.mark.parametrize("using", ["app_runtime", "worker_runtime"])
+def test_raw_receipt_and_gate_mutations_are_denied(unused_pack, using):
+    user, org, _, pack = unused_pack
+    with pytest.raises(DatabaseError):
+        with (
+            identity_transaction(user.id, using=using),
+            tenant_transaction(org.id, using=using),
+            connections[using].cursor() as cursor,
+        ):
+            cursor.execute(
+                "INSERT INTO review_cycle_events(id,organization_id,created_by_id,"
+                "created_at,cycle_id,revision,state,payload,sha256) VALUES"
+                "(%s,%s,%s,clock_timestamp(),%s,4,'TERMINATED_UNUSED','{}',%s)",
+                [uuid4(), org.id, user.id, pack.cycle_id, "0" * 64],
+            )
+    with pytest.raises(DatabaseError):
+        with connections[using].cursor() as cursor:
+            cursor.execute("UPDATE review_unused_stop_gate SET enabled=true WHERE id=1")
+    with connections[using].cursor() as cursor:
+        cursor.execute(
+            "SELECT has_function_privilege(current_user,%s,'EXECUTE')",
+            ["app_private.stop_unused_review_pack(uuid,uuid,uuid,text)"],
+        )
+        assert cursor.fetchone() == (using == "app_runtime",)
+
+
+@pytest.mark.parametrize("first", ["stop", "report"])
+def test_snapshot_wait_orders_report_admission_against_unused_proof(unused_pack, first):
+    """Queue both actual app logins on an operator-held snapshot row."""
+    from django.db import transaction
+
+    user, org, snapshot, _ = unused_pack
+    names = {
+        kind: "unused-row-race-" + kind + uuid4().hex for kind in ("stop", "report")
+    }
+
+    def attempt(kind):
+        connections.close_all()
+        try:
+            with connections["app_runtime"].cursor() as cursor:
+                cursor.execute(
+                    "SELECT set_config('application_name',%s,false)", [names[kind]]
+                )
+            if kind == "stop":
+                return "admitted", stop(unused_pack).id
+            with (
+                identity_transaction(user.id, using="app_runtime"),
+                tenant_transaction(org.id, using="app_runtime"),
+            ):
+                result = create_report(
+                    organization_id=org.id,
+                    assessment_snapshot_id=snapshot.id,
+                    created_by_id=user.id,
+                    using="app_runtime",
+                )
+                return "admitted", result.id
+        except DatabaseError as error:
+            return "denied", None, str(error)
+        finally:
+            connections.close_all()
+
+    def require_wait(kind, future):
+        deadline = monotonic() + 15
+        while monotonic() < deadline:
+            with connections["default"].cursor() as cursor:
+                cursor.execute("SELECT pg_stat_clear_snapshot()")
+                cursor.execute(
+                    "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE "
+                    "application_name=%s AND wait_event_type='Lock')",
+                    [names[kind]],
+                )
+                if cursor.fetchone()[0]:
+                    return
+            if future.done():
+                pytest.fail(
+                    f"Actual {kind} login exited before barrier: {future.result()}"
+                )
+            sleep(0.025)
+        pytest.fail(f"Actual {kind} login never reached row-lock barrier")
+
+    second = "report" if first == "stop" else "stop"
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        with transaction.atomic(), connections["default"].cursor() as cursor:
+            cursor.execute(
+                "SELECT id FROM assessment_snapshots WHERE id=%s FOR UPDATE",
+                [snapshot.id],
+            )
+            first_future = pool.submit(attempt, first)
+            require_wait(first, first_future)
+            second_future = pool.submit(attempt, second)
+            require_wait(second, second_future)
+        assert first_future.result(timeout=30)[0] == "admitted"
+        assert second_future.result(timeout=30)[0] == "denied"
+    stopped = CycleEvent.objects.filter(state="TERMINATED_UNUSED").exists()
+    assert stopped is (first == "stop")
+    assert Report.objects.filter(assessment_snapshot=snapshot).exists() is not stopped
+
+
+def test_admitted_unicode_notes_exceed_context_and_unused_stop_recovers_capacity(
+    capture_decision_context,
+    lifecycle,
+    settings,
+):
+    """Four real records and 32 issued owner statements, no raw fake events."""
+    from apps.jobs.core_decisions_v2 import record_capture_decision
+    from apps.jobs.models import BackgroundJob
+    from apps.reviews.proposal_admission import issue_capture_proposals
+    from tests.test_explicit_inventory import issue
+
+    user, org = capture_decision_context[:2]
+    settings.REVIEW_UNUSED_STOP_ENABLED = True
+    UnusedStopGate.objects.update_or_create(id=1, defaults={"enabled": True})
+    for _ in range(3):
+        issue((user, org))
+    snapshot = admit((user, org), preview((user, org)))
+    assert len(snapshot.input_payload["inventory"]) == 4
+    revision = issue_capture_proposals(
+        organization_id=org.id,
+        actor_id=user.id,
+        snapshot_id=snapshot.id,
+        using="app_runtime",
+    )
+    assert len(revision.cards) == 16
+    notes = "\U0001f9f0" * 4096
+    for index, proposal in enumerate(revision.cards):
+        prior = None
+        for kind, state in (
+            ("disposition", "defer"),
+            ("execution", "completion_recorded"),
+        ):
+            prior = record_capture_decision(
+                organization_id=org.id,
+                actor_id=user.id,
+                revision_id=revision.id,
+                proposal_id=UUID(proposal["proposal_id"]),
+                proposal_sha256=proposal["sha256"],
+                card_index=index,
+                event_kind=kind,
+                state=state,
+                responsible_label="Named owner",
+                expected_previous_event=prior,
+                notes=notes,
+                using="app_runtime",
+            )
+    context = frozen((user, org, snapshot, revision))
+    assert len(context[3].manifest["selected_decisions"]) == 32
+    assert all(
+        entry["payload"]["notes"] == notes
+        for entry in context[3].manifest["selected_decisions"]
+    )
+    reports_before = Report.objects.count()
+    jobs_before = BackgroundJob.objects.count()
+    # The existing canonicalizer checks jsonb::text before emitting compact
+    # RFC8785. Qualify both sizes and its exact earlier failure; don't pretend
+    # the later renderer-specific size check executed.
+    import json
+
+    with pytest.raises(DatabaseError, match="Queue input exceeds admission bounds"):
+        requested(context)
+    assert Report.objects.count() == reports_before
+    assert BackgroundJob.objects.count() == jobs_before
+    assert not ArtifactRequest.objects.exists()
+    # Allocate no new production effects merely to compute the context. The
+    # frozen manifest already duplicates its selected statement bytes in the
+    # final projection: each copy is 32 * 4096 * 4 bytes before structure.
+    selected_bytes = len(
+        json.dumps(
+            context[3].manifest["selected_decisions"],
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ).encode()
+    )
+    assert selected_bytes > 32 * 4096 * 4
+    assert selected_bytes * 2 > 1048576
+    assert stop(context, reason="context_too_large").state == "TERMINATED_UNUSED"
+    fresh = admit((user, org), preview((user, org)))
+    fresh_revision = issue_capture_proposals(
+        organization_id=org.id,
+        actor_id=user.id,
+        snapshot_id=fresh.id,
+        using="app_runtime",
+    )
+    assert (
+        frozen((user, org, fresh, fresh_revision))[3].manifest["schema"]
+        == "stewardence.review_pack.v4"
+    )
+    assert CapacityReservation.objects.filter(organization=org).count() == 2
+
+
+@pytest.mark.parametrize("identity", ["viewer", "foreign"])
+def test_membership_and_context_not_paid_state_are_stop_authority(
+    unused_pack, identity
+):
+    from django.contrib.auth import get_user_model
+
+    from apps.organizations.models import Organization, OrganizationMember
+
+    user, org, _, pack = unused_pack
+    actor = user
+    target_org = org
+    if identity == "viewer":
+        actor = get_user_model().objects.create_user("unused-viewer@example.invalid")
+        OrganizationMember.objects.create(organization=org, user=actor, role="viewer")
+    if identity == "foreign":
+        target_org = Organization.objects.create(name="Other unused owner")
+        OrganizationMember.objects.create(
+            organization=target_org, user=actor, role="owner"
+        )
+    with pytest.raises(DatabaseError):
+        stop_unused_pack(
+            pack_id=pack.id,
+            organization_id=target_org.id,
+            actor_id=actor.id,
+            reason="owner_stopped",
+            using="app_runtime",
+        )
+    assert not CycleEvent.objects.filter(state="TERMINATED_UNUSED").exists()
+
+
+===== source/tests/test_review_unused_stop_ui.py SHA256 ab161862b9e46304a41c22c71ccaaab23c494de0acbc684f97f32aa2ec71ae7c =====
+"""Exact stop POST keeps CSRF/owner RLS and never broadens paid work authority."""
+
+import pytest
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+
+from agentledger.tenancy.context import identity_transaction
+from apps.billing.entitlements import paid_subscription_access
+from apps.billing.models import Subscription
+from apps.jobs.core_workflows import configure_control
+from apps.jobs.models import BackgroundJob
+from apps.organizations.models import Organization, OrganizationMember
+from apps.reports.models import Report, ReportArtifact
+from apps.reviews.models import (
+    ArtifactRequest,
+    CapacityReservation,
+    CycleEvent,
+    PackCompletion,
+    ReservationEvent,
+    ReviewLifecycleGate,
+    UnusedStopGate,
+)
+from apps.reviews.services import request_pack_artifact
+from tests.test_capture_admission import capture_context as capture_context
+from tests.test_capture_decisions import (
+    capture_decision_context as capture_decision_context,
+)
+from tests.test_capture_proposal_ui import owner_client, post
+from tests.test_explicit_inventory import explicit_context as explicit_context
+from tests.test_review_unused_stop import unused_pack as unused_pack
+from tests.test_standard_checkout_route_durability import actual_app_default
+
+__all__ = [
+    "capture_context",
+    "capture_decision_context",
+    "explicit_context",
+    "unused_pack",
+]
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+
+
+def route(context):
+    return reverse("reviews:stop-unused-pack", args=[context[3].id])
+
+
+def page(context):
+    return reverse("reviews:pack-detail", args=[context[3].id])
+
+
+def work_counts():
+    return tuple(
+        model.objects.count()
+        for model in (
+            Report,
+            ReportArtifact,
+            ArtifactRequest,
+            PackCompletion,
+            BackgroundJob,
+            CapacityReservation,
+        )
+    )
+
+
+def prepare_client(context, settings):
+    client = owner_client(context, settings)
+    with actual_app_default():
+        response = client.get(page(context))
+    assert response.status_code == 200, response.content.decode()
+    return client, response
+
+
+def test_stop_receipt_and_replay_one_event_no_job_or_provider_effect(
+    unused_pack, settings, monkeypatch
+):
+    client, pack_page = prepare_client(unused_pack, settings)
+    assert route(unused_pack) in pack_page.content.decode()
+    before = work_counts()
+    cycle_count, reservation_count = (
+        CycleEvent.objects.count(),
+        ReservationEvent.objects.count(),
+    )
+
+    def forbidden_provider(*args, **kwargs):
+        pytest.fail("Unused stop reached Stripe")
+
+    monkeypatch.setattr("apps.billing.views._stripe_client", forbidden_provider)
+    with actual_app_default():
+        response = post(client, route(unused_pack), {"reason": "owner_stopped"})
+        replay = post(client, route(unused_pack), {"reason": "owner_stopped"})
+    assert response.status_code == replay.status_code == 200
+    assert response["Cache-Control"] == replay["Cache-Control"] == "private, no-store"
+    assert "reviews/unused_stop.html" in [
+        template.name for template in response.templates
+    ]
+    assert response.context["event"].id == replay.context["event"].id
+    assert response.context["event"].payload["monthly_allowance_refunded"] is False
+    assert b"Recovery receipt" in response.content
+    assert b"fresh capture" in response.content
+    assert CycleEvent.objects.count() == cycle_count + 1
+    assert ReservationEvent.objects.count() == reservation_count + 1
+    assert work_counts() == before
+
+
+def test_csrf_and_changed_replay_reason_keep_exact_existing_receipt(
+    unused_pack, settings
+):
+    client, _ = prepare_client(unused_pack, settings)
+    before = work_counts()
+    count = CycleEvent.objects.count()
+    with actual_app_default():
+        assert (
+            client.post(route(unused_pack), {"reason": "owner_stopped"}).status_code
+            == 403
+        )
+        assert (
+            post(client, route(unused_pack), {"reason": "owner_stopped"}).status_code
+            == 200
+        )
+        changed = post(client, route(unused_pack), {"reason": "context_too_large"})
+    assert changed.status_code == 409
+    assert CycleEvent.objects.count() == count + 1
+    assert work_counts() == before
+
+
+@pytest.mark.parametrize("gate,status", [("python", 503), ("database", 409)])
+def test_stop_gate_denial_has_no_domain_effect(unused_pack, settings, gate, status):
+    client, _ = prepare_client(unused_pack, settings)
+    if gate == "python":
+        settings.REVIEW_UNUSED_STOP_ENABLED = False
+        with actual_app_default():
+            pack_page = client.get(page(unused_pack))
+        assert pack_page.status_code == 200
+        assert route(unused_pack) not in pack_page.content.decode()
+    if gate == "database":
+        UnusedStopGate.objects.filter(id=1).update(enabled=False)
+    before, count = work_counts(), CycleEvent.objects.count()
+    with actual_app_default():
+        response = post(client, route(unused_pack), {"reason": "owner_stopped"})
+    assert response.status_code == status
+    assert work_counts() == before
+    assert CycleEvent.objects.count() == count
+
+
+@pytest.mark.parametrize("visitor,status", [("viewer", 403), ("foreign_owner", 404)])
+def test_exact_stop_billing_exemption_never_bypasses_owner_or_tenant(
+    unused_pack, settings, visitor, status
+):
+    owner, original_org = unused_pack[:2]
+    if visitor == "viewer":
+        owner = get_user_model().objects.create_user("stop-viewer@example.invalid")
+        org = original_org
+        OrganizationMember.objects.create(organization=org, user=owner, role="viewer")
+    # The paid owner's portfolio deliberately redirects to workspace selection.
+    # Obtain CSRF through the actual owner pack page before adding a second
+    # membership; an unpaid viewer can render the ordinary portfolio instead.
+    cookie_org = original_org
+    client = owner_client((owner, cookie_org), settings)
+    cookie_route = (
+        page(unused_pack)
+        if visitor == "foreign_owner"
+        else reverse("billing:portfolio")
+    )
+    with actual_app_default():
+        assert client.get(cookie_route).status_code == 200
+    assert "csrftoken" in client.cookies
+    if visitor == "foreign_owner":
+        org = Organization.objects.create(name="Foreign stop workspace")
+        OrganizationMember.objects.create(organization=org, user=owner, role="owner")
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+    before, count = work_counts(), CycleEvent.objects.count()
+    with actual_app_default():
+        response = post(client, route(unused_pack), {"reason": "owner_stopped"})
+    assert response.status_code == status
+    # "Recovery receipts" is a common navigation label, not private content.
+    # Denial must withhold this pack's actual identities and immutable pins.
+    hidden = [
+        str(unused_pack[2].id),
+        str(unused_pack[3].id),
+        unused_pack[3].sha256,
+        *[
+            str(value)
+            for value in CycleEvent.objects.filter(
+                cycle_id=unused_pack[3].cycle_id
+            ).values_list("id", flat=True)
+        ],
+    ]
+    assert all(value.encode() not in response.content for value in hidden)
+    assert b"Unused report preparation stopped" not in response.content
+    assert work_counts() == before
+    assert CycleEvent.objects.count() == count
+
+
+def test_paused_owner_without_paid_access_can_stop_but_not_admit_work(
+    unused_pack, settings, monkeypatch
+):
+    owner, org, snapshot, pack = unused_pack
+    client, _ = prepare_client(unused_pack, settings)
+    configure_control(
+        organization_id=org.id,
+        actor_id=owner.id,
+        mode="paused",
+        reason="Owner stop",
+        using="app_runtime",
+    )
+    # Terminal cancellation removes current paid authority while preserving
+    # historical coverage for retained evidence. This is not a clock mock.
+    subscription = Subscription.objects.get(organization=org)
+    Subscription.objects.filter(id=subscription.id).update(status="canceled")
+    settings.REVIEW_PACK_LIFECYCLE_ENABLED = True
+    settings.AUTOMATION_ENABLED = False
+    before = work_counts()
+
+    def forbidden_provider(*args, **kwargs):
+        pytest.fail("Closed paid/Automation routes reached Stripe")
+
+    monkeypatch.setattr("apps.billing.views._stripe_client", forbidden_provider)
+    with actual_app_default():
+        with identity_transaction(owner.id, using="app_runtime"):
+            assert not paid_subscription_access(subscription.id)
+        response = post(client, route(unused_pack), {"reason": "owner_stopped"})
+        assert response.status_code == 200, response.content.decode()
+        assert b"Recovery receipt" in response.content
+        assert (
+            post(client, route(unused_pack), {"reason": "owner_stopped"}).status_code
+            == 200
+        )
+        for ordinary in (
+            reverse("reviews:freeze", args=[snapshot.id]),
+            reverse("reviews:request-artifact", args=[pack.id]),
+        ):
+            blocked = post(
+                client, ordinary, {"cycle_id": "00000000-0000-0000-0000-000000000001"}
+            )
+            assert blocked.status_code == 302
+            assert blocked["Location"] == reverse("billing:portfolio")
+        # GET is deliberately not part of the exact stop-POST exemption.
+        assert client.get(route(unused_pack)).status_code == 302
+        assert client.get(reverse("inventory:list")).status_code == 302
+        assert (
+            post(client, reverse("billing:checkout-automation"), {}).status_code == 503
+        )
+    assert work_counts() == before
+
+
+def test_terminated_pack_retains_evidence_but_no_stop_or_pdf_request_cta(
+    unused_pack, settings
+):
+    settings.REVIEW_PACK_LIFECYCLE_ENABLED = True
+    client, before_page = prepare_client(unused_pack, settings)
+    request_route = reverse("reviews:request-artifact", args=[unused_pack[3].id])
+    assert route(unused_pack) in before_page.content.decode()
+    assert request_route in before_page.content.decode()
+    with actual_app_default():
+        assert (
+            post(client, route(unused_pack), {"reason": "owner_stopped"}).status_code
+            == 200
+        )
+        response = client.get(page(unused_pack))
+    assert response.status_code == 200
+    assert response.context["state"] == "TERMINATED_UNUSED"
+    text = response.content.decode()
+    assert route(unused_pack) not in text
+    assert request_route not in text
+    assert "requires a fresh capture" in text
+
+
+def test_admitted_request_hides_stop_button_and_direct_stop_denies(
+    unused_pack, settings
+):
+    owner, org, _, pack = unused_pack
+    settings.REVIEW_PACK_LIFECYCLE_ENABLED = True
+    ReviewLifecycleGate.objects.update_or_create(id=1, defaults={"enabled": True})
+    request_pack_artifact(
+        pack_id=pack.id, organization_id=org.id, actor_id=owner.id, using="app_runtime"
+    )
+    client, response = prepare_client(unused_pack, settings)
+    assert route(unused_pack) not in response.content.decode()
+    before, count = work_counts(), CycleEvent.objects.count()
+    with actual_app_default():
+        assert (
+            post(client, route(unused_pack), {"reason": "owner_stopped"}).status_code
+            == 409
+        )
+    assert work_counts() == before
+    assert CycleEvent.objects.count() == count
+
+
+===== docs/core-proposal-v1-coverage-contract.md SHA256 f3420450cb37446322304624e64eb278104fac6551996380b0bae1f2518e47c9 =====
+# Core proposal v1 — explicitly partial coverage
+
+Source review date: 2026-10-04. Candidate contract clarification in response to Lyra's v4 review disposition **REVISE**. Option B is selected: retain the existing finite proposal semantics and explicitly describe their partial coverage. This document is not implementation qualification, Lyra acceptance or production approval.
+
+The permanent implementation is `source/apps/reviews/proposals_v1.py`, contract `stewardence.core_review_proposal.v1`. Generic sources come only from `source/apps/reviews/exposure_v1.py`, contract `core.exposure.declarations.v1`, reconstructed from permanent capture v1 inputs. The five allowlisted question/outcome pairs below are exhaustive for this proposal version. There is no prose classifier, catch-all mapping or inference of a default action.
+
+## Exhaustive generic question/state map
+
+“None” means no proposal is generated for that state. It never means the source question is resolved, accepted, verified or absent. “Unreachable” describes permanent exposure v1's valid-input output vocabulary for that question; malformed input is rejected rather than assigned a convenient state.
+
+| Exposure question | UNKNOWN | CONCERN | PASS | NOT_APPLICABLE |
+| --- | --- | --- | --- | --- |
+| `business_owner` | `exposure_unknown` / `request_declaration`: record responsible person | None: declared blank remains visible as CONCERN | None: responsible person is declared | Unreachable |
+| `business_purpose` | `exposure_unknown` / `request_declaration`: record business purpose | None: declared blank remains visible as CONCERN | None: business purpose is declared | Unreachable |
+| `data_categories` | None: undeclared information categories remain UNKNOWN | Unreachable | None: categories, including declared empty list, are declared | Unreachable |
+| `permissions` | None: undeclared permissions remain UNKNOWN | Unreachable | None: permissions, including declared empty list, are declared | Unreachable |
+| `capabilities` | None: undeclared actions remain UNKNOWN | Unreachable | None: actions, including declared empty list, are declared | Unreachable |
+| `approval` | None: incomplete action/approval declarations remain UNKNOWN | `exposure_concern` / `review_declared_boundary`: review declared action and human approval boundary | None: approval requirement is declared, not enforcement-tested | None: no actions, permissions or autonomy are declared; applicability follows that declaration only |
+| `account_identity` | `exposure_unknown` / `request_evidence`: provide executing account/principal evidence | Unreachable | Unreachable | Unreachable |
+| `access_removal` | `exposure_unknown` / `request_evidence`: provide offboarding/access-removal evidence | Unreachable | Unreachable | Unreachable |
+
+Account identity and access removal are always UNKNOWN in this captured inventory schema. An owner can record a later statement or evidence reference, but neither changes those original answers or becomes verified account/access evidence. Any independently admitted later contract must define its own semantics.
+
+The permanent exposure review still displays all eight questions, including the unmapped UNKNOWN and CONCERN cases. This partial proposal collection does not replace the full Exposure Review. A capture with unknown information categories, permissions, capabilities or approval can therefore have fewer proposals than unanswered questions. No generic severity, risk score, urgency or automatic due date is assigned.
+
+## Exhaustive qualified accounting result map
+
+Accounting proposal eligibility is reconstructed from the complete frozen applicability object, exact permanent rule definitions/version/digest, policy engine and known-premise wrapper identities. Industry selection is customer/server capture context, not independent industry verification.
+
+| Qualified accounting result | Proposal behavior |
+| --- | --- |
+| `FAIL` | `accounting_fail` / `address_qualified_failure`: copy the exact failed rule's remediation and severity, binding the complete result, rule definition, definitions set and applicability qualification digests |
+| `PASS` | None; preserve the frozen rule result without converting it to verified enforcement |
+| `UNKNOWN` | None; missing declared premises remain unknown and do not become failures |
+| `WARNING` | None; preserve the exact rule result without a proposal; v1 maps only qualified `FAIL` |
+| `NOT_APPLICABLE` | None; preserve the original qualified rule outcome |
+| No qualified accounting applicability | No accounting proposals; the non-accounting capture is not assessed against this policy pack |
+
+Every required rule premise must carry explicit declared provenance and a known value before evaluation. A false known premise does not mask another unknown premise. Neither catalog matches nor legacy storage defaults supply missing declarations. Unknown rule results do not generate a generic accounting remediation proposal.
+
+## Immutable meaning and publication boundary
+
+All emitted proposals retain their original outcome, `source_state_immutable=true`, `resolution_effect=none`, `authority=proposal_only` and `verification=not_established`. Decision events are owner statements with `owner_statement_only=true` and `resolution_verified=false`. Completion, evidence review, a digest, or the absence of a proposal cannot promote a source answer to verified, safe, compliant or resolved.
+
+“All frozen proposals” in pack v4 means every proposal actually issued under this partial v1 contract is frozen, including proposals without owner statements. It does not mean every exposure UNKNOWN/CONCERN has a proposal. The full exposure questions remain visible alongside that selection. The snapshot UI must say **Selected review items and evidence requests** and disclose this finite coverage.
+
+This clarification changes documentation and presentation only. Proposal fields, templates' semantic action/text definitions, ordering, UUID derivation, canonical hashes, SQL rule evaluation, schema identities and historical packs are unchanged. Expanding the allowlist requires a separately specified and qualified semantic successor; it must not substitute new meaning beneath v1 identities.
+
+
+===== source/templates/reviews/unused_stop.html SHA256 59cc4d9c1d518379076d282e69ac63e235625fb1ec1660327fb8327237c2717c =====
+{% extends "base.html" %}{% block title %}Unused report stopped — Stewardence{% endblock %}{% block content %}
+<section class="card">
+  <h1>Unused report preparation stopped</h1>
+  <p>The unused pending slot and reserved storage have been released together. The original frozen evidence remains intact. This does not refund the monthly admitted-pack allowance.</p>
+  <p>Create and review a fresh capture before preparing a replacement report. No admitted report work or provider action was cancelled, and no stored object was deleted.</p>
+  <details><summary>Recovery receipt</summary>
+    <p>Receipt {{ event.id }}; recorded {{ event.created_at }}; SHA-256 {{ event.sha256 }}.</p>
+    <p>Pack {{ pack.id }}; manifest SHA-256 {{ pack.sha256 }}.</p>
+    <p>State {{ event.payload.state }}; reservation {{ event.payload.reservation_id }}: {{ event.payload.reservation_state }}.</p>
+    <p>Reason recorded: {{ event.payload.reason }}. Proof scope: {{ event.payload.proof_scope }}.</p>
+  </details>
+  <p><a href="{% url 'reviews:pack-detail' pack.id %}">View retained frozen evidence</a> · <a href="{% url 'reviews:history' %}">Review history</a></p>
+</section>{% endblock %}
+
+
+===== evidence/20261005T004000.757761Z/qualification-summary.json SHA256 f5f312b8b9f8c9ad48a791e97f38f83c0b29ba9db3fe4b2551a476748694751a =====
+{
+  "exit_code": 1,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-9ed07865de",
+  "image_id": "sha256:13ae9acd5b66244276a1e16c37fbb5737ddae5fc77ccaeda1aca2a9c22e33e77",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261005T004000.757761Z",
+  "test_arguments": [
+    "tests/test_review_unused_stop.py",
+    "tests/test_review_unused_stop_ui.py",
+    "tests/test_render_client_bounds.py",
+    "tests/test_report_generation_job.py",
+    "tests/test_recovery_policy.py",
+    "tests/test_capture_v4_worker.py",
+    "tests/test_capture_v4_reads.py",
+    "tests/test_capture_v4_packs.py",
+    "tests/test_capture_proposal_ui.py",
+    "tests/test_capture_review_ui.py",
+    "tests/test_legacy_decision_dependency_boundary.py"
+  ],
+  "test_result_counts": {
+    "cases": 141,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "55b0d18a58d00fbe3d09aac95f6fc9264540642f81839017b4d4d86038aebf0e"
+}
+
+===== evidence/20261005T004000.757761Z/DISPOSITION.md SHA256 226b1a180cb5a89f5e31248d14262d003c2b3f00525220c3c59d243084a2e69a =====
+# Qualification disposition
+
+The frozen candidate executed 141 cases: 140 passed and one failed. All 18 unused-stop service cases passed, including oversized admitted content rejected at request time followed by unused-only release and fresh capture, unchanged monthly usage, real-role absence/admission negatives, and concurrent report/request ordering. Both local v4 real-Chromium delivery journeys passed. All 29 frozen byte-stream cases passed; later elapsed-budget additions are not covered by this receipt.
+
+The remaining failure was the foreign-owner UI fixture's CSRF acquisition: its portfolio GET redirected to workspace selection before reaching the protected stop endpoint. The expected foreign-tenant 404 was not executed. Successor qualification must exercise it with ordinary middleware and CSRF intact.
+
+This is a failed overall run, not production approval. It preserves the prior failed receipts and does not qualify real Stripe, DigitalOcean storage, host-clock stability or release-image HTTP separation. Production was untouched.
+

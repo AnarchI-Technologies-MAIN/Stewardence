@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="266" time="198.938" timestamp="2026-10-04T23:41:35.264695+00:00" hostname="f4851c011833"><testcase classname="tests.test_capture_v4_packs" name="test_v4_freezes_all_issued_proposals_without_claiming_statements" time="7.447" /><testcase classname="tests.test_capture_v4_packs" name="test_disposition_and_execution_freeze_independently_and_replay_old_history" time="2.391"><failure message="AttributeError: 'UUID' object has no attribute 'id'">capture_decision_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 5e8fc7f5-cde7-4cc6-8ace-c5d404fd750a v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (8221a0b0-5622-4c15-8f73-6ebe2e4e37ce)&gt;)
+
+    def test_disposition_and_execution_freeze_independently_and_replay_old_history(
+        capture_decision_context,
+    ):
+        first = decide(capture_decision_context, event_kind="disposition", state="defer")
+&gt;       execution = decide(capture_decision_context, expected_previous_event=str(first.id))
+                                                                                 ^^^^^^^^
+E       AttributeError: 'UUID' object has no attribute 'id'
+
+tests/test_capture_v4_packs.py:87: AttributeError</failure></testcase><testcase classname="tests.test_capture_v4_packs" name="test_v3_replay_never_changes_when_proposals_are_issued_later" time="2.840" /><testcase classname="tests.test_capture_v4_packs" name="test_exact_preflight_matches_permanent_context_and_actual_worker_projection" time="2.032"><failure message="AssertionError: assert {'title': 'Fr...NTEXT-3', ...} == {'context_ver....}, ...}, ...}&#10;  &#10;  Omitting 4 identical items, use -vv to show&#10;  Differing items:&#10;  {'exposure_reviews': [{'review': {'schema': 'core.exposure.declarations.v1', 'sha256': 'c1ac0f6984cf915fce438699123141...record': {'id': '800d7429-9878-4bea-bdfc-1588def72cc0', 'status': None, 'department': None, 'product_id': None, ...}}]} != {'exposure_reviews': [{'schema': 'core.exposure.declarations.v1', 'inventory_item_id': '800d7429-9878-4bea-bdfc-1588de... incomplete.', 'source_fields': ['human_approval', 'autonomy_level', 'capabilities', 'permissions'], ...}, ...], ...}]}&#10;  Use -v to get more diff">capture_decision_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 18c915c7-9a1a-43c7-924c-89ffa106a5a0 v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (75dd5c2f-7ed9-4c7e-aa7e-3463ccd34c09)&gt;)
+lifecycle = None
+
+    def test_exact_preflight_matches_permanent_context_and_actual_worker_projection(
+        capture_decision_context, lifecycle
+    ):
+        decide(capture_decision_context, notes="Owner statement &lt;script&gt;literal&lt;/script&gt;")
+        context = frozen(capture_decision_context)
+        request = requested(context)
+        with connections["default"].cursor() as cursor:
+            cursor.execute(
+                "SELECT app_private.capture_proposal_preflight_context(%s)", [request.id]
+            )
+            value = cursor.fetchone()[0]
+        sql_context = json.loads(value) if isinstance(value, str) else value
+        python_context = build_capture_v4_pack_context(
+            sql_context["metadata"], sql_context["projection"]
+        )
+&gt;       assert sql_context == python_context
+E       AssertionError: assert {'title': 'Fr...NTEXT-3', ...} == {'context_ver....}, ...}, ...}
+E         
+E         Omitting 4 identical items, use -vv to show
+E         Differing items:
+E         {'exposure_reviews': [{'review': {'schema': 'core.exposure.declarations.v1', 'sha256': 'c1ac0f6984cf915fce438699123141...record': {'id': '800d7429-9878-4bea-bdfc-1588def72cc0', 'status': None, 'department': None, 'product_id': None, ...}}]} != {'exposure_reviews': [{'schema': 'core.exposure.declarations.v1', 'inventory_item_id': '800d7429-9878-4bea-bdfc-1588de... incomplete.', 'source_fields': ['human_approval', 'autonomy_level', 'capabilities', 'permissions'], ...}, ...], ...}]}
+E         Use -v to get more diff
+
+tests/test_capture_v4_packs.py:146: AssertionError</failure></testcase><testcase classname="tests.test_capture_v4_packs" name="test_private_v4_issuers_and_preflight_are_not_role_authority[app_runtime]" time="0.558" /><testcase classname="tests.test_capture_v4_packs" name="test_private_v4_issuers_and_preflight_are_not_role_authority[worker_runtime]" time="0.644" /><testcase classname="tests.test_capture_v4_packs" name="test_v4_request_cannot_authorize_baseline" time="0.982" /><testcase classname="tests.test_capture_v4_worker" name="test_capture_v4_actual_worker_chromium_private_owner_delivery[other]" time="18.043"><failure message="assert 503 == 200&#10; +  where 503 = &lt;HttpResponse status_code=503, &quot;text/html; charset=utf-8&quot;&gt;.status_code">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_capture_v4_actual_worker_0')
+industry = 'other'
+client = &lt;django.test.client.Client object at 0x7c21223212b0&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0x7c211f576570&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7c211f5d3b60&gt;
+
+    @pytest.mark.parametrize("industry", ["other", "accounting_bookkeeping"])
+    def test_capture_v4_actual_worker_chromium_private_owner_delivery(
+        capture_context, enabled, tmp_path, industry, client, settings, monkeypatch
+    ):
+        user, org = capture_context
+        org.industry = industry
+        org.save(update_fields=["industry"])
+        settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+        settings.DECISION_DESK_ENABLED = True
+        CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        DecisionDeskGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        snapshot = admit(capture_context, preview(capture_context))
+        revision = issue_capture_proposals(
+            organization_id=org.id,
+            actor_id=user.id,
+            snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        prior = None
+        event_ids = []
+        for kind, state in (("disposition", "act"), ("execution", "completion_recorded")):
+            prior = record_capture_decision(
+                organization_id=org.id,
+                actor_id=user.id,
+                revision_id=revision.id,
+                proposal_id=UUID(revision.cards[0]["proposal_id"]),
+                proposal_sha256=revision.cards[0]["sha256"],
+                card_index=0,
+                event_kind=kind,
+                state=state,
+                responsible_label="Named responsible owner",
+                expected_previous_event=prior,
+                notes="Owner statement is not verified resolution.",
+                links=["https://example.invalid/reference"],
+                using="app_runtime",
+            )
+            event_ids.append(prior)
+        cycle = open_cycle(
+            organization_id=org.id,
+            actor_id=user.id,
+            input_snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        pack = freeze_cycle(
+            cycle_id=cycle.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            expected_revision=1,
+            using="app_runtime",
+        )
+        assert pack.manifest["schema"] == "stewardence.review_pack.v4"
+        assert len(pack.manifest["selected_proposals"]) == len(revision.cards)
+        assert {item["event_id"] for item in pack.manifest["selected_decisions"]} == {
+            str(value) for value in event_ids
+        }
+        assert all(
+            DecisionEvent.objects.get(id=value).payload["resolution_verified"] is False
+            for value in event_ids
+        )
+        staged = request_pack_artifact(
+            pack_id=pack.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            promote_baseline=False,
+            using="app_runtime",
+        )
+        BackgroundJob.objects.filter(id=staged.job_id).update(priority=-100)
+        with transaction.atomic(using="worker_runtime"):
+            job = claim_next_job("capture-review-qualification", using="worker_runtime")
+        assert job is not None and job.id == staged.job_id
+        with (
+            tenant_transaction(org.id, using="worker_runtime"),
+            connections["worker_runtime"].cursor() as cursor,
+        ):
+            cursor.execute("SELECT current_user,current_setting('transaction_isolation')")
+            assert cursor.fetchone() == ("agentledger_worker", "read committed")
+        renderer = ActualRenderer(tmp_path / "render")
+        delegate = ReportGenerationHandler(
+            renderer=renderer,
+            storage=LocalPrivateReportStorage(tmp_path / "private"),
+            using="worker_runtime",
+        )
+        handler = ReviewReportGenerationHandler(
+            delegate, worker_id="capture-review-qualification"
+        )
+        execute_claimed_job(
+            JobExecution(job=job, worker_id="capture-review-qualification"),
+            handler,
+            using="worker_runtime",
+        )
+        assert renderer.context["context_version"] == "AL-REVIEW-PACK-CONTEXT-3"
+        assert renderer.context["projection"]["manifest_sha256"] == pack.sha256
+        text = " ".join(
+            " ".join(
+                page.extract_text() or "" for page in PdfReader(BytesIO(renderer.pdf)).pages
+            ).split()
+        )
+        assert "Risk: not assessed" in text and "Benefit model: not supplied" in text
+        assert "Generic exposure review" in text and "Low" not in text
+        assert "disposition: act" in text and "execution: completion_recorded" in text
+        assert "Original outcome: UNKNOWN" in text
+        completion = PackCompletion.objects.get(request=staged)
+        assert completion.payload["verification"] == "trusted_handler_storage_readback"
+        assert completion.payload["baseline_outcome"] == "not_requested"
+        assert completion.payload["manifest_sha256"] == pack.sha256
+        assert completion.artifact.sha256 == completion.payload["artifact_sha256"]
+        assert not BaselineHead.objects.filter(organization=org).exists()
+        assert ReviewCycle.objects.get(id=cycle.id).state == "COMPLETED"
+        assert BackgroundJob.objects.get(id=job.id).status == "completed"
+        settings.ALLOWED_HOSTS = ["testserver"]
+        client.force_login(user)
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+    
+        def forbidden_legacy_context(report):
+            pytest.fail("Capture delivery invoked the legacy risk/ROI builder")
+    
+        monkeypatch.setattr(
+            "apps.reports.views.build_report_context", forbidden_legacy_context
+        )
+        monkeypatch.setattr("apps.reports.views._report_storage", lambda: delegate.storage)
+        with actual_app_default():
+            pack_page = client.get(
+                reverse("reviews:pack-detail", kwargs={"pack_id": pack.id})
+            )
+&gt;           assert pack_page.status_code == 200
+E           assert 503 == 200
+E            +  where 503 = &lt;HttpResponse status_code=503, "text/html; charset=utf-8"&gt;.status_code
+
+tests/test_capture_v4_worker.py:180: AssertionError</failure></testcase><testcase classname="tests.test_capture_v4_worker" name="test_capture_v4_actual_worker_chromium_private_owner_delivery[accounting_bookkeeping]" time="4.169"><failure message="assert 503 == 200&#10; +  where 503 = &lt;HttpResponse status_code=503, &quot;text/html; charset=utf-8&quot;&gt;.status_code">capture_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_capture_v4_actual_worker_1')
+industry = 'accounting_bookkeeping'
+client = &lt;django.test.client.Client object at 0x7c211f5de150&gt;
+settings = &lt;pytest_django.fixtures.Settings object at 0x7c211fe3dbf0&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7c212028f930&gt;
+
+    @pytest.mark.parametrize("industry", ["other", "accounting_bookkeeping"])
+    def test_capture_v4_actual_worker_chromium_private_owner_delivery(
+        capture_context, enabled, tmp_path, industry, client, settings, monkeypatch
+    ):
+        user, org = capture_context
+        org.industry = industry
+        org.save(update_fields=["industry"])
+        settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+        settings.DECISION_DESK_ENABLED = True
+        CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        DecisionDeskGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        snapshot = admit(capture_context, preview(capture_context))
+        revision = issue_capture_proposals(
+            organization_id=org.id,
+            actor_id=user.id,
+            snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        prior = None
+        event_ids = []
+        for kind, state in (("disposition", "act"), ("execution", "completion_recorded")):
+            prior = record_capture_decision(
+                organization_id=org.id,
+                actor_id=user.id,
+                revision_id=revision.id,
+                proposal_id=UUID(revision.cards[0]["proposal_id"]),
+                proposal_sha256=revision.cards[0]["sha256"],
+                card_index=0,
+                event_kind=kind,
+                state=state,
+                responsible_label="Named responsible owner",
+                expected_previous_event=prior,
+                notes="Owner statement is not verified resolution.",
+                links=["https://example.invalid/reference"],
+                using="app_runtime",
+            )
+            event_ids.append(prior)
+        cycle = open_cycle(
+            organization_id=org.id,
+            actor_id=user.id,
+            input_snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        pack = freeze_cycle(
+            cycle_id=cycle.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            expected_revision=1,
+            using="app_runtime",
+        )
+        assert pack.manifest["schema"] == "stewardence.review_pack.v4"
+        assert len(pack.manifest["selected_proposals"]) == len(revision.cards)
+        assert {item["event_id"] for item in pack.manifest["selected_decisions"]} == {
+            str(value) for value in event_ids
+        }
+        assert all(
+            DecisionEvent.objects.get(id=value).payload["resolution_verified"] is False
+            for value in event_ids
+        )
+        staged = request_pack_artifact(
+            pack_id=pack.id,
+            organization_id=org.id,
+            actor_id=user.id,
+            promote_baseline=False,
+            using="app_runtime",
+        )
+        BackgroundJob.objects.filter(id=staged.job_id).update(priority=-100)
+        with transaction.atomic(using="worker_runtime"):
+            job = claim_next_job("capture-review-qualification", using="worker_runtime")
+        assert job is not None and job.id == staged.job_id
+        with (
+            tenant_transaction(org.id, using="worker_runtime"),
+            connections["worker_runtime"].cursor() as cursor,
+        ):
+            cursor.execute("SELECT current_user,current_setting('transaction_isolation')")
+            assert cursor.fetchone() == ("agentledger_worker", "read committed")
+        renderer = ActualRenderer(tmp_path / "render")
+        delegate = ReportGenerationHandler(
+            renderer=renderer,
+            storage=LocalPrivateReportStorage(tmp_path / "private"),
+            using="worker_runtime",
+        )
+        handler = ReviewReportGenerationHandler(
+            delegate, worker_id="capture-review-qualification"
+        )
+        execute_claimed_job(
+            JobExecution(job=job, worker_id="capture-review-qualification"),
+            handler,
+            using="worker_runtime",
+        )
+        assert renderer.context["context_version"] == "AL-REVIEW-PACK-CONTEXT-3"
+        assert renderer.context["projection"]["manifest_sha256"] == pack.sha256
+        text = " ".join(
+            " ".join(
+                page.extract_text() or "" for page in PdfReader(BytesIO(renderer.pdf)).pages
+            ).split()
+        )
+        assert "Risk: not assessed" in text and "Benefit model: not supplied" in text
+        assert "Generic exposure review" in text and "Low" not in text
+        assert "disposition: act" in text and "execution: completion_recorded" in text
+        assert "Original outcome: UNKNOWN" in text
+        completion = PackCompletion.objects.get(request=staged)
+        assert completion.payload["verification"] == "trusted_handler_storage_readback"
+        assert completion.payload["baseline_outcome"] == "not_requested"
+        assert completion.payload["manifest_sha256"] == pack.sha256
+        assert completion.artifact.sha256 == completion.payload["artifact_sha256"]
+        assert not BaselineHead.objects.filter(organization=org).exists()
+        assert ReviewCycle.objects.get(id=cycle.id).state == "COMPLETED"
+        assert BackgroundJob.objects.get(id=job.id).status == "completed"
+        settings.ALLOWED_HOSTS = ["testserver"]
+        client.force_login(user)
+        session = client.session
+        session["active_organization_id"] = str(org.id)
+        session.save()
+    
+        def forbidden_legacy_context(report):
+            pytest.fail("Capture delivery invoked the legacy risk/ROI builder")
+    
+        monkeypatch.setattr(
+            "apps.reports.views.build_report_context", forbidden_legacy_context
+        )
+        monkeypatch.setattr("apps.reports.views._report_storage", lambda: delegate.storage)
+        with actual_app_default():
+            pack_page = client.get(
+                reverse("reviews:pack-detail", kwargs={"pack_id": pack.id})
+            )
+&gt;           assert pack_page.status_code == 200
+E           assert 503 == 200
+E            +  where 503 = &lt;HttpResponse status_code=503, "text/html; charset=utf-8"&gt;.status_code
+
+tests/test_capture_v4_worker.py:180: AssertionError</failure></testcase><testcase classname="tests.test_capture_proposal_ui" name="test_get_is_read_only_and_proposal_post_replays_one_exact_issuance" time="1.192" /><testcase classname="tests.test_capture_proposal_ui" name="test_owner_statements_use_server_exact_proposal_and_keep_unknown" time="1.442" /><testcase classname="tests.test_capture_proposal_ui" name="test_strict_csrf_and_stale_cas_never_append_extra_statement" time="1.024" /><testcase classname="tests.test_capture_proposal_ui" name="test_application_gates_close_owner_write_without_effects[proposal]" time="0.623" /><testcase classname="tests.test_capture_proposal_ui" name="test_application_gates_close_owner_write_without_effects[decision]" time="0.821" /><testcase classname="tests.test_capture_proposal_ui" name="test_application_gates_close_owner_write_without_effects[workspace]" time="0.686" /><testcase classname="tests.test_capture_proposal_ui" name="test_missing_proposal_receipt_withholds_content[snapshot]" time="0.531" /><testcase classname="tests.test_capture_proposal_ui" name="test_missing_proposal_receipt_withholds_content[decision]" time="0.637" /><testcase classname="tests.test_capture_proposal_ui" name="test_nonowner_or_foreign_tenant_cannot_read_exact_proposal[viewer]" time="0.589" /><testcase classname="tests.test_capture_proposal_ui" name="test_nonowner_or_foreign_tenant_cannot_read_exact_proposal[foreign_owner]" time="0.747" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[unknown]" time="1.142" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[approval]" time="1.473" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[accounting_fail]" time="0.887" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[non_accounting]" time="0.582" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[known_no_actions]" time="0.736" /><testcase classname="tests.test_capture_proposal_admission" name="test_sql_issuance_matches_complete_permanent_python_contract[external_transfer]" time="0.641" /><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[python]" time="0.402" /><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[database]" time="0.428" /><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[paid]" time="0.635" /><testcase classname="tests.test_capture_proposal_admission" name="test_proposal_admission_fails_closed[profile]" time="0.808" /><testcase classname="tests.test_capture_proposal_admission" name="test_raw_proposal_receipt_and_revision_insertion_are_denied[app_runtime]" time="0.525" /><testcase classname="tests.test_capture_proposal_admission" name="test_raw_proposal_receipt_and_revision_insertion_are_denied[worker_runtime]" time="0.467" /><testcase classname="tests.test_capture_proposal_admission" name="test_worker_cannot_issue_or_read_proposal_receipts" time="0.513" /><testcase classname="tests.test_capture_proposal_admission" name="test_private_recompute_and_uuid_extension_members_are_owner_only" time="0.370" /><testcase classname="tests.test_capture_proposal_admission" name="test_two_actual_app_connections_issue_one_revision_and_receipt" time="0.541" /><testcase classname="tests.test_capture_proposal_admission" name="test_wrong_context_denied_before_snapshot_lookup" time="0.428" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[actor]" time="0.457" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[organization]" time="0.525" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[snapshot]" time="0.495" /><testcase classname="tests.test_capture_proposal_admission" name="test_paid_authority_revoked_while_issuer_waits_on_fk_target[capture_receipt]" time="1.140" /><testcase classname="tests.test_capture_proposal_admission" name="test_receipt_owner_read_and_immutable_replay" time="0.858" /><testcase classname="tests.test_capture_decisions" name="test_exact_proposal_statement_does_not_promote_frozen_unknown[completion_recorded]" time="0.554" /><testcase classname="tests.test_capture_decisions" name="test_exact_proposal_statement_does_not_promote_frozen_unknown[evidence_reviewed]" time="0.615" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[proposal_id-33d5b904-d64a-471c-b1fc-7607ffa50a0e]" time="0.600" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[proposal_sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]" time="0.560" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[card_index-1]" time="0.457" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[card_index-True]" time="0.400" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[proposal_sha256-None]" time="1.539" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[original_outcome-PASS]" time="0.595" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[resolution_verified-True]" time="0.449" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[notes-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]" time="0.488" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[responsible_label-]" time="0.548" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[links-value9]" time="0.446" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[links-value10]" time="0.430" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[links-None]" time="0.433" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[state-verified]" time="0.505" /><testcase classname="tests.test_capture_decisions" name="test_raw_identity_and_owner_statement_bounds_fail_closed[due_date-tomorrow]" time="0.623" /><testcase classname="tests.test_capture_decisions" name="test_old_issuer_and_private_helper_cannot_admit_capture" time="0.552" /><testcase classname="tests.test_capture_decisions" name="test_other_login_roles_have_no_decision_issuer[worker_runtime]" time="0.525" /><testcase classname="tests.test_capture_decisions" name="test_other_login_roles_have_no_decision_issuer[billing_admission]" time="0.577" /><testcase classname="tests.test_capture_decisions" name="test_context_identity_and_foreign_revision_denied" time="0.471" /><testcase classname="tests.test_capture_decisions" name="test_current_admission_gates[python]" time="0.480" /><testcase classname="tests.test_capture_decisions" name="test_current_admission_gates[decision]" time="0.501" /><testcase classname="tests.test_capture_decisions" name="test_current_admission_gates[proposal]" time="0.426" /><testcase classname="tests.test_capture_decisions" name="test_current_admission_gates[pause]" time="0.441" /><testcase classname="tests.test_capture_decisions" name="test_current_admission_gates[profile]" time="0.663" /><testcase classname="tests.test_capture_decisions" name="test_exact_history_cas_and_concurrent_first_statement" time="1.101" /><testcase classname="tests.test_capture_decisions" name="test_actor_fk_wait_rechecks_owner_after_wait" time="0.747" /><testcase classname="tests.test_capture_decisions" name="test_same_tenant_viewer_cannot_issue_or_read_owner_statement" time="1.797" /><testcase classname="tests.test_capture_decisions" name="test_app_has_no_raw_statement_write_authority" time="1.056" /><testcase classname="tests.test_capture_decisions" name="test_current_issued_coverage_uses_central_paid_policy[past_due-True]" time="1.463" /><testcase classname="tests.test_capture_decisions" name="test_current_issued_coverage_uses_central_paid_policy[canceled-False]" time="1.709" /><testcase classname="tests.test_capture_decisions" name="test_missing_issuance_receipt_cannot_be_replaced_by_self_consistent_cards" time="1.649" /><testcase classname="tests.test_core_decisions" name="test_exact_binding_append_only_statement_and_selection" time="1.535" /><testcase classname="tests.test_core_decisions" name="test_feature_and_operator_gates_fail_closed" time="1.635" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes0]" time="1.873" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes1]" time="1.610" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes2]" time="1.658" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes3]" time="1.262" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes4]" time="1.350" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes5]" time="0.981" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes6]" time="0.897" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes7]" time="0.692" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes8]" time="0.728" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes9]" time="1.001" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes10]" time="1.250" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes11]" time="1.347" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes12]" time="2.067" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes13]" time="0.905" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes14]" time="0.772" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes15]" time="0.614" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes16]" time="0.804" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes17]" time="0.830" /><testcase classname="tests.test_core_decisions" name="test_actual_sql_admission_rejects_null_bounds_and_unsupported_claims[changes18]" time="0.790" /><testcase classname="tests.test_core_decisions" name="test_raw_runtime_writes_and_owner_only_selection_denied" time="0.971" /><testcase classname="tests.test_core_decisions" name="test_stale_cas_and_cross_tenant_never_append" time="1.148" /><testcase classname="tests.test_core_decisions" name="test_pause_denies_new_decisions" time="1.245" /><testcase classname="tests.test_core_decisions" name="test_past_due_subscription_retains_current_issued_coverage_authority" time="1.383" /><testcase classname="tests.test_core_decisions" name="test_same_tenant_viewer_cannot_read_or_issue_owner_decisions" time="0.661" /><testcase classname="tests.test_core_decisions" name="test_two_simultaneous_first_events_have_one_cas_winner" time="0.770" /><testcase classname="tests.test_core_decisions" name="test_no_carry_forward_to_other_snapshot_or_tenant" time="0.612" /><testcase classname="tests.test_core_decisions" name="test_frozen_pack_replay_retains_selected_event_when_current_decision_changes" time="0.529" /><testcase classname="tests.test_capture_archived_reads" name="test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[30-True]" time="0.995" /><testcase classname="tests.test_capture_archived_reads" name="test_genuine_past_paid_interval_retained_owner_read_and_viewer_privacy[91-False]" time="1.035" /><testcase classname="tests.test_legacy_issuer_dependency_boundary" name="test_legacy_helper_exact_acl_and_all_provisioned_login_authority" time="0.455" /><testcase classname="tests.test_legacy_issuer_dependency_boundary" name="test_no_stored_dependency_or_procedure_body_bypasses_legacy_fence" time="0.612" /><testcase classname="tests.test_capture_comparison_ui" name="test_owner_comparison_changes_and_chronology_are_read_only[False]" time="1.228" /><testcase classname="tests.test_capture_comparison_ui" name="test_owner_comparison_changes_and_chronology_are_read_only[True]" time="4.109" /><testcase classname="tests.test_review_workspace_views" name="test_default_workspace_gate_unavailable_without_effects" time="0.780" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[history]" time="0.801" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[snapshot]" time="1.040" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[decision]" time="0.861" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[comparison]" time="0.820" /><testcase classname="tests.test_review_workspace_views" name="test_snapshot_get_is_dated_read_only_and_shows_unestablished_accounts" time="0.629" /><testcase classname="tests.test_review_workspace_views" name="test_decision_post_appends_exact_binding_and_stale_retry_is_conflict" time="0.651" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes0]" time="0.454" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes1]" time="0.561" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes2]" time="0.421" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes3]" time="0.415" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes4]" time="0.406" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes5]" time="0.411" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes6]" time="0.418" /><testcase classname="tests.test_review_workspace_views" name="test_missing_decision_feature_is_explicitly_unavailable" time="0.404" /><testcase classname="tests.test_review_workspace_views" name="test_foreign_snapshot_revision_and_pack_are_not_found" time="0.920" /><testcase classname="tests.test_review_workspace_views" name="test_freeze_projects_exact_old_statement_without_requesting_pdf" time="0.794" /><testcase classname="tests.test_review_workspace_views" name="test_explicit_artifact_request_queues_without_promoting_baseline_or_starting_worker" time="0.663" /><testcase classname="tests.test_review_workspace_views" name="test_database_denial_rolls_back_open_cycle_before_safe_response" time="0.609" /><testcase classname="tests.test_review_workspace_views" name="test_corrupt_snapshot_is_withheld_before_any_admission[get-snapshot]" time="0.426" /><testcase classname="tests.test_review_workspace_views" name="test_corrupt_snapshot_is_withheld_before_any_admission[post-freeze]" time="0.476" /><testcase classname="tests.test_review_workspace_views" name="test_corrupt_snapshot_is_withheld_before_any_admission[post-issue-proposals]" time="0.393" /><testcase classname="tests.test_review_workspace_views" name="test_freeze_lost_redirect_replay_uses_one_cycle_pack_and_reservation" time="0.532" /><testcase classname="tests.test_review_workspace_views" name="test_simultaneous_same_freeze_form_has_one_effect" time="0.621" /><testcase classname="tests.test_review_workspace_views" name="test_reusing_freeze_identity_for_another_snapshot_is_denied" time="0.490" /><testcase classname="tests.test_review_workspace_views" name="test_freeze_identity_is_required_and_never_becomes_authority" time="0.453" /><testcase classname="tests.test_review_workspace_views" name="test_foreign_admitted_cycle_identity_cannot_be_replayed_into_this_workspace" time="0.443" /><testcase classname="tests.test_review_workspace_views" name="test_csrf_and_http_methods_preserve_no_effects" time="0.456" /><testcase classname="tests.test_review_workspace_views" name="test_user_selected_comparison_is_read_only_and_never_admits_a_baseline" time="0.541" /><testcase classname="tests.test_review_workspace_views" name="test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[390]" time="9.256" /><testcase classname="tests.test_review_workspace_views" name="test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[1280]" time="2.860" /><testcase classname="tests.test_review_workspace_views" name="test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates" time="5.965"><failure message="AssertionError: {'index': 114, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1',...3:44:09.043330+00:00', ...}, 'bound_org': '503f378a-0e69-46cc-b4a2-e4e5cc3b053d', 'isolation': 'read committed', ...}]}&#10;assert 409 == 302&#10; +  where 409 = &lt;HttpResponse status_code=409, &quot;text/html; charset=utf-8&quot;&gt;.status_code">workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 7abbbd7d-e8aa-4d70-81c6-2af6514e6fcc v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (d8b1fb3b-d7b5-4124-b0fa-47f592af5bcc)&gt;)
+client = &lt;django.test.client.Client object at 0x7c211fb37c50&gt;
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        for index in range(128):
+            observed = []
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+&gt;           assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+E           AssertionError: {'index': 114, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1',...3:44:09.043330+00:00', ...}, 'bound_org': '503f378a-0e69-46cc-b4a2-e4e5cc3b053d', 'isolation': 'read committed', ...}]}
+E           assert 409 == 302
+E            +  where 409 = &lt;HttpResponse status_code=409, "text/html; charset=utf-8"&gt;.status_code
+
+tests/test_review_workspace_views.py:603: AssertionError</failure></testcase><testcase classname="tests.test_review_workspace_views" name="test_explicit_future_proposal_request_remains_denied_without_new_issuance" time="0.466" /><testcase classname="tests.test_capture_pack_authority" name="test_frozen_capture_has_exact_issued_receipt_and_no_baseline_or_decisions" time="0.584" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_projection_and_readback_use_new_context" time="0.715" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_request_cannot_authorize_baseline_promotion[False]" time="0.567" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_request_cannot_authorize_baseline_promotion[True]" time="0.732" /><testcase classname="tests.test_capture_pack_authority" name="test_historical_and_capture_internal_helpers_are_owner_only[app_runtime]" time="0.464" /><testcase classname="tests.test_capture_pack_authority" name="test_historical_and_capture_internal_helpers_are_owner_only[worker_runtime]" time="0.521" /><testcase classname="tests.test_capture_pack_authority" name="test_worker_projection_receipt_pins_match_actual_capture" time="0.880" /><testcase classname="tests.test_capture_pack_authority" name="test_foreign_owner_cannot_dispatch_capture_pack" time="0.697" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_authority_revoked_during_actor_row_wait[open]" time="0.993" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_authority_revoked_during_actor_row_wait[freeze]" time="1.988" /><testcase classname="tests.test_capture_review_worker" name="test_capture2_actual_worker_chromium_storage_and_no_promotion[other]" time="2.258" /><testcase classname="tests.test_capture_review_worker" name="test_capture2_actual_worker_chromium_storage_and_no_promotion[accounting_bookkeeping]" time="2.319" /><testcase classname="tests.test_capture_report_access" name="test_unassociated_capture_report_is_not_ordinary_tenant_report[viewer]" time="0.527" /><testcase classname="tests.test_capture_report_access" name="test_unassociated_capture_report_is_not_ordinary_tenant_report[assessor]" time="0.576" /><testcase classname="tests.test_capture_report_access" name="test_capture_report_foreign_tenant_denied_and_worker_policy_preserved" time="1.264" /><testcase classname="tests.test_capture_report_access" name="test_unassociated_capture_detail_and_download_fail_before_storage" time="3.900" /><testcase classname="tests.test_capture_report_access" name="test_admitted_pending_capture_status_never_builds_legacy_roi_context" time="1.419" /><testcase classname="tests.test_core_first_capture_journey" name="test_first_owner_records_reviews_freezes_and_requests_exact_capture" time="1.506" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_exact_semantics_disposition_and_execution[other]" time="0.084" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_exact_semantics_disposition_and_execution[accounting_bookkeeping]" time="0.167" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[source]" time="0.023" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[text]" time="0.025" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[digest]" time="0.043" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[index_bool]" time="0.039" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[duplicate]" time="0.038" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[resolution]" time="0.039" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[event_source]" time="0.041" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[event_bool]" time="0.039" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[event_kind]" time="0.041" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[baseline]" time="0.019" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[extra]" time="0.039" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[missing_proposal]" time="0.020" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_rehashed_semantic_mutations_rejected[proposal_contract]" time="0.023" /><testcase classname="tests.test_capture_v4_renderer" name="test_standalone_cold_import_without_apps" time="0.127" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[assessments/policy_engine_v1-policy_engine]" time="0.024" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[assessments/accounting_pack_v1-accounting_pack]" time="0.011" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[assessments/workflow_profile_v1-workflow_profile]" time="0.012" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[assessments/capture_v1-capture]" time="0.023" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[reviews/exposure_v1-exposure]" time="0.011" /><testcase classname="tests.test_capture_v4_renderer" name="test_permanent_semantic_bodies_equal[reviews/proposals_v1-proposals]" time="0.011" /><testcase classname="tests.test_capture_v4_renderer" name="test_v4_oversized_context_denied_without_truncation" time="0.107" /><testcase classname="tests.test_capture_v4_renderer" name="test_app_and_standalone_closed_validator_bodies_equal" time="0.037" /><testcase classname="tests.test_capture_v4_renderer" name="test_pre_request_selection_validation_without_fabricated_request_metadata[None]" time="0.018" /><testcase classname="tests.test_capture_v4_renderer" name="test_pre_request_selection_validation_without_fabricated_request_metadata[unknown_resolved]" time="0.020" /><testcase classname="tests.test_capture_v4_renderer" name="test_pre_request_selection_validation_without_fabricated_request_metadata[proposal_rewrite]" time="0.017" /><testcase classname="tests.test_capture_v4_renderer" name="test_pre_request_selection_validation_without_fabricated_request_metadata[snapshot_pin]" time="0.012" /><testcase classname="tests.test_capture_v4_renderer" name="test_standalone_qualified_accounting_failure_recomputed[False]" time="0.033"><failure message="assert False&#10; +  where False = any(&lt;generator object test_standalone_qualified_accounting_failure_recomputed.&lt;locals&gt;.&lt;genexpr&gt; at 0x7c2121f71d80&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7c21200baf90&gt;
+tamper = False
+
+    @pytest.mark.parametrize("tamper", [False, True])
+    def test_standalone_qualified_accounting_failure_recomputed(monkeypatch, tamper):
+        from tests.test_capture_contract import args
+    
+        def known_args(industry):
+            pins = args(industry)
+            row = pins["inventory_records"][0]
+            for key, value in {
+                "data_categories": ["payroll"],
+                "human_approval": False,
+            }.items():
+                row[key] = value
+                row["provenance"][key] = "Declared"
+            return pins
+    
+        monkeypatch.setattr("tests.test_capture_review_renderer.args", known_args)
+        metadata, p = v4_projection("accounting_bookkeeping")
+&gt;       assert any(
+            entry["proposal"]["source"]["class"] == "accounting_fail"
+            for entry in p["selected_proposals"]
+        )
+E       assert False
+E        +  where False = any(&lt;generator object test_standalone_qualified_accounting_failure_recomputed.&lt;locals&gt;.&lt;genexpr&gt; at 0x7c2121f71d80&gt;)
+
+tests/test_capture_v4_renderer.py:319: AssertionError</failure></testcase><testcase classname="tests.test_capture_v4_renderer" name="test_standalone_qualified_accounting_failure_recomputed[True]" time="0.030"><failure message="assert False&#10; +  where False = any(&lt;generator object test_standalone_qualified_accounting_failure_recomputed.&lt;locals&gt;.&lt;genexpr&gt; at 0x7c2121fb75e0&gt;)">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7c211f52b1c0&gt;
+tamper = True
+
+    @pytest.mark.parametrize("tamper", [False, True])
+    def test_standalone_qualified_accounting_failure_recomputed(monkeypatch, tamper):
+        from tests.test_capture_contract import args
+    
+        def known_args(industry):
+            pins = args(industry)
+            row = pins["inventory_records"][0]
+            for key, value in {
+                "data_categories": ["payroll"],
+                "human_approval": False,
+            }.items():
+                row[key] = value
+                row["provenance"][key] = "Declared"
+            return pins
+    
+        monkeypatch.setattr("tests.test_capture_review_renderer.args", known_args)
+        metadata, p = v4_projection("accounting_bookkeeping")
+&gt;       assert any(
+            entry["proposal"]["source"]["class"] == "accounting_fail"
+            for entry in p["selected_proposals"]
+        )
+E       assert False
+E        +  where False = any(&lt;generator object test_standalone_qualified_accounting_failure_recomputed.&lt;locals&gt;.&lt;genexpr&gt; at 0x7c2121fb75e0&gt;)
+
+tests/test_capture_v4_renderer.py:319: AssertionError</failure></testcase><testcase classname="tests.test_capture_proposals_contract" name="test_finite_unknown_allowlist_and_exact_source_pins" time="0.009" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[False-1-CONCERN]" time="0.007" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[True-1-PASS]" time="0.008" /><testcase classname="tests.test_capture_proposals_contract" name="test_only_qualified_concern_maps_approval[False-0-NOT_APPLICABLE]" time="0.010" /><testcase classname="tests.test_capture_proposals_contract" name="test_accounting_fail_requires_exact_frozen_qualification" time="0.030" /><testcase classname="tests.test_capture_proposals_contract" name="test_unknown_premise_does_not_emit_accounting_failure" time="0.022" /><testcase classname="tests.test_capture_proposals_contract" name="test_deterministic_order_identity_digest_and_no_aliases" time="0.037" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[question]" time="0.043" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[digest]" time="0.037" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[record]" time="0.034" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[result]" time="0.033" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[definition]" time="0.037" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[applicability]" time="0.040" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_source_or_semantics_denied[extra]" time="0.056" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[None]" time="0.009" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[True]" time="0.003" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[malformed2]" time="0.003" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[2_0]" time="0.002" /><testcase classname="tests.test_capture_proposals_contract" name="test_strict_snapshot_uuid_type[2_1]" time="0.003" /><testcase classname="tests.test_capture_proposals_contract" name="test_changed_snapshot_uuid_and_boolean_admission_shape_denied" time="0.004" /><testcase classname="tests.test_capture_proposals_contract" name="test_independent_later_capture_changes_without_rewriting_unknown" time="0.016" /><testcase classname="tests.test_capture_proposals_contract" name="test_fixed_v1_uuid_and_complete_payload_digest_goldens" time="0.007" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[contract_version-True]" time="0.011" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[digest-None]" time="0.010" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[digest-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]" time="0.012" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[source_fields-None]" time="0.012" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[source_fields-value4]" time="0.011" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[definition_sha256-0]" time="0.011" /><testcase classname="tests.test_capture_proposals_contract" name="test_source_types_and_forged_identity_deny_even_with_recomputed_self_sha[class-accounting_fail]" time="0.012" /><testcase classname="tests.test_capture_proposals_contract" name="test_missing_extra_reordered_and_null_proposals_deny" time="0.028" /><testcase classname="tests.test_capture_proposals_contract" name="test_bare_default_values_never_become_known_accounting_premises" time="0.002" /><testcase classname="tests.test_capture_context_history" name="test_cold_historical_context_keeps_meaning_after_current_alias_drift[other]" time="0.024" /><testcase classname="tests.test_capture_context_history" name="test_cold_historical_context_keeps_meaning_after_current_alias_drift[accounting_bookkeeping]" time="0.057" /><testcase classname="tests.test_capture_context_history" name="test_cold_standalone_renderer_never_imports_application_semantics" time="0.019" /><testcase classname="tests.test_capture_context_history" name="test_alias_drift_does_not_open_v3_decision_selection" time="0.006" /><testcase classname="tests.test_capture_historical_semantics" name="test_permanent_capture_ignores_current_semantic_aliases[other-dac2763c822baaf708fbb22c46f09ea14917b35991504d89d94a56f6bce54fd8-89370962075734b9dab03348d7aa4d5bf40515f6e58e788b7e33741cbba581c1]" time="0.007" /><testcase classname="tests.test_capture_historical_semantics" name="test_permanent_capture_ignores_current_semantic_aliases[accounting_bookkeeping-fc510a466bb56099dcfa42e86882ef2bb7ffd18b591a439b5a6a3f10e7389eca-77de47e4506d81b034f9faac31d1c446d1acde7902f9dc0b0ded382915281365]" time="0.022" /><testcase classname="tests.test_capture_comparison_v2" name="test_unknown_to_declaration_has_exact_values_and_no_resolution" time="0.015" /><testcase classname="tests.test_capture_comparison_v2" name="test_identical_capture_has_no_changed_items" time="0.008" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[foreign_org]" time="0.005" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[reversed]" time="0.008" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[same_id]" time="0.010" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[rehashed_result]" time="0.008" /><testcase classname="tests.test_capture_comparison_v2" name="test_invalid_comparison_denies[schema]" time="0.008" /><testcase classname="tests.test_review_comparison" name="test_unchanged_inputs_ignore_new_snapshot_identity_and_date" time="0.003" /><testcase classname="tests.test_review_comparison" name="test_declarations_and_rule_changes_are_separate_not_causal" time="0.003" /><testcase classname="tests.test_review_comparison" name="test_missing_field_and_explicit_null_are_distinct_changes" time="0.002" /><testcase classname="tests.test_review_comparison" name="test_added_and_removed_items_have_explicit_identity_and_digests" time="0.004" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[tenant]" time="0.003" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[tamper]" time="0.002" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[duplicate]" time="0.002" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[reverse]" time="0.002" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[bool]" time="0.002" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[id_type]" time="0.002" /><testcase classname="tests.test_review_comparison" name="test_invalid_comparison_denied[tree]" time="0.002" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[other]" time="0.010" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[legal]" time="0.008" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[healthcare]" time="0.008" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[construction]" time="0.007" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[agency]" time="0.010" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_context_exact_unknowns_and_no_legacy_roi[accounting_bookkeeping]" time="0.026" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[mixed_schema]" time="0.004" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[legacy_manifest]" time="0.003" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[nonempty_decisions]" time="0.003" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[rule_pin]" time="0.004" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[owner]" time="0.004" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[fabricated_risk]" time="0.004" /><testcase classname="tests.test_capture_review_renderer" name="test_capture_mutations_rejected_before_render[fabricated_benefit]" time="0.004" /><testcase classname="tests.test_capture_review_renderer" name="test_renderer_rejects_extra_roi_and_hash_consistent_fake_risk" time="0.007" /><testcase classname="tests.test_capture_review_renderer" name="test_actual_chromium_capture_pack_is_roi_free" time="2.118" /><testcase classname="tests.test_capture_review_renderer" name="test_rehashed_divergent_receipt_identity_cannot_render" time="0.010" /><testcase classname="tests.test_capture_review_renderer" name="test_rehashed_unknown_to_pass_exposure_cannot_render" time="0.017" /><testcase classname="tests.test_capture_review_renderer" name="test_metadata_assessment_version_is_exact_integer_one[True]" time="0.021" /><testcase classname="tests.test_capture_review_renderer" name="test_metadata_assessment_version_is_exact_integer_one[1.0]" time="0.019" /><testcase classname="tests.test_capture_review_renderer" name="test_metadata_assessment_version_is_exact_integer_one[1]" time="0.019" /><testcase classname="tests.test_capture_review_renderer" name="test_metadata_assessment_version_is_exact_integer_one[None]" time="0.021" /><testcase classname="tests.test_capture_review_renderer" name="test_metadata_assessment_version_is_exact_integer_one[2]" time="0.026" /><testcase classname="tests.test_capture_review_renderer" name="test_initial_capture_pack_rejects_rehashed_unadmitted_baseline" time="6.943" /></testsuite></testsuites>

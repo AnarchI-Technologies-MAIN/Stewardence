@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:current",
+  "image_id": "sha256:0422e24ae219f5b750c0127a9d21cdbb107a33ffb6933407fe7b02b99b842afd",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T160055.239753Z",
+  "test_arguments": [
+    "tests/test_report_history.py",
+    "tests/test_reports.py",
+    "tests/test_roi_engine_v2.py",
+    "tests/test_inventory.py",
+    "tests/test_billing_tenant_authority.py",
+    "tests/test_workspaces.py"
+  ]
+}

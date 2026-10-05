@@ -1,0 +1,307 @@
+CORE ADVERSARIAL SUCCESSOR REVIEW: POST-EFFECT PROPOSAL AUTHORITY
+A NEW finding, separate from closedlegacy/historical/deadendfindings. Actualapp-role predecessor011703 showed caller-selectedrevisionUUID collisionwithgenuineforeignuncommittedissuer ->targetwait ->committedsubscriptioncanceled ->entitledfalse/work_allowedfalse ->foreignrollback ->targetADMITTED. Migration0008 CREATEORREPLACE sameissuer/OID/grants/searchpath/lockorder literalbody +finalauthoritycheck AFTERbothINSERTs (exceptionrollsbackboth). Unchangedprobe nowPASS; ordinaryadmission/replay+ACL/historicalequality+UI+actualHTTPworker+streambounds regressions:164/164PASS. Coveragewritefixed;96.91% appliesONLYrender_clientmodule, whole80%gate stillopen. Priorfull2148passes2fail1skip+coverageinternalerror retained. No productionchanges, stillnoStripe/DOstorage/retention/allwriterquota/restore/clockcredentials/cutoverapproval. Please scrutinize exactmigration/probe and give boundeddisposition.
+
+===== evidence/20261005T011703.013504Z/DISPOSITION.md SHA256 c87389cfd775db678a0533b9c73c0b34660b8382aa97f676c1320b13ca3f57ba =====
+# Executed chosen-ID wait finding
+
+The single actual-role adversarial probe failed its required denial assertion. A foreign application transaction staged a genuine admitted proposal revision at a caller-selected UUID. The target application issuer was observed waiting on that foreign backend's primary-key conflict. Cancellation then committed, and database observations recorded `core_owner_entitled=false` and `core_work_allowed=false` before release.
+
+After the foreign transaction rolled back, the target issuer nevertheless returned an admitted revision. This demonstrates missing authority revalidation after the final persistence wait under the tested same-application-role scope. It is not cross-tenant data disclosure or provider execution.
+
+A successor migration will add a final database authority check after potentially waiting persistence effects, rolling back both revision and receipt on denial. Historical migration and this failing probe remain unchanged. Closure requires executed successor denial, ordinary issuance/replay and role/receipt regressions. Production was untouched.
+
+===== evidence/20261005T012152.503810Z/qualification-summary.json SHA256 0b64648a6e335ed7cea6a10a22ce0426dacc5ed61c5e3e96aec598b3388fa27e =====
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-dccfa8c5d9",
+  "image_id": "sha256:ab1756a1c4fa4eff3219b5b2c403f7bb8bbbc5d51dc3b86d8697332495dd5135",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261005T012152.503810Z",
+  "test_arguments": [
+    "tests/test_capture_proposal_pk_wait_authority.py",
+    "tests/test_capture_proposal_admission.py",
+    "tests/test_capture_proposals_contract.py",
+    "tests/test_capture_v4_renderer.py",
+    "tests/test_capture_v4_worker.py",
+    "tests/test_review_unused_stop_ui.py",
+    "tests/test_render_client_bounds.py",
+    "tests/test_atomic_recovery_admission.py",
+    "tests/test_legacy_issuer_dependency_boundary.py",
+    "tests/test_legacy_decision_dependency_boundary.py",
+    "--cov=apps.reports.render_client",
+    "--cov-report=term-missing",
+    "--cov-report=xml:/qualification-evidence/coverage.xml"
+  ],
+  "coverage": {
+    "requested": true,
+    "xml_present": true,
+    "threshold_qualified": true,
+    "xml_sha256": "7b0a0cdd308e8a2d20452700e1bcb69a79b873d919be71750848f05ceee80ba0",
+    "line_rate": "0.9718",
+    "branch_rate": "0.9615"
+  },
+  "http_renderer": true,
+  "deployment_parity": false,
+  "test_result_counts": {
+    "cases": 164,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "25ac0559be7bc4fb2101f6dfe427ccce41af6e886bcc71b7bf2ebbfacf69a6f2",
+  "cleanup_verified": true
+}
+===== evidence/20261005T012152.503810Z/DISPOSITION.md SHA256 1449d029b004f8e2b1c00115e927c79af7502fb017e10589d59b22d4327f5937 =====
+# Bounded successor qualification
+
+All 164 focused cases passed. The unchanged chosen-revision-ID probe now observes denial after committed cancellation and verifies no proposal revision/receipt effects. Ordinary proposal admission/replay, private role boundaries, historical semantic equality, stop UI, local HTTP-worker delivery and the previously missing-claim case passed in this successor.
+
+The new coverage path saved XML successfully. Coverage was intentionally scoped to `apps.reports.render_client`: combined coverage 96.91%, line rate 97.18%, branch rate 96.15%. This is not whole-repository coverage. Its configured 80% threshold passed for that module only.
+
+This passing successor does not explain the earlier missing queue claim's exact cause. Failed predecessor receipts remain. Whole-source regression/coverage, live billing/storage, current-object restore, retention/all-writer capacity, host-clock attribution and production approval remain open. Production was untouched.
+
+===== evidence/20261005T012152.503810Z/build-context/source/apps/reviews/migrations/0008_proposal_post_effect_authority.py SHA256 9a2eee551702121b55c60a32f05f739b6613bf786916c8208b1ee08a05b24b91 =====
+"""Recheck proposal authority after admitted caller-chosen PK insert waits."""
+
+from django.db import migrations
+
+SQL = r"""
+CREATE OR REPLACE FUNCTION app_private.issue_core_exposure_proposals(rid uuid,org uuid,actor uuid,sid uuid) RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,public AS $fn$
+DECLARE s public.assessment_snapshots%ROWTYPE; capture public.assessment_capture_receipts%ROWTYPE;
+ previous public.review_capture_proposal_receipts%ROWTYPE; revision public.core_action_card_revisions%ROWTYPE;
+ cards jsonb; card_hash text; qualification_hash text; issued timestamptz;
+BEGIN
+ IF current_setting('transaction_isolation')<>'read committed' OR rid IS NULL OR org IS NULL OR actor IS NULL OR sid IS NULL THEN
+  RAISE EXCEPTION 'Proposal admission requires explicit identities and read committed'; END IF;
+ IF org IS DISTINCT FROM app_private.current_organization_id() OR actor IS DISTINCT FROM app_private.current_user_id() THEN
+  RAISE EXCEPTION 'Proposal identity context invalid'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':control',0));
+ PERFORM pg_advisory_xact_lock(hashtextextended('core:'||org::text||':proposal:'||sid::text,0));
+ PERFORM 1 FROM public.review_core_proposal_gate WHERE id=1 FOR SHARE;
+ IF NOT EXISTS(SELECT 1 FROM public.review_core_proposal_gate WHERE id=1 AND enabled)
+  OR NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org)
+  OR NOT EXISTS(SELECT 1 FROM public.organization_workflow_profiles WHERE organization_id=org) THEN
+  RAISE EXCEPTION 'Proposal admission unavailable'; END IF;
+ PERFORM 1 FROM public.accounts_user WHERE id=actor FOR KEY SHARE;
+ PERFORM 1 FROM public.organizations_organization WHERE id=org FOR KEY SHARE;
+ SELECT * INTO s FROM public.assessment_snapshots WHERE id=sid AND organization_id=org FOR KEY SHARE;
+ SELECT * INTO capture FROM public.assessment_capture_receipts WHERE snapshot_id=sid AND organization_id=org FOR KEY SHARE;
+ SELECT * INTO revision FROM public.core_action_card_revisions WHERE snapshot_id=sid AND organization_id=org FOR KEY SHARE;
+ PERFORM 1 FROM public.organization_workflow_profiles WHERE organization_id=org FOR SHARE;
+ cards:=app_private.recompute_capture_proposals_v1(sid,org);
+ card_hash:=encode(sha256(convert_to(app_private.queue_canonical(cards),'UTF8')),'hex');
+ qualification_hash:=encode(sha256(convert_to(app_private.queue_canonical(jsonb_build_object('schema','stewardence.core_review_proposal_applicability.v1',
+  'industry_applicability',s.input_payload->'industry_applicability','ruleset',s.input_payload->'rulesets'->'industry','engine_versions',s.input_payload->'engine_versions')),'UTF8')),'hex');
+ issued:=clock_timestamp();
+ IF NOT EXISTS(SELECT 1 FROM public.review_core_proposal_gate WHERE id=1 AND enabled)
+  OR NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org)
+  OR NOT EXISTS(SELECT 1 FROM public.organization_workflow_profiles WHERE organization_id=org)
+  OR s.created_by_id IS DISTINCT FROM actor OR capture.created_by_id IS DISTINCT FROM actor OR s.captured_at>issued THEN
+  RAISE EXCEPTION 'Proposal authority unavailable after waits'; END IF;
+ SELECT * INTO previous FROM public.review_capture_proposal_receipts WHERE snapshot_id=sid AND organization_id=org;
+ IF FOUND THEN
+  IF revision.id IS DISTINCT FROM previous.revision_id OR revision.created_by_id IS DISTINCT FROM actor
+   OR previous.created_by_id IS DISTINCT FROM actor OR previous.capture_receipt_id IS DISTINCT FROM capture.id
+   OR previous.contract IS DISTINCT FROM 'stewardence.core_review_proposal.v1'
+   OR previous.input_sha256 IS DISTINCT FROM s.input_sha256 OR previous.result_sha256 IS DISTINCT FROM s.result_sha256
+   OR previous.revision_sha256 IS DISTINCT FROM card_hash OR previous.qualification_sha256 IS DISTINCT FROM qualification_hash
+   OR revision.cards IS DISTINCT FROM cards OR revision.sha256 IS DISTINCT FROM card_hash OR revision.input_sha256 IS DISTINCT FROM s.result_sha256 THEN
+   RAISE EXCEPTION 'Issued proposal replay pins invalid'; END IF;
+  RETURN revision.id;
+ END IF;
+ IF revision.id IS NOT NULL THEN RAISE EXCEPTION 'Unissued legacy revision conflicts with proposal contract'; END IF;
+ INSERT INTO public.core_action_card_revisions(id,organization_id,created_by_id,created_at,snapshot_id,input_sha256,cards,sha256)
+ VALUES(rid,org,actor,issued,sid,s.result_sha256,cards,card_hash);
+ INSERT INTO public.review_capture_proposal_receipts(id,organization_id,created_by_id,created_at,snapshot_id,revision_id,capture_receipt_id,
+ contract,input_sha256,result_sha256,revision_sha256,qualification_sha256)
+ VALUES(gen_random_uuid(),org,actor,issued,sid,rid,capture.id,'stewardence.core_review_proposal.v1',s.input_sha256,s.result_sha256,card_hash,qualification_hash);
+ -- A caller-selected revision UUID can wait on a foreign uncommitted
+ -- primary key after the earlier FK locks and authority observation. Receipt
+ -- insertion can also wait. Recheck after all effects; an exception rolls
+ -- both immutable rows back within the caller's database transaction.
+ issued:=clock_timestamp();
+ IF NOT EXISTS(SELECT 1 FROM public.review_core_proposal_gate WHERE id=1 AND enabled)
+  OR NOT app_private.core_owner_entitled(org,actor) OR NOT app_private.core_work_allowed(org)
+  OR NOT EXISTS(SELECT 1 FROM public.organization_workflow_profiles WHERE organization_id=org)
+  OR s.created_by_id IS DISTINCT FROM actor OR capture.created_by_id IS DISTINCT FROM actor OR s.captured_at>issued THEN
+  RAISE EXCEPTION 'Proposal authority unavailable after waits'; END IF;
+ RETURN rid;
+END;$fn$;
+ALTER FUNCTION app_private.issue_core_exposure_proposals(uuid,uuid,uuid,uuid) OWNER TO agentledger_owner;
+REVOKE ALL ON FUNCTION app_private.issue_core_exposure_proposals(uuid,uuid,uuid,uuid) FROM PUBLIC,agentledger_worker,agentledger_billing_admission;
+GRANT EXECUTE ON FUNCTION app_private.issue_core_exposure_proposals(uuid,uuid,uuid,uuid) TO agentledger_app;
+"""
+
+
+class Migration(migrations.Migration):
+    dependencies = [("reviews", "0007_unused_stop")]
+    operations = [migrations.RunSQL(SQL)]
+
+===== evidence/20261005T012152.503810Z/build-context/source/tests/test_capture_proposal_pk_wait_authority.py SHA256 3346322b30fdf227c60431e85be305fb6137dd50d6061ef1fa7be2a7c2732de2 =====
+"""Actual-role chosen PK wait must not retain pre-wait paid authority."""
+
+from concurrent.futures import ThreadPoolExecutor
+from threading import Event
+from time import monotonic
+from uuid import uuid4
+
+import pytest
+from django.contrib.auth import get_user_model
+from django.db import DatabaseError, connections, transaction
+
+from agentledger.tenancy.context import identity_transaction, tenant_transaction
+from apps.billing.models import Subscription
+from apps.jobs.core_models import ActionCardRevision
+from apps.organizations.models import Organization, OrganizationMember, WorkflowProfile
+from apps.reviews.models import (
+    CaptureProposalAdmissionReceipt,
+    CoreProposalAdmissionGate,
+)
+from tests.conftest import grant_core_entitlement
+from tests.test_capture_admission import admit, preview
+from tests.test_capture_admission import capture_context as capture_context
+from tests.test_explicit_inventory import explicit_context as explicit_context
+from tests.test_explicit_inventory import issue
+
+__all__ = ["capture_context", "explicit_context"]
+pytestmark = pytest.mark.django_db(transaction=True, databases="__all__")
+
+
+def test_chosen_revision_pk_wait_rechecks_paid_authority_after_foreign_rollback(
+    capture_context,
+    settings,
+):
+    """No raw counterfeit row: foreign issuer stages a genuine admitted receipt.
+
+    Caller-selected revision UUIDs are admitted by the public SQL API. Browser
+    service UUID4 allocation does not close this actual app-login boundary.
+    Revocation is an observed committed status change, never clock tolerance.
+    """
+    settings.CORE_PROPOSAL_ADMISSION_ENABLED = True
+    CoreProposalAdmissionGate.objects.update_or_create(id=1, defaults={"enabled": True})
+    target_user, target_org = capture_context
+    target_snapshot = admit(capture_context, preview(capture_context))
+
+    foreign_user = get_user_model().objects.create_user("pk-wait-owner@example.invalid")
+    foreign_org = Organization.objects.create(name="Foreign PK admission")
+    OrganizationMember.objects.create(
+        organization=foreign_org, user=foreign_user, role="owner"
+    )
+    WorkflowProfile.objects.create(
+        organization=foreign_org,
+        created_by=foreign_user,
+        profile="business.v1",
+        settings={"name": "PK wait fixture"},
+    )
+    grant_core_entitlement(foreign_user, foreign_org)
+    foreign_context = foreign_user, foreign_org
+    issue(foreign_context)
+    foreign_snapshot = admit(foreign_context, preview(foreign_context))
+
+    revision_id = uuid4()
+    staged = Event()
+    release = Event()
+    target_name = "proposal-pk-target-" + uuid4().hex
+    foreign_pid = []
+    observations = {}
+
+    def foreign_transaction():
+        connections.close_all()
+        try:
+            with (
+                identity_transaction(foreign_user.id, using="app_runtime"),
+                tenant_transaction(foreign_org.id, using="app_runtime"),
+                connections["app_runtime"].cursor() as cursor,
+            ):
+                cursor.execute("SELECT pg_backend_pid()")
+                foreign_pid.append(cursor.fetchone()[0])
+                cursor.execute(
+                    "SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)",
+                    [revision_id, foreign_org.id, foreign_user.id, foreign_snapshot.id],
+                )
+                assert cursor.fetchone()[0] == revision_id
+                staged.set()
+                assert release.wait(timeout=30), "Controlled PK blocker never released"
+                transaction.set_rollback(True, using="app_runtime")
+        finally:
+            connections.close_all()
+
+    def target_transaction():
+        connections.close_all()
+        try:
+            with (
+                identity_transaction(target_user.id, using="app_runtime"),
+                tenant_transaction(target_org.id, using="app_runtime"),
+                connections["app_runtime"].cursor() as cursor,
+            ):
+                cursor.execute(
+                    "SELECT set_config('application_name',%s,false)", [target_name]
+                )
+                cursor.execute(
+                    "SELECT app_private.issue_core_exposure_proposals(%s,%s,%s,%s)",
+                    [revision_id, target_org.id, target_user.id, target_snapshot.id],
+                )
+                return "admitted", cursor.fetchone()[0]
+        except DatabaseError as error:
+            return "denied", str(error)
+        finally:
+            connections.close_all()
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        blocker = pool.submit(foreign_transaction)
+        target = None
+        try:
+            assert staged.wait(timeout=15), "Foreign genuine issuer never staged"
+            target = pool.submit(target_transaction)
+            deadline = monotonic() + 15
+            confirmed_wait = False
+            while monotonic() < deadline:
+                with connections["default"].cursor() as cursor:
+                    cursor.execute("SELECT pg_stat_clear_snapshot()")
+                    cursor.execute(
+                        "SELECT EXISTS(SELECT 1 FROM pg_stat_activity a WHERE "
+                        "a.application_name=%s AND a.usename='agentledger_app' "
+                        "AND a.wait_event_type='Lock' "
+                        "AND %s=ANY(pg_blocking_pids(a.pid)))",
+                        [target_name, foreign_pid[0]],
+                    )
+                    confirmed_wait = cursor.fetchone()[0]
+                if confirmed_wait:
+                    break
+                if target.done():
+                    pytest.fail(
+                        f"Target exited before unique-PK wait: {target.result()}"
+                    )
+                release.wait(timeout=0.025)
+            assert confirmed_wait, "Target never waited on foreign admitted revision PK"
+            Subscription.objects.filter(organization=target_org).update(
+                status="canceled"
+            )
+            with connections["default"].cursor() as cursor:
+                cursor.execute(
+                    "SELECT clock_timestamp(),app_private.core_owner_entitled(%s,%s),"
+                    "app_private.core_work_allowed(%s)",
+                    [target_org.id, target_user.id, target_org.id],
+                )
+                clock, entitled, work_allowed = cursor.fetchone()
+            observations.update(
+                clock=clock.isoformat(),
+                entitled=entitled,
+                work_allowed=work_allowed,
+                foreign_pk_wait=True,
+            )
+            assert entitled is False and work_allowed is False
+        finally:
+            release.set()
+        blocker.result(timeout=15)
+        assert target is not None
+        outcome = target.result(timeout=15)
+    assert outcome[0] == "denied", (observations, outcome)
+    assert "authority unavailable after waits" in outcome[1]
+    assert not ActionCardRevision.objects.filter(snapshot=target_snapshot).exists()
+    assert not CaptureProposalAdmissionReceipt.objects.filter(
+        snapshot=target_snapshot
+    ).exists()
+    assert not ActionCardRevision.objects.filter(snapshot=foreign_snapshot).exists()

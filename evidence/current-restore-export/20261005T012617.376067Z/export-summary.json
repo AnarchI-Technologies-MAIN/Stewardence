@@ -1,0 +1,38 @@
+{
+  "schema": "qualification.current_candidate_export.v1",
+  "operator_id": "0c3151c1-ebd1-48ca-ad16-9440124915d3",
+  "passed": true,
+  "restore_qualified": false,
+  "production_touched": false,
+  "device_loss_survival": false,
+  "harness_sha256": "58fa1149354581c685e680865368a6d5573e694dac954361db51b9fd45952542",
+  "streamer_sha256": "b0eda37d3386cc2786af9bf956a578c70b772097d0a8623d4741159c2f63699d",
+  "qualifier_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261005T012617.651575Z",
+  "app_container_id": "be23f07bcfa1c5dc6b59b69915e2db9e92f2ecb4525d6f0e87ed3b4a49da896d",
+  "database_container_id": "69a5e29bf4a19da53ab0c8af66e313d4eb6df99c00679e86ab55be2b9054dfea",
+  "database": {
+    "file": "current-candidate-0c3151c1-ebd1-48ca-ad16-9440124915d3.dump.age",
+    "sha256": "f8cf4f5d901b226d53779d954a1eac99db1d930127279c74642d76b61a7e887c",
+    "bytes": 720195,
+    "custody": {
+      "distribution": "Ubuntu",
+      "encrypted_path": "/home/alexg-anarchi/stewardence-backups/current-candidate-0c3151c1-ebd1-48ca-ad16-9440124915d3.dump.age",
+      "sha256": "f8cf4f5d901b226d53779d954a1eac99db1d930127279c74642d76b61a7e887c",
+      "key_copied": false
+    }
+  },
+  "objects": {
+    "file": "current-candidate-0c3151c1-ebd1-48ca-ad16-9440124915d3.objects.tar.age",
+    "sha256": "891ccdaf72af78c3841154e01e3840a58f253ca2ede4d95b009074a2e0acf00e",
+    "bytes": 194792,
+    "custody": {
+      "distribution": "Ubuntu",
+      "encrypted_path": "/home/alexg-anarchi/stewardence-backups/current-candidate-0c3151c1-ebd1-48ca-ad16-9440124915d3.objects.tar.age",
+      "sha256": "891ccdaf72af78c3841154e01e3840a58f253ca2ede4d95b009074a2e0acf00e",
+      "key_copied": false
+    }
+  },
+  "source_manifest_sha256": "8773cf8f9b75c6136f3b8c592f25e0452c2bb65acb00a5dcd2b910f5e7d9a3ea",
+  "private_manifest_sha256": "0f39afd26d17fd1a0e53b601e57bf028115a0b4e8e9344b6327807ced61cb655",
+  "key_copied": false
+}

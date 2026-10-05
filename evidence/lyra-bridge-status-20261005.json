@@ -1,0 +1,9 @@
+{
+  "kit_enrollment_attempted": false,
+  "participant_credentials_generated": false,
+  "invitation_exposed_during_inspection": true,
+  "user_reported_all_bridge_kits_and_identity_keys_revoked": true,
+  "revocation_independently_verified": false,
+  "consultation_method": "existing authenticated ChatGPT conversation",
+  "production_touched": false
+}

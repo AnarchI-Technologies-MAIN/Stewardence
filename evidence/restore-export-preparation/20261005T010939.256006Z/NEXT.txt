@@ -1,0 +1,7 @@
+Next stage needs a separate operator harness, not manual plaintext exports.
+Launch isolated --http-renderer qualifier with STEWARDENCE_RESTORE_EXPORT_HOLD=1 forwarded explicitly; test_capture_v4_restore_export.py only.
+Wait for public ready receipt. Resolve exact owned app/DB container IDs and labels before reads.
+While fixtures are held, pipe DB pg_dump and the RAM-only object tar streamer directly into age encryption using the existing public recipient derived locally from the approved key. Never print/disk-persist plaintext or pass the private key into a container.
+Verify ciphertext hashes/custody, then atomically write the exact release acknowledgement. Preserve failed stages.
+Only afterward restore both encrypted streams to fresh disposable targets, qualify four-role catalog/RLS/receipt/private-access/corruption invariants, and verify all owned cleanup.
+This preparation neither performs nor qualifies any of those stages.

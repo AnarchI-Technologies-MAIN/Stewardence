@@ -1,0 +1,15 @@
+{
+  "exit_code": 4,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-d003166466",
+  "image_id": "sha256:a03af85387cde2af9050ec1d48bd68a281c2af41f39dfc602db2b8130924dd6e",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T194907.921051Z",
+  "test_arguments": [
+    "tests/test_semantic_contracts.py",
+    "tests/test_workflow_contracts.py",
+    "tests/test_automation_collection_contract.py",
+    "tests/test_provider_previews.py",
+    "tests/test_quickbooks_reports.py"
+  ]
+}

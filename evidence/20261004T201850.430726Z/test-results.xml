@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="6" failures="0" skipped="0" tests="6" time="17.849" timestamp="2026-10-04T20:19:58.692611+00:00" hostname="d6869efaadaf"><testcase classname="tests.test_review_report_read_authority" name="test_hidden_request_cannot_turn_review_pack_into_ordinary_report[viewer]" time="10.277"><error message="failed on setup with &quot;apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 290c6165-861f-409b-ba1a-02aec7024763 v1&gt;, &lt;PackIdentity: PackIdentity object (40c9e189-5f16-4275-8db1-e3d58ee9a36e)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_hidden_request_cannot_tur0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+&gt;       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = &lt;Report: AL-2026-000001&gt;, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = &lt;apps.reports.storage.LocalPrivateReportStorage object at 0x771e047930e0&gt;
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -&gt; ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+&gt;                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError</error></testcase><testcase classname="tests.test_review_report_read_authority" name="test_hidden_request_cannot_turn_review_pack_into_ordinary_report[assessor]" time="1.416"><error message="failed on setup with &quot;apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 60415c7b-8d5d-4cbf-b878-1475d6405b2b v1&gt;, &lt;PackIdentity: PackIdentity object (2bf1bba4-0807-4ed7-a0f5-898c8cc2a4d3)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_hidden_request_cannot_tur1')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+&gt;       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = &lt;Report: AL-2026-000002&gt;, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = &lt;apps.reports.storage.LocalPrivateReportStorage object at 0x771e03a50690&gt;
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -&gt; ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+&gt;                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError</error></testcase><testcase classname="tests.test_review_report_read_authority" name="test_routed_nonowner_reads_hide_pack_before_storage[viewer]" time="1.114"><error message="failed on setup with &quot;apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: ead18579-45ce-494f-a8fd-09519d3861c3 v1&gt;, &lt;PackIdentity: PackIdentity object (a4022a02-0104-40cc-8f2d-eaf4404f780b)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_routed_nonowner_reads_hid0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+&gt;       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = &lt;Report: AL-2026-000003&gt;, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = &lt;apps.reports.storage.LocalPrivateReportStorage object at 0x771e03db9450&gt;
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -&gt; ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+&gt;                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError</error></testcase><testcase classname="tests.test_review_report_read_authority" name="test_routed_nonowner_reads_hide_pack_before_storage[assessor]" time="1.487"><error message="failed on setup with &quot;apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 9c09c022-1bc3-4c6a-adf1-84bb5080728f v1&gt;, &lt;PackIdentity: PackIdentity object (4442b0f0-d93d-40bc-a0e9-d86d8c9e2bf0)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_routed_nonowner_reads_hid1')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+&gt;       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = &lt;Report: AL-2026-000004&gt;, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = &lt;apps.reports.storage.LocalPrivateReportStorage object at 0x771e03eb0d60&gt;
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -&gt; ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+&gt;                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError</error></testcase><testcase classname="tests.test_review_report_read_authority" name="test_owner_reads_pack_and_ordinary_report_with_actual_app_role" time="0.924"><error message="failed on setup with &quot;apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: deb33342-59f3-459f-8e9b-fbf56316d40f v1&gt;, &lt;PackIdentity: PackIdentity object (8e31a4f5-faf4-4502-b956-ef9f03b29aa5)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_owner_reads_pack_and_ordi0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+&gt;       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = &lt;Report: AL-2026-000005&gt;, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = &lt;apps.reports.storage.LocalPrivateReportStorage object at 0x771e045a7ce0&gt;
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -&gt; ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+&gt;                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError</error></testcase><testcase classname="tests.test_review_report_read_authority" name="test_owner_identity_cannot_read_original_pack_in_other_tenant_context" time="1.299"><error message="failed on setup with &quot;apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata&quot;">pack_context = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 2cf9ba2d-fab6-4d03-8bcc-d11785686b8d v1&gt;, &lt;PackIdentity: PackIdentity object (7c62091b-99d5-4c79-ad81-84700e071d39)&gt;)
+enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_owner_identity_cannot_rea0')
+
+    @pytest.fixture
+    def stored_reports(pack_context, enabled, tmp_path):
+        staged = request(pack_context)
+        job = claimed(pack_context)
+        wrapped = handler(tmp_path)
+        execute_claimed_job(JobExecution(job=job, worker_id="review-qualification"),
+                            wrapped, using="worker_runtime")
+        owner, org, snapshot, _ = pack_context
+        ordinary = create_report(organization_id=org.id,
+                                 assessment_snapshot_id=snapshot.id, created_by_id=owner.id)
+&gt;       persist_pdf_artifact(report=ordinary, pdf_bytes=b'%PDF-1.7\nordinary\n%%EOF\n',
+                             storage=wrapped.delegate.storage)
+
+tests/test_review_report_read_authority.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = &lt;Report: AL-2026-000006&gt;, pdf_bytes = b'%PDF-1.7\nordinary\n%%EOF\n'
+storage = &lt;apps.reports.storage.LocalPrivateReportStorage object at 0x771e03e22690&gt;
+using = 'default'
+
+    def persist_pdf_artifact(
+        *,
+        report: Report,
+        pdf_bytes: bytes,
+        storage: PrivateReportStorage,
+        using: str = "default",
+    ) -&gt; ReportArtifact:
+        validate_pdf_bytes(pdf_bytes)
+    
+        key = build_pdf_object_key(
+            organization_id=report.organization_id,
+            assessment_snapshot_id=report.assessment_snapshot_id,
+            report_id=report.id,
+        )
+        digest = sha256_hex(pdf_bytes)
+    
+        try:
+            with transaction.atomic(using=using):
+                # Serialize artifact materialization for exactly one report.
+                with connections[using].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                        [f"report-artifact:{report.id}"],
+                    )
+    
+                existing = (
+                    ReportArtifact.objects.using(using)
+                    .filter(
+                        organization_id=report.organization_id,
+                        report_id=report.id,
+                    )
+                    .first()
+                )
+    
+                if existing is not None:
+                    if (
+                        existing.object_key == key
+                        and existing.content_type == PDF_CONTENT_TYPE
+                        and existing.sha256 == digest
+                        and existing.size_bytes == len(pdf_bytes)
+                    ):
+                        return existing
+    
+&gt;                   raise ReportArtifactError(
+                        "Report already has different persisted artifact metadata"
+                    )
+E                   apps.reports.artifact_services.ReportArtifactError: Report already has different persisted artifact metadata
+
+apps/reports/artifact_services.py:63: ReportArtifactError</error></testcase></testsuite></testsuites>

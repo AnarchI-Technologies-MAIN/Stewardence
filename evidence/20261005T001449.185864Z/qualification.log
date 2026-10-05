@@ -1,0 +1,572 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reviews.0004_capture_pack_projection... OK
+  Applying jobs.0015_legacy_action_card_schema_fence... OK
+  Applying reviews.0005_capture_proposal_admission... OK
+  Applying jobs.0016_capture_decisions... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0005_review_pack_read_authority... OK
+  Applying reports.0006_capture_owner_read... OK
+  Applying reviews.0006_capture_proposal_packs... OK
+  Applying reviews.0007_unused_stop... OK
+F............FFF......FF................................................ [ 56%]
+..............................................F........                  [100%]
+=================================== FAILURES ===================================
+________ test_stop_receipt_replay_keeps_evidence_and_monthly_admission _________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7647d532c650>
+sql = 'SELECT "review_pack_identities"."id", "review_pack_identities"."organization_id", "review_pack_identities"."created_b...st", "review_pack_identities"."sha256" FROM "review_pack_identities" WHERE "review_pack_identities"."id" = %s LIMIT 21'
+params = (UUID('0544adf3-3665-43ad-aa96-48fe13b00dc9'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7647d532c650>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7647d5663af0>
+query = 'SELECT "review_pack_identities"."id", "review_pack_identities"."organization_id", "review_pack_identities"."created_b...st", "review_pack_identities"."sha256" FROM "review_pack_identities" WHERE "review_pack_identities"."id" = %s LIMIT 21'
+params = (UUID('0544adf3-3665-43ad-aa96-48fe13b00dc9'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+unused_pack = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 7f3f1eca-0af3-4e5d-bcaf-8b4d70310743 v1>, <PackIdentity: Review pack 0544adf3-3665-43ad-aa96-48fe13b00dc9>)
+
+    def test_stop_receipt_replay_keeps_evidence_and_monthly_admission(unused_pack):
+        _, org, _, pack = unused_pack
+        reservation = CapacityReservation.objects.get(cycle_id=pack.cycle_id)
+        before = pack.manifest
+        event = stop(unused_pack, reason="context_too_large")
+        assert event.state == "TERMINATED_UNUSED" and event.revision == 4
+        assert len(event.payload) == 11
+        assert event.payload["schema"] == "stewardence.review_unused_stop.v1"
+        assert event.payload["proof_scope"] == "no_admitted_report_work"
+        assert event.payload["monthly_allowance_refunded"] is False
+        assert stop(unused_pack, reason="context_too_large").id == event.id
+>       pack.refresh_from_db()
+
+tests/test_review_unused_stop.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/base.py:737: in refresh_from_db
+    db_instance = db_instance_qs.get()
+                  ^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7647d5663af0>
+query = 'SELECT "review_pack_identities"."id", "review_pack_identities"."organization_id", "review_pack_identities"."created_b...st", "review_pack_identities"."sha256" FROM "review_pack_identities" WHERE "review_pack_identities"."id" = %s LIMIT 21'
+params = (UUID('0544adf3-3665-43ad-aa96-48fe13b00dc9'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+____ test_snapshot_wait_orders_report_admission_against_unused_proof[stop] _____
+
+unused_pack = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 00f2d3a1-ed3e-45cb-843f-5b9a17aa194a v1>, <PackIdentity: Review pack 81683514-395a-431a-a2d7-371fd7a0fef9>)
+first = 'stop'
+
+    @pytest.mark.parametrize("first", ["stop", "report"])
+    def test_snapshot_wait_orders_report_admission_against_unused_proof(unused_pack, first):
+        """Queue both actual app logins on an operator-held snapshot row."""
+        from django.db import transaction
+    
+        user, org, snapshot, _ = unused_pack
+        names = {
+            kind: "unused-row-race-" + kind + uuid4().hex for kind in ("stop", "report")
+        }
+    
+        def attempt(kind):
+            connections.close_all()
+            try:
+                with connections["app_runtime"].cursor() as cursor:
+                    cursor.execute("SET application_name=%s", [names[kind]])
+                if kind == "stop":
+                    return "admitted", stop(unused_pack).id
+                with (
+                    identity_transaction(user.id, using="app_runtime"),
+                    tenant_transaction(org.id, using="app_runtime"),
+                ):
+                    result = create_report(
+                        organization_id=org.id,
+                        assessment_snapshot_id=snapshot.id,
+                        created_by_id=user.id,
+                        using="app_runtime",
+                    )
+                    return "admitted", result.id
+            except DatabaseError:
+                return "denied", None
+            finally:
+                connections.close_all()
+    
+        def require_wait(kind):
+            deadline = monotonic() + 15
+            while monotonic() < deadline:
+                with connections["default"].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE "
+                        "application_name=%s AND wait_event_type='Lock')",
+                        [names[kind]],
+                    )
+                    if cursor.fetchone()[0]:
+                        return
+                sleep(0.025)
+            pytest.fail(f"Actual {kind} login never reached row-lock barrier")
+    
+        second = "report" if first == "stop" else "stop"
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            with transaction.atomic(), connections["default"].cursor() as cursor:
+                cursor.execute(
+                    "SELECT id FROM assessment_snapshots WHERE id=%s FOR UPDATE",
+                    [snapshot.id],
+                )
+                first_future = pool.submit(attempt, first)
+>               require_wait(first)
+
+tests/test_review_unused_stop.py:299: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+kind = 'stop'
+
+    def require_wait(kind):
+        deadline = monotonic() + 15
+        while monotonic() < deadline:
+            with connections["default"].cursor() as cursor:
+                cursor.execute(
+                    "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE "
+                    "application_name=%s AND wait_event_type='Lock')",
+                    [names[kind]],
+                )
+                if cursor.fetchone()[0]:
+                    return
+            sleep(0.025)
+>       pytest.fail(f"Actual {kind} login never reached row-lock barrier")
+E       Failed: Actual stop login never reached row-lock barrier
+
+tests/test_review_unused_stop.py:289: Failed
+___ test_snapshot_wait_orders_report_admission_against_unused_proof[report] ____
+
+unused_pack = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 756d9f2d-3da5-4627-987f-80bcd5c1ccf8 v1>, <PackIdentity: Review pack 18e7fd5b-af76-4de3-b7a3-5792157f9c79>)
+first = 'report'
+
+    @pytest.mark.parametrize("first", ["stop", "report"])
+    def test_snapshot_wait_orders_report_admission_against_unused_proof(unused_pack, first):
+        """Queue both actual app logins on an operator-held snapshot row."""
+        from django.db import transaction
+    
+        user, org, snapshot, _ = unused_pack
+        names = {
+            kind: "unused-row-race-" + kind + uuid4().hex for kind in ("stop", "report")
+        }
+    
+        def attempt(kind):
+            connections.close_all()
+            try:
+                with connections["app_runtime"].cursor() as cursor:
+                    cursor.execute("SET application_name=%s", [names[kind]])
+                if kind == "stop":
+                    return "admitted", stop(unused_pack).id
+                with (
+                    identity_transaction(user.id, using="app_runtime"),
+                    tenant_transaction(org.id, using="app_runtime"),
+                ):
+                    result = create_report(
+                        organization_id=org.id,
+                        assessment_snapshot_id=snapshot.id,
+                        created_by_id=user.id,
+                        using="app_runtime",
+                    )
+                    return "admitted", result.id
+            except DatabaseError:
+                return "denied", None
+            finally:
+                connections.close_all()
+    
+        def require_wait(kind):
+            deadline = monotonic() + 15
+            while monotonic() < deadline:
+                with connections["default"].cursor() as cursor:
+                    cursor.execute(
+                        "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE "
+                        "application_name=%s AND wait_event_type='Lock')",
+                        [names[kind]],
+                    )
+                    if cursor.fetchone()[0]:
+                        return
+                sleep(0.025)
+            pytest.fail(f"Actual {kind} login never reached row-lock barrier")
+    
+        second = "report" if first == "stop" else "stop"
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            with transaction.atomic(), connections["default"].cursor() as cursor:
+                cursor.execute(
+                    "SELECT id FROM assessment_snapshots WHERE id=%s FOR UPDATE",
+                    [snapshot.id],
+                )
+                first_future = pool.submit(attempt, first)
+>               require_wait(first)
+
+tests/test_review_unused_stop.py:299: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+kind = 'report'
+
+    def require_wait(kind):
+        deadline = monotonic() + 15
+        while monotonic() < deadline:
+            with connections["default"].cursor() as cursor:
+                cursor.execute(
+                    "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE "
+                    "application_name=%s AND wait_event_type='Lock')",
+                    [names[kind]],
+                )
+                if cursor.fetchone()[0]:
+                    return
+            sleep(0.025)
+>       pytest.fail(f"Actual {kind} login never reached row-lock barrier")
+E       Failed: Actual report login never reached row-lock barrier
+
+tests/test_review_unused_stop.py:289: Failed
+_ test_admitted_unicode_notes_exceed_context_and_unused_stop_recovers_capacity _
+
+capture_decision_context = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 5370df34-bed4-42ba-ad66-7cebdf267ad7 v1>, <ActionCardRevision: ActionCardRevision object (fb59ecde-bcaf-4a39-b519-f13e68e01d0b)>)
+lifecycle = None
+settings = <pytest_django.fixtures.Settings object at 0x7647d526a690>
+
+    def test_admitted_unicode_notes_exceed_context_and_unused_stop_recovers_capacity(
+        capture_decision_context,
+        lifecycle,
+        settings,
+    ):
+        """Four real records and 32 issued owner statements, no raw fake events."""
+        from apps.jobs.core_decisions_v2 import record_capture_decision
+        from apps.jobs.models import BackgroundJob
+        from apps.reviews.proposal_admission import issue_capture_proposals
+        from tests.test_explicit_inventory import issue
+    
+        user, org = capture_decision_context[:2]
+        settings.REVIEW_UNUSED_STOP_ENABLED = True
+        UnusedStopGate.objects.update_or_create(id=1, defaults={"enabled": True})
+        for _ in range(3):
+            issue((user, org))
+        snapshot = admit((user, org), preview((user, org)))
+        assert len(snapshot.input_payload["inventory"]) == 4
+        revision = issue_capture_proposals(
+            organization_id=org.id,
+            actor_id=user.id,
+            snapshot_id=snapshot.id,
+            using="app_runtime",
+        )
+        assert len(revision.cards) == 16
+        notes = "\U0001f9f0" * 4096
+        for index, proposal in enumerate(revision.cards):
+            prior = None
+            for kind, state in (
+                ("disposition", "defer"),
+                ("execution", "completion_recorded"),
+            ):
+                prior = record_capture_decision(
+                    organization_id=org.id,
+                    actor_id=user.id,
+                    revision_id=revision.id,
+                    proposal_id=UUID(proposal["proposal_id"]),
+                    proposal_sha256=proposal["sha256"],
+                    card_index=index,
+                    event_kind=kind,
+                    state=state,
+                    responsible_label="Named owner",
+                    expected_previous_event=prior,
+                    notes=notes,
+                    using="app_runtime",
+                )
+        context = frozen((user, org, snapshot, revision))
+        assert len(context[3].manifest["selected_decisions"]) == 32
+        assert all(
+            entry["payload"]["notes"] == notes
+            for entry in context[3].manifest["selected_decisions"]
+        )
+        reports_before = Report.objects.count()
+        jobs_before = BackgroundJob.objects.count()
+>       with pytest.raises(DatabaseError, match="maximum is 1048576"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'maximum is 1048576'
+E         Actual message: 'Queue input exceeds admission bounds\nCONTEXT:  PL/pgSQL function app_private.queue_canonical(jsonb,integer) line 4 at RAISE\nPL/pgSQL function app_private.request_review_artifact(uuid,uuid,uuid,integer,uuid,uuid,boolean) line 25 at assignment'
+
+tests/test_review_unused_stop.py:363: AssertionError
+_ test_exact_stop_billing_exemption_never_bypasses_owner_or_tenant[viewer-403] _
+
+unused_pack = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 832790f6-273c-4527-a272-6585c25a1f22 v1>, <PackIdentity: Review pack 25612bbc-f5a0-450d-b8a6-cbf7b76ccaa8>)
+settings = <pytest_django.fixtures.Settings object at 0x7647d4d4efd0>
+visitor = 'viewer', status = 403
+
+    @pytest.mark.parametrize("visitor,status", [("viewer", 403), ("foreign_owner", 404)])
+    def test_exact_stop_billing_exemption_never_bypasses_owner_or_tenant(
+        unused_pack, settings, visitor, status
+    ):
+        owner, original_org = unused_pack[:2]
+        if visitor == "viewer":
+            owner = get_user_model().objects.create_user("stop-viewer@example.invalid")
+            org = original_org
+            OrganizationMember.objects.create(organization=org, user=owner, role="viewer")
+        if visitor == "foreign_owner":
+            org = Organization.objects.create(name="Foreign stop workspace")
+            OrganizationMember.objects.create(organization=org, user=owner, role="owner")
+        client = owner_client((owner, org), settings)
+        # Obtain only CSRF cookie on an allowed authenticated billing GET. Do not
+        # remove BillingEntitlementMiddleware or alter tenant/owner middleware.
+        with actual_app_default():
+            assert client.get(reverse("billing:portfolio")).status_code == 200
+        before, count = work_counts(), CycleEvent.objects.count()
+        with actual_app_default():
+            response = post(client, route(unused_pack), {"reason": "owner_stopped"})
+        assert response.status_code == status
+>       assert b"Recovery receipt" not in response.content
+E       assert b'Recovery receipt' not in b'\n<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=...urn to your companies</a>\n  </section>\n\n          </main>\n        </div>\n      </div>\n    \n  </body>\n</html>\n'
+E        +  where b'\n<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=...urn to your companies</a>\n  </section>\n\n          </main>\n        </div>\n      </div>\n    \n  </body>\n</html>\n' = <HttpResponseForbidden status_code=403, "text/html; charset=utf-8">.content
+
+tests/test_review_unused_stop_ui.py:165: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:253 Forbidden (Permission denied): /reviews/packs/25612bbc-f5a0-450d-b8a6-cbf7b76ccaa8/stop-unused/
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.14/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/app/.venv/lib/python3.14/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/app/apps/reviews/views.py", line 55, in guarded
+    raise PermissionDenied("Evidence review requires workspace owner authority")
+django.core.exceptions.PermissionDenied: Evidence review requires workspace owner authority
+_ test_exact_stop_billing_exemption_never_bypasses_owner_or_tenant[foreign_owner-404] _
+
+unused_pack = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: c72e7029-9ddb-4312-b8b1-574bdf4460cc v1>, <PackIdentity: Review pack 63b1075c-b5d7-4e04-9a7e-449910457965>)
+settings = <pytest_django.fixtures.Settings object at 0x7647d538e2d0>
+visitor = 'foreign_owner', status = 404
+
+    @pytest.mark.parametrize("visitor,status", [("viewer", 403), ("foreign_owner", 404)])
+    def test_exact_stop_billing_exemption_never_bypasses_owner_or_tenant(
+        unused_pack, settings, visitor, status
+    ):
+        owner, original_org = unused_pack[:2]
+        if visitor == "viewer":
+            owner = get_user_model().objects.create_user("stop-viewer@example.invalid")
+            org = original_org
+            OrganizationMember.objects.create(organization=org, user=owner, role="viewer")
+        if visitor == "foreign_owner":
+            org = Organization.objects.create(name="Foreign stop workspace")
+            OrganizationMember.objects.create(organization=org, user=owner, role="owner")
+        client = owner_client((owner, org), settings)
+        # Obtain only CSRF cookie on an allowed authenticated billing GET. Do not
+        # remove BillingEntitlementMiddleware or alter tenant/owner middleware.
+        with actual_app_default():
+>           assert client.get(reverse("billing:portfolio")).status_code == 200
+E           assert 302 == 200
+E            +  where 302 = <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/workspaces/">.status_code
+E            +    where <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/workspaces/"> = get('/billing/portfolio/')
+E            +      where get = <django.test.client.Client object at 0x7647d51c74d0>.get
+E            +      and   '/billing/portfolio/' = reverse('billing:portfolio')
+
+tests/test_review_unused_stop_ui.py:160: AssertionError
+_ test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates _
+
+workspace = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 8a208527-7b1e-4141-98ce-e80ab05e9ed7 v1>, <ActionCardRevision: ActionCardRevision object (dbb9e166-34ec-4162-9741-d745f693ffc0)>)
+client = <django.test.client.Client object at 0x7647d4777b10>
+
+    def test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates(
+        workspace, client
+    ):
+        from review_identity_diagnostics import observer
+    
+        url = reverse("reviews:issue-proposals", args=[workspace[2].id])
+        for index in range(128):
+            observed = []
+            with connections["default"].execute_wrapper(observer(observed)):
+                response = client.post(url)
+>           assert response.status_code == 302, {
+                "index": index,
+                "status": response.status_code,
+                "observed": observed,
+            }
+E           AssertionError: {'index': 71, 'status': 409, 'observed': [{'profile': 'business.v1', 'request': {'schema': 'stewardence.workflow.v1', ...0:18:23.478266+00:00', ...}, 'bound_org': '2c56dc00-c707-45f1-956d-3d3262dfb238', 'isolation': 'read committed', ...}]}
+E           assert 409 == 302
+E            +  where 409 = <HttpResponse status_code=409, "text/html; charset=utf-8">.status_code
+
+tests/test_review_workspace_views.py:603: AssertionError
+----------------------------- Captured stdout call -----------------------------
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "11cd360f-a63a-4b2b-8455-e16cf3e66e78", "bound_actor": "11cd360f-a63a-4b2b-8455-e16cf3e66e78", "bound_effective_pg": "2026-10-05 00:18:23.478266+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "2c56dc00-c707-45f1-956d-3d3262dfb238", "clock_timestamp": "2026-10-05 00:18:22.687647+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "790619.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 37 at RAISE", "organization_context": "2c56dc00-c707-45f1-956d-3d3262dfb238", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-05T00:18:23.478266+00:00", "python_clock_before_probe": "2026-10-05T00:18:22.686212+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-05T00:18:23.478266+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "2c56dc00-c707-45f1-956d-3d3262dfb238", "receipt_ids": ["e5114869-fefb-4494-a125-1aee72c55bf3"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-05 00:18:23.478266+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-05 00:18:22.686652+00", "transaction_timestamp": "2026-10-05 00:18:23.458172+00"}
+SYNTHETIC_IDENTITY_FAILURE {"actor_context": "11cd360f-a63a-4b2b-8455-e16cf3e66e78", "bound_actor": "11cd360f-a63a-4b2b-8455-e16cf3e66e78", "bound_effective_pg": "2026-10-05 00:18:23.478266+00", "bound_operation": "action_cards.reassess_from_signals", "bound_org": "2c56dc00-c707-45f1-956d-3d3262dfb238", "clock_timestamp": "2026-10-05 00:18:22.685506+00", "current_user": "postgres", "database_timezone": "UTC", "effective_minus_clock_microseconds": "792760.000000", "isolation": "read committed", "issuer_exception": "Workflow request identity invalid\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 37 at RAISE", "organization_context": "2c56dc00-c707-45f1-956d-3d3262dfb238", "payload_authority": "proposal_only", "payload_schema": "stewardence.workflow_receipt.v1", "predicates": {"effective_future": true, "effective_not_explicit_utc": false, "effective_roundtrip_mismatch": false, "operation_mismatch": false, "organization_mismatch": false, "profile_mismatch": false, "receipt_ids_not_array": false, "request_key_count_not_six": false, "request_schema_mismatch": false, "request_type_not_object": false, "result_authority_mismatch": false, "result_schema_mismatch": false}, "profile": "business.v1", "python_bound_effective": "2026-10-05T00:18:23.478266+00:00", "python_clock_before_probe": "2026-10-05T00:18:22.684171+00:00", "request": {"branch_profile": "business.v1", "effective_at": "2026-10-05T00:18:23.478266+00:00", "operation": "action_cards.reassess_from_signals", "organization_id": "2c56dc00-c707-45f1-956d-3d3262dfb238", "receipt_ids": ["e5114869-fefb-4494-a125-1aee72c55bf3"], "schema": "stewardence.workflow.v1"}, "request_effective_pg": "2026-10-05 00:18:23.478266+00", "roundtrip_difference_microseconds": "0.000000", "session_user": "postgres", "statement_timestamp": "2026-10-05 00:18:22.68452+00", "transaction_timestamp": "2026-10-05 00:18:23.458172+00"}
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:253 Conflict: /reviews/snapshots/e5114869-fefb-4494-a125-1aee72c55bf3/proposals/
+=============================== warnings summary ===============================
+tests/test_review_unused_stop_ui.py: 9 warnings
+tests/test_capture_review_ui.py: 21 warnings
+tests/test_capture_proposal_ui.py: 10 warnings
+tests/test_capture_v4_worker.py: 2 warnings
+tests/test_capture_v4_reads.py: 6 warnings
+tests/test_review_workspace_views.py: 33 warnings
+tests/test_paid_workflow_boundary.py: 3 warnings
+tests/test_capture_archived_reads.py: 2 warnings
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_review_unused_stop.py::test_stop_receipt_replay_keeps_evidence_and_monthly_admission
+FAILED tests/test_review_unused_stop.py::test_snapshot_wait_orders_report_admission_against_unused_proof[stop]
+FAILED tests/test_review_unused_stop.py::test_snapshot_wait_orders_report_admission_against_unused_proof[report]
+FAILED tests/test_review_unused_stop.py::test_admitted_unicode_notes_exceed_context_and_unused_stop_recovers_capacity
+FAILED tests/test_review_unused_stop_ui.py::test_exact_stop_billing_exemption_never_bypasses_owner_or_tenant[viewer-403]
+FAILED tests/test_review_unused_stop_ui.py::test_exact_stop_billing_exemption_never_bypasses_owner_or_tenant[foreign_owner-404]
+FAILED tests/test_review_workspace_views.py::test_repeated_synthetic_proposal_inputs_preserve_all_sql_identity_predicates
+7 failed, 120 passed, 86 warnings in 181.42s (0:03:01)

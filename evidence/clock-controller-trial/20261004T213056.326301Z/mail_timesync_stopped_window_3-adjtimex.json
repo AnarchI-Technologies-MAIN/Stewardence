@@ -1,0 +1,5 @@
+{
+  "exit_code": 0,
+  "stdout": "    mode:         0\n-o  offset:       0 us\n-f  freq.adjust:  -2840067 (65536 = 1ppm)\n    maxerror:     687417\n    esterror:     413758\n    status:       8192 ()\n-p  timeconstant: 1\n    precision:    1 us\n    tolerance:    32768000\n-t  tick:         9825 us\n    time.tv_sec:  1791149657\n    time.tv_usec: 671004971\n    return value: 0 (clock synchronized)\n",
+  "stderr": ""
+}

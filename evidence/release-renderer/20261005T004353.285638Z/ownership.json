@@ -1,0 +1,31 @@
+{
+  "network": "stewardence-release-19842b7c7745",
+  "containers": [
+    "stewardence-release-19842b7c7745-renderer",
+    "stewardence-release-19842b7c7745-app",
+    "stewardence-release-19842b7c7745-check",
+    "stewardence-release-19842b7c7745-verifier"
+  ],
+  "images": [
+    "stewardence-release-19842b7c7745:app",
+    "stewardence-release-19842b7c7745:renderer"
+  ],
+  "production_touched": false,
+  "scope": "synthetic_no_database_issuance",
+  "deployment_parity": false,
+  "renderer_profile": {
+    "memory": "1g",
+    "pids": 512,
+    "init": true,
+    "read_only": false,
+    "custom_seccomp": false,
+    "cap_drop_all": false,
+    "no_new_privileges": false
+  },
+  "harness_sha256": "aa86ae0ad4628e0654ce4dee60894f10bf96a49aa26c6d4247741551ee19c0a6",
+  "client_sha256": "c9b551d3bc55d8a9b59109629ba44f7630387622f4322cf21baf1a203f2583e9",
+  "dockerfile_sha256": {
+    "Dockerfile": "20e05c8ab25b537d1ba576c9a88ffa8184b4e7378ba28b3bd3aadaaec266d033",
+    "Dockerfile.renderer": "cf567f9ae374e523495021c67b275e2c5315f24a39b62764f57eadb890209d81"
+  }
+}

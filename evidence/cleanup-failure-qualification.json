@@ -1,0 +1,46 @@
+{
+  "qualification_passed": true,
+  "injected_first_target_failure": true,
+  "later_targets_and_network_attempted": true,
+  "cleanup_success_withheld": true,
+  "real_targets_deleted": false,
+  "result": {
+    "cleanup_passed": false,
+    "verified": [
+      {
+        "target": "second",
+        "absence_verified": true
+      },
+      {
+        "target": "third",
+        "absence_verified": true
+      },
+      {
+        "target": "isolated-network",
+        "absence_verified": true
+      }
+    ],
+    "failed_targets": [
+      "container-operation:first",
+      "container-remains:first"
+    ]
+  },
+  "ambiguous_network_creation_cleanup": {
+    "cleanup_passed": true,
+    "verified": [
+      {
+        "target": "isolated-network",
+        "absence_verified": true
+      }
+    ],
+    "failed_targets": []
+  },
+  "foreign_network_preserved": {
+    "cleanup_passed": false,
+    "verified": [],
+    "failed_targets": [
+      "network-operation:isolated-network",
+      "network-remains:isolated-network"
+    ]
+  }
+}

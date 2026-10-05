@@ -1,0 +1,23 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-064731a73b",
+  "image_id": "sha256:f1d68abc9c1757a39662890c19b9aa24a79ee80b5f84169e6ea5c67cc4da0dea",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T233349.503143Z",
+  "test_arguments": [
+    "tests/test_core_checkout_admission.py",
+    "tests/test_billing_account_ui.py",
+    "tests/test_billing_founder_cancellation_authority.py",
+    "tests/test_billing_founder_checkout.py",
+    "tests/test_billing_founder_checkout_authority.py",
+    "tests/test_billing_founder_schedule.py",
+    "tests/test_billing_founder_slot_concurrency.py",
+    "tests/test_billing_portal_cancellation.py",
+    "tests/test_billing_rls.py",
+    "tests/test_billing_standard_launch.py",
+    "tests/test_billing_tenant_authority.py",
+    "tests/test_billing_webhook_concurrency.py",
+    "tests/test_billing_webhook_idempotency.py"
+  ]
+}

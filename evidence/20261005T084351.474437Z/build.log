@@ -1,0 +1,72 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.qualification
+#1 transferring dockerfile: 836B 0.0s done
+#1 DONE 0.1s
+
+#2 [internal] load metadata for docker.io/library/python:3.14.7-slim
+#2 ...
+
+#3 [auth] library/python:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#4 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.9
+#4 DONE 0.7s
+
+#2 [internal] load metadata for docker.io/library/python:3.14.7-slim
+#2 DONE 0.7s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 164B done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 DONE 0.0s
+
+#7 [uv 1/1] FROM ghcr.io/astral-sh/uv:0.12.9@sha256:8b940d3a9d65bed080436972241af2e21c84b5e8c9193f7014ed71479ee795ff
+#7 resolve ghcr.io/astral-sh/uv:0.12.9@sha256:8b940d3a9d65bed080436972241af2e21c84b5e8c9193f7014ed71479ee795ff 0.1s done
+#7 DONE 0.1s
+
+#8 [stage-1 1/8] FROM docker.io/library/python:3.14.7-slim@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d
+#8 resolve docker.io/library/python:3.14.7-slim@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d 0.1s done
+#8 DONE 0.1s
+
+#6 [internal] load build context
+#6 transferring context: 49.76kB 0.1s done
+#6 DONE 0.1s
+
+#9 [stage-1 2/8] COPY --from=uv /uv /bin/uv
+#9 CACHED
+
+#10 [stage-1 3/8] WORKDIR /app
+#10 CACHED
+
+#11 [stage-1 4/8] COPY source/pyproject.toml source/uv.lock ./
+#11 CACHED
+
+#12 [stage-1 5/8] RUN uv sync --frozen --no-install-project
+#12 CACHED
+
+#13 [stage-1 6/8] RUN /app/.venv/bin/playwright install --with-deps --only-shell chromium && apt-get install -y --no-install-recommends poppler-utils && chmod -R a+rX /ms-playwright && rm -rf /var/lib/apt/lists/*
+#13 CACHED
+
+#14 [stage-1 7/8] COPY source/ ./
+#14 DONE 1.1s
+
+#15 [stage-1 8/8] RUN groupadd --gid 10001 qualification && useradd --uid 10001 --gid 10001 --no-create-home qualification
+#15 DONE 3.1s
+
+#16 exporting to image
+#16 exporting layers
+#16 exporting layers 1.6s done
+#16 exporting manifest sha256:a3ee004907fc2817b29da3791eca982552f3a76f8383b8f07721c60f6d1b915a 0.0s done
+#16 exporting config sha256:f4a85fa5782c5b68fa6d03fcb32b8b29f9b50731cbcb5e6a483e50948a0c1872 0.1s done
+#16 exporting attestation manifest sha256:c362b71db001413784a40ddd8b1b2259e2caf22937980ecefc3209b700ece62b 0.1s done
+#16 exporting manifest list sha256:d16fbf2ee6abaac3443cb8469c2db5bf7d6af64a36dbb80f2364793fbddeee8c
+#16 exporting manifest list sha256:d16fbf2ee6abaac3443cb8469c2db5bf7d6af64a36dbb80f2364793fbddeee8c 0.0s done
+#16 naming to docker.io/library/stewardence-local-qualification:stewardence-local-e6970c423b done
+#16 unpacking to docker.io/library/stewardence-local-qualification:stewardence-local-e6970c423b
+#16 unpacking to docker.io/library/stewardence-local-qualification:stewardence-local-e6970c423b 0.5s done
+#16 DONE 2.5s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/25wq4t0lrkpy296yxrhykroqa

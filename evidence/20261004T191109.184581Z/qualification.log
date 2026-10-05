@@ -1,0 +1,1339 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reviews.0001_initial... OK
+F..........F.FFFFFFFF...                                                 [100%]
+=================================== FAILURES ===================================
+___ test_initial_freeze_is_atomic_immutable_and_honest_about_empty_decisions ___
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7f492f5e1490>
+sql = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('260564d6-90f7-4170-bd89-6a781143cd7c'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7f492f5e1490>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52c910>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('260564d6-90f7-4170-bd89-6a781143cd7c'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 3985174c-d87e-4b22-8327-15b937a743db v1>)
+
+    def test_initial_freeze_is_atomic_immutable_and_honest_about_empty_decisions(review_owner):
+        user, org, snapshot = review_owner
+        cycle = opened(review_owner)
+>       assert cycle.state == 'OPEN' and cycle.revision == 1
+               ^^^^^^^^^^^
+
+tests/test_review_cycle_authority.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/reviews/models.py:44: in state
+    event = self.current_event
+            ^^^^^^^^^^^^^^^^^^
+apps/reviews/models.py:35: in current_event
+    return self.events.order_by('-revision').first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1106: in first
+    for obj in queryset[:1]:
+               ^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:386: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52c910>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('260564d6-90f7-4170-bd89-6a781143cd7c'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_____ test_owner_role_in_another_workspace_does_not_authorize_review_reads _____
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7f492ed46630>
+sql = 'RELEASE SAVEPOINT "s139952404980608_x18"', params = None
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7f492ed46630>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+>               return self.cursor.execute(sql)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:103: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52c3d0>
+query = 'RELEASE SAVEPOINT "s139952404980608_x18"', params = None
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InFailedSqlTransaction: current transaction is aborted, commands ignored until end of transaction block
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InFailedSqlTransaction
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 28f51da7-84a0-47a2-a32a-d4ec9644a595 v1>)
+
+    def test_owner_role_in_another_workspace_does_not_authorize_review_reads(review_owner):
+        user, org, _ = review_owner
+        cycle = opened(review_owner)
+        other = Organization.objects.create(name='Other review org')
+        viewer = get_user_model().objects.create_user('review-viewer@example.invalid')
+        OrganizationMember.objects.create(organization=other,user=viewer,role='owner')
+        OrganizationMember.objects.create(organization=org,user=viewer,role='viewer')
+>       with identity_transaction(viewer.id,using='app_runtime'),tenant_transaction(org.id,using='app_runtime'):
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_review_cycle_authority.py:92: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.14/contextlib.py:148: in __exit__
+    next(self.gen)
+src/agentledger/tenancy/context.py:65: in tenant_transaction
+    with transaction.atomic(using=using):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/transaction.py:247: in __exit__
+    connection.savepoint_commit(sid)
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:26: in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:431: in savepoint_commit
+    self._savepoint_commit(sid)
+.venv/lib/python3.14/site-packages/django/db/backends/base/base.py:375: in _savepoint_commit
+    cursor.execute(self.ops.savepoint_commit_sql(sid))
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:103: in _execute
+    return self.cursor.execute(sql)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52c3d0>
+query = 'RELEASE SAVEPOINT "s139952404980608_x18"', params = None
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.InternalError: current transaction is aborted, commands ignored until end of transaction block
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InternalError
+_______________ test_pause_fences_freeze_and_keeps_open_identity _______________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7f492f35bf50>
+sql = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('9089b6de-2bfa-4205-9a6d-de784c69813c'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7f492f35bf50>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52c130>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('9089b6de-2bfa-4205-9a6d-de784c69813c'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: c56c7cb7-7402-455a-a525-ec7e2468515e v1>)
+
+    def test_pause_fences_freeze_and_keeps_open_identity(review_owner):
+        user, org, _ = review_owner
+        cycle = opened(review_owner)
+        configure_control(organization_id=org.id,actor_id=user.id,mode='paused',reason='Qualification pause')
+        with pytest.raises(DatabaseError,match='admission unavailable'):
+            frozen(review_owner,cycle)
+>       assert cycle.state == 'OPEN'
+               ^^^^^^^^^^^
+
+tests/test_review_cycle_authority.py:116: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/reviews/models.py:44: in state
+    event = self.current_event
+            ^^^^^^^^^^^^^^^^^^
+apps/reviews/models.py:35: in current_event
+    return self.events.order_by('-revision').first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1106: in first
+    for obj in queryset[:1]:
+               ^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:386: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52c130>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('9089b6de-2bfa-4205-9a6d-de784c69813c'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+______________ test_one_open_and_one_frozen_pending_are_enforced _______________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7f492e535df0>
+sql = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('9aec1d72-fb15-422d-836a-9e5f81dbd407'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7f492e535df0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52ce50>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('9aec1d72-fb15-422d-836a-9e5f81dbd407'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: dd9628cd-d944-43e3-b1a1-badb3c7556c4 v1>)
+
+    def test_one_open_and_one_frozen_pending_are_enforced(review_owner):
+        first = opened(review_owner)
+        with pytest.raises(DatabaseError,match='open capacity'):
+            opened(review_owner)
+        frozen(review_owner,first)
+        second = opened(review_owner)
+        with pytest.raises(DatabaseError,match='frozen pending capacity'):
+            frozen(review_owner,second)
+>       assert second.state == 'OPEN'
+               ^^^^^^^^^^^^
+
+tests/test_review_cycle_authority.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/reviews/models.py:44: in state
+    event = self.current_event
+            ^^^^^^^^^^^^^^^^^^
+apps/reviews/models.py:35: in current_event
+    return self.events.order_by('-revision').first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1106: in first
+    for obj in queryset[:1]:
+               ^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:386: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52ce50>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('9aec1d72-fb15-422d-836a-9e5f81dbd407'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_____________ test_revision_cas_rejects_aliases_and_stale_state[0] _____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7f492f3171d0>
+sql = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('18f311d9-2d6b-4984-85a5-3d492d4584ed'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7f492f3171d0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52c670>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('18f311d9-2d6b-4984-85a5-3d492d4584ed'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 0a7901cc-d7c1-491b-924b-cf84edd20ea7 v1>)
+revision = 0
+
+    @pytest.mark.parametrize('revision',[0,2,3,True,'1',None])
+    def test_revision_cas_rejects_aliases_and_stale_state(review_owner,revision):
+        cycle = opened(review_owner)
+        with pytest.raises(ValidationError):
+            frozen(review_owner,cycle,revision)
+>       assert cycle.state == 'OPEN'
+               ^^^^^^^^^^^
+
+tests/test_review_cycle_authority.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/reviews/models.py:44: in state
+    event = self.current_event
+            ^^^^^^^^^^^^^^^^^^
+apps/reviews/models.py:35: in current_event
+    return self.events.order_by('-revision').first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1106: in first
+    for obj in queryset[:1]:
+               ^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:386: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52c670>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('18f311d9-2d6b-4984-85a5-3d492d4584ed'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_____________ test_revision_cas_rejects_aliases_and_stale_state[2] _____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7f492f314350>
+sql = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('f21137ae-cc05-4cbd-ae27-a9d89f1aa629'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7f492f314350>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52e0b0>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('f21137ae-cc05-4cbd-ae27-a9d89f1aa629'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 409ee919-b45b-4b92-8915-27581795344c v1>)
+revision = 2
+
+    @pytest.mark.parametrize('revision',[0,2,3,True,'1',None])
+    def test_revision_cas_rejects_aliases_and_stale_state(review_owner,revision):
+        cycle = opened(review_owner)
+        with pytest.raises(ValidationError):
+            frozen(review_owner,cycle,revision)
+>       assert cycle.state == 'OPEN'
+               ^^^^^^^^^^^
+
+tests/test_review_cycle_authority.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/reviews/models.py:44: in state
+    event = self.current_event
+            ^^^^^^^^^^^^^^^^^^
+apps/reviews/models.py:35: in current_event
+    return self.events.order_by('-revision').first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1106: in first
+    for obj in queryset[:1]:
+               ^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:386: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52e0b0>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('f21137ae-cc05-4cbd-ae27-a9d89f1aa629'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_____________ test_revision_cas_rejects_aliases_and_stale_state[3] _____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7f492e5c1370>
+sql = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('91614cb4-17e6-4ec7-a751-6feac02b60bd'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7f492e5c1370>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52d7f0>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('91614cb4-17e6-4ec7-a751-6feac02b60bd'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: c2ae49ef-da96-4684-86ca-b7d5b6c73d4f v1>)
+revision = 3
+
+    @pytest.mark.parametrize('revision',[0,2,3,True,'1',None])
+    def test_revision_cas_rejects_aliases_and_stale_state(review_owner,revision):
+        cycle = opened(review_owner)
+        with pytest.raises(ValidationError):
+            frozen(review_owner,cycle,revision)
+>       assert cycle.state == 'OPEN'
+               ^^^^^^^^^^^
+
+tests/test_review_cycle_authority.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/reviews/models.py:44: in state
+    event = self.current_event
+            ^^^^^^^^^^^^^^^^^^
+apps/reviews/models.py:35: in current_event
+    return self.events.order_by('-revision').first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1106: in first
+    for obj in queryset[:1]:
+               ^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:386: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f52d7f0>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('91614cb4-17e6-4ec7-a751-6feac02b60bd'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+___________ test_revision_cas_rejects_aliases_and_stale_state[True] ____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7f492f35a390>
+sql = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('d7952920-4529-441f-a884-f57cabd7c2d8'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7f492f35a390>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f04c050>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('d7952920-4529-441f-a884-f57cabd7c2d8'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: e36a49e1-e876-4764-ba27-4504e4521ffb v1>)
+revision = True
+
+    @pytest.mark.parametrize('revision',[0,2,3,True,'1',None])
+    def test_revision_cas_rejects_aliases_and_stale_state(review_owner,revision):
+        cycle = opened(review_owner)
+        with pytest.raises(ValidationError):
+            frozen(review_owner,cycle,revision)
+>       assert cycle.state == 'OPEN'
+               ^^^^^^^^^^^
+
+tests/test_review_cycle_authority.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/reviews/models.py:44: in state
+    event = self.current_event
+            ^^^^^^^^^^^^^^^^^^
+apps/reviews/models.py:35: in current_event
+    return self.events.order_by('-revision').first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1106: in first
+    for obj in queryset[:1]:
+               ^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:386: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f04c050>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('d7952920-4529-441f-a884-f57cabd7c2d8'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+_____________ test_revision_cas_rejects_aliases_and_stale_state[1] _____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7f492f377d10>
+sql = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('71ef080e-c28c-41a4-9a76-fc928775c441'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7f492f377d10>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f5a3150>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('71ef080e-c28c-41a4-9a76-fc928775c441'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 805e7eaa-9eaf-4123-97e5-656558b0990c v1>)
+revision = '1'
+
+    @pytest.mark.parametrize('revision',[0,2,3,True,'1',None])
+    def test_revision_cas_rejects_aliases_and_stale_state(review_owner,revision):
+        cycle = opened(review_owner)
+        with pytest.raises(ValidationError):
+            frozen(review_owner,cycle,revision)
+>       assert cycle.state == 'OPEN'
+               ^^^^^^^^^^^
+
+tests/test_review_cycle_authority.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/reviews/models.py:44: in state
+    event = self.current_event
+            ^^^^^^^^^^^^^^^^^^
+apps/reviews/models.py:35: in current_event
+    return self.events.order_by('-revision').first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1106: in first
+    for obj in queryset[:1]:
+               ^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:386: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f5a3150>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('71ef080e-c28c-41a4-9a76-fc928775c441'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+___________ test_revision_cas_rejects_aliases_and_stale_state[None] ____________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7f492f376e70>
+sql = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('bc2b7535-5618-4e8d-8d17-a452be80b2fb'),)
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7f492f376e70>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f04d010>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('bc2b7535-5618-4e8d-8d17-a452be80b2fb'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.InsufficientPrivilege: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: InsufficientPrivilege
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (<User: reports@example.com>, <Organization: Report Firm>, <AssessmentSnapshot: 1e5bfcf3-d9bc-48a2-83a9-380fbc5d0d67 v1>)
+revision = None
+
+    @pytest.mark.parametrize('revision',[0,2,3,True,'1',None])
+    def test_revision_cas_rejects_aliases_and_stale_state(review_owner,revision):
+        cycle = opened(review_owner)
+        with pytest.raises(ValidationError):
+            frozen(review_owner,cycle,revision)
+>       assert cycle.state == 'OPEN'
+               ^^^^^^^^^^^
+
+tests/test_review_cycle_authority.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/reviews/models.py:44: in state
+    event = self.current_event
+            ^^^^^^^^^^^^^^^^^^
+apps/reviews/models.py:35: in current_event
+    return self.events.order_by('-revision').first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1106: in first
+    for obj in queryset[:1]:
+               ^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:386: in __iter__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1623: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7f492f04d010>
+query = 'SELECT "review_cycle_events"."id", "review_cycle_events"."organization_id", "review_cycle_events"."created_by_id", "r...eview_cycle_events" WHERE "review_cycle_events"."cycle_id" = %s ORDER BY "review_cycle_events"."revision" DESC LIMIT 1'
+params = (UUID('bc2b7535-5618-4e8d-8d17-a452be80b2fb'),), prepare = None
+binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Authenticated user context is not set
+E           CONTEXT:  PL/pgSQL function app_private.current_user_id() line 7 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+=========================== short test summary info ============================
+FAILED tests/test_review_cycle_authority.py::test_initial_freeze_is_atomic_immutable_and_honest_about_empty_decisions
+FAILED tests/test_review_cycle_authority.py::test_owner_role_in_another_workspace_does_not_authorize_review_reads
+FAILED tests/test_review_cycle_authority.py::test_pause_fences_freeze_and_keeps_open_identity
+FAILED tests/test_review_cycle_authority.py::test_one_open_and_one_frozen_pending_are_enforced
+FAILED tests/test_review_cycle_authority.py::test_revision_cas_rejects_aliases_and_stale_state[0]
+FAILED tests/test_review_cycle_authority.py::test_revision_cas_rejects_aliases_and_stale_state[2]
+FAILED tests/test_review_cycle_authority.py::test_revision_cas_rejects_aliases_and_stale_state[3]
+FAILED tests/test_review_cycle_authority.py::test_revision_cas_rejects_aliases_and_stale_state[True]
+FAILED tests/test_review_cycle_authority.py::test_revision_cas_rejects_aliases_and_stale_state[1]
+FAILED tests/test_review_cycle_authority.py::test_revision_cas_rejects_aliases_and_stale_state[None]
+10 failed, 14 passed in 12.66s

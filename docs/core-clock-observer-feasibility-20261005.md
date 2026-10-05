@@ -1,0 +1,48 @@
+# Clock attribution observer feasibility — read-only, 2026-10-05
+
+Inspection used Ubuntu WSL ordinary-user and root reads only. No tools were installed, tracing enabled, buffers consumed, controllers changed, or clock setters called. Docker qualification continued independently.
+
+## Verified local support
+
+- Kernel `6.18.40.1-microsoft-standard-WSL2`; `timeout` and Python3 available. `perf`, `trace-cmd` and `bpftrace` were absent from PATH and the standard executable locations checked. This is not an exhaustive disk search.
+- Tracefs is root-readable at `/sys/kernel/tracing` (also exposed through debugfs). All enter/exit tracepoints for `clock_settime`, `settimeofday`, `adjtimex`, and `clock_adjtime` are listed; their enter-format files are readable.
+- Installed kernel configuration enables FTRACE, FUNCTION_TRACER, FUNCTION_GRAPH_TRACER, FTRACE_SYSCALLS, KPROBE_EVENTS, BPF_SYSCALL, BPF_EVENTS and DEBUG_INFO_BTF.
+- `do_settimeofday64` and `do_adjtimex` are available function-filter targets. The exact names `timekeeping_inject_offset` and `__do_adjtimex` were not present in that filter list.
+- Trace clocks include `mono_raw`; current global clock was `local`. Global `tracing_on` was already **1** and `current_tracer` was `nop`; no instance names were listed. Their origin and enabled global events were not investigated. No global trace state or buffer was altered/read.
+- Non-root restrictions: perf_event_paranoid=2, kptr_restrict=1, unprivileged_bpf_disabled=2. Root tracefs reads succeeded without installing software.
+
+## Proposed separately coordinated 90-second observation
+
+1. Record exact existing global tracer/on/clock state without reading arbitrary existing events. Create a uniquely named **private trace instance**, with tracing initially disabled and a fixed small per-CPU buffer. Do not clear or alter the global buffer/events/tracer.
+2. Select instance `mono_raw` clock. Enable only the eight listed syscall enter/exit events in that instance. If the installed instance supports the verified `function` tracer, filter it to exactly `do_settimeofday64` and `do_adjtimex`; avoid general function tracing or arbitrary probes. Failure to configure this narrow filter must abort rather than broaden collection.
+3. Consume only that instance's live pipe through a bounded Python reader for 90 seconds measured with CLOCK_MONOTONIC_RAW, not adjusted MONOTONIC or wall time. Persist only event/function name, kernel task comm, kernel PID, trace timestamp and syscall success/failure class. Discard syscall arguments, pointers, command lines and unrelated text. Bound output records/file bytes; record lost/truncated observations explicitly rather than silently claiming completeness.
+4. In parallel sample REALTIME/MONOTONIC/RAW residuals at 10Hz with a fixed record limit, preserving backward steps. No adjtimex setters or service transitions. Existing read-only modes=0 sampling may be omitted so the observer does not create additional adjustment-syscall noise.
+5. Stop and remove only the newly created instance in unconditional cleanup. Verify global state is unchanged. Preserve the trace, clock samples, duration, effective permissions, loss counters and cleanup result. Do not resolve process command lines or environment variables; distro/host PID mapping remains scoped.
+
+## Attribution limits
+
+`adjtimex` / `clock_adjtime` syscall entry alone does **not** prove mutation: modes=0 is an observation. Success alone does not distinguish a read from an adjustment. A `do_settimeofday64` function event gives substantially more direct setter-path evidence, and its immediate symbolic caller may distinguish a driver path from userspace entry, but correlation with a backward step remains required. Function `do_adjtimex` likewise includes observation paths.
+
+Syscall tracing cannot exclude kernel/Hyper-V setters. Limited function targets cannot exclude every kernel adjustment route either. Kernel PID/comm may belong to a process not visible from the Ubuntu distro; lack of a local process match does not identify the hidden actor. Missing events, dropped records or an empty 90-second interval are not proof of a stable clock or a particular cause. Windows/WSL calibration, Mail NTP and hidden PHC activity remain hypotheses until actual mutating execution is attributed. Existing future-time guards remain unchanged.
+
+This is a feasible narrow observation plan, not authorization to execute it and not production-clock evidence. See `core-clock-controller-findings-20261004.md` for prior executed read-only and controlled-trial receipts.
+
+## Reviewable unexecuted script
+
+`scripts/observe_clock_adjustments.py` implements the bounded private-instance plan. It requires an explicit authorization argument and root x86-64 execution. It has not been run against tracefs. Static formatting and Python compilation are the only checks performed.
+
+The optional mode-aware kprobe is admitted only when the installed `/sys/kernel/btf/vmlinux` proves `do_adjtimex` takes exactly one kernel struct pointer argument and its `timex`/`__kernel_timex.modes` is an unsigned32 field at offset zero. Unsupported/unverified BTF leaves modes unavailable. No userspace-pointer dereference is configured. A nonzero modes field is evidence of a requested adjustment, not proof that it succeeded or caused a step; entry/exit and residual correlation remain necessary. Zero modes identifies an observation at this kernel boundary.
+
+Creating this uniquely named kprobe registers one descriptor in global `kprobe_events`, although it is enabled only in the private instance. That registration is shared-kernel instrumentation and must be approved along with the observer. The script never clears existing probe definitions or restores other actors' settings. Cleanup removes only its own private instance and exact unique probe, then compares before/after hashes of global tracer/on/clock/probe descriptors and event enable states. This verifies those controls, not every possible kernel setting or concurrent actor's behavior. Concurrent changes are reported for review rather than overwritten.
+
+Output is capped at 10,000 parsed event records / 2MiB, 1,000 clock samples, and a 16KiB per-CPU instance buffer with a 256-CPU preflight maximum. Only task name/PID, event/function/caller-symbol name, timestamp, modes, and success/failure classification are persisted; no raw trace lines, pointers, syscall arguments, process command lines or environments. Loss counters and early caps are explicit. No automatic process killing, service changes, deletion of report objects, or clock correction occurs.
+
+Review prerequisites before approval: verify the exact installed tracefs supports the chosen function tracer/private-instance combination and mode-fetch syntax; preserve any unsupported configuration failure and unconditional cleanup evidence. Runtime parser and resource cleanup qualification remain pending. The 90-second RAW-clock observation is cooperative, not a strict scheduler/cancellation deadline. The observer does not identify a setter when evidence is absent or incomplete.
+
+Pure parser qualification: `scripts/test_observe_clock_parser.py` ran seven stdlib unittest cases successfully, covering closed output keys, syscall argument/pointer omission, hex success/negative returns, exact function/caller names, zero/nonzero modes, and unrelated-line rejection. The minimal nonsecret receipt is `evidence/clock-correlation/observer-parser-pure-20261005.json`. All input was synthetic; this imported the parser only and did not call the observer or touch kernel state. Real installed trace output and cleanup remain unqualified.
+
+Abrupt-termination ownership: before the first tracefs mutation, the script writes, flushes and fsyncs public `ownership.json` containing exact generated instance/group identifiers, planned `timex_modes` probe name, and global-before configuration hash. Schema is `anarchi.clock.observer.resources.v1`; generated instance/group names match `^steward_clock_[0-9a-f]{32}$` and are identical. No automatic recovery helper is provided. A separately reviewed recovery must validate those exact identifiers before touching only their resources; it must never restore or clear foreign/global state. Normal cleanup records explicit private-instance, probe-event-directory and probe-descriptor absence as well as global configuration equality. SIGKILL cannot execute finally, so the ownership manifest is recovery evidence rather than a cleanup guarantee.
+
+Authorized first attempt, as reported by the root lane: the 013428 run failed before trace start because Python append-stream opening of `kprobe_events` returned EINVAL. Its original failure receipt is retained; cleanup reported private instance/probe absence and unchanged global hash. The successor uses `os.open(..., os.O_WRONLY)` with no append/truncate flags, one bounded `os.write`, no seek, and unconditional descriptor close for both registration and exact-probe removal. A partial write is not retried.
+
+The [official kernel kprobe documentation](https://docs.kernel.org/trace/kprobetrace.html) defines registration/removal as commands written to the control file and warns that clearing the file removes all probes. [Upstream kernel source](https://raw.githubusercontent.com/torvalds/linux/master/kernel/trace/trace_kprobe.c) explicitly releases all probes when a write-open carries O_TRUNC, and routes writes through the command parser. Upstream is API evidence, not a claim that this installed build has executed the successor. Eleven pure mocked-descriptor/parser tests passed; receipt `evidence/clock-correlation/observer-control-write-pure-20261005.json`. This lane performed no kernel rerun.

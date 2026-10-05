@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Check imported software — Stewardence{% endblock %}
+{% block content %}
+  <section class="page-heading"><p class="eyebrow">Step 2 of 3 · Check and correct</p><h1>Check and confirm your imported data</h1><p>Correct highlighted rows. No production inventory has been written.</p></section>
+  <form method="post">
+    {% csrf_token %}
+    {% for entry in review_rows %}
+      {% with row=entry.row data=entry.row.data %}
+        <section class="card import-row {% if row.errors %}row-error{% endif %}">
+          <h2>Spreadsheet row {{ row.row_number }}</h2>
+          {% if row.errors %}<ul class="errorlist">{% for error in row.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+          <div class="compact-grid">
+            <label>Software or AI name<input name="row-{{ row.row_number }}-display_name" value="{{ data.display_name }}" required></label>
+            <label>Vendor<input name="row-{{ row.row_number }}-vendor_name" value="{{ data.vendor_name }}" required></label>
+            <label>Responsible person<input name="row-{{ row.row_number }}-business_owner" value="{{ data.business_owner }}"></label>
+            <label>Team or department<input name="row-{{ row.row_number }}-department" value="{{ data.department }}"></label>
+            <label>People using it<input type="number" min="0" name="row-{{ row.row_number }}-user_count" value="{{ data.user_count }}"></label>
+            <label>Paid seats<input type="number" min="0" name="row-{{ row.row_number }}-seat_count" value="{{ data.seat_count }}"></label>
+            <label>Monthly cost in dollars<input inputmode="decimal" name="row-{{ row.row_number }}-monthly_cost" value="{{ entry.monthly_cost }}" required></label>
+            <label>Independent action (0–4)<input type="number" min="0" max="4" name="row-{{ row.row_number }}-autonomy_level" value="{{ data.autonomy_level }}"></label>
+            <label>Human approval<select name="row-{{ row.row_number }}-human_approval"><option value="yes" {% if data.human_approval %}selected{% endif %}>Required</option><option value="no" {% if not data.human_approval %}selected{% endif %}>Not required</option></select></label>
+            <label>Status<select name="row-{{ row.row_number }}-status">{% for value, label in status_choices %}<option value="{{ value }}" {% if data.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+          </div>
+          <label>Business purpose<textarea name="row-{{ row.row_number }}-business_purpose" rows="2">{{ data.business_purpose }}</textarea></label>
+        </section>
+      {% endwith %}
+    {% endfor %}
+    <div class="button-row"><button class="button" type="submit">Continue to final review</button></div>
+  </form>
+  <form method="post" action="{% url 'imports:cancel' batch.id %}">{% csrf_token %}<button class="button secondary" type="submit">Cancel import</button></form>
+{% endblock %}

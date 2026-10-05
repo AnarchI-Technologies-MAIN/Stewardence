@@ -1,0 +1,331 @@
+[
+  {
+    "screen": "02-home",
+    "template": "templates/home.html",
+    "named_urls": [
+      "accounts:login",
+      "accounts:signup"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "src/agentledger/urls.py",
+      "home_view"
+    ]
+  },
+  {
+    "screen": "03-pricing",
+    "template": "templates/billing/portfolio.html",
+    "named_urls": [
+      "billing:checkout-core"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/billing/views.py",
+      "portfolio_view"
+    ]
+  },
+  {
+    "screen": "08-login",
+    "template": "templates/registration/login.html",
+    "named_urls": [
+      "accounts:signup"
+    ],
+    "form_fields": [
+      "non_field_errors",
+      "password",
+      "username"
+    ],
+    "view_mapping": [
+      "apps/accounts/urls.py",
+      "Django LoginView route"
+    ]
+  },
+  {
+    "screen": "09-signup",
+    "template": "templates/registration/signup.html",
+    "named_urls": [
+      "accounts:login"
+    ],
+    "form_fields": [
+      "email",
+      "first_name",
+      "last_name",
+      "non_field_errors",
+      "password",
+      "website"
+    ],
+    "view_mapping": [
+      "apps/accounts/views.py",
+      "signup_view"
+    ]
+  },
+  {
+    "screen": "10-workspace-selection",
+    "template": "templates/organizations/select_workspace.html",
+    "named_urls": [
+      "organizations:setup",
+      "organizations:workspace-activate"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/organizations/views.py",
+      "workspace_selection_view / activate_workspace_action; sandbox quickbooks_views.connect"
+    ]
+  },
+  {
+    "screen": "11-workspace-setup",
+    "template": "templates/organizations/setup.html",
+    "named_urls": [
+      "organizations:setup",
+      "organizations:setup-start"
+    ],
+    "form_fields": [
+      "industry",
+      "name",
+      "start_choice"
+    ],
+    "view_mapping": [
+      "apps/organizations/views.py",
+      "setup_organization_view / setup_organization_start_view / setup_organization_review_view"
+    ]
+  },
+  {
+    "screen": "12-inventory-list",
+    "template": "templates/inventory/list.html",
+    "named_urls": [
+      "inventory:create",
+      "inventory:detail"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/inventory/views.py",
+      "inventory_list_view"
+    ]
+  },
+  {
+    "screen": "13-inventory-detail",
+    "template": "templates/inventory/detail.html",
+    "named_urls": [
+      "inventory:archive",
+      "inventory:edit",
+      "inventory:roi"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/inventory/views.py",
+      "inventory_detail_view"
+    ]
+  },
+  {
+    "screen": "14-inventory-form",
+    "template": "templates/inventory/form.html",
+    "named_urls": [
+      "inventory:list"
+    ],
+    "form_fields": [
+      "non_field_errors"
+    ],
+    "view_mapping": [
+      "apps/inventory/views.py",
+      "create_inventory_item_view / edit_inventory_item_view"
+    ]
+  },
+  {
+    "screen": "15-discovery",
+    "template": "templates/inventory/discovery.html",
+    "named_urls": [
+      "inventory:detail"
+    ],
+    "form_fields": [
+      "as_p"
+    ],
+    "view_mapping": [
+      "apps/inventory/discovery_views.py",
+      "discovery_view"
+    ]
+  },
+  {
+    "screen": "16-download",
+    "template": "templates/downloads/detail.html",
+    "named_urls": [],
+    "form_fields": [],
+    "view_mapping": [
+      "src/agentledger/downloads.py",
+      "download_view"
+    ]
+  },
+  {
+    "screen": "17-import-upload",
+    "template": "templates/imports/upload.html",
+    "named_urls": [
+      "inventory:list"
+    ],
+    "form_fields": [
+      "as_p"
+    ],
+    "view_mapping": [
+      "apps/imports/views.py",
+      "upload_csv_view"
+    ]
+  },
+  {
+    "screen": "18-import-review",
+    "template": "templates/imports/review.html",
+    "named_urls": [
+      "imports:cancel"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/imports/views.py",
+      "review_import_view"
+    ]
+  },
+  {
+    "screen": "19-import-final",
+    "template": "templates/imports/final.html",
+    "named_urls": [
+      "imports:cancel",
+      "imports:confirm",
+      "imports:review"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/imports/views.py",
+      "final_review_view / confirm_import_action"
+    ]
+  },
+  {
+    "screen": "21-quickbooks",
+    "template": "templates/integrations/quickbooks.html",
+    "named_urls": [
+      "integrations:quickbooks-connect",
+      "integrations:quickbooks-disconnect",
+      "integrations:quickbooks-refresh"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/integrations/quickbooks_views.py",
+      "connect / refresh / disconnect / callback"
+    ]
+  },
+  {
+    "screen": "26-assessment-detail",
+    "template": "templates/assessments/detail.html",
+    "named_urls": [
+      "reports:generate"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/assessments/views.py",
+      "assessment_snapshot_detail_view; reports.views.generate_report_action"
+    ]
+  },
+  {
+    "screen": "27-policies-list",
+    "template": "templates/policies/list.html",
+    "named_urls": [
+      "policies:create",
+      "policies:detail"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/policies/views.py",
+      "list_rules_view"
+    ]
+  },
+  {
+    "screen": "28-policy-detail",
+    "template": "templates/policies/detail.html",
+    "named_urls": [
+      "inventory:detail",
+      "policies:delete",
+      "policies:duplicate",
+      "policies:edit",
+      "policies:toggle"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/policies/views.py",
+      "detail_rule_view"
+    ]
+  },
+  {
+    "screen": "29-policy-editor",
+    "template": "templates/policies/form.html",
+    "named_urls": [],
+    "form_fields": [
+      "capability",
+      "data_category",
+      "enabled",
+      "explanation",
+      "finding_message",
+      "name",
+      "non_field_errors",
+      "remediation",
+      "required_control",
+      "result_on_match",
+      "review_message",
+      "risk_dimension",
+      "risk_points",
+      "severity",
+      "severity_floor",
+      "test_item"
+    ],
+    "view_mapping": [
+      "apps/policies/views.py",
+      "_render_rule_form"
+    ]
+  },
+  {
+    "screen": "31-roi-calculator",
+    "template": "templates/inventory/roi.html",
+    "named_urls": [],
+    "form_fields": [
+      "non_field_errors"
+    ],
+    "view_mapping": [
+      "apps/inventory/views.py",
+      "inventory_roi_view; apps.roi.forms.ROIForm; apps.roi.engine.calculate_roi"
+    ]
+  },
+  {
+    "screen": "38-report-detail",
+    "template": "templates/reports/detail.html",
+    "named_urls": [
+      "reports:download"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/reports/views.py",
+      "report_detail_view / report_download_view"
+    ]
+  },
+  {
+    "screen": "44-billing",
+    "template": "templates/billing/account.html",
+    "named_urls": [
+      "billing:founder-cancel",
+      "billing:founder-cancel-undo",
+      "billing:portal",
+      "billing:portfolio"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/billing/views.py",
+      "billing_account / founder_cancel / founder_cancel_undo / billing_portal"
+    ]
+  },
+  {
+    "screen": "45-checkout-confirmation",
+    "template": "templates/billing/success.html",
+    "named_urls": [
+      "billing:portfolio",
+      "organizations:setup"
+    ],
+    "form_fields": [],
+    "view_mapping": [
+      "apps/billing/views.py",
+      "checkout_success"
+    ]
+  }
+]

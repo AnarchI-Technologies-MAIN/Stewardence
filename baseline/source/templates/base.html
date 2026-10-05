@@ -1,0 +1,151 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{% block title %}Stewardence{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'brand/stewardence-app-icon-dark.png' %}">
+    <link rel="stylesheet" href="{% static 'agentledger.css' %}">
+  </head>
+  <body class="{% if request.user.is_authenticated %}app-body{% else %}public-body{% endif %}">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    {% if request.user.is_authenticated %}
+      <div class="app-frame">
+        <aside class="app-sidebar">
+          <a class="sidebar-brand" href="{% url 'home' %}">
+            <img
+              class="brand-mark"
+              src="{% static 'brand/stewardence-app-icon-dark.png' %}"
+              alt=""
+              width="38"
+              height="38"
+            >
+            <span>
+              <strong>Stewardence</strong>
+              <small>AI risk & ROI intelligence</small>
+            </span>
+          </a>
+
+          <nav class="sidebar-nav" aria-label="Primary navigation">
+            <p class="nav-label">Workspace</p>
+
+            <a href="{% url 'organizations:workspace-selection' %}"{% if request.resolver_match.url_name == 'workspace-selection' %} aria-current="page"{% endif %}>
+              <span class="nav-icon" aria-hidden="true">◇</span>
+              Workspaces
+            </a>
+
+            {% if request.organization_id %}
+              <a href="{% url 'inventory:list' %}"{% if request.resolver_match.namespace == 'inventory' %} aria-current="page"{% endif %}>
+                <span class="nav-icon" aria-hidden="true">▦</span>
+                Inventory
+              </a>
+
+              <a href="{% url 'imports:upload' %}"{% if request.resolver_match.namespace == 'imports' %} aria-current="page"{% endif %}>
+                <span class="nav-icon" aria-hidden="true">⇧</span>
+                Import CSV
+              </a>
+
+              <a href="{% url 'policies:list' %}"{% if request.resolver_match.namespace == 'policies' %} aria-current="page"{% endif %}>
+                <span class="nav-icon" aria-hidden="true">⌁</span>
+                Policies &amp; rules
+              </a>
+            {% endif %}
+
+            <p class="nav-label nav-label-spaced">Account</p>
+
+            <a href="{% url 'organizations:setup' %}"{% if request.resolver_match.url_name == 'setup' %} aria-current="page"{% endif %}>
+              <span class="nav-icon" aria-hidden="true">＋</span>
+              New workspace
+            </a>
+
+            <a href="{% url 'download' %}"{% if request.resolver_match.url_name == 'download' %} aria-current="page"{% endif %}>
+              <span class="nav-icon" aria-hidden="true">↓</span>
+              Download StewardSensors
+            </a>
+            <a href="{% url 'billing:account' %}"{% if request.resolver_match.namespace == 'billing' %} aria-current="page"{% endif %}>
+              <span class="nav-icon" aria-hidden="true">$</span>
+              Billing
+            </a>
+
+          </nav>
+
+          <div class="sidebar-footer">
+            <div class="user-chip">
+              <span class="user-avatar">
+                {{ request.user.get_short_name|first|upper }}
+              </span>
+              <span>
+                <strong>{{ request.user.get_short_name }}</strong>
+                <small>{{ request.user.email }}</small>
+              </span>
+            </div>
+
+            <form method="post" action="{% url 'accounts:logout' %}">
+              {% csrf_token %}
+              <button class="sidebar-logout" type="submit">Log out</button>
+            </form>
+          </div>
+        </aside>
+
+        <div class="app-content">
+          <header class="app-topbar">
+            <div>
+              <p class="topbar-kicker">Stewardence workspace</p>
+              <p class="topbar-title">
+                Deterministic AI risk and ROI assessment
+              </p>
+            </div>
+          </header>
+
+          <main class="page-shell" id="main-content" tabindex="-1">
+            {% for message in messages %}
+              <div class="notice{% if message.level == 40 %} notice-error{% elif message.level == 30 %} notice-warning{% elif message.level == 25 %} notice-success{% endif %}" role="{% if message.level == 40 %}alert{% else %}status{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+
+            {% block content %}{% endblock %}
+          </main>
+        </div>
+      </div>
+    {% else %}
+      <header class="public-header">
+        <a class="public-brand" href="{% url 'home' %}">
+          <img
+            class="brand-mark"
+            src="{% static 'brand/stewardence-app-icon-dark.png' %}"
+            alt=""
+            width="38"
+            height="38"
+          >
+          <span>Stewardence</span>
+        </a>
+
+        <nav class="public-nav" aria-label="Account navigation">
+          <a href="{% url 'download' %}"{% if request.resolver_match.url_name == 'download' %} aria-current="page"{% endif %}>Download</a>
+
+          <a href="{% url 'accounts:login' %}">Log in</a>
+
+          <a
+            class="button button-compact"
+            href="{% url 'accounts:signup' %}"
+          >
+            Create account
+          </a>
+        </nav>
+      </header>
+
+      <main class="public-main" id="main-content" tabindex="-1">
+        {% for message in messages %}
+          <div class="notice public-notice{% if message.level == 40 %} notice-error{% elif message.level == 30 %} notice-warning{% elif message.level == 25 %} notice-success{% endif %}" role="{% if message.level == 40 %}alert{% else %}status{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+
+        {% block public_content %}{% endblock %}
+      </main>
+    {% endif %}
+  </body>
+</html>

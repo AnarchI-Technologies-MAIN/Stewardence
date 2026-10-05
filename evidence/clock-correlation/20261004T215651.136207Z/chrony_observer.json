@@ -1,0 +1,17 @@
+{
+  "command": [
+    "wsl",
+    "-d",
+    "Ubuntu",
+    "-u",
+    "root",
+    "--",
+    "chronyc",
+    "-h",
+    "/run/chrony/chronyd.sock",
+    "tracking"
+  ],
+  "exit_code": 0,
+  "stdout": "Reference ID    : B97DBE7B (ntp-nts-3.ps5.canonical.com)\nStratum         : 3\nRef time (UTC)  : Sun Oct 04 21:56:13 2026\nSystem time     : 0.795063436 seconds fast of NTP time\nLast offset     : -0.098181359 seconds\nRMS offset      : 0.059939481 seconds\nFrequency       : 41.785 ppm slow\nResidual freq   : -26.858 ppm\nSkew            : 121.953 ppm\nRoot delay      : 0.142722160 seconds\nRoot dispersion : 0.235916451 seconds\nUpdate interval : 64.6 seconds\nLeap status     : Normal\n",
+  "stderr": ""
+}

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="29" time="24.821" timestamp="2026-10-04T19:32:55.905379+00:00" hostname="d99bb8787213"><testcase classname="tests.test_billing_standard_launch" name="test_standard_only_portfolio_has_no_founder_offer" time="11.965" /><testcase classname="tests.test_billing_standard_launch" name="test_standard_only_checkout_ignores_submitted_founder_fields" time="0.963" /><testcase classname="tests.test_billing_standard_launch" name="test_missing_standard_price_stops_before_stripe_or_reservation" time="0.629" /><testcase classname="tests.test_billing_admission_service" name="test_original_signed_invoice_creates_standard_generation_and_atomic_receipt" time="1.039" /><testcase classname="tests.test_billing_admission_service" name="test_bad_service_secret_fails_before_signature_or_provider[]" time="0.540" /><testcase classname="tests.test_billing_admission_service" name="test_bad_service_secret_fails_before_signature_or_provider[whsec_]" time="0.332" /><testcase classname="tests.test_billing_admission_service" name="test_bad_service_secret_fails_before_signature_or_provider[  ]" time="0.399" /><testcase classname="tests.test_billing_admission_service" name="test_bad_service_secret_fails_before_signature_or_provider[wrong]" time="0.372" /><testcase classname="tests.test_billing_admission_service" name="test_forged_signature_and_wrong_role_never_call_provider" time="0.336" /><testcase classname="tests.test_billing_admission_service" name="test_unadmitted_event_environment_account_and_type[changes0]" time="0.289" /><testcase classname="tests.test_billing_admission_service" name="test_unadmitted_event_environment_account_and_type[changes1]" time="0.375" /><testcase classname="tests.test_billing_admission_service" name="test_unadmitted_event_environment_account_and_type[changes2]" time="0.397" /><testcase classname="tests.test_billing_admission_service" name="test_invalid_coverage_rolls_back_new_generation_and_receipt" time="0.480" /><testcase classname="tests.test_billing_admission_service" name="test_same_event_conflicting_body_does_not_commit_new_effect" time="0.357" /><testcase classname="tests.test_billing_admission_service" name="test_canceled_generation_remains_terminal" time="0.322" /><testcase classname="tests.test_billing_admission_service" name="test_app_and_worker_cannot_execute_ingester_or_write_receipts" time="0.309" /><testcase classname="tests.test_billing_admission_service" name="test_missing_database_authority_stops_before_account_access" time="0.280" /><testcase classname="tests.test_billing_admission_service" name="test_provider_network_failure_commits_no_receipt" time="0.273" /><testcase classname="tests.test_billing_admission_service" name="test_paid_historical_interval_does_not_activate_new_subscription" time="0.277" /><testcase classname="tests.test_billing_admission_service" name="test_existing_canceling_state_is_preserved_by_paid_receipt" time="0.241" /><testcase classname="tests.test_billing_admission_service" name="test_distinct_event_delivery_same_invoice_records_one_coverage" time="0.237" /><testcase classname="tests.test_billing_admission_service" name="test_historical_founder_intro_arrival_cannot_overwrite_ongoing_price" time="0.342" /><testcase classname="tests.test_billing_admission_service" name="test_same_service_boundary_different_price_contract_requires_review" time="0.364" /><testcase classname="tests.test_billing_admission_service" name="test_exact_committed_replay_acknowledges_without_provider_or_projection[False]" time="0.358" /><testcase classname="tests.test_billing_admission_service" name="test_exact_committed_replay_acknowledges_without_provider_or_projection[True]" time="0.406" /><testcase classname="tests.test_billing_admission_service" name="test_committed_lookup_is_admission_only_and_binds_raw_body_account_mode" time="0.395" /><testcase classname="tests.test_billing_admission_service" name="test_exact_replay_survives_issuance_config_change_without_new_effect[removed]" time="0.403"><failure message="assert 503 == 200&#10; +  where 503 = &lt;HttpResponse status_code=503, &quot;text/html; charset=utf-8&quot;&gt;.status_code&#10; +    where &lt;HttpResponse status_code=503, &quot;text/html; charset=utf-8&quot;&gt; = paid_webhook(&lt;WSGIRequest: POST '/billing/paid-webhook/'&gt;)&#10; +      where &lt;WSGIRequest: POST '/billing/paid-webhook/'&gt; = delivery(&lt;pytest_django.fixtures.Settings object at 0x707072189d90&gt;)">service = (&lt;BillingCustomer: BillingCustomer object (128001a9-1f1d-4e1c-9867-420d98d01532)&gt;, {'id': 'in_qualified', 'object': 'i... True, 'currency': 'usd', 'unit_amount': 9900, ...}}]}, ...}, &lt;Mock id='123628244132800'&gt;, &lt;Mock id='123628244131456'&gt;)
+settings = &lt;pytest_django.fixtures.Settings object at 0x707072189d90&gt;
+authority_change = 'removed'
+
+    @pytest.mark.parametrize("authority_change", ["removed", "price_changed"])
+    def test_exact_replay_survives_issuance_config_change_without_new_effect(
+        service, settings, authority_change
+    ):
+        request = delivery(settings)
+        with dedicated_default():
+            assert paid_webhook(request).status_code == 200
+        before = Subscription.objects.values().get()
+        coverage_id = PaidCoverage.objects.get().id
+        if authority_change == "removed":
+            PaidCoverageAuthority.objects.all().delete()
+        if authority_change == "price_changed":
+            authority = PaidCoverageAuthority.objects.get()
+            authority.contracts["standard"]["price_id"] = "price_reconfigured"
+            authority.save()
+            settings.STRIPE_CORE_STANDARD_PRICE_ID = "price_reconfigured"
+        service[3].side_effect = AssertionError("Committed replay must not read provider")
+        with dedicated_default():
+&gt;           assert paid_webhook(delivery(settings)).status_code == 200
+E           assert 503 == 200
+E            +  where 503 = &lt;HttpResponse status_code=503, "text/html; charset=utf-8"&gt;.status_code
+E            +    where &lt;HttpResponse status_code=503, "text/html; charset=utf-8"&gt; = paid_webhook(&lt;WSGIRequest: POST '/billing/paid-webhook/'&gt;)
+E            +      where &lt;WSGIRequest: POST '/billing/paid-webhook/'&gt; = delivery(&lt;pytest_django.fixtures.Settings object at 0x707072189d90&gt;)
+
+tests/test_billing_admission_service.py:317: AssertionError</failure></testcase><testcase classname="tests.test_billing_admission_service" name="test_exact_replay_survives_issuance_config_change_without_new_effect[price_changed]" time="0.355"><failure message="AssertionError: Committed replay must not read provider">service = (&lt;BillingCustomer: BillingCustomer object (b89ea161-c237-46e5-9ae6-91c3c41220a8)&gt;, {'id': 'in_qualified', 'object': 'i... True, 'currency': 'usd', 'unit_amount': 9900, ...}}]}, ...}, &lt;Mock id='123628244128096'&gt;, &lt;Mock id='123628244133808'&gt;)
+settings = &lt;pytest_django.fixtures.Settings object at 0x707071fc3d70&gt;
+authority_change = 'price_changed'
+
+    @pytest.mark.parametrize("authority_change", ["removed", "price_changed"])
+    def test_exact_replay_survives_issuance_config_change_without_new_effect(
+        service, settings, authority_change
+    ):
+        request = delivery(settings)
+        with dedicated_default():
+            assert paid_webhook(request).status_code == 200
+        before = Subscription.objects.values().get()
+        coverage_id = PaidCoverage.objects.get().id
+        if authority_change == "removed":
+            PaidCoverageAuthority.objects.all().delete()
+        if authority_change == "price_changed":
+            authority = PaidCoverageAuthority.objects.get()
+            authority.contracts["standard"]["price_id"] = "price_reconfigured"
+            authority.save()
+            settings.STRIPE_CORE_STANDARD_PRICE_ID = "price_reconfigured"
+        service[3].side_effect = AssertionError("Committed replay must not read provider")
+        with dedicated_default():
+            assert paid_webhook(delivery(settings)).status_code == 200
+            # A distinct event still has to qualify as a new effect.
+&gt;           assert paid_webhook(delivery(settings, event_id="evt_new_after_change")).status_code != 200
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_billing_admission_service.py:319: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/views/decorators/http.py:64: in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/billing/admission_views.py:28: in paid_webhook
+    ingest_verified_event(event, body, key=key, account_id=account, livemode=mode)
+apps/billing/admission.py:71: in ingest_verified_event
+    client = stripe.StripeClient(key, max_network_retries=0, http_client=stripe.RequestsClient(timeout=10))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.14/unittest/mock.py:1176: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.14/unittest/mock.py:1180: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Mock id='123628244128096'&gt;, args = ('rk_test_synthetic_qualification',)
+kwargs = {'max_network_retries': 0, 'http_client': &lt;stripe._http_client.RequestsClient object at 0x7070721c9650&gt;}
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+&gt;               raise effect
+E               AssertionError: Committed replay must not read provider
+
+/usr/local/lib/python3.14/unittest/mock.py:1241: AssertionError</failure></testcase><testcase classname="tests.test_billing_first_checkout_concurrency" name="test_competing_first_completions_cannot_replace_uncovered_generation" time="0.595" /></testsuite></testsuites>

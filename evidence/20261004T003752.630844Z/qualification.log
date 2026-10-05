@@ -1,0 +1,252 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+______ test_signed_unsupported_coverage_shape_cannot_commit[boolean_item] ______
+
+client = <django.test.client.Client object at 0x7a378297d6d0>
+settings = <pytest_django.fixtures.Settings object at 0x7a3782c1b230>
+checkout_evidence = (<BillingCustomer: BillingCustomer object (c79588d8-73ce-48bb-90fc-f748763e1de1)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '6313dd0a-029b-469a-b3b1-0e71670be68a'}, ...})
+fault = 'boolean_item'
+
+    @pytest.mark.parametrize('fault',['boolean_item','dictionary_item','float_root_start',
+        'wrong_line_invoice','wrong_line_kind','null_line_kind'])
+    def test_signed_unsupported_coverage_shape_cannot_commit(client,settings,checkout_evidence,fault):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        line = authoritative['latest_invoice']['lines']['data'][0]
+        if fault == 'boolean_item':
+            item['id'] = True
+            line['parent']['subscription_item_details']['subscription_item'] = 1
+        if fault == 'dictionary_item':
+            item['id'] = {'id':'si_fabricated'}
+            line['parent']['subscription_item_details']['subscription_item'] = dict(item['id'])
+        if fault == 'float_root_start': authoritative['current_period_start'] = float(item['current_period_start'])
+        if fault == 'wrong_line_invoice': line['invoice'] = 'in_different'
+        if fault == 'wrong_line_kind': line['object'] = 'customer'
+        if fault == 'null_line_kind': line['object'] = None
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:222: Failed
+____ test_signed_unsupported_coverage_shape_cannot_commit[dictionary_item] _____
+
+client = <django.test.client.Client object at 0x7a3782bd7360>
+settings = <pytest_django.fixtures.Settings object at 0x7a37814325d0>
+checkout_evidence = (<BillingCustomer: BillingCustomer object (c9d94b42-ff4d-48c4-9ea2-af006cf73b19)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '81898b52-de5e-4265-bb25-1905d2676e79'}, ...})
+fault = 'dictionary_item'
+
+    @pytest.mark.parametrize('fault',['boolean_item','dictionary_item','float_root_start',
+        'wrong_line_invoice','wrong_line_kind','null_line_kind'])
+    def test_signed_unsupported_coverage_shape_cannot_commit(client,settings,checkout_evidence,fault):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        line = authoritative['latest_invoice']['lines']['data'][0]
+        if fault == 'boolean_item':
+            item['id'] = True
+            line['parent']['subscription_item_details']['subscription_item'] = 1
+        if fault == 'dictionary_item':
+            item['id'] = {'id':'si_fabricated'}
+            line['parent']['subscription_item_details']['subscription_item'] = dict(item['id'])
+        if fault == 'float_root_start': authoritative['current_period_start'] = float(item['current_period_start'])
+        if fault == 'wrong_line_invoice': line['invoice'] = 'in_different'
+        if fault == 'wrong_line_kind': line['object'] = 'customer'
+        if fault == 'null_line_kind': line['object'] = None
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:222: Failed
+____ test_signed_unsupported_coverage_shape_cannot_commit[float_root_start] ____
+
+client = <django.test.client.Client object at 0x7a378130cb90>
+settings = <pytest_django.fixtures.Settings object at 0x7a3781338550>
+checkout_evidence = (<BillingCustomer: BillingCustomer object (d85d7d0b-d6b5-4cab-a099-ac8ec3074f43)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'b4d7f196-46be-48d1-9522-a7c62c2fa441'}, ...})
+fault = 'float_root_start'
+
+    @pytest.mark.parametrize('fault',['boolean_item','dictionary_item','float_root_start',
+        'wrong_line_invoice','wrong_line_kind','null_line_kind'])
+    def test_signed_unsupported_coverage_shape_cannot_commit(client,settings,checkout_evidence,fault):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        line = authoritative['latest_invoice']['lines']['data'][0]
+        if fault == 'boolean_item':
+            item['id'] = True
+            line['parent']['subscription_item_details']['subscription_item'] = 1
+        if fault == 'dictionary_item':
+            item['id'] = {'id':'si_fabricated'}
+            line['parent']['subscription_item_details']['subscription_item'] = dict(item['id'])
+        if fault == 'float_root_start': authoritative['current_period_start'] = float(item['current_period_start'])
+        if fault == 'wrong_line_invoice': line['invoice'] = 'in_different'
+        if fault == 'wrong_line_kind': line['object'] = 'customer'
+        if fault == 'null_line_kind': line['object'] = None
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:222: Failed
+___ test_signed_unsupported_coverage_shape_cannot_commit[wrong_line_invoice] ___
+
+client = <django.test.client.Client object at 0x7a3781427bd0>
+settings = <pytest_django.fixtures.Settings object at 0x7a378127ed70>
+checkout_evidence = (<BillingCustomer: BillingCustomer object (ae8d3625-ac43-46e0-b0a0-490ab2744faf)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'f2849522-9e79-40f6-9339-6799fd896a53'}, ...})
+fault = 'wrong_line_invoice'
+
+    @pytest.mark.parametrize('fault',['boolean_item','dictionary_item','float_root_start',
+        'wrong_line_invoice','wrong_line_kind','null_line_kind'])
+    def test_signed_unsupported_coverage_shape_cannot_commit(client,settings,checkout_evidence,fault):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        line = authoritative['latest_invoice']['lines']['data'][0]
+        if fault == 'boolean_item':
+            item['id'] = True
+            line['parent']['subscription_item_details']['subscription_item'] = 1
+        if fault == 'dictionary_item':
+            item['id'] = {'id':'si_fabricated'}
+            line['parent']['subscription_item_details']['subscription_item'] = dict(item['id'])
+        if fault == 'float_root_start': authoritative['current_period_start'] = float(item['current_period_start'])
+        if fault == 'wrong_line_invoice': line['invoice'] = 'in_different'
+        if fault == 'wrong_line_kind': line['object'] = 'customer'
+        if fault == 'null_line_kind': line['object'] = None
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:222: Failed
+____ test_signed_unsupported_coverage_shape_cannot_commit[wrong_line_kind] _____
+
+client = <django.test.client.Client object at 0x7a3781326850>
+settings = <pytest_django.fixtures.Settings object at 0x7a378132c510>
+checkout_evidence = (<BillingCustomer: BillingCustomer object (49a9f83a-9b2f-47ab-ab7f-b1059ae3eb80)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '07dec8f1-26bc-4d5a-adf9-8cad72ba7f2f'}, ...})
+fault = 'wrong_line_kind'
+
+    @pytest.mark.parametrize('fault',['boolean_item','dictionary_item','float_root_start',
+        'wrong_line_invoice','wrong_line_kind','null_line_kind'])
+    def test_signed_unsupported_coverage_shape_cannot_commit(client,settings,checkout_evidence,fault):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        line = authoritative['latest_invoice']['lines']['data'][0]
+        if fault == 'boolean_item':
+            item['id'] = True
+            line['parent']['subscription_item_details']['subscription_item'] = 1
+        if fault == 'dictionary_item':
+            item['id'] = {'id':'si_fabricated'}
+            line['parent']['subscription_item_details']['subscription_item'] = dict(item['id'])
+        if fault == 'float_root_start': authoritative['current_period_start'] = float(item['current_period_start'])
+        if fault == 'wrong_line_invoice': line['invoice'] = 'in_different'
+        if fault == 'wrong_line_kind': line['object'] = 'customer'
+        if fault == 'null_line_kind': line['object'] = None
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:222: Failed
+_____ test_signed_unsupported_coverage_shape_cannot_commit[null_line_kind] _____
+
+client = <django.test.client.Client object at 0x7a3781179040>
+settings = <pytest_django.fixtures.Settings object at 0x7a378130db50>
+checkout_evidence = (<BillingCustomer: BillingCustomer object (c32b3adc-df8d-4d45-b70d-cc8339a9d626)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'b28fd89c-1c86-4484-ac4f-7b7003fb7eb1'}, ...})
+fault = 'null_line_kind'
+
+    @pytest.mark.parametrize('fault',['boolean_item','dictionary_item','float_root_start',
+        'wrong_line_invoice','wrong_line_kind','null_line_kind'])
+    def test_signed_unsupported_coverage_shape_cannot_commit(client,settings,checkout_evidence,fault):
+        customer,session,authoritative = checkout_evidence
+        item = authoritative['items']['data'][0]
+        line = authoritative['latest_invoice']['lines']['data'][0]
+        if fault == 'boolean_item':
+            item['id'] = True
+            line['parent']['subscription_item_details']['subscription_item'] = 1
+        if fault == 'dictionary_item':
+            item['id'] = {'id':'si_fabricated'}
+            line['parent']['subscription_item_details']['subscription_item'] = dict(item['id'])
+        if fault == 'float_root_start': authoritative['current_period_start'] = float(item['current_period_start'])
+        if fault == 'wrong_line_invoice': line['invoice'] = 'in_different'
+        if fault == 'wrong_line_kind': line['object'] = 'customer'
+        if fault == 'null_line_kind': line['object'] = None
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:222: Failed
+=============================== warnings summary ===============================
+tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[boolean_item]
+tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[dictionary_item]
+tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[float_root_start]
+tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[wrong_line_invoice]
+tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[wrong_line_kind]
+tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[null_line_kind]
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[boolean_item]
+FAILED tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[dictionary_item]
+FAILED tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[float_root_start]
+FAILED tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[wrong_line_invoice]
+FAILED tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[wrong_line_kind]
+FAILED tests/test_core_checkout_admission.py::test_signed_unsupported_coverage_shape_cannot_commit[null_line_kind]
+6 failed, 6 warnings in 4.26s

@@ -1,0 +1,223 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+FF.                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_canceled_founder_generation_rejects_exact_claimed_checkout_replay[True] _
+
+settings = <pytest_django.fixtures.Settings object at 0x79b3977a7380>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x79b397144b00>
+probe_early_effects = True
+
+    @pytest.mark.parametrize("probe_early_effects", [True, False])
+    def test_canceled_founder_generation_rejects_exact_claimed_checkout_replay(
+        settings, monkeypatch, probe_early_effects
+    ):
+        user = get_user_model().objects.create_user(email="terminal-founder@example.invalid")
+        customer = BillingCustomer.objects.create(user=user)
+        slot = reserve_founder_slot(billing_customer_id=customer.id)
+        assert attach_founder_checkout_session(
+            slot_sequence=slot.sequence, reservation_token=slot.reservation_token,
+            billing_customer_id=customer.id, stripe_checkout_session_id="cs_terminal",
+            checkout_expires_at=slot.checkout_expires_at,
+        )
+        session = {
+            "id": "cs_terminal", "client_reference_id": str(user.id),
+            "subscription": "sub_terminal", "metadata": {
+                "founder_slot_sequence": str(slot.sequence),
+                "founder_reservation_token": str(slot.reservation_token),
+            },
+        }
+        authoritative = configure_paid_core_checkout(monkeypatch, settings, customer, session)
+        schedule = Mock(return_value={
+            "schedule_id": "sched_terminal", "intro_ends_at": slot.checkout_expires_at,
+        })
+        monkeypatch.setattr("apps.billing.views.ensure_founder_subscription_schedule", schedule)
+        _handle_checkout_completed(session)
+        subscription = Subscription.objects.get(billing_customer=customer)
+        slot.refresh_from_db()
+        assert slot.claimed_at is not None
+        assert subscription.is_founder
+        subscription.status = Subscription.Status.CANCELED
+        subscription.is_founder = False
+        subscription.founder_sequence = None
+        subscription.founder_intro_ends_at = None
+        subscription.stripe_schedule_id = None
+        subscription.save()
+        before = Subscription.objects.filter(pk=subscription.pk).values().get()
+        claimed_at = slot.claimed_at
+        schedule.reset_mock()
+        retrieve = Mock(return_value=authoritative)
+        claim = Mock(wraps=claim_founder_slot)
+        if probe_early_effects:
+            claim.side_effect = AssertionError("Terminal checkout reached founder issuance")
+        monkeypatch.setattr("apps.billing.views._retrieve_core_subscription", retrieve)
+        monkeypatch.setattr("apps.billing.views.claim_founder_slot", claim)
+        if probe_early_effects:
+            with pytest.raises(RuntimeError, match="canceled.*generation|terminal.*generation"):
+>               _handle_checkout_completed(session)
+
+tests/test_billing_terminal_checkout_replay.py:61: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/billing/views.py:699: in _handle_checkout_completed
+    founder_slot = claim_founder_slot(
+/usr/local/lib/python3.14/unittest/mock.py:1176: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.14/unittest/mock.py:1180: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Mock id='133812247487088'>, args = ()
+kwargs = {'slot_sequence': 1, 'reservation_token': '94e0ca96-5f66-435c-acb5-279785a76c3d', 'billing_customer_id': UUID('2851415c-45b4-45fb-80d4-85701c977c9d'), 'stripe_checkout_session_id': 'cs_terminal'}
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: Terminal checkout reached founder issuance
+
+/usr/local/lib/python3.14/unittest/mock.py:1241: AssertionError
+_ test_canceled_founder_generation_rejects_exact_claimed_checkout_replay[False] _
+
+settings = <pytest_django.fixtures.Settings object at 0x79b396e07b10>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x79b39777eb10>
+probe_early_effects = False
+
+    @pytest.mark.parametrize("probe_early_effects", [True, False])
+    def test_canceled_founder_generation_rejects_exact_claimed_checkout_replay(
+        settings, monkeypatch, probe_early_effects
+    ):
+        user = get_user_model().objects.create_user(email="terminal-founder@example.invalid")
+        customer = BillingCustomer.objects.create(user=user)
+        slot = reserve_founder_slot(billing_customer_id=customer.id)
+        assert attach_founder_checkout_session(
+            slot_sequence=slot.sequence, reservation_token=slot.reservation_token,
+            billing_customer_id=customer.id, stripe_checkout_session_id="cs_terminal",
+            checkout_expires_at=slot.checkout_expires_at,
+        )
+        session = {
+            "id": "cs_terminal", "client_reference_id": str(user.id),
+            "subscription": "sub_terminal", "metadata": {
+                "founder_slot_sequence": str(slot.sequence),
+                "founder_reservation_token": str(slot.reservation_token),
+            },
+        }
+        authoritative = configure_paid_core_checkout(monkeypatch, settings, customer, session)
+        schedule = Mock(return_value={
+            "schedule_id": "sched_terminal", "intro_ends_at": slot.checkout_expires_at,
+        })
+        monkeypatch.setattr("apps.billing.views.ensure_founder_subscription_schedule", schedule)
+        _handle_checkout_completed(session)
+        subscription = Subscription.objects.get(billing_customer=customer)
+        slot.refresh_from_db()
+        assert slot.claimed_at is not None
+        assert subscription.is_founder
+        subscription.status = Subscription.Status.CANCELED
+        subscription.is_founder = False
+        subscription.founder_sequence = None
+        subscription.founder_intro_ends_at = None
+        subscription.stripe_schedule_id = None
+        subscription.save()
+        before = Subscription.objects.filter(pk=subscription.pk).values().get()
+        claimed_at = slot.claimed_at
+        schedule.reset_mock()
+        retrieve = Mock(return_value=authoritative)
+        claim = Mock(wraps=claim_founder_slot)
+        if probe_early_effects:
+            claim.side_effect = AssertionError("Terminal checkout reached founder issuance")
+        monkeypatch.setattr("apps.billing.views._retrieve_core_subscription", retrieve)
+        monkeypatch.setattr("apps.billing.views.claim_founder_slot", claim)
+        if probe_early_effects:
+            with pytest.raises(RuntimeError, match="canceled.*generation|terminal.*generation"):
+                _handle_checkout_completed(session)
+            retrieve.assert_not_called()
+            claim.assert_not_called()
+            schedule.assert_not_called()
+        if not probe_early_effects:
+            try:
+                _handle_checkout_completed(session)
+            except RuntimeError as error:
+                assert "generation" in str(error)
+>       assert Subscription.objects.filter(pk=subscription.pk).values().get() == before
+E       AssertionError: assert {'id': UUID('...: 'core', ...} == {'id': UUID('...: 'core', ...}
+E         
+E         Omitting 10 identical items, use -vv to show
+E         Differing items:
+E         {'status': 'active'} != {'status': 'canceled'}
+E         {'founder_intro_ends_at': datetime.datetime(2026, 10, 4, 4, 3, 32, 963278, tzinfo=datetime.timezone.utc)} != {'founder_intro_ends_at': None}
+E         {'founder_sequence': 1} != {'founder_sequence': None}
+E         {'stripe_schedule_id': 'sched_terminal'} != {'stripe_schedule_id': None}...
+E         
+E         ...Full output truncated (3 lines hidden), use '-vv' to show
+
+tests/test_billing_terminal_checkout_replay.py:70: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_billing_terminal_checkout_replay.py::test_canceled_founder_generation_rejects_exact_claimed_checkout_replay[True]
+FAILED tests/test_billing_terminal_checkout_replay.py::test_canceled_founder_generation_rejects_exact_claimed_checkout_replay[False]
+2 failed, 1 passed in 7.24s

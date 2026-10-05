@@ -1,0 +1,294 @@
+{
+  "scope": "fixture-only instrumented disposable PostgreSQL; original issuer definition, ACL, owner, SECURITY DEFINER restored on teardown",
+  "canonical_source_changed": false,
+  "production_touched": false,
+  "observed_cause": "effective_future predicate after shared Python/PostgreSQL wall-clock backward step; all eleven other identity predicates false; timestamp roundtrip exact",
+  "system_clock_discipline_root_cause": "not inspected or established",
+  "failure_records": [
+    {
+      "outside_issuer": {
+        "actor_context": "e1e31585-2a2e-4415-917f-865f3a2f1c08",
+        "bound_actor": "e1e31585-2a2e-4415-917f-865f3a2f1c08",
+        "bound_effective_pg": "2026-10-04 21:00:42.973624+00",
+        "bound_operation": "action_cards.reassess_from_signals",
+        "bound_org": "316e9e74-3449-4182-aa1c-3654d958f76e",
+        "clock_timestamp": "2026-10-04 21:00:42.202369+00",
+        "current_user": "postgres",
+        "database_timezone": "UTC",
+        "effective_minus_clock_microseconds": "771255.000000",
+        "isolation": "read committed",
+        "issuer_exception": "Workflow request identity invalid INSTRUMENTED {\"profile\": \"business.v1\", \"request\": {\"schema\": \"stewardence.workflow.v1\", \"operation\": \"action_cards.reassess_from_signals\", \"receipt_ids\": [\"94737aec-f2e4-4ba0-81b4-4e1f4fc94e49\"], \"effective_at\": \"2026-10-04T21:00:42.973624+00:00\", \"branch_profile\": \"business.v1\", \"organization_id\": \"316e9e74-3449-4182-aa1c-3654d958f76e\"}, \"bound_org\": \"316e9e74-3449-4182-aa1c-3654d958f76e\", \"isolation\": \"read committed\", \"predicates\": {\"effective_future\": true, \"profile_mismatch\": false, \"operation_mismatch\": false, \"organization_mismatch\": false, \"receipt_ids_not_array\": false, \"result_schema_mismatch\": false, \"request_schema_mismatch\": false, \"request_type_not_object\": false, \"request_key_count_not_six\": false, \"result_authority_mismatch\": false, \"effective_not_explicit_utc\": false, \"effective_roundtrip_mismatch\": false}, \"bound_actor\": \"e1e31585-2a2e-4415-917f-865f3a2f1c08\", \"current_user\": \"agentledger_owner\", \"session_user\": \"postgres\", \"actor_context\": \"e1e31585-2a2e-4415-917f-865f3a2f1c08\", \"payload_schema\": \"stewardence.workflow_receipt.v1\", \"bound_operation\": \"action_cards.reassess_from_signals\", \"clock_timestamp\": \"2026-10-04 21:00:42.204559+00\", \"database_timezone\": \"UTC\", \"payload_authority\": \"proposal_only\", \"bound_effective_pg\": \"2026-10-04 21:00:42.973624+00\", \"statement_timestamp\": \"2026-10-04 21:00:42.203586+00\", \"organization_context\": \"316e9e74-3449-4182-aa1c-3654d958f76e\", \"request_effective_pg\": \"2026-10-04 21:00:42.973624+00\", \"transaction_timestamp\": \"2026-10-04 21:00:42.94322+00\", \"roundtrip_difference_microseconds\": \"0.000000\", \"effective_minus_clock_microseconds\": \"769065.000000\"}\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 69 at RAISE",
+        "organization_context": "316e9e74-3449-4182-aa1c-3654d958f76e",
+        "payload_authority": "proposal_only",
+        "payload_schema": "stewardence.workflow_receipt.v1",
+        "predicates": {
+          "effective_future": true,
+          "effective_not_explicit_utc": false,
+          "effective_roundtrip_mismatch": false,
+          "operation_mismatch": false,
+          "organization_mismatch": false,
+          "profile_mismatch": false,
+          "receipt_ids_not_array": false,
+          "request_key_count_not_six": false,
+          "request_schema_mismatch": false,
+          "request_type_not_object": false,
+          "result_authority_mismatch": false,
+          "result_schema_mismatch": false
+        },
+        "profile": "business.v1",
+        "python_bound_effective": "2026-10-04T21:00:42.973624+00:00",
+        "python_clock_before_probe": "2026-10-04T21:00:42.200944+00:00",
+        "request": {
+          "branch_profile": "business.v1",
+          "effective_at": "2026-10-04T21:00:42.973624+00:00",
+          "operation": "action_cards.reassess_from_signals",
+          "organization_id": "316e9e74-3449-4182-aa1c-3654d958f76e",
+          "receipt_ids": [
+            "94737aec-f2e4-4ba0-81b4-4e1f4fc94e49"
+          ],
+          "schema": "stewardence.workflow.v1"
+        },
+        "request_effective_pg": "2026-10-04 21:00:42.973624+00",
+        "roundtrip_difference_microseconds": "0.000000",
+        "session_user": "postgres",
+        "statement_timestamp": "2026-10-04 21:00:42.201437+00",
+        "transaction_timestamp": "2026-10-04 21:00:42.94322+00"
+      },
+      "inside_issuer": {
+        "profile": "business.v1",
+        "request": {
+          "schema": "stewardence.workflow.v1",
+          "operation": "action_cards.reassess_from_signals",
+          "receipt_ids": [
+            "94737aec-f2e4-4ba0-81b4-4e1f4fc94e49"
+          ],
+          "effective_at": "2026-10-04T21:00:42.973624+00:00",
+          "branch_profile": "business.v1",
+          "organization_id": "316e9e74-3449-4182-aa1c-3654d958f76e"
+        },
+        "bound_org": "316e9e74-3449-4182-aa1c-3654d958f76e",
+        "isolation": "read committed",
+        "predicates": {
+          "effective_future": true,
+          "profile_mismatch": false,
+          "operation_mismatch": false,
+          "organization_mismatch": false,
+          "receipt_ids_not_array": false,
+          "result_schema_mismatch": false,
+          "request_schema_mismatch": false,
+          "request_type_not_object": false,
+          "request_key_count_not_six": false,
+          "result_authority_mismatch": false,
+          "effective_not_explicit_utc": false,
+          "effective_roundtrip_mismatch": false
+        },
+        "bound_actor": "e1e31585-2a2e-4415-917f-865f3a2f1c08",
+        "current_user": "agentledger_owner",
+        "session_user": "postgres",
+        "actor_context": "e1e31585-2a2e-4415-917f-865f3a2f1c08",
+        "payload_schema": "stewardence.workflow_receipt.v1",
+        "bound_operation": "action_cards.reassess_from_signals",
+        "clock_timestamp": "2026-10-04 21:00:42.204559+00",
+        "database_timezone": "UTC",
+        "payload_authority": "proposal_only",
+        "bound_effective_pg": "2026-10-04 21:00:42.973624+00",
+        "statement_timestamp": "2026-10-04 21:00:42.203586+00",
+        "organization_context": "316e9e74-3449-4182-aa1c-3654d958f76e",
+        "request_effective_pg": "2026-10-04 21:00:42.973624+00",
+        "transaction_timestamp": "2026-10-04 21:00:42.94322+00",
+        "roundtrip_difference_microseconds": "0.000000",
+        "effective_minus_clock_microseconds": "769065.000000"
+      }
+    },
+    {
+      "outside_issuer": {
+        "actor_context": "50a7fd22-1318-4cac-950c-80f039457bef",
+        "bound_actor": "50a7fd22-1318-4cac-950c-80f039457bef",
+        "bound_effective_pg": "2026-10-04 21:01:11.134953+00",
+        "bound_operation": "action_cards.reassess_from_signals",
+        "bound_org": "cbe862e6-81c0-4529-bfd0-e556aae41bbd",
+        "clock_timestamp": "2026-10-04 21:01:10.399994+00",
+        "current_user": "postgres",
+        "database_timezone": "UTC",
+        "effective_minus_clock_microseconds": "734959.000000",
+        "isolation": "read committed",
+        "issuer_exception": "Workflow request identity invalid INSTRUMENTED {\"profile\": \"business.v1\", \"request\": {\"schema\": \"stewardence.workflow.v1\", \"operation\": \"action_cards.reassess_from_signals\", \"receipt_ids\": [\"9c616909-7303-45ea-b772-9918fc7e1ac2\"], \"effective_at\": \"2026-10-04T21:01:11.134953+00:00\", \"branch_profile\": \"business.v1\", \"organization_id\": \"cbe862e6-81c0-4529-bfd0-e556aae41bbd\"}, \"bound_org\": \"cbe862e6-81c0-4529-bfd0-e556aae41bbd\", \"isolation\": \"read committed\", \"predicates\": {\"effective_future\": true, \"profile_mismatch\": false, \"operation_mismatch\": false, \"organization_mismatch\": false, \"receipt_ids_not_array\": false, \"result_schema_mismatch\": false, \"request_schema_mismatch\": false, \"request_type_not_object\": false, \"request_key_count_not_six\": false, \"result_authority_mismatch\": false, \"effective_not_explicit_utc\": false, \"effective_roundtrip_mismatch\": false}, \"bound_actor\": \"50a7fd22-1318-4cac-950c-80f039457bef\", \"current_user\": \"agentledger_owner\", \"session_user\": \"postgres\", \"actor_context\": \"50a7fd22-1318-4cac-950c-80f039457bef\", \"payload_schema\": \"stewardence.workflow_receipt.v1\", \"bound_operation\": \"action_cards.reassess_from_signals\", \"clock_timestamp\": \"2026-10-04 21:01:10.405173+00\", \"database_timezone\": \"UTC\", \"payload_authority\": \"proposal_only\", \"bound_effective_pg\": \"2026-10-04 21:01:11.134953+00\", \"statement_timestamp\": \"2026-10-04 21:01:10.402316+00\", \"organization_context\": \"cbe862e6-81c0-4529-bfd0-e556aae41bbd\", \"request_effective_pg\": \"2026-10-04 21:01:11.134953+00\", \"transaction_timestamp\": \"2026-10-04 21:01:11.091171+00\", \"roundtrip_difference_microseconds\": \"0.000000\", \"effective_minus_clock_microseconds\": \"729780.000000\"}\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 69 at RAISE",
+        "organization_context": "cbe862e6-81c0-4529-bfd0-e556aae41bbd",
+        "payload_authority": "proposal_only",
+        "payload_schema": "stewardence.workflow_receipt.v1",
+        "predicates": {
+          "effective_future": true,
+          "effective_not_explicit_utc": false,
+          "effective_roundtrip_mismatch": false,
+          "operation_mismatch": false,
+          "organization_mismatch": false,
+          "profile_mismatch": false,
+          "receipt_ids_not_array": false,
+          "request_key_count_not_six": false,
+          "request_schema_mismatch": false,
+          "request_type_not_object": false,
+          "result_authority_mismatch": false,
+          "result_schema_mismatch": false
+        },
+        "profile": "business.v1",
+        "python_bound_effective": "2026-10-04T21:01:11.134953+00:00",
+        "python_clock_before_probe": "2026-10-04T21:01:10.398012+00:00",
+        "request": {
+          "branch_profile": "business.v1",
+          "effective_at": "2026-10-04T21:01:11.134953+00:00",
+          "operation": "action_cards.reassess_from_signals",
+          "organization_id": "cbe862e6-81c0-4529-bfd0-e556aae41bbd",
+          "receipt_ids": [
+            "9c616909-7303-45ea-b772-9918fc7e1ac2"
+          ],
+          "schema": "stewardence.workflow.v1"
+        },
+        "request_effective_pg": "2026-10-04 21:01:11.134953+00",
+        "roundtrip_difference_microseconds": "0.000000",
+        "session_user": "postgres",
+        "statement_timestamp": "2026-10-04 21:01:10.398414+00",
+        "transaction_timestamp": "2026-10-04 21:01:11.091171+00"
+      },
+      "inside_issuer": {
+        "profile": "business.v1",
+        "request": {
+          "schema": "stewardence.workflow.v1",
+          "operation": "action_cards.reassess_from_signals",
+          "receipt_ids": [
+            "9c616909-7303-45ea-b772-9918fc7e1ac2"
+          ],
+          "effective_at": "2026-10-04T21:01:11.134953+00:00",
+          "branch_profile": "business.v1",
+          "organization_id": "cbe862e6-81c0-4529-bfd0-e556aae41bbd"
+        },
+        "bound_org": "cbe862e6-81c0-4529-bfd0-e556aae41bbd",
+        "isolation": "read committed",
+        "predicates": {
+          "effective_future": true,
+          "profile_mismatch": false,
+          "operation_mismatch": false,
+          "organization_mismatch": false,
+          "receipt_ids_not_array": false,
+          "result_schema_mismatch": false,
+          "request_schema_mismatch": false,
+          "request_type_not_object": false,
+          "request_key_count_not_six": false,
+          "result_authority_mismatch": false,
+          "effective_not_explicit_utc": false,
+          "effective_roundtrip_mismatch": false
+        },
+        "bound_actor": "50a7fd22-1318-4cac-950c-80f039457bef",
+        "current_user": "agentledger_owner",
+        "session_user": "postgres",
+        "actor_context": "50a7fd22-1318-4cac-950c-80f039457bef",
+        "payload_schema": "stewardence.workflow_receipt.v1",
+        "bound_operation": "action_cards.reassess_from_signals",
+        "clock_timestamp": "2026-10-04 21:01:10.405173+00",
+        "database_timezone": "UTC",
+        "payload_authority": "proposal_only",
+        "bound_effective_pg": "2026-10-04 21:01:11.134953+00",
+        "statement_timestamp": "2026-10-04 21:01:10.402316+00",
+        "organization_context": "cbe862e6-81c0-4529-bfd0-e556aae41bbd",
+        "request_effective_pg": "2026-10-04 21:01:11.134953+00",
+        "transaction_timestamp": "2026-10-04 21:01:11.091171+00",
+        "roundtrip_difference_microseconds": "0.000000",
+        "effective_minus_clock_microseconds": "729780.000000"
+      }
+    },
+    {
+      "outside_issuer": {
+        "actor_context": "82bb6244-a686-4f31-8b75-e968642391ce",
+        "bound_actor": "82bb6244-a686-4f31-8b75-e968642391ce",
+        "bound_effective_pg": "2026-10-04 21:01:39.25762+00",
+        "bound_operation": "action_cards.reassess_from_signals",
+        "bound_org": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee",
+        "clock_timestamp": "2026-10-04 21:01:38.50104+00",
+        "current_user": "postgres",
+        "database_timezone": "UTC",
+        "effective_minus_clock_microseconds": "756580.000000",
+        "isolation": "read committed",
+        "issuer_exception": "Workflow request identity invalid INSTRUMENTED {\"profile\": \"business.v1\", \"request\": {\"schema\": \"stewardence.workflow.v1\", \"operation\": \"action_cards.reassess_from_signals\", \"receipt_ids\": [\"5c7e9b4e-7f6d-46a4-8357-2385177ac6f3\"], \"effective_at\": \"2026-10-04T21:01:39.257620+00:00\", \"branch_profile\": \"business.v1\", \"organization_id\": \"20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee\"}, \"bound_org\": \"20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee\", \"isolation\": \"read committed\", \"predicates\": {\"effective_future\": true, \"profile_mismatch\": false, \"operation_mismatch\": false, \"organization_mismatch\": false, \"receipt_ids_not_array\": false, \"result_schema_mismatch\": false, \"request_schema_mismatch\": false, \"request_type_not_object\": false, \"request_key_count_not_six\": false, \"result_authority_mismatch\": false, \"effective_not_explicit_utc\": false, \"effective_roundtrip_mismatch\": false}, \"bound_actor\": \"82bb6244-a686-4f31-8b75-e968642391ce\", \"current_user\": \"agentledger_owner\", \"session_user\": \"postgres\", \"actor_context\": \"82bb6244-a686-4f31-8b75-e968642391ce\", \"payload_schema\": \"stewardence.workflow_receipt.v1\", \"bound_operation\": \"action_cards.reassess_from_signals\", \"clock_timestamp\": \"2026-10-04 21:01:38.503878+00\", \"database_timezone\": \"UTC\", \"payload_authority\": \"proposal_only\", \"bound_effective_pg\": \"2026-10-04 21:01:39.25762+00\", \"statement_timestamp\": \"2026-10-04 21:01:38.502338+00\", \"organization_context\": \"20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee\", \"request_effective_pg\": \"2026-10-04 21:01:39.25762+00\", \"transaction_timestamp\": \"2026-10-04 21:01:39.223806+00\", \"roundtrip_difference_microseconds\": \"0.000000\", \"effective_minus_clock_microseconds\": \"753742.000000\"}\nCONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 69 at RAISE",
+        "organization_context": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee",
+        "payload_authority": "proposal_only",
+        "payload_schema": "stewardence.workflow_receipt.v1",
+        "predicates": {
+          "effective_future": true,
+          "effective_not_explicit_utc": false,
+          "effective_roundtrip_mismatch": false,
+          "operation_mismatch": false,
+          "organization_mismatch": false,
+          "profile_mismatch": false,
+          "receipt_ids_not_array": false,
+          "request_key_count_not_six": false,
+          "request_schema_mismatch": false,
+          "request_type_not_object": false,
+          "result_authority_mismatch": false,
+          "result_schema_mismatch": false
+        },
+        "profile": "business.v1",
+        "python_bound_effective": "2026-10-04T21:01:39.257620+00:00",
+        "python_clock_before_probe": "2026-10-04T21:01:38.499589+00:00",
+        "request": {
+          "branch_profile": "business.v1",
+          "effective_at": "2026-10-04T21:01:39.257620+00:00",
+          "operation": "action_cards.reassess_from_signals",
+          "organization_id": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee",
+          "receipt_ids": [
+            "5c7e9b4e-7f6d-46a4-8357-2385177ac6f3"
+          ],
+          "schema": "stewardence.workflow.v1"
+        },
+        "request_effective_pg": "2026-10-04 21:01:39.25762+00",
+        "roundtrip_difference_microseconds": "0.000000",
+        "session_user": "postgres",
+        "statement_timestamp": "2026-10-04 21:01:38.500207+00",
+        "transaction_timestamp": "2026-10-04 21:01:39.223806+00"
+      },
+      "inside_issuer": {
+        "profile": "business.v1",
+        "request": {
+          "schema": "stewardence.workflow.v1",
+          "operation": "action_cards.reassess_from_signals",
+          "receipt_ids": [
+            "5c7e9b4e-7f6d-46a4-8357-2385177ac6f3"
+          ],
+          "effective_at": "2026-10-04T21:01:39.257620+00:00",
+          "branch_profile": "business.v1",
+          "organization_id": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee"
+        },
+        "bound_org": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee",
+        "isolation": "read committed",
+        "predicates": {
+          "effective_future": true,
+          "profile_mismatch": false,
+          "operation_mismatch": false,
+          "organization_mismatch": false,
+          "receipt_ids_not_array": false,
+          "result_schema_mismatch": false,
+          "request_schema_mismatch": false,
+          "request_type_not_object": false,
+          "request_key_count_not_six": false,
+          "result_authority_mismatch": false,
+          "effective_not_explicit_utc": false,
+          "effective_roundtrip_mismatch": false
+        },
+        "bound_actor": "82bb6244-a686-4f31-8b75-e968642391ce",
+        "current_user": "agentledger_owner",
+        "session_user": "postgres",
+        "actor_context": "82bb6244-a686-4f31-8b75-e968642391ce",
+        "payload_schema": "stewardence.workflow_receipt.v1",
+        "bound_operation": "action_cards.reassess_from_signals",
+        "clock_timestamp": "2026-10-04 21:01:38.503878+00",
+        "database_timezone": "UTC",
+        "payload_authority": "proposal_only",
+        "bound_effective_pg": "2026-10-04 21:01:39.25762+00",
+        "statement_timestamp": "2026-10-04 21:01:38.502338+00",
+        "organization_context": "20e1b1f5-fe17-4a68-bb4b-eb946a5c13ee",
+        "request_effective_pg": "2026-10-04 21:01:39.25762+00",
+        "transaction_timestamp": "2026-10-04 21:01:39.223806+00",
+        "roundtrip_difference_microseconds": "0.000000",
+        "effective_minus_clock_microseconds": "753742.000000"
+      }
+    }
+  ]
+}

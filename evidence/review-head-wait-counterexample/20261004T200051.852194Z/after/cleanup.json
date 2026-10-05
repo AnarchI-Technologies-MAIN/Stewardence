@@ -1,0 +1,18 @@
+{
+  "cleanup_passed": true,
+  "verified": [
+    {
+      "target": "stewardence-review-head-wait-9f9a812b89d949beb2cdc0083f142009-app",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-review-head-wait-9f9a812b89d949beb2cdc0083f142009-db",
+      "absence_verified": true
+    },
+    {
+      "target": "stewardence-review-head-wait-9f9a812b89d949beb2cdc0083f142009",
+      "absence_verified": true
+    }
+  ],
+  "failed_targets": []
+}

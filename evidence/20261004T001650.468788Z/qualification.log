@@ -1,0 +1,535 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+FFFFFFFFFFFFF                                                            [100%]
+=================================== FAILURES ===================================
+___ test_checkout_payment_must_cover_current_period[old_paid_current_unpaid] ___
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (7ef87dc7-6a05-4ad8-bfde-630ebfa48b4a)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'd4fdcea9-96d0-41aa-8208-b9d90e5b3de3'}, ...})
+mutation = 'old_paid_current_unpaid'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+__ test_checkout_payment_must_cover_current_period[foreign_invoice_customer] ___
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (10c3e08e-66f8-43d0-82ed-503f68aba712)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'f4ca52ac-d645-4b80-a9bc-fde739193863'}, ...})
+mutation = 'foreign_invoice_customer'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+_ test_checkout_payment_must_cover_current_period[foreign_invoice_subscription] _
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (77f6dae9-6cec-4f48-a27e-5cc8ce099c9f)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'a6db1d8c-0edd-46d8-a773-4afbf6e72a2d'}, ...})
+mutation = 'foreign_invoice_subscription'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+__ test_checkout_payment_must_cover_current_period[foreign_line_subscription] __
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (bfde802f-94d3-43b1-a9dc-abf2ba877fb6)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '0cc67786-b9f6-488b-9940-c29d27a50910'}, ...})
+mutation = 'foreign_line_subscription'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+_____ test_checkout_payment_must_cover_current_period[foreign_line_price] ______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (6c855948-ef1b-42a6-828a-e26ea04f6d62)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '439ad690-0c4a-46b3-acdf-ad2005c005c2'}, ...})
+mutation = 'foreign_line_price'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+______ test_checkout_payment_must_cover_current_period[uncovered_period] _______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (df38a2d8-5a32-4490-8e69-232dfe59d92e)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '9f1cbfd7-bfa0-4750-b81f-c43506473c74'}, ...})
+mutation = 'uncovered_period'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+_______ test_checkout_payment_must_cover_current_period[partial_payment] _______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (26a033c9-2c5a-42ec-8e72-41f82c0276eb)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '09015f91-5d4f-4e28-bcd7-72f1bd4954ca'}, ...})
+mutation = 'partial_payment'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+_______ test_checkout_payment_must_cover_current_period[missing_invoice] _______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (b3f026f1-2b0d-4cc7-bb2c-9de312f90a16)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'a72f2a2e-2aa0-4dfc-bc37-3d455d0b0b1f'}, ...})
+mutation = 'missing_invoice'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+___ test_checkout_payment_must_cover_current_period[unbound_session_invoice] ___
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (4db9a708-3011-4f55-a3fd-7dfd96370ffb)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '3d5ce16e-b680-47c9-9eb3-f7128af26d04'}, ...})
+mutation = 'unbound_session_invoice'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+_______ test_checkout_payment_must_cover_current_period[truncated_lines] _______
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (8677d5d3-5b93-46a6-888c-ce40f0d39f4f)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '81e7623e-933f-408b-b6d6-6b4372850e46'}, ...})
+mutation = 'truncated_lines'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+_______ test_checkout_payment_must_cover_current_period[future_paid_at] ________
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (08893b24-4d85-4750-a6c7-b77b380f4054)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '91cfff34-c5ee-430b-97a6-3480079dd779'}, ...})
+mutation = 'future_paid_at'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+__________ test_checkout_payment_must_cover_current_period[proration] __________
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (722913a3-1d07-4ce0-ab63-36368ccc288e)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': 'fe4e0716-4e09-4fc4-bc6f-8510fcbb8d6a'}, ...})
+mutation = 'proration'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+_____ test_checkout_payment_must_cover_current_period[boolean_paid_amount] _____
+
+checkout_evidence = (<BillingCustomer: BillingCustomer object (e38b7c8f-5ba4-40f9-aba5-ae29c43122e7)>, {'id': 'cs_core_admission', 'client...tus': 'active', 'metadata': {'portfolio': 'core', 'stewardence_user_id': '11d76a1b-b868-4f28-82d2-3982f690e3f4'}, ...})
+mutation = 'boolean_paid_amount'
+
+    @pytest.mark.parametrize('mutation',[
+        'old_paid_current_unpaid','foreign_invoice_customer','foreign_invoice_subscription',
+        'foreign_line_subscription','foreign_line_price','uncovered_period',
+        'partial_payment','missing_invoice','unbound_session_invoice','truncated_lines',
+        'future_paid_at','proration','boolean_paid_amount',
+    ])
+    def test_checkout_payment_must_cover_current_period(checkout_evidence, mutation):
+        customer, session, authoritative = checkout_evidence
+        invoice = authoritative['latest_invoice']
+        line = invoice['lines']['data'][0]
+        if mutation == 'old_paid_current_unpaid':
+            session['created'] -= 60*86400
+            invoice.update(status='open',amount_paid=0,amount_remaining=9900)
+        if mutation == 'foreign_invoice_customer': invoice['customer'] = 'cus_foreign'
+        if mutation == 'foreign_invoice_subscription': invoice['parent']['subscription_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_subscription': line['parent']['subscription_item_details']['subscription'] = 'sub_foreign'
+        if mutation == 'foreign_line_price': line['pricing']['price_details']['price'] = 'price_foreign'
+        if mutation == 'uncovered_period': line['period']['end'] -= 86400
+        if mutation == 'partial_payment': invoice.update(amount_paid=4900,amount_remaining=5000)
+        if mutation == 'missing_invoice': authoritative['latest_invoice'] = None
+        if mutation == 'unbound_session_invoice': session['invoice'] = 'in_previous_paid_period'
+        if mutation == 'truncated_lines': invoice['lines']['has_more'] = True
+        if mutation == 'future_paid_at': invoice['status_transitions']['paid_at'] += 86400
+        if mutation == 'proration': line['parent']['subscription_item_details']['proration'] = True
+        if mutation == 'boolean_paid_amount': invoice['amount_paid'] = True
+>       with pytest.raises(RuntimeError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE RuntimeError
+
+tests/test_core_checkout_admission.py:91: Failed
+=========================== short test summary info ============================
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[old_paid_current_unpaid]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[foreign_invoice_customer]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[foreign_invoice_subscription]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[foreign_line_subscription]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[foreign_line_price]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[uncovered_period]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[partial_payment]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[missing_invoice]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[unbound_session_invoice]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[truncated_lines]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[future_paid_at]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[proration]
+FAILED tests/test_core_checkout_admission.py::test_checkout_payment_must_cover_current_period[boolean_paid_amount]
+13 failed in 5.57s

@@ -1,0 +1,23 @@
+{
+  "command": [
+    "wsl",
+    "-d",
+    "AnarchI-Mail",
+    "-u",
+    "root",
+    "--",
+    "journalctl",
+    "-u",
+    "systemd-timesyncd",
+    "--since",
+    "2026-10-04 21:25:00 UTC",
+    "--until",
+    "2026-10-04 21:45:00 UTC",
+    "--no-pager",
+    "-n",
+    "80"
+  ],
+  "exit_code": 0,
+  "stdout": "Oct 04 16:27:28 AnarchI-Workstation systemd-timesyncd[108875]: Timed out waiting for reply from [2620:2d:4000:1::41]:123 (ntp.ubuntu.com).\nOct 04 16:27:38 AnarchI-Workstation systemd-timesyncd[108875]: Timed out waiting for reply from [2620:2d:4000:1::3f]:123 (ntp.ubuntu.com).\nOct 04 16:27:56 AnarchI-Workstation systemd-timesyncd[108875]: Timed out waiting for reply from [2620:2d:4000:1::40]:123 (ntp.ubuntu.com).\nOct 04 16:27:55 AnarchI-Workstation systemd-timesyncd[108875]: Contacted time server 91.189.91.157:123 (ntp.ubuntu.com).\nOct 04 16:32:00 AnarchI-Workstation systemd[1]: Stopping systemd-timesyncd.service - Network Time Synchronization...\nOct 04 16:32:00 AnarchI-Workstation systemd[1]: systemd-timesyncd.service: Deactivated successfully.\nOct 04 16:32:00 AnarchI-Workstation systemd[1]: Stopped systemd-timesyncd.service - Network Time Synchronization.\nOct 04 16:32:00 AnarchI-Workstation systemd[1]: systemd-timesyncd.service: Consumed 1.136s CPU time, 2.3M memory peak, 0B memory swap peak.\nOct 04 16:39:04 AnarchI-Workstation systemd[1]: Starting systemd-timesyncd.service - Network Time Synchronization...\nOct 04 16:39:05 AnarchI-Workstation systemd[1]: Started systemd-timesyncd.service - Network Time Synchronization.\nOct 04 16:39:15 AnarchI-Workstation systemd-timesyncd[109277]: Timed out waiting for reply from [2620:2d:4000:1::41]:123 (ntp.ubuntu.com).\nOct 04 16:39:28 AnarchI-Workstation systemd-timesyncd[109277]: Timed out waiting for reply from [2620:2d:4000:1::3f]:123 (ntp.ubuntu.com).\nOct 04 16:39:38 AnarchI-Workstation systemd-timesyncd[109277]: Timed out waiting for reply from [2620:2d:4000:1::40]:123 (ntp.ubuntu.com).\nOct 04 16:39:37 AnarchI-Workstation systemd-timesyncd[109277]: Contacted time server 185.125.190.56:123 (ntp.ubuntu.com).\nOct 04 16:39:37 AnarchI-Workstation systemd-timesyncd[109277]: Initial clock synchronization to Sun 2026-10-04 16:39:37.477710 CDT.\n",
+  "stderr": ""
+}

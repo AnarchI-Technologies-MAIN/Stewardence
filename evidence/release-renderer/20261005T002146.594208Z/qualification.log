@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<string>", line 9, in <module>
+    assert os.access(p.chromium.executable_path,os.X_OK)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+Task was destroyed but it is pending!
+task: <Task cancelling name='Task-3' coro=<Connection.run.<locals>.init() running at /app/.venv/lib/python3.14/site-packages/playwright/_impl/_connection.py:344> wait_for=<Future finished result=None>>
+Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed

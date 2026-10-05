@@ -1,0 +1,46 @@
+services:
+  web:
+    image: ${STEWARDENCE_CORE_IMAGE:?Set the reviewed immutable app image}
+
+  worker:
+    profiles: [legacy-worker]
+    restart: "no"
+
+  core-worker:
+    image: ${STEWARDENCE_CORE_IMAGE:?Set the reviewed immutable app image}
+    profiles: [core-worker]
+    env_file:
+      - /etc/stewardence/core-worker.env
+    environment:
+      CORE_WORKFLOWS_ENABLED: "1"
+      AUTOMATION_ENABLED: "0"
+    command:
+      - .venv/bin/python
+      - manage.py
+      - run_core_worker
+      - --worker-id
+      - stewardence-core-01
+      - --max-jobs
+      - "10"
+    depends_on:
+      db:
+        condition: service_healthy
+      renderer:
+        condition: service_healthy
+    networks:
+      - database
+      - rendering
+      - egress
+    restart: "no"
+    init: true
+    user: "10001:10001"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64M,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 1g
+    cpus: 1.0

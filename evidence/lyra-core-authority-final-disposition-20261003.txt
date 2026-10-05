@@ -1,0 +1,15 @@
+STEWARDENCE: the bounded Core authority successor regression is accepted for the named frozen run. The two P2 repairs and the audit-isolation integration question are closed within this qualification scope.
+
+Run: 20261003T205521.426662Z
+Image: sha256:3aada76bfe0a0cb72fc4f57ad28ab67326bb60fe46b2b96bb9f3299228db4ace
+Result: exit 0; 1,146 passed, 1 skipped, 120 warnings; 217.54 seconds.
+
+This time the supplied raw log supports the counts and successful migration 0012 application. The probe runs inside the actual audit handler’s persistence path, verifies agentledger_worker / READ COMMITTED / atomic transaction, then calls the original persistence method. The actual-role event-immutability tests and successful sealing positive control support the remaining audit assumptions.
+
+I reviewed the supplied evidence, not an independent rerun. The reported unchanged live deployment remains a separate read-only observation. The preceding run’s “same product code” comparison is reported rather than independently established here; it isn’t needed to accept this named final run.
+
+The warnings shown concern missing /app/staticfiles/ in the test image. Preserve them, and verify static collection/serving in the final release-image and UI gate rather than treating this suite as that proof.
+
+Next gate: actual report-object restore. Its evidence should reconcile database artifact references with restored object bytes, hashes and sizes; verify authorized retrieval and cross-tenant/anonymous denial; and exercise missing/corrupt objects in an isolated restore target. Keep report contents and credentials out of the review transcript. Restoring rows alone won’t close that gate.
+
+Overall Core production readiness remains open for object restore, final atlas/PDF/UI, sales delivery and the release package. No deployment approval is granted by this regression acceptance.

@@ -1,0 +1,170 @@
+{
+  "before": {
+    "process_id": 7,
+    "memory.current": "56713216\n",
+    "memory.peak": "81530880\n",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "pids.current": "2\n",
+    "pids.max": "512\n",
+    "cpu.stat": "usage_usec 3691953\nuser_usec 3040206\nsystem_usec 651746\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+    "direct_children": "",
+    "processes": [
+      {
+        "Name": "docker-init",
+        "State": "S (sleeping)",
+        "Pid": "1",
+        "PPid": "0"
+      },
+      {
+        "Name": "python",
+        "State": "R (running)",
+        "Pid": "7",
+        "PPid": "1"
+      }
+    ]
+  },
+  "renders": [
+    {
+      "index": 0,
+      "elapsed": 1.7983777819899842,
+      "sha256": "e3a52c9f3ce77563547bf737bf89da0fb37740ec5b0ac5175de165246cc3a399",
+      "resources": {
+        "process_id": 7,
+        "memory.current": "61378560\n",
+        "memory.peak": "251473920\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "2\n",
+        "pids.max": "512\n",
+        "cpu.stat": "usage_usec 6318533\nuser_usec 4337298\nsystem_usec 1981235\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+        "direct_children": "",
+        "processes": [
+          {
+            "Name": "docker-init",
+            "State": "S (sleeping)",
+            "Pid": "1",
+            "PPid": "0"
+          },
+          {
+            "Name": "python",
+            "State": "R (running)",
+            "Pid": "7",
+            "PPid": "1"
+          }
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "elapsed": 1.5585318669909611,
+      "sha256": "e3a52c9f3ce77563547bf737bf89da0fb37740ec5b0ac5175de165246cc3a399",
+      "resources": {
+        "process_id": 7,
+        "memory.current": "62857216\n",
+        "memory.peak": "251473920\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "2\n",
+        "pids.max": "512\n",
+        "cpu.stat": "usage_usec 8782896\nuser_usec 5592593\nsystem_usec 3190302\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+        "direct_children": "",
+        "processes": [
+          {
+            "Name": "docker-init",
+            "State": "S (sleeping)",
+            "Pid": "1",
+            "PPid": "0"
+          },
+          {
+            "Name": "python",
+            "State": "R (running)",
+            "Pid": "7",
+            "PPid": "1"
+          }
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "elapsed": 1.5321976689738221,
+      "sha256": "e3a52c9f3ce77563547bf737bf89da0fb37740ec5b0ac5175de165246cc3a399",
+      "resources": {
+        "process_id": 7,
+        "memory.current": "62742528\n",
+        "memory.peak": "251473920\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "2\n",
+        "pids.max": "512\n",
+        "cpu.stat": "usage_usec 11078776\nuser_usec 6869526\nsystem_usec 4209250\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+        "direct_children": "",
+        "processes": [
+          {
+            "Name": "docker-init",
+            "State": "S (sleeping)",
+            "Pid": "1",
+            "PPid": "0"
+          },
+          {
+            "Name": "python",
+            "State": "R (running)",
+            "Pid": "7",
+            "PPid": "1"
+          }
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "elapsed": 1.2636471160221845,
+      "sha256": "e3a52c9f3ce77563547bf737bf89da0fb37740ec5b0ac5175de165246cc3a399",
+      "resources": {
+        "process_id": 7,
+        "memory.current": "63496192\n",
+        "memory.peak": "251473920\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "2\n",
+        "pids.max": "512\n",
+        "cpu.stat": "usage_usec 13076247\nuser_usec 8107883\nsystem_usec 4968364\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+        "direct_children": "",
+        "processes": [
+          {
+            "Name": "docker-init",
+            "State": "S (sleeping)",
+            "Pid": "1",
+            "PPid": "0"
+          },
+          {
+            "Name": "python",
+            "State": "R (running)",
+            "Pid": "7",
+            "PPid": "1"
+          }
+        ]
+      }
+    }
+  ],
+  "synthetic_payload_only": true,
+  "timeout_seconds": 60,
+  "after": {
+    "process_id": 7,
+    "memory.current": "63496192\n",
+    "memory.peak": "251473920\n",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+    "pids.current": "2\n",
+    "pids.max": "512\n",
+    "cpu.stat": "usage_usec 13080002\nuser_usec 8111638\nsystem_usec 4968364\nnice_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+    "direct_children": "",
+    "processes": [
+      {
+        "Name": "docker-init",
+        "State": "S (sleeping)",
+        "Pid": "1",
+        "PPid": "0"
+      },
+      {
+        "Name": "python",
+        "State": "R (running)",
+        "Pid": "7",
+        "PPid": "1"
+      }
+    ]
+  }
+}

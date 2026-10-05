@@ -1,0 +1,14 @@
+{
+  "cleanup_passed": true,
+  "verified": [
+    {
+      "target": "stewardence-cleanup-fault-061ef67381d9442ba09a0a0e5442d088",
+      "absence_verified": true
+    }
+  ],
+  "failed_targets": [],
+  "qualification_passed": true,
+  "real_disposable_network": true,
+  "simulated_acknowledgement_loss": true,
+  "production_touched": false
+}

@@ -1,0 +1,60 @@
+{
+  "passed": true,
+  "resources": [
+    {
+      "name": "stewardence-release-2fd8d9c2744e-renderer",
+      "kind": "container",
+      "inspect_returncode": 0,
+      "label_matched": true,
+      "label_mismatch": false,
+      "remove_returncode": 0,
+      "absence_query_returncode": 0,
+      "absent": true,
+      "passed": true
+    },
+    {
+      "name": "stewardence-release-2fd8d9c2744e-app",
+      "kind": "container",
+      "inspect_returncode": 1,
+      "label_matched": false,
+      "label_mismatch": false,
+      "remove_returncode": null,
+      "absence_query_returncode": 0,
+      "absent": true,
+      "passed": true
+    },
+    {
+      "name": "stewardence-release-2fd8d9c2744e-check",
+      "kind": "container",
+      "inspect_returncode": 1,
+      "label_matched": false,
+      "label_mismatch": false,
+      "remove_returncode": null,
+      "absence_query_returncode": 0,
+      "absent": true,
+      "passed": true
+    },
+    {
+      "name": "stewardence-release-2fd8d9c2744e-verifier",
+      "kind": "container",
+      "inspect_returncode": 1,
+      "label_matched": false,
+      "label_mismatch": false,
+      "remove_returncode": null,
+      "absence_query_returncode": 0,
+      "absent": true,
+      "passed": true
+    },
+    {
+      "name": "stewardence-release-2fd8d9c2744e",
+      "kind": "network",
+      "inspect_returncode": 0,
+      "label_matched": true,
+      "label_mismatch": false,
+      "remove_returncode": 0,
+      "absence_query_returncode": 0,
+      "absent": true,
+      "passed": true
+    }
+  ]
+}

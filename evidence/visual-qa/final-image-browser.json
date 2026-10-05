@@ -1,0 +1,54 @@
+{
+  "verified_at": "2026-10-03T23:02:27.077Z",
+  "candidate_image_id": "sha256:a3b11cb508a0cd4e7671a6edb01b8e6ee8675aee930acce9d4d0dbce008ae51e",
+  "synthetic_only": true,
+  "report_widths": [
+    {
+      "body_width": 375,
+      "document_width": 375,
+      "report_width": 335.20001220703125,
+      "tables": [
+        {
+          "parent_width": 335,
+          "table_width": 560
+        }
+      ],
+      "unknown_net": true,
+      "width": 390
+    },
+    {
+      "body_width": 753,
+      "document_width": 753,
+      "report_width": 471.8000183105469,
+      "tables": [
+        {
+          "parent_width": 472,
+          "table_width": 560
+        }
+      ],
+      "unknown_net": true,
+      "width": 768
+    },
+    {
+      "body_width": 1265,
+      "document_width": 1265,
+      "report_width": 983.7999877929688,
+      "tables": [
+        {
+          "parent_width": 984,
+          "table_width": 984
+        }
+      ],
+      "unknown_net": true,
+      "width": 1280
+    }
+  ],
+  "mobile_menu_opened": true,
+  "mobile_recovery_navigation": {
+    "document_width": 375,
+    "heading": "Core operations",
+    "path": "/core/operations/",
+    "width": 390
+  },
+  "limits": "Localhost synthetic Django development preview; not production HTTP/static delivery or full accessibility qualification."
+}

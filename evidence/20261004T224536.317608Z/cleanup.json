@@ -1,0 +1,8 @@
+{
+  "app_cleanup_attempted": false,
+  "owned_app_removed": false,
+  "db_cleanup_attempted": true,
+  "network_cleanup_attempted": true,
+  "db_cleanup_exit_code": 0,
+  "network_cleanup_exit_code": 0
+}

@@ -1,0 +1,276 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+.............FF............F........                                     [100%]
+=================================== FAILURES ===================================
+____ test_drain_queue_records_safe_retry_without_persisting_exception_text _____
+
+self = <test_background_jobs.FailingHandler object at 0x7d1b5b727770>
+prepared = {'job_id': '4d5e0f3a-ffbc-416a-b850-f5dbbbc2255a'}
+heartbeat = <function execute_claimed_job.<locals>.heartbeat at 0x7d1b5b1f6820>
+
+    def execute_external(self, prepared, heartbeat):
+        heartbeat()
+>       raise self.error_type(self.secret)
+E       httpx.ReadTimeout: SECRET-CUSTOMER-DATABASE-TOKEN
+
+tests/test_background_jobs.py:406: ReadTimeout
+
+During handling of the above exception, another exception occurred:
+
+organization = <Organization: Phase 13 Queue Firm>
+
+    def test_drain_queue_records_safe_retry_without_persisting_exception_text(
+        organization,
+    ):
+        from apps.jobs.worker import drain_queue
+        from httpx import ReadTimeout
+    
+        secret = "SECRET-CUSTOMER-DATABASE-TOKEN"
+        job = enqueue(organization)
+    
+        def resolver(job_type):
+            assert job_type == BackgroundJob.Type.RISK_REASSESSMENT
+            return FailingHandler(secret, ReadTimeout)
+    
+>       processed = drain_queue(
+            "worker-a",
+            resolver,
+            max_jobs=1,
+        )
+
+tests/test_background_jobs.py:481: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/jobs/worker.py:128: in drain_queue
+    _record_failure(job, execution, error, retryable, using)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ClaimedJob(id=UUID('4d5e0f3a-ffbc-416a-b850-f5dbbbc2255a'), organization_id=UUID('0d791e57-de6c-4754-a09e-1d76366c71d3...tem_id': 'c77c665e-68b1-4993-b791-d1fa469511cf'}, attempts=1, claim_token=UUID('9900442a-0160-4ab3-8970-bd2473f61d03'))
+execution = JobExecution(job=ClaimedJob(id=UUID('4d5e0f3a-ffbc-416a-b850-f5dbbbc2255a'), organization_id=UUID('0d791e57-de6c-4754-...-4993-b791-d1fa469511cf'}, attempts=1, claim_token=UUID('9900442a-0160-4ab3-8970-bd2473f61d03')), worker_id='worker-a')
+error = ReadTimeout('SECRET-CUSTOMER-DATABASE-TOKEN'), retryable = True
+using = 'default'
+
+    def _record_failure(job, execution, error, retryable, using):
+        code = "job_execution_failed" if retryable else "job_requires_review"
+        fingerprint = _safe_failure_fingerprint(job, error)
+        fail_job_with_fence(
+                    job_id=job.id,
+>                   worker_id=worker_id,
+                              ^^^^^^^^^
+                    claim_token=job.claim_token,
+                    error_code=code,
+                    safe_summary=("The operation encountered a temporary failure and will retry within its attempt limit."
+                                  if retryable else "The operation stopped safely and requires review."),
+                    fingerprint=fingerprint,
+                    using=using,
+                    retryable=retryable,
+        )
+E       NameError: name 'worker_id' is not defined
+
+apps/jobs/worker.py:140: NameError
+__________ test_drain_queue_failure_does_not_block_next_available_job __________
+
+self = <test_background_jobs.FailingHandler object at 0x7d1b5b4c82d0>
+prepared = {'job_id': 'f6dd0266-78be-4dcc-8570-4a0574fe7e39'}
+heartbeat = <function execute_claimed_job.<locals>.heartbeat at 0x7d1b5b45a560>
+
+    def execute_external(self, prepared, heartbeat):
+        heartbeat()
+>       raise self.error_type(self.secret)
+E       RuntimeError: private failure detail
+
+tests/test_background_jobs.py:406: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+organization = <Organization: Phase 13 Queue Firm>
+
+    def test_drain_queue_failure_does_not_block_next_available_job(organization):
+        from apps.jobs.worker import drain_queue
+    
+        failed_job = enqueue(
+            organization,
+            job_type=BackgroundJob.Type.RISK_REASSESSMENT,
+            priority=10,
+        )
+        successful_job = enqueue(
+            organization,
+            job_type=BackgroundJob.Type.REPORT_GENERATION,
+            priority=20,
+        )
+    
+        successful_handler = RecordingHandler()
+    
+        def resolver(job_type):
+            if job_type == BackgroundJob.Type.RISK_REASSESSMENT:
+                return FailingHandler("private failure detail")
+            return successful_handler
+    
+>       processed = drain_queue(
+            "worker-a",
+            resolver,
+        )
+
+tests/test_background_jobs.py:531: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/jobs/worker.py:128: in drain_queue
+    _record_failure(job, execution, error, retryable, using)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ClaimedJob(id=UUID('f6dd0266-78be-4dcc-8570-4a0574fe7e39'), organization_id=UUID('6da00434-ca50-48c2-ad86-9ef89b70801f...tem_id': '04a06c17-dfa8-4b5f-a393-26b6c57bfe8b'}, attempts=1, claim_token=UUID('2cfa7aec-0ed7-4820-88e7-4fdde9d2f275'))
+execution = JobExecution(job=ClaimedJob(id=UUID('f6dd0266-78be-4dcc-8570-4a0574fe7e39'), organization_id=UUID('6da00434-ca50-48c2-...-4b5f-a393-26b6c57bfe8b'}, attempts=1, claim_token=UUID('2cfa7aec-0ed7-4820-88e7-4fdde9d2f275')), worker_id='worker-a')
+error = RuntimeError('private failure detail'), retryable = False
+using = 'default'
+
+    def _record_failure(job, execution, error, retryable, using):
+        code = "job_execution_failed" if retryable else "job_requires_review"
+        fingerprint = _safe_failure_fingerprint(job, error)
+        fail_job_with_fence(
+                    job_id=job.id,
+>                   worker_id=worker_id,
+                              ^^^^^^^^^
+                    claim_token=job.claim_token,
+                    error_code=code,
+                    safe_summary=("The operation encountered a temporary failure and will retry within its attempt limit."
+                                  if retryable else "The operation stopped safely and requires review."),
+                    fingerprint=fingerprint,
+                    using=using,
+                    retryable=retryable,
+        )
+E       NameError: name 'worker_id' is not defined
+
+apps/jobs/worker.py:140: NameError
+______________ test_unclassified_sealer_failure_stops_for_review _______________
+
+args = (UUID('e239d1bf-5404-4fd5-8c51-be1d35789ae0'),)
+kwargs = {'using': 'worker_runtime'}
+
+    def fail_seal(*args, **kwargs):
+>       raise RuntimeError("injected audit sealing failure")
+E       RuntimeError: injected audit sealing failure
+
+tests/test_audit_job_handler.py:331: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+organization = <Organization: Audit Worker Firm>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7d1b5adcd390>
+
+    def test_unclassified_sealer_failure_stops_for_review(
+        organization,
+        monkeypatch,
+    ):
+        append_audit_event(
+            organization_id=organization.id,
+            event_type="inventory.created",
+            entity_type="inventory_item",
+            data={},
+            using="app_runtime",
+        )
+    
+        from apps.audit import jobs
+    
+        def fail_seal(*args, **kwargs):
+            raise RuntimeError("injected audit sealing failure")
+    
+        monkeypatch.setattr(
+            jobs,
+            "seal_tenant_audit_events",
+            fail_seal,
+        )
+    
+        resolver = build_job_handler_resolver(
+            using="worker_runtime",
+        )
+    
+>       processed = drain_queue(
+            "audit-worker-3",
+            resolver,
+            using="worker_runtime",
+            max_jobs=1,
+        )
+
+tests/test_audit_job_handler.py:343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/jobs/worker.py:128: in drain_queue
+    _record_failure(job, execution, error, retryable, using)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+job = ClaimedJob(id=UUID('74bc094d-1027-4475-982a-8009a888a0a7'), organization_id=UUID('e239d1bf-5404-4fd5-8c51-be1d35789ae0'), job_type='audit_batch_seal', payload={}, attempts=1, claim_token=UUID('8b1e9d40-891e-4f93-a5b2-0faa760d4cdc'))
+execution = JobExecution(job=ClaimedJob(id=UUID('74bc094d-1027-4475-982a-8009a888a0a7'), organization_id=UUID('e239d1bf-5404-4fd5-...h_seal', payload={}, attempts=1, claim_token=UUID('8b1e9d40-891e-4f93-a5b2-0faa760d4cdc')), worker_id='audit-worker-3')
+error = RuntimeError('injected audit sealing failure'), retryable = False
+using = 'worker_runtime'
+
+    def _record_failure(job, execution, error, retryable, using):
+        code = "job_execution_failed" if retryable else "job_requires_review"
+        fingerprint = _safe_failure_fingerprint(job, error)
+        fail_job_with_fence(
+                    job_id=job.id,
+>                   worker_id=worker_id,
+                              ^^^^^^^^^
+                    claim_token=job.claim_token,
+                    error_code=code,
+                    safe_summary=("The operation encountered a temporary failure and will retry within its attempt limit."
+                                  if retryable else "The operation stopped safely and requires review."),
+                    fingerprint=fingerprint,
+                    using=using,
+                    retryable=retryable,
+        )
+E       NameError: name 'worker_id' is not defined
+
+apps/jobs/worker.py:140: NameError
+=========================== short test summary info ============================
+FAILED tests/test_background_jobs.py::test_drain_queue_records_safe_retry_without_persisting_exception_text
+FAILED tests/test_background_jobs.py::test_drain_queue_failure_does_not_block_next_available_job
+FAILED tests/test_audit_job_handler.py::test_unclassified_sealer_failure_stops_for_review
+3 failed, 33 passed in 8.64s

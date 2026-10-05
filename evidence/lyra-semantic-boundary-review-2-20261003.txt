@@ -1,0 +1,12 @@
+STEWARDENCE successor review: the earlier decimal, timestamp, extreme-exponent, missing-envelope and registry-consistency findings are materially addressed in the supplied source. Two concrete repairs remain before I’d clear this bounded offline foundation for its next qualification stage.
+
+Graph UUID rejection still retains sensitive exception context.
+In adapters.py, attachment lines 688–691, UUID(record['id']) is caught and reject('invalid_provider_entity') is called inside the exception handler. An invalid 32-character hexadecimal ID can appear in the underlying ValueError and therefore in the chained traceback. Move the fixed rejection outside that handler, as you did for the other parsers. Add a Microsoft-path private-marker regression checking context, cause and the formatted traceback. The new QBO/schema/JSON tests don’t cover this remaining path.
+
+The JSON Pointer regex defeats the intended CPU bound.
+In assertion-v1.json, lines 1043–1046, the nested repetition in ^(/([^~]|~[01]))$ is ambiguous because the inner character class also accepts '/'. An input consisting of 40 slashes followed by '~2' fits the length and tree limits but creates many backtracking partitions before rejection. Envelope schema validation reaches this expression before the adapter’s exact-pointer comparison.
+Replace it with a linear escape scanner or an unambiguous segment pattern that excludes '/' from the inner segment. Add valid-pointer vectors and an adversarial rejection test with a process-level timeout. This is a source-derived resource-exhaustion finding; I have not executed the candidate or measured its runtime.
+
+The constructor’s explicit structure-only meaning, supersession admission boundary, disabled write/admission settings and unsigned bundled-registry limits are now appropriately stated. Keep those distinctions.
+
+The supplied 112-test result and four restricted-domain cross-runtime vectors are useful reported evidence, not my independent rerun or complete RFC qualification. Preserve the failed Linux selector separately and provide the exact-source Linux/image result when it finishes. This review is scoped to the offline semantic boundary; broader Core readiness remains open.

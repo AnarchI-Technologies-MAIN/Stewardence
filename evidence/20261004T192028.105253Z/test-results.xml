@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="32" time="18.410" timestamp="2026-10-04T19:21:01.539692+00:00" hostname="d78b3c96a6bb"><testcase classname="tests.test_review_cycle_authority" name="test_initial_freeze_is_atomic_immutable_and_honest_about_empty_decisions" time="3.732" /><testcase classname="tests.test_review_cycle_authority" name="test_app_raw_admission_and_mutation_are_denied[review_cycles]" time="0.291" /><testcase classname="tests.test_review_cycle_authority" name="test_app_raw_admission_and_mutation_are_denied[review_cycle_events]" time="0.302" /><testcase classname="tests.test_review_cycle_authority" name="test_app_raw_admission_and_mutation_are_denied[review_pack_identities]" time="0.269" /><testcase classname="tests.test_review_cycle_authority" name="test_app_raw_admission_and_mutation_are_denied[review_capacity_reservations]" time="0.236" /><testcase classname="tests.test_review_cycle_authority" name="test_app_raw_admission_and_mutation_are_denied[review_reservation_events]" time="0.283" /><testcase classname="tests.test_review_cycle_authority" name="test_worker_has_no_review_table_access[review_cycles]" time="0.191" /><testcase classname="tests.test_review_cycle_authority" name="test_worker_has_no_review_table_access[review_cycle_events]" time="0.180" /><testcase classname="tests.test_review_cycle_authority" name="test_worker_has_no_review_table_access[review_pack_identities]" time="0.202" /><testcase classname="tests.test_review_cycle_authority" name="test_worker_has_no_review_table_access[review_capacity_reservations]" time="0.146" /><testcase classname="tests.test_review_cycle_authority" name="test_worker_has_no_review_table_access[review_reservation_events]" time="0.224" /><testcase classname="tests.test_review_cycle_authority" name="test_owner_role_in_another_workspace_does_not_authorize_review_reads" time="0.717" /><testcase classname="tests.test_review_cycle_authority" name="test_unadmitted_billing_authority_blocks_freeze_without_partial_events" time="0.895" /><testcase classname="tests.test_review_cycle_authority" name="test_pause_fences_freeze_and_keeps_open_identity" time="0.661" /><testcase classname="tests.test_review_cycle_authority" name="test_one_open_and_one_frozen_pending_are_enforced" time="0.726" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[0]" time="1.293" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[2]" time="0.781" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[3]" time="0.477" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[True]" time="0.429" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[1]" time="0.475" /><testcase classname="tests.test_review_cycle_authority" name="test_revision_cas_rejects_aliases_and_stale_state[None]" time="0.455" /><testcase classname="tests.test_review_cycle_authority" name="test_baseline_promotion_is_explicitly_not_admitted" time="0.425" /><testcase classname="tests.test_review_cycle_authority" name="test_server_manifest_cannot_be_supplied_by_caller" time="0.400" /><testcase classname="tests.test_review_cycle_authority" name="test_reservation_has_no_timeout_or_arbitrary_release_interface" time="0.361" /><testcase classname="tests.test_review_cycle_authority" name="test_raw_issuer_rejects_corrupt_same_tenant_snapshot" time="0.330" /><testcase classname="tests.test_review_cycle_authority" name="test_quota_counts_held_reservations_against_exact_admitted_interval" time="0.394" /><testcase classname="tests.test_review_cycle_authority" name="test_storage_metadata_plus_reservation_has_exact_boundary[False]" time="0.315"><failure message="django.db.utils.ProgrammingError: report artifact object key is not canonical&#10;CONTEXT:  PL/pgSQL function app_private.enforce_report_artifact_identity() line 34 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x70c07a582810&gt;
+sql = 'INSERT INTO "report_artifacts" ("id", "organization_id", "report_id", "assessment_snapshot_id", "object_key", "content_type", "sha256", "size_bytes", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('61207838-5c7d-481d-98e8-5a94dd86be63'), UUID('e7d953bb-5dfe-4bbd-89b2-912d6a114890'), UUID('d286eb4c-f0ad-4ce7-...d953bb-5dfe-4bbd-89b2-912d6a114890/reports/d286eb4c-f0ad-4ce7-b667-92b0337df547/synthetic.pdf', 'application/pdf', ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x70c07a582810&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x70c07b6c6510&gt;
+query = 'INSERT INTO "report_artifacts" ("id", "organization_id", "report_id", "assessment_snapshot_id", "object_key", "content_type", "sha256", "size_bytes", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('61207838-5c7d-481d-98e8-5a94dd86be63'), UUID('e7d953bb-5dfe-4bbd-89b2-912d6a114890'), UUID('d286eb4c-f0ad-4ce7-...d953bb-5dfe-4bbd-89b2-912d6a114890/reports/d286eb4c-f0ad-4ce7-b667-92b0337df547/synthetic.pdf', 'application/pdf', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: report artifact object key is not canonical
+E           CONTEXT:  PL/pgSQL function app_private.enforce_report_artifact_identity() line 34 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 0c153241-55e0-48ce-85b0-5f054e318239 v1&gt;)
+over_limit = False
+
+    @pytest.mark.parametrize('over_limit',[False,True])
+    def test_storage_metadata_plus_reservation_has_exact_boundary(review_owner,over_limit):
+        from apps.reports.models import ReportArtifact
+        from apps.reports.services import create_report
+        user, org, snapshot = review_owner
+        report = create_report(organization_id=org.id,created_by_id=user.id,
+                               assessment_snapshot_id=snapshot.id)
+&gt;       ReportArtifact.objects.create(organization=org,report=report,assessment_snapshot=snapshot,
+            object_key=f'organizations/{org.id}/reports/{report.id}/synthetic.pdf',
+            sha256='a'*64,size_bytes=3*1024**3-16*1048576+int(over_limit))
+
+tests/test_review_cycle_authority.py:212: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/reports/models.py:146: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x70c07b6c6510&gt;
+query = 'INSERT INTO "report_artifacts" ("id", "organization_id", "report_id", "assessment_snapshot_id", "object_key", "content_type", "sha256", "size_bytes", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('61207838-5c7d-481d-98e8-5a94dd86be63'), UUID('e7d953bb-5dfe-4bbd-89b2-912d6a114890'), UUID('d286eb4c-f0ad-4ce7-...d953bb-5dfe-4bbd-89b2-912d6a114890/reports/d286eb4c-f0ad-4ce7-b667-92b0337df547/synthetic.pdf', 'application/pdf', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: report artifact object key is not canonical
+E           CONTEXT:  PL/pgSQL function app_private.enforce_report_artifact_identity() line 34 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_review_cycle_authority" name="test_storage_metadata_plus_reservation_has_exact_boundary[True]" time="0.325"><failure message="django.db.utils.ProgrammingError: report artifact object key is not canonical&#10;CONTEXT:  PL/pgSQL function app_private.enforce_report_artifact_identity() line 34 at RAISE">self = &lt;django.db.backends.utils.CursorWrapper object at 0x70c07b1c2f30&gt;
+sql = 'INSERT INTO "report_artifacts" ("id", "organization_id", "report_id", "assessment_snapshot_id", "object_key", "content_type", "sha256", "size_bytes", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('c76fc7c7-1791-45ec-8d03-c2d94801196f'), UUID('bc1850f4-7bea-4727-b350-60eff2df2f85'), UUID('c945b549-2b5c-4902-...1850f4-7bea-4727-b350-60eff2df2f85/reports/c945b549-2b5c-4902-908e-63067b1481c5/synthetic.pdf', 'application/pdf', ...)
+ignored_wrapper_args = (False, {'connection': &lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;, 'cursor': &lt;django.db.backends.utils.CursorWrapper object at 0x70c07b1c2f30&gt;})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+&gt;               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x70c07b69cad0&gt;
+query = 'INSERT INTO "report_artifacts" ("id", "organization_id", "report_id", "assessment_snapshot_id", "object_key", "content_type", "sha256", "size_bytes", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('c76fc7c7-1791-45ec-8d03-c2d94801196f'), UUID('bc1850f4-7bea-4727-b350-60eff2df2f85'), UUID('c945b549-2b5c-4902-...1850f4-7bea-4727-b350-60eff2df2f85/reports/c945b549-2b5c-4902-908e-63067b1481c5/synthetic.pdf', 'application/pdf', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: report artifact object key is not canonical
+E           CONTEXT:  PL/pgSQL function app_private.enforce_report_artifact_identity() line 34 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+review_owner = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: cceef4a8-e1a5-4e57-a994-2f871c61abac v1&gt;)
+over_limit = True
+
+    @pytest.mark.parametrize('over_limit',[False,True])
+    def test_storage_metadata_plus_reservation_has_exact_boundary(review_owner,over_limit):
+        from apps.reports.models import ReportArtifact
+        from apps.reports.services import create_report
+        user, org, snapshot = review_owner
+        report = create_report(organization_id=org.id,created_by_id=user.id,
+                               assessment_snapshot_id=snapshot.id)
+&gt;       ReportArtifact.objects.create(organization=org,report=report,assessment_snapshot=snapshot,
+            object_key=f'organizations/{org.id}/reports/{report.id}/synthetic.pdf',
+            sha256='a'*64,size_bytes=3*1024**3-16*1048576+int(over_limit))
+
+tests/test_review_cycle_authority.py:212: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:665: in create
+    obj.save(force_insert=True, using=self.db)
+apps/reports/models.py:146: in save
+    super().save(*args, **kwargs)
+.venv/lib/python3.14/site-packages/django/db/models/base.py:902: in save
+    self.save_base(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1008: in save_base
+    updated = self._save_table(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1169: in _save_table
+    results = self._do_insert(
+.venv/lib/python3.14/site-packages/django/db/models/base.py:1210: in _do_insert
+    return manager._insert(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1873: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1882: in execute_sql
+    cursor.execute(sql, params)
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=postgres database=test_qualification) at 0x70c07b69cad0&gt;
+query = 'INSERT INTO "report_artifacts" ("id", "organization_id", "report_id", "assessment_snapshot_id", "object_key", "content_type", "sha256", "size_bytes", "created_at") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+params = (UUID('c76fc7c7-1791-45ec-8d03-c2d94801196f'), UUID('bc1850f4-7bea-4727-b350-60eff2df2f85'), UUID('c945b549-2b5c-4902-...1850f4-7bea-4727-b350-60eff2df2f85/reports/c945b549-2b5c-4902-908e-63067b1481c5/synthetic.pdf', 'application/pdf', ...)
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -&gt; Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: report artifact object key is not canonical
+E           CONTEXT:  PL/pgSQL function app_private.enforce_report_artifact_identity() line 34 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError</failure></testcase><testcase classname="tests.test_review_cycle_authority" name="test_concurrent_freeze_returns_one_pack_and_one_reservation" time="0.493" /><testcase classname="tests.test_review_cycle_authority" name="test_repeatable_read_cannot_admit_cycle_from_stale_authority_snapshot" time="0.413"><failure message="AssertionError: Regex pattern did not match.&#10;  Expected regex: 'read committed'&#10;  Actual message: 'SET TRANSACTION ISOLATION LEVEL must be called before any query'">review_owner = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: dc60292b-fdbc-47fc-9278-5e104d8868e1 v1&gt;)
+
+    def test_repeatable_read_cannot_admit_cycle_from_stale_authority_snapshot(review_owner):
+        user, org, snapshot = review_owner
+&gt;       with pytest.raises(DatabaseError,match='read committed'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'read committed'
+E         Actual message: 'SET TRANSACTION ISOLATION LEVEL must be called before any query'
+
+tests/test_review_cycle_authority.py:252: AssertionError</failure></testcase><testcase classname="tests.test_review_cycle_authority" name="test_past_due_with_admitted_unexpired_service_can_freeze" time="0.478" /><testcase classname="tests.test_review_cycle_authority" name="test_past_due_with_only_expired_admitted_service_cannot_freeze" time="0.435" /></testsuite></testsuites>

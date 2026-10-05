@@ -1,0 +1,52 @@
+{
+  "verified_at": "2026-10-03T21:08:34.651531+00:00",
+  "restore_passed": true,
+  "objects_restored": 6,
+  "total_plaintext_bytes_verified": 698217,
+  "source_backup_identity_verified": true,
+  "manifest_restored_from_wsl": true,
+  "archived_live_metadata_exact_match": true,
+  "source_backup_sha256": "0b20cd7ede2d1218e210af325f3ee19fa98a6d2cacff895728468c58981e1dbc",
+  "host_plaintext_files_created": false,
+  "production_writes": false,
+  "credentials_printed": false,
+  "wsl_ciphertext_custody": {
+    "directory": "/home/alexg-anarchi/stewardence-backups/report-objects/20261003T210805.809478Z",
+    "files": [
+      {
+        "file": "0.pdf.age",
+        "sha256": "fb764734218431514561fa0408d0705572935260e0e1b075e2586153b961f5cc"
+      },
+      {
+        "file": "1.pdf.age",
+        "sha256": "353878468cbae86201463c2a94b6d87e8bd382077e7bf84e79a7f2d694b14179"
+      },
+      {
+        "file": "2.pdf.age",
+        "sha256": "ab6a681313108ec363e8b0e708c289a2beb09a3c961ef6dc46deb9906a889d5f"
+      },
+      {
+        "file": "3.pdf.age",
+        "sha256": "a785249e1c4379fa42ac81408bd43380d3474022c9bc01e291b81e60cbb8d546"
+      },
+      {
+        "file": "4.pdf.age",
+        "sha256": "cfe0a8e2fc49ea3b4a873234037646322703ea63199c04b2abcaa73549d474e3"
+      },
+      {
+        "file": "5.pdf.age",
+        "sha256": "8f1d6e5af33a7b098ee9fb6c170689654e50b438194f7f363ce2243f98921dce"
+      },
+      {
+        "file": "manifest.json.age",
+        "sha256": "52b276c992f8d9498cdae82a0acd0193672e0e6c417cd733ce4da131639fb1f9"
+      }
+    ],
+    "key_copied": false
+  },
+  "source_manifest_sha256": "098243a700ec0951d03ad0c3fb0e8385e552b0ce1995fbbc75ad63517fe82a68",
+  "private_key_copied": false,
+  "isolated_network": "none",
+  "target_storage": "private600 tmpfs",
+  "limits": "Existing report objects matched archived ownership/report/snapshot metadata and immutable SHA/size. Does not prove web authorization, full-system tenant replay or device-loss survival; WSL and Windows key share one physical host."
+}

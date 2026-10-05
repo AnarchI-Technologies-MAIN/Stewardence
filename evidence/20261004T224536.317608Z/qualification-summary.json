@@ -1,0 +1,19 @@
+{
+  "exit_code": 1,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-809e89e0c7",
+  "image_id": "sha256:464f472399f33a996198909566e73d9637943c26256dd2b45ebf21df27278632",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261004T224536.317608Z",
+  "test_arguments": [
+    "tests/test_rls.py",
+    "tests/test_legacy_action_card_schema_fence.py"
+  ],
+  "test_result_counts": {
+    "cases": 39,
+    "failed": 5,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_results_sha256": "da1b6173ae1c196e90ef5855e5c871c9a3e44c2e29ded0f77c659d46b499b744"
+}

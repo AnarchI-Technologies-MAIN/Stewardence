@@ -1,0 +1,14 @@
+{
+  "source/apps/reviews/migrations/0007_unused_stop.py": "d2764ca4b58af987a0dd0cbb1b6a672e6f31b4dbf2566c839b976f554d64169b",
+  "source/apps/reviews/unused_stop.py": "32c725b747b6242b0fec32aeb2ef7353970d6dcedc223ce717d56ef30c90c8b6",
+  "source/apps/reviews/views.py": "c6e539d61397e864833f14596e882aec87aa1fb0759b5525bc94b52811955ac8",
+  "source/apps/reviews/forms.py": "4ed66df1219ed3fb12dbf9f7d2f8e2df82d6b45bf9bd76dd7911f4e38354a53a",
+  "source/apps/reviews/urls.py": "f5bd3d39a711b9319b83422a49e84ade2bff3d12f98b052d546238a0c1ab4de7",
+  "source/apps/billing/middleware.py": "470c14f7c04912cbe0bcccb11d7e852ffc98d640f92b901878dc2f8e8926000f",
+  "source/tests/test_review_unused_stop.py": "e6c09538fb9baa144f309ef665a37c192f1087f2107fe30a7c9969ef7de827e6",
+  "source/tests/test_review_unused_stop_ui.py": "ab161862b9e46304a41c22c71ccaaab23c494de0acbc684f97f32aa2ec71ae7c",
+  "docs/core-proposal-v1-coverage-contract.md": "f3420450cb37446322304624e64eb278104fac6551996380b0bae1f2518e47c9",
+  "source/templates/reviews/unused_stop.html": "59cc4d9c1d518379076d282e69ac63e235625fb1ec1660327fb8327237c2717c",
+  "evidence/20261005T004000.757761Z/qualification-summary.json": "f5f312b8b9f8c9ad48a791e97f38f83c0b29ba9db3fe4b2551a476748694751a",
+  "evidence/20261005T004000.757761Z/DISPOSITION.md": "226b1a180cb5a89f5e31248d14262d003c2b3f00525220c3c59d243084a2e69a"
+}

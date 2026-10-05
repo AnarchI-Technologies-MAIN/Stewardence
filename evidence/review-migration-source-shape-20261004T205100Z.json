@@ -1,0 +1,19 @@
+{
+  "scope": "offline migration source-shape import qualification only",
+  "source_sha256": "b01caeedd33ea5e845478ce22b5d2455d957023993865a54d86f8fc6c5ffc732",
+  "results": [
+    {
+      "optimization": false,
+      "normal_import_exit": 0,
+      "assembled_sql_sha256": "ebcee8d67885f706a0150da6e3dd2d16719c5a7328d0038526774f86e555d089",
+      "changed_predecessor_rejected": true
+    },
+    {
+      "optimization": true,
+      "normal_import_exit": 0,
+      "assembled_sql_sha256": "ebcee8d67885f706a0150da6e3dd2d16719c5a7328d0038526774f86e555d089",
+      "changed_predecessor_rejected": true
+    }
+  ],
+  "production_touched": false
+}

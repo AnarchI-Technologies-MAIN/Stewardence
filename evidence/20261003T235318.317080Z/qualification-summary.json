@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "live_providers_tested": false,
+  "production_touched": false,
+  "image": "stewardence-local-qualification:stewardence-local-a04848bea0",
+  "image_id": "sha256:9356ec7299433778eaf9c63090133671f66ec56b78d1aef4c3ae89f30d735a17",
+  "evidence_directory": "C:\\Users\\alexg\\Stewardence-Development\\evidence\\20261003T235318.317080Z",
+  "test_arguments": [
+    "tests/test_rls.py::test_worker_runtime_can_claim_across_tenants_without_tenant_context",
+    "-vv"
+  ]
+}

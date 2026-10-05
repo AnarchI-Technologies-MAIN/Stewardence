@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="10" time="42.700" timestamp="2026-10-04T22:18:26.846443+00:00" hostname="829eed827e6c"><testcase classname="tests.test_capture_pack_authority" name="test_frozen_capture_has_exact_issued_receipt_and_no_baseline_or_decisions" time="26.862" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_projection_and_readback_use_new_context" time="2.960"><failure message="AttributeError: 'ReportGenerationPrepared' object has no attribute 'context'">capture_pack = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 8e3ff934-ee93-4300-a785-dabfe211052f v1&gt;, &lt;PackIdentity: Review pack d491e060-7e9f-4b55-bc79-5a6ac791eb21&gt;)
+lifecycle_enabled = None
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_capture_projection_and_re0')
+
+    def test_capture_projection_and_readback_use_new_context(
+        capture_pack, lifecycle_enabled, tmp_path
+    ):
+        staged = requested(capture_pack)
+        job = claimed(capture_pack)
+        wrapped = handler(tmp_path)
+        with tenant_transaction(job.organization_id, using="worker_runtime"):
+            prepared = wrapped.prepare(job)
+&gt;       assert prepared.context["context_version"] == "AL-REVIEW-PACK-CONTEXT-2"
+               ^^^^^^^^^^^^^^^^
+E       AttributeError: 'ReportGenerationPrepared' object has no attribute 'context'
+
+tests/test_capture_pack_authority.py:108: AttributeError</failure></testcase><testcase classname="tests.test_capture_pack_authority" name="test_capture_request_cannot_authorize_baseline_promotion[False]" time="1.485" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_request_cannot_authorize_baseline_promotion[True]" time="1.204" /><testcase classname="tests.test_capture_pack_authority" name="test_historical_and_capture_internal_helpers_are_owner_only[app_runtime]" time="0.894" /><testcase classname="tests.test_capture_pack_authority" name="test_historical_and_capture_internal_helpers_are_owner_only[worker_runtime]" time="1.127" /><testcase classname="tests.test_capture_pack_authority" name="test_worker_projection_receipt_pins_match_actual_capture" time="1.733" /><testcase classname="tests.test_capture_pack_authority" name="test_foreign_owner_cannot_dispatch_capture_pack" time="1.312" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_authority_revoked_during_actor_row_wait[open]" time="1.189" /><testcase classname="tests.test_capture_pack_authority" name="test_capture_authority_revoked_during_actor_row_wait[freeze]" time="1.257" /></testsuite></testsuites>

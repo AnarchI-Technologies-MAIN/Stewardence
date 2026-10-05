@@ -1,0 +1,60 @@
+{
+  "observed_at_utc": "2026-10-05T06:47:46.839242+00:00",
+  "stripe_scope": "test",
+  "webhook_endpoints": [
+    {
+      "path": "/billing/paid-webhook/",
+      "enabled": true,
+      "event_count": 1,
+      "required_events_present": true,
+      "events": [
+        "invoice.paid"
+      ]
+    },
+    {
+      "path": "/billing/webhook/stripe/",
+      "enabled": true,
+      "event_count": 18,
+      "required_events_present": true,
+      "events": [
+        "checkout.session.completed",
+        "customer.subscription.created",
+        "customer.subscription.deleted",
+        "customer.subscription.paused",
+        "customer.subscription.resumed",
+        "customer.subscription.updated",
+        "invoice.created",
+        "invoice.finalization_failed",
+        "invoice.finalized",
+        "invoice.overdue",
+        "invoice.overpaid",
+        "invoice.paid",
+        "invoice.payment_failed",
+        "invoice.payment_succeeded",
+        "invoice.sent",
+        "invoice.upcoming",
+        "invoice.updated",
+        "invoice_payment.paid"
+      ]
+    }
+  ],
+  "public_http_checks": [
+    {
+      "url": "https://stewardence.com/",
+      "http_status": 503
+    },
+    {
+      "url": "https://www.stewardence.com/healthz",
+      "http_status": 503
+    },
+    {
+      "url": "https://www.stewardence.com/billing/webhook/stripe/",
+      "http_status": 503
+    },
+    {
+      "url": "https://www.stewardence.com/billing/paid-webhook/",
+      "http_status": 503
+    }
+  ],
+  "delivery_qualified": false
+}

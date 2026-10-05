@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="86" time="50.744" timestamp="2026-10-04T20:34:37.619346+00:00" hostname="2e6df0c87b31"><testcase classname="tests.test_review_workspace_views" name="test_default_workspace_gate_unavailable_without_effects" time="8.236" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[history]" time="0.959" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[snapshot]" time="0.805" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[decision]" time="1.064" /><testcase classname="tests.test_review_workspace_views" name="test_owner_only_read_surfaces_do_not_inherit_general_inventory_viewer_access[comparison]" time="0.881" /><testcase classname="tests.test_review_workspace_views" name="test_snapshot_get_is_dated_read_only_and_shows_unestablished_accounts" time="1.603" /><testcase classname="tests.test_review_workspace_views" name="test_decision_post_appends_exact_binding_and_stale_retry_is_conflict" time="1.293" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes0]" time="1.069" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes1]" time="0.628" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes2]" time="0.489" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes3]" time="0.500" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes4]" time="0.643" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes5]" time="0.615" /><testcase classname="tests.test_review_workspace_views" name="test_invalid_owner_form_never_issues[changes6]" time="0.718" /><testcase classname="tests.test_review_workspace_views" name="test_missing_decision_feature_is_explicitly_unavailable" time="0.894" /><testcase classname="tests.test_review_workspace_views" name="test_foreign_snapshot_revision_and_pack_are_not_found" time="1.253" /><testcase classname="tests.test_review_workspace_views" name="test_freeze_projects_exact_old_statement_without_requesting_pdf" time="1.012" /><testcase classname="tests.test_review_workspace_views" name="test_explicit_artifact_request_queues_without_promoting_baseline_or_starting_worker" time="1.050" /><testcase classname="tests.test_review_workspace_views" name="test_database_denial_rolls_back_open_cycle_before_safe_response" time="0.747" /><testcase classname="tests.test_review_workspace_views" name="test_corrupt_snapshot_is_withheld_before_any_admission[get-snapshot]" time="0.702" /><testcase classname="tests.test_review_workspace_views" name="test_corrupt_snapshot_is_withheld_before_any_admission[post-freeze]" time="0.606" /><testcase classname="tests.test_review_workspace_views" name="test_corrupt_snapshot_is_withheld_before_any_admission[post-issue-proposals]" time="0.511" /><testcase classname="tests.test_review_workspace_views" name="test_freeze_lost_redirect_replay_uses_one_cycle_pack_and_reservation" time="0.526" /><testcase classname="tests.test_review_workspace_views" name="test_simultaneous_same_freeze_form_has_one_effect" time="0.721" /><testcase classname="tests.test_review_workspace_views" name="test_reusing_freeze_identity_for_another_snapshot_is_denied" time="0.557" /><testcase classname="tests.test_review_workspace_views" name="test_freeze_identity_is_required_and_never_becomes_authority" time="0.467" /><testcase classname="tests.test_review_workspace_views" name="test_foreign_admitted_cycle_identity_cannot_be_replayed_into_this_workspace" time="0.502" /><testcase classname="tests.test_review_workspace_views" name="test_csrf_and_http_methods_preserve_no_effects" time="0.751" /><testcase classname="tests.test_review_workspace_views" name="test_user_selected_comparison_is_read_only_and_never_admits_a_baseline" time="1.074" /><testcase classname="tests.test_review_workspace_views" name="test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[390]" time="7.088"><failure message="django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.">self = &lt;django.contrib.sessions.backends.db.SessionStore object at 0x72e49bf69550&gt;
+no_load = False
+
+    def _get_session(self, no_load=False):
+        """
+        Lazily load session from storage (unless "no_load" is True, when only
+        an empty dict is stored) and store it in the current instance.
+        """
+        self.accessed = True
+        try:
+&gt;           return self._session_cache
+                   ^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:244: AttributeError
+
+During handling of the above exception, another exception occurred:
+
+workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 65dfcc26-ce33-4b3e-8452-d849708b33ce v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (a5b0048d-03c8-4599-9e6c-d187b622192c)&gt;)
+client = &lt;django.test.client.Client object at 0x72e4a12700f0&gt;, width = 390
+
+    @pytest.mark.parametrize('width',[390,1280])
+    def test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links(workspace,client,width):
+        from pathlib import Path
+        from django.conf import settings
+        from playwright.sync_api import sync_playwright
+        assert client.post(decision_url(workspace),statement()).status_code==302
+        pack=freeze_pack(client,workspace)
+        routes=[reverse('reviews:history'),reverse('reviews:snapshot',args=[workspace[2].id]),
+            decision_url(workspace),reverse('reviews:pack-detail',args=[pack.id]),reverse('reviews:comparison')]
+        css='\n'.join((Path(settings.BASE_DIR)/'static'/name).read_text(encoding='utf-8') for name in ('agentledger.css','atlas.css'))
+        with sync_playwright() as driver:
+            browser=driver.chromium.launch(headless=True,chromium_sandbox=False)
+            context=browser.new_context(viewport={'width':width,'height':900},reduced_motion='reduce')
+            context.route('**/*',lambda route:route.abort())
+            page=context.new_page()
+            for url in routes:
+&gt;               response=client.get(url);assert response.status_code==200
+                         ^^^^^^^^^^^^^^^
+
+tests/test_review_workspace_views.py:300: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/test/client.py:1127: in get
+    response = super().get(
+.venv/lib/python3.14/site-packages/django/test/client.py:475: in get
+    return self.generic(
+.venv/lib/python3.14/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+.venv/lib/python3.14/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+.venv/lib/python3.14/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+apps/billing/middleware.py:41: in __call__
+    if not user.is_authenticated:
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/functional.py:251: in inner
+    self._setup()
+.venv/lib/python3.14/site-packages/django/utils/functional.py:404: in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:40: in &lt;lambda&gt;
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:20: in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:304: in get_user
+    user_id = _get_user_session_key(request)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:95: in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:55: in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:249: in _get_session
+    self._session_cache = self.load()
+                          ^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:55: in load
+    s = self._get_session_from_db()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:34: in _get_session_from_db
+    return self.model.objects.get(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1621: in execute_sql
+    cursor = self.connection.cursor()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (&lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;,), kwargs = {}
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        # Detect a running event loop in this thread.
+        try:
+            get_running_loop()
+        except RuntimeError:
+            pass
+        else:
+            if not os.environ.get("DJANGO_ALLOW_ASYNC_UNSAFE"):
+&gt;               raise SynchronousOnlyOperation(message)
+E               django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.
+
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:24: SynchronousOnlyOperation</failure></testcase><testcase classname="tests.test_review_workspace_views" name="test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links[1280]" time="1.759"><failure message="django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.">self = &lt;django.contrib.sessions.backends.db.SessionStore object at 0x72e49bc03ad0&gt;
+no_load = False
+
+    def _get_session(self, no_load=False):
+        """
+        Lazily load session from storage (unless "no_load" is True, when only
+        an empty dict is stored) and store it in the current instance.
+        """
+        self.accessed = True
+        try:
+&gt;           return self._session_cache
+                   ^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'SessionStore' object has no attribute '_session_cache'
+
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:244: AttributeError
+
+During handling of the above exception, another exception occurred:
+
+workspace = (&lt;User: reports@example.com&gt;, &lt;Organization: Report Firm&gt;, &lt;AssessmentSnapshot: 98023133-2a30-4c02-9ef3-87c9c92957fe v1&gt;, &lt;ActionCardRevision: ActionCardRevision object (41f7045e-61e1-4f6c-82b4-68b6c71dee17)&gt;)
+client = &lt;django.test.client.Client object at 0x72e49bef99f0&gt;, width = 1280
+
+    @pytest.mark.parametrize('width',[390,1280])
+    def test_real_browser_owner_pages_reuse_atlas_without_overflow_or_active_evidence_links(workspace,client,width):
+        from pathlib import Path
+        from django.conf import settings
+        from playwright.sync_api import sync_playwright
+        assert client.post(decision_url(workspace),statement()).status_code==302
+        pack=freeze_pack(client,workspace)
+        routes=[reverse('reviews:history'),reverse('reviews:snapshot',args=[workspace[2].id]),
+            decision_url(workspace),reverse('reviews:pack-detail',args=[pack.id]),reverse('reviews:comparison')]
+        css='\n'.join((Path(settings.BASE_DIR)/'static'/name).read_text(encoding='utf-8') for name in ('agentledger.css','atlas.css'))
+        with sync_playwright() as driver:
+            browser=driver.chromium.launch(headless=True,chromium_sandbox=False)
+            context=browser.new_context(viewport={'width':width,'height':900},reduced_motion='reduce')
+            context.route('**/*',lambda route:route.abort())
+            page=context.new_page()
+            for url in routes:
+&gt;               response=client.get(url);assert response.status_code==200
+                         ^^^^^^^^^^^^^^^
+
+tests/test_review_workspace_views.py:300: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.14/site-packages/django/test/client.py:1127: in get
+    response = super().get(
+.venv/lib/python3.14/site-packages/django/test/client.py:475: in get
+    return self.generic(
+.venv/lib/python3.14/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+.venv/lib/python3.14/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+.venv/lib/python3.14/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+apps/billing/middleware.py:41: in __call__
+    if not user.is_authenticated:
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/utils/functional.py:251: in inner
+    self._setup()
+.venv/lib/python3.14/site-packages/django/utils/functional.py:404: in _setup
+    self._wrapped = self._setupfunc()
+                    ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:40: in &lt;lambda&gt;
+    request.user = SimpleLazyObject(lambda: get_user(request))
+                                            ^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/middleware.py:20: in get_user
+    request._cached_user = auth.get_user(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:304: in get_user
+    user_id = _get_user_session_key(request)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/auth/__init__.py:95: in _get_user_session_key
+    return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:55: in __getitem__
+    return self._session[key]
+           ^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/base.py:249: in _get_session
+    self._session_cache = self.load()
+                          ^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:55: in load
+    s = self._get_session_from_db()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/contrib/sessions/backends/db.py:34: in _get_session_from_db
+    return self.model.objects.get(
+.venv/lib/python3.14/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:631: in get
+    num = len(clone)
+          ^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:368: in __len__
+    self._fetch_all()
+.venv/lib/python3.14/site-packages/django/db/models/query.py:1954: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/models/query.py:93: in __iter__
+    results = compiler.execute_sql(
+.venv/lib/python3.14/site-packages/django/db/models/sql/compiler.py:1621: in execute_sql
+    cursor = self.connection.cursor()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (&lt;DatabaseWrapper vendor='postgresql' alias='default'&gt;,), kwargs = {}
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        # Detect a running event loop in this thread.
+        try:
+            get_running_loop()
+        except RuntimeError:
+            pass
+        else:
+            if not os.environ.get("DJANGO_ALLOW_ASYNC_UNSAFE"):
+&gt;               raise SynchronousOnlyOperation(message)
+E               django.core.exceptions.SynchronousOnlyOperation: You cannot call this from an async context - use a thread or sync_to_async.
+
+.venv/lib/python3.14/site-packages/django/utils/asyncio.py:24: SynchronousOnlyOperation</failure></testcase><testcase classname="tests.test_review_renderer" name="test_legacy_contract_remains_exact_and_review_contract_is_separate" time="0.008" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[extra_top]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[missing_pack]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[manifest_hash]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[event_hash]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[proposal_changed]" time="0.005" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[missing_decision]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[foreign_snapshot]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[foreign_org]" time="0.008" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[verified]" time="0.007" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[provider_authority]" time="0.007" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[unknown_state]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[null_label]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[eleven_links]" time="0.007" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[http_link]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[userinfo_link]" time="0.005" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[extra_event]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[card_bool]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[duplicate_selection]" time="0.005" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[exposure_record_changed]" time="0.007" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[exposure_review_changed]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[missing_exposure]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[verified_exposure]" time="0.007" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[extra_exposure]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[unknown_question]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[bad_question_basis]" time="0.007" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[foreign_cycle]" time="0.004" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[snapshot_schema_bool]" time="0.008" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[structured_card_index]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[structured_state]" time="0.007" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[null_inventory]" time="0.006" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[null_exposure]" time="0.005" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[empty_scope]" time="0.009" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[foreign_proposal_inventory]" time="0.007" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[contradictory_date]" time="0.007" /><testcase classname="tests.test_review_renderer" name="test_review_contract_rejects_tampering_even_self_consistent_unsupported_claims[contradictory_engines]" time="0.008" /><testcase classname="tests.test_review_renderer" name="test_exact_selection_order_cannot_be_changed_by_renderer_envelope" time="0.008" /><testcase classname="tests.test_review_renderer" name="test_real_chromium_pdf_contains_frozen_identity_exposure_and_owner_statement" time="1.515" /><testcase classname="tests.test_review_renderer" name="test_real_chromium_customer_content_and_evidence_links_remain_inert" time="1.582" /><testcase classname="tests.test_renderer" name="test_renderer_accepts_only_the_canonical_structured_payload" time="0.004" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_nested_active_content_and_location_fields[src]" time="0.005" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_nested_active_content_and_location_fields[url]" time="0.002" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_nested_active_content_and_location_fields[file]" time="0.003" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_nested_active_content_and_location_fields[href]" time="0.004" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_nested_active_content_and_location_fields[script]" time="0.002" /><testcase classname="tests.test_renderer" name="test_renderer_rejects_oversized_payload" time="0.010" /><testcase classname="tests.test_renderer" name="test_customer_strings_are_escaped_and_inert" time="0.006" /><testcase classname="tests.test_renderer" name="test_container_sandbox_controls_and_generated_output_path" time="0.018" /><testcase classname="tests.test_renderer" name="test_renderer_compose_boundary_has_no_public_port_or_secrets" time="0.004" /><testcase classname="tests.test_renderer" name="test_renderer_image_is_non_root_and_never_disables_the_sandbox" time="0.003" /><testcase classname="tests.test_renderer" name="test_render_timeout_terminates_the_isolated_process" time="0.006" /><testcase classname="tests.test_renderer" name="test_seccomp_profile_permits_namespaces_without_sys_admin" time="0.005" /><testcase classname="tests.test_renderer" name="test_renderer_http_health_and_fixed_render_endpoint" time="0.520" /><testcase classname="tests.test_renderer" name="test_renderer_http_fails_closed_for_unknown_and_invalid_requests" time="0.526" /><testcase classname="tests.test_renderer" name="test_renderer_http_returns_retryable_failure_without_details" time="1.101" /></testsuite></testsuites>

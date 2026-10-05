@@ -1,0 +1,285 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+........................................................................ [  8%]
+.............................................FF......................... [ 17%]
+........................................................................ [ 25%]
+........................................................................ [ 34%]
+.........s.............................................................. [ 42%]
+................................................................F....... [ 51%]
+........................................................................ [ 59%]
+........................................................................ [ 68%]
+..................................F..................................... [ 76%]
+........................................................................ [ 85%]
+........................................................................ [ 93%]
+......................................................                   [100%]
+=================================== FAILURES ===================================
+_________ test_roi_page_displays_all_arithmetic_and_assumption_sources _________
+
+client = <django.test.client.Client object at 0x7e618c176170>
+inventory_context = (<User: inventory@example.com>, <Organization: Inventory Firm>, <OrganizationMember: inventory@example.com — Inventory Firm (Owner)>)
+
+    def test_roi_page_displays_all_arithmetic_and_assumption_sources(
+        client, inventory_context
+    ):
+        _user, organization, _membership = inventory_context
+        item = InventoryItem.objects.create(
+            organization=organization,
+            display_name="Time Saver",
+            vendor_name="Example Vendor",
+            monthly_cost_cents=10000,
+        )
+        payload = {
+            "monthly_subscription_cost": "100.00",
+            "monthly_subscription_cost_provenance": "Customer supplied",
+            "implementation_cost": "1200.00",
+            "implementation_cost_provenance": "Customer supplied",
+            "implementation_amortization_months": "12",
+            "implementation_amortization_months_provenance": "Estimated",
+            "hours_saved_per_month": "10.00",
+            "hours_saved_per_month_provenance": "Measured",
+            "loaded_hourly_rate": "50.00",
+            "loaded_hourly_rate_provenance": "Customer supplied",
+            "attributable_revenue": "200.00",
+            "attributable_revenue_provenance": "Estimated",
+            "avoided_monthly_cost": "100.00",
+            "avoided_monthly_cost_provenance": "Measured",
+        }
+    
+        response = client.post(reverse("inventory:roi", args=(item.id,)), payload)
+    
+        assert response.status_code == 200
+        assert b"Monthly net value: $600.00" in response.content
+        assert b"300.00%" in response.content
+>       assert b"Monthly labor value: 10.00 hours" in response.content
+E       assert b'Monthly labor value: 10.00 hours' in b'\n<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=...red</dd></div>\n    </dl>\n  </section>\n\n          </main>\n        </div>\n      </div>\n    \n  </body>\n</html>\n'
+E        +  where b'\n<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=...red</dd></div>\n    </dl>\n  </section>\n\n          </main>\n        </div>\n      </div>\n    \n  </body>\n</html>\n' = <HttpResponse status_code=200, "text/html; charset=utf-8">.content
+
+tests/test_inventory.py:169: AssertionError
+______ test_roi_page_handles_zero_cost_and_rejects_unknown_nonzero_values ______
+
+client = <django.test.client.Client object at 0x7e618c099db0>
+inventory_context = (<User: inventory@example.com>, <Organization: Inventory Firm>, <OrganizationMember: inventory@example.com — Inventory Firm (Owner)>)
+
+    def test_roi_page_handles_zero_cost_and_rejects_unknown_nonzero_values(
+        client, inventory_context
+    ):
+        _user, organization, _membership = inventory_context
+        item = InventoryItem.objects.create(
+            organization=organization,
+            display_name="No-cost Trial",
+            vendor_name="Example Vendor",
+        )
+        zero_payload = {
+            "monthly_subscription_cost": "0.00",
+            "monthly_subscription_cost_provenance": "Unknown",
+            "implementation_cost": "0.00",
+            "implementation_cost_provenance": "Unknown",
+            "implementation_amortization_months": "12",
+            "implementation_amortization_months_provenance": "Estimated",
+            "hours_saved_per_month": "0.00",
+            "hours_saved_per_month_provenance": "Unknown",
+            "loaded_hourly_rate": "0.00",
+            "loaded_hourly_rate_provenance": "Unknown",
+            "attributable_revenue": "0.00",
+            "attributable_revenue_provenance": "Unknown",
+            "avoided_monthly_cost": "0.00",
+            "avoided_monthly_cost_provenance": "Unknown",
+        }
+    
+        response = client.post(reverse("inventory:roi", args=(item.id,)), zero_payload)
+>       assert b"Not available because monthly total cost is $0.00" in response.content
+E       assert b'Not available because monthly total cost is $0.00' in b'\n<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=...own</dd></div>\n    </dl>\n  </section>\n\n          </main>\n        </div>\n      </div>\n    \n  </body>\n</html>\n'
+E        +  where b'\n<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=...own</dd></div>\n    </dl>\n  </section>\n\n          </main>\n        </div>\n      </div>\n    \n  </body>\n</html>\n' = <HttpResponse status_code=200, "text/html; charset=utf-8">.content
+
+tests/test_inventory.py:204: AssertionError
+_____ test_organization_scoped_tables_have_required_column_and_forced_rls ______
+
+    def test_organization_scoped_tables_have_required_column_and_forced_rls():
+        with connections["app_runtime"].cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT c.relname, c.relrowsecurity, c.relforcerowsecurity, a.attnotnull
+                FROM pg_class AS c
+                JOIN pg_attribute AS a ON a.attrelid = c.oid
+                JOIN pg_namespace AS n ON n.oid = c.relnamespace
+                WHERE n.nspname = 'public'
+                  AND c.relkind = 'r'
+                  AND a.attname = 'organization_id'
+                  AND a.attnotnull
+                ORDER BY c.relname
+                """
+            )
+            assert cursor.fetchall() == [
+                ("assessment_snapshots", True, True, True),
+                ("audit_chain_heads", True, True, True),
+                ("audit_events", True, True, True),
+                ("audit_merkle_blocks", True, True, True),
+                ("background_jobs", True, True, True),
+                ("detection_evidence", True, True, True),
+                ("discovery_scans", True, True, True),
+                ("integrations_providerconnection", True, True, True),
+                ("integrations_quickbooksconnection", True, True, True),
+                ("inventory_import_batches", True, True, True),
+                ("inventory_import_rows", True, True, True),
+                ("inventory_items", True, True, True),
+                ("organization_rules", True, True, True),
+                ("organizations_organizationmember", True, True, True),
+                ("report_artifacts", True, True, True),
+                ("reports", True, True, True),
+            ]
+    
+            cursor.execute(
+                """
+                SELECT c.relname, c.relrowsecurity, c.relforcerowsecurity, a.attnotnull
+                FROM pg_class AS c
+                JOIN pg_attribute AS a ON a.attrelid = c.oid
+                JOIN pg_namespace AS n ON n.oid = c.relnamespace
+                WHERE n.nspname = 'public'
+                  AND c.relkind = 'r'
+                  AND a.attname = 'organization_id'
+                  AND NOT a.attnotnull
+                ORDER BY c.relname
+                """
+            )
+>           assert cursor.fetchall() == [
+                ("billing_subscription", False, False, False),
+            ]
+E           AssertionError: assert [('billing_su... True, False)] == [('billing_su...False, False)]
+E             
+E             At index 0 diff: ('billing_subscription', True, True, False) != ('billing_subscription', False, False, False)
+E             Use -v to get more diff
+
+tests/test_rls.py:219: AssertionError
+______________ test_production_hsts_is_deliberate_initial_ramp_up ______________
+
+    def test_production_hsts_is_deliberate_initial_ramp_up():
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                (
+                    "import os; "
+                    "os.environ['DJANGO_SETTINGS_MODULE']="
+                    "'agentledger.settings.production'; "
+                    "import django; django.setup(); "
+                    "from django.conf import settings; "
+                    "assert settings.DEBUG is False; "
+                    "assert settings.SECURE_SSL_REDIRECT is True; "
+                    "assert settings.SECURE_REDIRECT_EXEMPT == "
+                    "['^healthz$', '^readyz$']; "
+                    "assert settings.SESSION_COOKIE_SECURE is True; "
+                    "assert settings.CSRF_COOKIE_SECURE is True; "
+                    "assert settings.SECURE_HSTS_SECONDS == 3600; "
+                    "assert settings.SECURE_HSTS_INCLUDE_SUBDOMAINS is True; "
+                    "assert settings.SECURE_HSTS_PRELOAD is False; "
+                    "assert settings.SECURE_CONTENT_TYPE_NOSNIFF is True; "
+                    "assert settings.X_FRAME_OPTIONS == 'DENY'; "
+                    "assert settings.STATIC_URL == '/static/'; "
+                    "assert settings.MIDDLEWARE[0] == 'apps.integrations.provider_views.ProviderBoundaryMiddleware'; "
+                    "assert settings.MIDDLEWARE[2] == "
+                    "'whitenoise.middleware.WhiteNoiseMiddleware'; "
+                    "assert settings.STORAGES['staticfiles']['BACKEND'] == "
+                    "'whitenoise.storage.CompressedManifestStaticFilesStorage'; "
+                    "assert settings.SECURE_PROXY_SSL_HEADER == "
+                    "('HTTP_X_FORWARDED_PROTO', 'https')"
+                ),
+            ],
+            cwd=os.getcwd(),
+            env=production_environment(),
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+    
+>       assert completed.returncode == 0, completed.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 1, in <module>
+E             import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.settings.production'; import django; django.setup(); from django.conf import settings; assert settings.DEBUG is False; assert settings.SECURE_SSL_REDIRECT is True; assert settings.SECURE_REDIRECT_EXEMPT == ['^healthz$', '^readyz$']; assert settings.SESSION_COOKIE_SECURE is True; assert settings.CSRF_COOKIE_SECURE is True; assert settings.SECURE_HSTS_SECONDS == 3600; assert settings.SECURE_HSTS_INCLUDE_SUBDOMAINS is True; assert settings.SECURE_HSTS_PRELOAD is False; assert settings.SECURE_CONTENT_TYPE_NOSNIFF is True; assert settings.X_FRAME_OPTIONS == 'DENY'; assert settings.STATIC_URL == '/static/'; assert settings.MIDDLEWARE[0] == 'apps.integrations.provider_views.ProviderBoundaryMiddleware'; assert settings.MIDDLEWARE[2] == 'whitenoise.middleware.WhiteNoiseMiddleware'; assert settings.STORAGES['staticfiles']['BACKEND'] == 'whitenoise.storage.CompressedManifestStaticFilesStorage'; assert settings.SECURE_PROXY_SSL_HEADER == ('HTTP_X_FORWARDED_PROTO', 'https')
+E                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         AssertionError
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/app/.venv/bin/python', '-c', "import os; os.environ['DJANGO_SETTINGS_MODULE']='agentledger.se...                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n').returncode
+
+tests/test_production_security.py:279: AssertionError
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py: 2 warnings
+tests/test_billing_founder_cancellation_authority.py: 3 warnings
+tests/test_billing_founder_checkout_authority.py: 2 warnings
+tests/test_billing_portal_cancellation.py: 2 warnings
+tests/test_billing_tenant_authority.py: 10 warnings
+tests/test_csv_import.py: 10 warnings
+tests/test_discovery.py: 2 warnings
+tests/test_discovery_reconciliation.py: 2 warnings
+tests/test_inventory.py: 10 warnings
+tests/test_organization_rules.py: 9 warnings
+tests/test_production_security.py: 3 warnings
+tests/test_public_signup.py: 11 warnings
+tests/test_reports.py: 3 warnings
+tests/test_workspaces.py: 9 warnings
+tests/test_provider_lifecycle.py: 2 warnings
+tests/test_quickbooks_lifecycle.py: 13 warnings
+tests/test_quickbooks_reports.py: 6 warnings
+tests/test_report_artifacts.py: 4 warnings
+tests/test_baseline.py: 4 warnings
+tests/test_download.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_inventory.py::test_roi_page_displays_all_arithmetic_and_assumption_sources
+FAILED tests/test_inventory.py::test_roi_page_handles_zero_cost_and_rejects_unknown_nonzero_values
+FAILED tests/test_rls.py::test_organization_scoped_tables_have_required_column_and_forced_rls
+FAILED tests/test_production_security.py::test_production_hsts_is_deliberate_initial_ramp_up
+4 failed, 841 passed, 1 skipped, 108 warnings in 106.49s (0:01:46)

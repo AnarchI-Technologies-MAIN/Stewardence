@@ -1,0 +1,48 @@
+{
+  "qualification_passed": true,
+  "uid": 10001,
+  "image_source_files_matched": 281,
+  "image_source_manifest_sha256": "0bb7c2ddf33f8ef5d3ed216208b94ca0c578ff3845e1fa2331c9c6393b052012",
+  "gunicorn_http": true,
+  "production_settings": true,
+  "database_readiness": true,
+  "http_to_https_redirect": true,
+  "secure_proxy_header_simulated": true,
+  "csrf_rejection": true,
+  "host_rejection": true,
+  "static_manifest_assets": [
+    {
+      "asset": "agentledger.css",
+      "manifest_path": "agentledger.41f194629df4.css",
+      "sha256": "a5c70074be4af5ee467e62cc36f19eb6d6c638171ae1dc79e1d7b0e76eee49c8",
+      "status": 200
+    },
+    {
+      "asset": "atlas.css",
+      "manifest_path": "atlas.8150aa8b4dc5.css",
+      "sha256": "391200701735fee61311f76d99e27a2fa14cef2bff7d73be476cef4395b06667",
+      "status": 200
+    },
+    {
+      "asset": "brand/atlas/reports.svg",
+      "manifest_path": "brand/atlas/reports.a9b494028809.svg",
+      "sha256": "173afd2fa4df14b9067df281d539368b1f74e00985a2174cd7dc06a5921903f1",
+      "status": 200
+    }
+  ],
+  "synthetic_only": true,
+  "provider_requests": false,
+  "production_touched": false,
+  "limits": "Isolated deployable image and simulated trusted proxy header; not live ingress, real TLS, provider health or payment fulfillment.",
+  "application_image_id": "sha256:4efeada9517347fe7424a6754a01d531b0f9a0b98f0abd4c452b6fc9ad45649f",
+  "full_tested_source_image_id": "sha256:20d02974a6051b8f5d3043d7a35f6fb16fe16ab71743e4fde33bdb772d705a2a",
+  "source_manifest_sha256": "665128fa13399834ad6df4b429b20ec355ab079c8bdb50e62fb9587e64e40ee6",
+  "http_probe_sha256": "7f7e963d03d5f193d7fb38505e7f3ced3da8b417a67f1042ce33d9295748a8e4",
+  "synthetic_database_id": "25269ce6a30eacc0e6470484279ed9cb55a048c363b73c6a5338f151d54f0010",
+  "synthetic_network_id": "2024b44969bc8b7167759d89d383f62befa6ab23fd9553622a141f50176721e8",
+  "source_files_matched": 282,
+  "runtime_read_only": true,
+  "runtime_no_public_ports": true,
+  "verified_at": "2026-10-04T01:16:01.400597+00:00",
+  "cleanup_verified": true
+}

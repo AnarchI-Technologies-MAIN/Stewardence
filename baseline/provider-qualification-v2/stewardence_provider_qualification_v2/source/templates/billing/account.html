@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Billing | Stewardence{% endblock %}
+
+{% block content %}
+<section class="portfolio-shell">
+  <header class="portfolio-heading">
+    <p class="eyebrow">Account</p>
+    <h1>Billing</h1>
+    <p>
+      Review your Stewardence subscription and manage
+      payment or cancellation settings.
+    </p>
+  </header>
+
+  {% if subscription %}
+    <section class="card">
+      <h2>Subscription</h2>
+
+      <dl>
+        <div>
+          <dt>Status</dt>
+          <dd>{{ subscription.get_status_display }}</dd>
+        </div>
+
+        <div>
+          <dt>Portfolio</dt>
+          <dd>{{ subscription.get_portfolio_display }}</dd>
+        </div>
+
+        {% if monthly_price_display %}
+          <div>
+            <dt>Current monthly price</dt>
+            <dd>{{ monthly_price_display }}</dd>
+          </div>
+        {% endif %}
+
+        {% if subscription.current_period_end %}
+          <div>
+            <dt>Current paid period ends</dt>
+            <dd>
+              {{ subscription.current_period_end|date:"F j, Y" }}
+            </dd>
+          </div>
+        {% endif %}
+      </dl>
+
+      {% if subscription.is_founder %}
+        <p>
+          <strong>Founder pricing:</strong>
+          active while continuous subscription eligibility
+          is preserved.
+        </p>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <h2>Manage billing</h2>
+
+      {% if can_manage_billing %}
+        <p>
+          Update payment details and review invoices through
+          the secure Stripe Billing Portal.
+        </p>
+
+        <a
+          class="button"
+          href="{% url 'billing:portal' %}"
+        >
+          Manage billing
+        </a>
+      {% endif %}
+
+      {% if not can_manage_billing %}
+        <p>
+          Billing management is not available for this
+          account yet.
+        </p>
+      {% endif %}
+    </section>
+
+    {% if subscription.is_founder %}
+      <section class="card">
+        <h2>Founder subscription</h2>
+
+        {% if founder_cancel_pending %}
+          <p>
+            Your subscription is scheduled to end after the
+            current paid period. Access and founder
+            entitlement remain active until that date.
+          </p>
+
+          <form
+            method="post"
+            action="{% url 'billing:founder-cancel-undo' %}"
+          >
+            {% csrf_token %}
+
+            <button
+              class="button"
+              type="submit"
+            >
+              Keep my subscription
+            </button>
+          </form>
+        {% endif %}
+
+        {% if founder_can_cancel %}
+          <p>
+            Cancellation takes effect at the end of the
+            current paid period. Your original founder
+            pricing calendar is preserved if you undo the
+            cancellation before then.
+          </p>
+
+          <form
+            method="post"
+            action="{% url 'billing:founder-cancel' %}"
+          >
+            {% csrf_token %}
+
+            <button
+              class="button button-outline"
+              type="submit"
+            >
+              Cancel at period end
+            </button>
+          </form>
+        {% endif %}
+      </section>
+    {% endif %}
+  {% endif %}
+
+  {% if not subscription %}
+    <section class="card">
+      <h2>No subscription found</h2>
+
+      <p>
+        This Stewardence account does not currently have a
+        subscription record.
+      </p>
+
+      <a
+        class="button"
+        href="{% url 'billing:portfolio' %}"
+      >
+        View subscription options
+      </a>
+    </section>
+  {% endif %}
+</section>
+{% endblock %}

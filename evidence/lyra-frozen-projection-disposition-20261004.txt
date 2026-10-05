@@ -1,0 +1,384 @@
+- heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - strong: Bounded acceptance granted for the frozen-pack projection and actual local delivery path in this successor.
+    - text: The customer-facing evidence boundary is substantially stronger now.
+  - paragraph:
+    - text: I independently measured the uploaded packet at
+    - strong: 166,074 bytes / 3,240 physical lines / SHA-256 c88a1f7aa6947f625edb9e644ab674bbea5db4b3e4f7598316c9b170b5ea442c
+    - text: .
+  - paragraph:
+    - strong: Production remains unapproved.
+    - text: "The new full-suite result is still failed:"
+    - strong: 1,715 passed / 4 failed / 1 skipped
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - heading "What I’m closing" [level=2]
+  - paragraph:
+    - text: For the
+    - strong: exact frozen-pack v1 projection represented here
+    - text: ", I’m closing:"
+  - list:
+    - listitem: worker-only frozen projection retrieval;
+    - listitem: exact frozen manifest/snapshot binding;
+    - listitem: exact selected Decision Desk event binding;
+    - listitem: later live Decision Desk history excluded from the frozen pack;
+    - listitem: frozen proposal/event hash validation;
+    - listitem: owner-statement semantics preserved as unverified;
+    - listitem: actual Chromium rendering of the frozen pack;
+    - listitem: local private-storage readback followed by atomic PackCompletion;
+    - listitem: renderer rejection of missing decisions, changed proposal, live-decision substitution, and forged resolution_verified=true;
+    - listitem: inert rendering of owner notes and evidence references;
+    - listitem: owner-only read visibility for review-pack reports while preserving ordinary report behavior;
+    - listitem: factory/resolver wiring requiring a real worker identity before review rendering.
+  - paragraph:
+    - text: The worker projection is now appropriately strict. It begins from the lease-scoped review job target and revalidates the pack, cycle, snapshot, report, job, manifest digest, snapshot hashes, and every selected decision against the frozen manifest. It then rechecks worker authority after assembling the projection.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is a good boundary.
+  - heading "Frozen decision rendering now proves the right thing" [level=2]
+  - paragraph: "The important behavior from the last review is demonstrated end to end:"
+  - list:
+    - text: an owner records decision
+    - strong: A
+    - text: ;
+    - text: the review pack freezes
+    - strong: A
+    - text: ;
+    - text: the owner later records superseding decision
+    - strong: B
+    - text: ;
+    - text: projection still contains
+    - strong: A
+    - text: ", not B;"
+    - listitem: the rendered PDF contains A;
+    - listitem: B is absent;
+    - text: PackCompletion remains bound to the frozen manifest digest.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That closes the customer-visible version of the frozen-selection invariant.
+  - paragraph: "It is no longer just:"
+  - blockquote:
+    - paragraph: “the database says we froze this event.”
+  - paragraph: "It is now:"
+  - blockquote:
+    - paragraph:
+      - strong: “the actual rendered artifact was constructed from that frozen event and excluded the later live event.”
+  - paragraph: That is the proof we were missing.
+  - heading "Renderer authority semantics are good" [level=2]
+  - paragraph: The render contract is quite deliberately hostile to authority inflation.
+  - paragraph: "For review packs it verifies:"
+  - list:
+    - listitem: exact manifest schema and digest;
+    - listitem: exact snapshot metadata;
+    - listitem: decision ordering;
+    - listitem: event/proposal hashes;
+    - listitem: owner-statement-only status;
+    - listitem: resolution_verified=false;
+    - listitem: proposal authority equal to proposal_only;
+    - listitem: bounded decision states;
+    - listitem: exposure schema/digest;
+    - listitem: exposure authority proposal_only;
+    - listitem: exposure verification not_established;
+    - text: PASS / CONCERN / UNKNOWN / NOT_APPLICABLE only.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The tamper matrix is particularly useful because it includes self-consistent attempts, not merely broken hashes. Among the rejected cases are provider-write authority, verified resolution, changed proposal, live substitution, altered exposure semantics, foreign snapshot/org/cycle identities, duplicate selections and unsupported decision states.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: That supports a bounded closure for
+    - strong: presentation authority integrity
+    - text: .
+  - heading "Privacy/read isolation also closes in this scope" [level=2]
+  - paragraph: Review packs no longer inherit ordinary report-viewer access.
+  - paragraph:
+    - text: The restrictive RLS policy checks whether a report belongs to a review artifact request and, if so, requires the current app user to be an owner of the same organization.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The actual app-role tests show:"
+  - list:
+    - listitem: viewers/assessors cannot discover the review report row;
+    - listitem: cannot discover its artifact row;
+    - listitem: cannot see it in report history;
+    - listitem: receive 404 for review detail/download;
+    - listitem: denied requests do not reach object storage;
+    - listitem: ordinary reports remain visible under the pre-existing rules;
+    - listitem: owner can read the pack;
+    - text: same owner in another tenant context cannot read the original pack.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is exactly the privacy distinction I wanted.
+  - heading "Customer content remains inert" [level=2]
+  - paragraph: This is also worth explicitly accepting.
+  - paragraph:
+    - text: Owner notes containing <script> and an <img src=...> are HTML-escaped. The evidence references render as text rather than active links, JavaScript is disabled, service workers are blocked, all requests are aborted, and the browser test observed
+    - strong: zero outbound requests
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The template itself labels references as:"
+  - blockquote:
+    - paragraph: owner-supplied reference; not fetched or independently verified
+  - paragraph:
+    - text: and labels completion/evidence-reviewed states as owner statements rather than verified remediation.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: Good. Keep that language.
+  - separator
+  - heading "One new architectural gap remains OPEN" [level=1]
+  - paragraph: "Codex already called this out, and I agree strongly enough to give it a gate name:"
+  - heading "EXPOSURE-PROJECTION-VERSION-01 OPEN" [level=2]
+  - paragraph:
+    - text: The exposure review is currently
+    - strong: derived at render time
+    - text: "from frozen inventory bytes using:"
+  - paragraph: core.exposure.declarations.v1
+  - paragraph:
+    - text: That function is deterministic today, but the frozen review_pack.v2 manifest does
+    - strong: not pin that derivation version
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The rendered document is commendably honest about this:"
+  - blockquote:
+    - paragraph:
+      - text: the questions were not selected at freeze.
+      - button "Open preview of Pasted text.txt":
+        - generic: Pasted text
+  - paragraph: So this is not a false representation in the current artifact.
+  - paragraph: "But historical reproducibility has a real boundary:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: frozen inventory bytes + today's review_record() = today's exposure section
+  - paragraph: If review_record() later becomes v2, an old PackIdentity could regenerate different exposure questions/results despite having the same frozen manifest identity.
+  - paragraph:
+    - text: That means the current PackIdentity does
+    - strong: not yet uniquely identify all rendered review semantics
+    - text: .
+  - heading "Acceptable fixes" [level=3]
+  - paragraph: "Either:"
+  - paragraph:
+    - strong: A. Pin exposure derivation at freeze
+  - paragraph: "Include something like:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: "exposure_contract: id: core.exposure.declarations version: 1 implementation/config digest: ..."
+  - paragraph: in the frozen manifest.
+  - paragraph: "or:"
+  - paragraph:
+    - strong: B. Freeze the actual exposure results
+  - paragraph: Store their identities/digests in the manifest.
+  - paragraph: "or, minimally for this release:"
+  - paragraph:
+    - strong: C. Make historical v1 packs permanently dispatch to v1
+  - paragraph: and require a new PackIdentity/manifest schema before another derivation version can be used.
+  - paragraph:
+    - text: I do
+    - strong: not
+    - text: require B. A is probably the cleaner Stewardence architecture.
+  - paragraph: "Until one of those exists:"
+  - paragraph:
+    - strong: current v1 rendering = accepted
+  - paragraph:
+    - strong: cross-version historical regeneration = not qualified
+  - paragraph: That distinction should remain explicit.
+  - separator
+  - heading "One presentation note, not a blocker" [level=1]
+  - paragraph: "The review pack's top-level context becomes:"
+  - paragraph: AL-REVIEW-PACK-CONTEXT-1
+  - paragraph: "but the inherited legacy methodology inside the artifact still contains:"
+  - paragraph:
+    - text: "report_context_version: AL-REPORT-CONTEXT-2."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is technically defensible because one describes the underlying assessment report context and one describes the new frozen-pack rendering envelope.
+  - paragraph: But a customer may reasonably read “Report context AL-REPORT-CONTEXT-2” and “Frozen pack rendering contract AL-REVIEW-PACK-CONTEXT-1” as competing versions.
+  - paragraph: "I would eventually label them more explicitly:"
+  - list:
+    - strong: Underlying assessment context
+    - strong: Frozen review-pack render contract
+  - paragraph: No release block from this packet.
+  - separator
+  - heading "Evidence disposition" [level=1]
+  - paragraph: "The exact frozen runtime/render qualification reports:"
+  - paragraph:
+    - strong: 101 / 101 passed
+    - text: ", image 26d7f7c2…."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The owner UI + renderer focused run reports:"
+  - paragraph:
+    - strong: 86 / 86 passed
+    - text: ", image 76b0de2c…."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The review-pack privacy run reports:"
+  - paragraph:
+    - strong: 6 / 6 passed
+    - text: ", image 3c21ae8d…."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The later current-style lifecycle slice reports:"
+  - paragraph:
+    - strong: 84 / 84 passed
+    - text: ", image afd7c85b…."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: These are
+    - strong: different source snapshots
+    - text: . Correctly, they must not be summed or transferred casually.
+  - paragraph: "The full run is:"
+  - paragraph:
+    - strong: 1,720 cases = 1,715 passed / 4 failed / 1 skipped, exit 1
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: Therefore there is still
+    - strong: no current full-source green candidate
+    - text: .
+  - paragraph:
+    - text: The packet also says the two historical Chromium/identity nodes happened to pass in later failed runs without causal closure, and that another honest proposal identity rejection has reproduced intermittently. That means the stability/root-cause ledger remains open.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: Correct.
+  - separator
+  - heading "The next customer-journey slice" [level=1]
+  - paragraph:
+    - text: At this point I would
+    - strong: stop building deeper review machinery
+    - text: .
+  - paragraph: You now have enough internal architecture to turn toward the thing a paying human actually experiences.
+  - paragraph: "The next bounded slice should be:"
+  - heading "Core First Review Journey" [level=2]:
+    - strong: Core First Review Journey
+  - paragraph: Not retention yet. Not LocalAI. Not Enterprise.
+  - paragraph: "The path:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: Paid owner ↓ Create / edit one tool or workflow record ↓ Capture a deliberate immutable snapshot ↓ See Exposure Review ↓ Generate proposals where applicable ↓ Record Decision Desk statement ↓ Freeze review ↓ See frozen browser pack ↓ Request PDF ↓ Worker renders exact frozen pack ↓ Private PDF becomes downloadable
+  - heading "The critical new part is deliberate snapshot capture" [level=3]
+  - paragraph:
+    - text: Your own packet still lists
+    - strong: “deliberate unknown-aware snapshot capture” as open
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That should be next.
+  - paragraph: "Right now the review layer is excellent at preserving whatever snapshot it receives. The customer journey still needs a clean, explicit contract for creating that snapshot from current records without:"
+  - list:
+    - listitem: turning defaults into declarations;
+    - listitem: silently replacing unknown with zero/false/empty;
+    - listitem: accidentally applying accounting-specific meaning to another audience;
+    - listitem: making a GET mutate anything;
+    - listitem: claiming continuous/live observation.
+  - heading "Acceptance tests I want for that slice" [level=3]
+  - list:
+    - paragraph: New customer can deliberately capture a review snapshot from current inventory.
+    - paragraph: Missing fields remain explicitly unknown.
+    - paragraph: Legacy 0, False, empty strings/lists only become declarations when provenance says they were actually declared.
+    - paragraph: Customer is shown what will be captured before final admission.
+    - paragraph: Snapshot creation is POST-only and CSRF protected.
+    - paragraph: Duplicate/lost-response retry produces one logical snapshot or a clearly versioned successor according to the chosen contract.
+    - paragraph: Snapshot integrity is immutable afterward.
+    - paragraph:
+      - text: Industry/accounting pack runs
+      - strong: only
+      - text: when its applicability contract is satisfied.
+    - paragraph: Non-accounting Core still gets generic exposure review without inheriting accounting certification.
+    - paragraph: First-review browser journey can reach the existing frozen-pack flow without admin fixtures.
+  - paragraph: That unlocks the first genuinely self-service value loop.
+  - separator
+  - heading "Funnel can keep moving beside it" [level=1]
+  - paragraph: The public funnel may continue in parallel, because nothing in this packet changes my earlier boundary.
+  - paragraph: "Safe parallel work:"
+  - list:
+    - listitem: scenario pages;
+    - listitem: deterministic samples;
+    - listitem: audience-specific copy blocks;
+    - listitem: ExperienceBundle identities;
+    - listitem: accessibility;
+    - listitem: consent-minimal analytics.
+  - paragraph: But don't let it outrun actual delivery claims.
+  - paragraph: "If a scenario says:"
+  - blockquote:
+    - paragraph: “Record your tools, review exposure, assign decisions, and save a frozen evidence pack”
+  - paragraph: we're now getting close to having the actual product substrate behind that statement.
+  - paragraph: That's good progress.
+  - separator
+  - heading "Current ledger" [level=2]
+  - paragraph:
+    - strong: CLOSED for exact submitted projection/delivery scope
+  - list:
+    - listitem: worker frozen-pack projection
+    - listitem: exact frozen decision rendering
+    - listitem: later-live-decision exclusion
+    - listitem: review render schema/tamper rejection
+    - listitem: actual Chromium frozen-pack rendering
+    - listitem: local readback + PackCompletion
+    - listitem: customer HTML/reference inertness
+    - listitem: review-pack owner-only privacy
+    - listitem: worker resolver identity requirement
+    - listitem: review UI bounded owner journey shown by focused evidence
+  - paragraph:
+    - strong: PARTIAL
+  - list:
+    - listitem: exposure rendering, because v1 is derived from frozen input but not pinned into PackIdentity for future-version regeneration
+  - paragraph:
+    - strong: OPEN
+  - list:
+    - listitem: EXPOSURE-PROJECTION-VERSION-01
+    - listitem: deliberate unknown-aware snapshot capture
+    - listitem: industry applicability
+    - listitem: admitted baseline comparison
+    - listitem: physical retention
+    - listitem: all-writer capacity accounting
+    - listitem: fresh-generation resubscription
+    - listitem: real Stripe test-mode lifecycle
+    - listitem: current full-suite green/stability
+    - listitem: intermittent proposal/workflow identity root cause
+    - listitem: off-site restore
+    - listitem: deployment credential isolation
+    - listitem: rollback/cutover
+    - listitem: production approval
+  - paragraph:
+    - text: The architecture has basically reached the point where
+    - strong: the biggest useful question is no longer “can Stewardence preserve an authoritative review?” It can, within this bounded path. The useful question now is “can a normal owner get from their messy real-world records to that review without us cheating on unknowns?”
+  - paragraph:
+    - text: That's the next bridge. 🌉
+    - button "View analysis":
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - button "Sources":
+  - status:
+    - generic: Capabilities reduced until October 8. Responses may have lower quality.
+    - button "Upgrade to Pro":
+      - text: Upgrade to Pro
+  - generic: ChatGPT can make mistakes. Check important info.
+  - button:
+  - heading "Latest response" [level=4]
+  - status
+  - button "Add files and more":
+  - textbox "Ask ChatGPT" [active]:
+    - paragraph: Ask ChatGPT
+  - button "Select ChatGPT model":
+    - generic: Medium
+  - button "Dictate":
+  - button "Start Voice":
+- status
+- status
+- status
+- status
+- status
+- status

@@ -1,0 +1,371 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying reports.0001_initial... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+........................................................................ [  5%]
+........................................................................ [ 10%]
+........................................................................ [ 16%]
+.................F...................................................... [ 21%]
+........................................................................ [ 27%]
+..............................................F......................... [ 32%]
+...............................................s........................ [ 37%]
+........................................................................ [ 43%]
+........................................................................ [ 48%]
+........................................................................ [ 54%]
+........................................................................ [ 59%]
+........................................................................ [ 65%]
+........................................................................ [ 70%]
+........................................................................ [ 75%]
+........................................................................ [ 81%]
+........................................................................ [ 86%]
+........................................................................ [ 92%]
+........................................................................ [ 97%]
+................................                                         [100%]
+=================================== FAILURES ===================================
+__________ test_actual_chromium_pdf_preserves_unknowns_and_known_cost __________
+
+tmp_path = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_actual_chromium_pdf_prese0')
+report_context = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: b9ea4bf3-db18-4a99-a15b-b4e3b9cce646 v1>)
+
+    @pytest.mark.django_db
+    def test_actual_chromium_pdf_preserves_unknowns_and_known_cost(tmp_path,report_context):
+        import os,subprocess
+        if os.getenv('STEWARDENCE_REAL_PDF_QUALIFICATION')!='1':
+            pytest.skip('Actual Chromium rendering requires the isolated qualification image')
+        from apps.assessments.snapshots import create_assessment_snapshot
+        from apps.reports.services import create_report
+        from apps.reports.context import build_report_context
+        from renderer.render import render_pdf
+        user,org,_,item,original=report_context
+        snapshot=create_assessment_snapshot(organization_id=org.id,created_by_id=user.id,
+            assessed_item_id=item.id,captured_at=original.captured_at,
+            roi_inputs=replace(inputs(),hours_saved_per_month=Assumption(0,AssumptionProvenance.UNKNOWN)),roi_engine_version='AL-ROI-2')
+        report=create_report(organization_id=org.id,assessment_snapshot_id=snapshot.id,created_by_id=user.id)
+>       pdf=render_pdf(build_report_context(report),output_directory=tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_roi_engine_v2.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+payload = {'context_version': 'AL-REPORT-CONTEXT-2', 'title': 'AI Risk & ROI Assessment', 'metadata': {'report_identifier': 'AL-...al', 'tool_name': 'Payroll Assistant'}, 'monthly_spend': '100.00', 'monthly_spend_display': '$100.00 known', ...}, ...}
+output_directory = PosixPath('/tmp/pytest-of-qualification/pytest-0/test_actual_chromium_pdf_prese0')
+timeout_seconds = 60, max_pdf_bytes = 16777216
+
+    def render_pdf(
+        payload: Any,
+        *,
+        output_directory: Path = OUTPUT_DIRECTORY,
+        timeout_seconds: int = RENDER_TIMEOUT_SECONDS,
+        max_pdf_bytes: int = MAX_PDF_BYTES,
+    ) -> bytes:
+        validated = validate_report_render_payload(payload)
+        html = render_report_html(validated)
+        output_directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    
+        started = time.monotonic()
+        descriptor, raw_path = tempfile.mkstemp(
+            prefix="report-",
+            suffix=".pdf",
+            dir=output_directory,
+        )
+        os.close(descriptor)
+        output_path = Path(raw_path)
+        browser = None
+        try:
+            with sync_playwright() as playwright:
+                # The renderer is sandboxed by its hardened container boundary.
+                # Playwright's bundled Chromium aborts during Linux zygote startup
+                # when its internal sandbox is enabled in this environment.
+                browser = playwright.chromium.launch(
+                    headless=True,
+                    chromium_sandbox=False,
+                )
+                context = browser.new_context(
+                    java_script_enabled=False,
+                    service_workers="block",
+                )
+                context.route("**/*", _abort_request)
+                page = context.new_page()
+                page.set_content(
+                    html,
+                    wait_until="commit",
+                    timeout=timeout_seconds * 1_000,
+                )
+                page.pdf(
+                    path=str(output_path),
+                    format="A4",
+                    print_background=True,
+                    margin={
+                        "top": "16mm",
+                        "right": "14mm",
+                        "bottom": "18mm",
+                        "left": "14mm",
+                    },
+                )
+                context.close()
+                browser.close()
+                browser = None
+    
+            if time.monotonic() - started > timeout_seconds:
+>               raise RenderTimeout("PDF rendering exceeded the time limit")
+E               renderer.render.RenderTimeout: PDF rendering exceeded the time limit
+
+renderer/render.py:137: RenderTimeout
+_______ test_reassessment_count_type_cannot_poison_honest_retry[quoted] ________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x7e436711cef0>
+sql = 'SELECT app_private.issue_workflow_run(%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s)'
+params = [UUID('bfa4436d-48e1-4df2-9693-41e26afbbe51'), UUID('fc91a2a3-f05d-4eeb-9347-cb41de2622d5'), UUID('db208f95-5031-4fc3-...328e32b719add2872fac56cb4ae1c708', datetime.datetime(2026, 10, 4, 3, 49, 0, 582133, tzinfo=datetime.timezone.utc), ...]
+ignored_wrapper_args = (False, {'connection': <DatabaseWrapper vendor='postgresql' alias='app_runtime'>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x7e436711cef0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        # Raise a warning during app initialization (stored_app_configs is only
+        # ever set during testing).
+        if not apps.ready and not apps.stored_app_configs:
+            warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7e43670aec10>
+query = 'SELECT app_private.issue_workflow_run(%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s)'
+params = [UUID('bfa4436d-48e1-4df2-9693-41e26afbbe51'), UUID('fc91a2a3-f05d-4eeb-9347-cb41de2622d5'), UUID('db208f95-5031-4fc3-...328e32b719add2872fac56cb4ae1c708', datetime.datetime(2026, 10, 4, 3, 49, 0, 582133, tzinfo=datetime.timezone.utc), ...]
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: Workflow request identity invalid
+E           CONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 37 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: RaiseException
+
+The above exception was the direct cause of the following exception:
+
+configured = (<User: reports@example.com>, <Organization: Report Firm>, <OrganizationMember: reports@example.com — Report Firm (Owner)>, <InventoryItem: Payroll Assistant>, <AssessmentSnapshot: b075ffeb-7281-4a18-8a0a-e8a68efd8b09 v1>)
+variant = 'quoted'
+
+    @pytest.mark.parametrize(
+        "variant", ["quoted", "missing", "null", "boolean", "fraction", "overflow"]
+    )
+    def test_reassessment_count_type_cannot_poison_honest_retry(configured, variant):
+        user, org, _, _, snapshot = configured
+        request = WorkflowRequest(
+            org.id,
+            Operation.REASSESS,
+            (snapshot.id,),
+            timezone.now(),
+            BranchProfile.BUSINESS,
+        )
+        with (
+            identity_transaction(user.id, using="app_runtime"),
+            tenant_transaction(org.id, using="app_runtime"),
+        ):
+            with connections["app_runtime"].cursor() as c:
+                c.execute(
+                    "SELECT app_private.issue_action_cards(%s,%s,%s,%s)",
+                    [uuid4(), org.id, user.id, snapshot.id],
+                )
+                revision_id = c.fetchone()[0]
+        revision = ActionCardRevision.objects.get(pk=revision_id)
+        count = len(revision.cards)
+        payload = {
+            "schema": "stewardence.workflow_receipt.v1",
+            "request": request.envelope(),
+            "authority": "proposal_only",
+            "revision_id": str(revision.id),
+            "proposal_count": count,
+            "state": "reassessed",
+        }
+        if variant == "missing":
+            del payload["proposal_count"]
+        else:
+            payload["proposal_count"] = {
+                "quoted": str(count),
+                "null": None,
+                "boolean": True,
+                "fraction": 0.5,
+                "overflow": 9007199254740992,
+            }[variant]
+        encoded = (
+            json.dumps(payload, sort_keys=True, separators=(",", ":"))
+            if variant == "overflow"
+            else rfc8785.dumps(payload).decode()
+        )
+        with pytest.raises(DatabaseError):
+            with (
+                identity_transaction(user.id, using="app_runtime"),
+                tenant_transaction(org.id, using="app_runtime"),
+            ):
+                issue(request, payload, user, encoded=encoded)
+        assert not WorkflowRun.objects.filter(input_sha256=request.input_sha256).exists()
+>       honest = dispatch(request, actor_id=user.id, using="app_runtime")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_core_authority_successor.py:438: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/jobs/core_workflows.py:172: in dispatch
+    c.execute('SELECT app_private.issue_workflow_run(%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s)',
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.14/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+.venv/lib/python3.14/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <django.db.backends.postgresql.base.Cursor [closed] [IDLE] (host=qualification-db user=agentledger_app database=test_qualification) at 0x7e43670aec10>
+query = 'SELECT app_private.issue_workflow_run(%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s)'
+params = [UUID('bfa4436d-48e1-4df2-9693-41e26afbbe51'), UUID('fc91a2a3-f05d-4eeb-9347-cb41de2622d5'), UUID('db208f95-5031-4fc3-...328e32b719add2872fac56cb4ae1c708', datetime.datetime(2026, 10, 4, 3, 49, 0, 582133, tzinfo=datetime.timezone.utc), ...]
+prepare = None, binary = None
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool | None = None,
+    ) -> Self:
+        """
+        Execute a query or command to the database.
+        """
+        try:
+            with self._conn.lock:
+                self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           django.db.utils.ProgrammingError: Workflow request identity invalid
+E           CONTEXT:  PL/pgSQL function app_private.issue_workflow_run(uuid,uuid,uuid,text,text,timestamp with time zone,jsonb,text,text,uuid) line 37 at RAISE
+
+.venv/lib/python3.14/site-packages/psycopg/cursor.py:117: ProgrammingError
+=============================== warnings summary ===============================
+tests/test_assessment_snapshots.py: 2 warnings
+tests/test_billing_founder_cancellation_authority.py: 3 warnings
+tests/test_billing_founder_checkout_authority.py: 2 warnings
+tests/test_billing_portal_cancellation.py: 2 warnings
+tests/test_billing_standard_launch.py: 3 warnings
+tests/test_billing_tenant_authority.py: 10 warnings
+tests/test_core_checkout_admission.py: 21 warnings
+tests/test_csv_import.py: 10 warnings
+tests/test_discovery.py: 2 warnings
+tests/test_discovery_reconciliation.py: 2 warnings
+tests/test_inventory.py: 10 warnings
+tests/test_organization_rules.py: 9 warnings
+tests/test_payflow_deployment_gates.py: 6 warnings
+tests/test_production_security.py: 3 warnings
+tests/test_public_signup.py: 11 warnings
+tests/test_report_history.py: 3 warnings
+tests/test_reports.py: 3 warnings
+tests/test_roi_engine_v2.py: 1 warning
+tests/test_workspaces.py: 9 warnings
+tests/test_core_workflows.py: 1 warning
+tests/test_lyra_authority_findings.py: 1 warning
+tests/test_operations_dashboard.py: 2 warnings
+tests/test_provider_lifecycle.py: 2 warnings
+tests/test_quickbooks_lifecycle.py: 13 warnings
+tests/test_quickbooks_reports.py: 6 warnings
+tests/test_report_artifacts.py: 4 warnings
+tests/test_report_recovery_states.py: 1 warning
+tests/test_workflow_profile_setup.py: 3 warnings
+tests/test_baseline.py: 4 warnings
+tests/test_download.py: 1 warning
+  /app/.venv/lib/python3.14/site-packages/django/core/handlers/base.py:61: UserWarning: No directory at: /app/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_roi_engine_v2.py::test_actual_chromium_pdf_preserves_unknowns_and_known_cost
+FAILED tests/test_core_authority_successor.py::test_reassessment_count_type_cannot_poison_honest_retry[quoted]
+2 failed, 1325 passed, 1 skipped, 150 warnings in 511.08s (0:08:31)

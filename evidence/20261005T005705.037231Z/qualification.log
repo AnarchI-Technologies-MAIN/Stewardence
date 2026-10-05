@@ -1,0 +1,190 @@
+Operations to perform:
+  Apply all migrations: accounts, assessments, audit, auth, billing, catalog, contenttypes, imports, integrations, inventory, jobs, organizations, policies, reports, reviews, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying organizations.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying inventory.0001_initial... OK
+  Applying inventory.0002_database_security... OK
+  Applying catalog.0001_initial... OK
+  Applying inventory.0003_remove_inventoryitem_product_id_and_more... OK
+  Applying assessments.0001_initial... OK
+  Applying assessments.0002_snapshot_security... OK
+  Applying reports.0001_initial... OK
+  Applying audit.0001_initial... OK
+  Applying audit.0002_audit_security... OK
+  Applying reports.0002_report_security... OK
+  Applying reports.0003_reportartifact... OK
+  Applying reports.0004_reportartifact_security... OK
+  Applying organizations.0002_public_onboarding... OK
+  Applying organizations.0003_workflow_profile... OK
+  Applying jobs.0001_initial... OK
+  Applying jobs.0002_job_security... OK
+  Applying jobs.0003_recovery_receipts... OK
+  Applying jobs.0004_receipt_admission... OK
+  Applying jobs.0005_atomic_recovery_admission... OK
+  Applying jobs.0006_corecontrol_workflowschedule_actioncardrevision_and_more... OK
+  Applying jobs.0007_core_workflow_security... OK
+  Applying jobs.0008_worker_transition_authority... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_stripewebhookevent... OK
+  Applying billing.0003_founderslot... OK
+  Applying billing.0004_founderslot_reservation_token... OK
+  Applying billing.0005_billing_security... OK
+  Applying jobs.0009_core_issuance_authority... OK
+  Applying jobs.0010_job_input_admission... OK
+  Applying jobs.0011_action_card_issuance... OK
+  Applying jobs.0012_core_authority_successor... OK
+  Applying billing.0006_paid_coverage... OK
+  Applying jobs.0013_paid_entitlement... OK
+  Applying inventory.0004_discovery_evidence... OK
+  Applying inventory.0005_discovery_security... OK
+  Applying catalog.0002_catalog_security... OK
+  Applying inventory.0006_detectionevidence_inventory_item_and_more... OK
+  Applying inventory.0007_inventoryitem_declared_fields... OK
+  Applying inventory.0008_explicit_declarations... OK
+  Applying assessments.0003_deliberate_capture... OK
+  Applying billing.0007_ingester_effects... OK
+  Applying billing.0008_checkout_intent... OK
+  Applying billing.0009_customer_request... OK
+  Applying imports.0001_initial... OK
+  Applying imports.0002_import_staging_security... OK
+  Applying integrations.0001_initial... OK
+  Applying integrations.0002_providerconnection_providerattempt_providerevent_and_more... OK
+  Applying reviews.0001_initial... OK
+  Applying jobs.0014_decision_desk... OK
+  Applying reviews.0002_pack_lifecycle... OK
+  Applying reviews.0003_worker_pack_projection... OK
+  Applying reviews.0004_capture_pack_projection... OK
+  Applying jobs.0015_legacy_action_card_schema_fence... OK
+  Applying reviews.0005_capture_proposal_admission... OK
+  Applying jobs.0016_capture_decisions... OK
+  Applying policies.0001_initial... OK
+  Applying policies.0002_organization_rule_security... OK
+  Applying policies.0003_remove_organizationrule_unique_organization_rule_name_and_more... OK
+  Applying reports.0005_review_pack_read_authority... OK
+  Applying reports.0006_capture_owner_read... OK
+  Applying reviews.0006_capture_proposal_packs... OK
+  Applying reviews.0007_unused_stop... OK
+........................................................................ [  3%]
+........................................................................ [  6%]
+........................................................................ [ 10%]
+.........................F.............................................. [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 26%]
+........................................................................ [ 30%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+.........s.............................................................. [ 40%]
+........................................................................ [ 43%]
+........................................................................ [ 46%]
+........................................................................ [ 50%]
+........................................................................ [ 53%]
+........................................................................ [ 56%]
+........................................................................ [ 60%]
+........................................................................ [ 63%]
+F....................................................................... [ 66%]
+........................................................................ [ 70%]
+........................................................................ [ 73%]
+........................................................................ [ 76%]
+........................................................................ [ 80%]
+........................................................................ [ 83%]
+........................................................................ [ 87%]
+........................................................................ [ 90%]
+........................................................................ [ 93%]
+........................................................................ [ 97%]
+...............................................................INTERNALERROR> Traceback (most recent call last):
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/sqlitedb.py", line 58, in _connect
+INTERNALERROR>     self.con = sqlite3.connect(self.filename, check_same_thread=False)
+INTERNALERROR>                ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR> sqlite3.OperationalError: unable to open database file
+INTERNALERROR> 
+INTERNALERROR> The above exception was the direct cause of the following exception:
+INTERNALERROR> 
+INTERNALERROR> Traceback (most recent call last):
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/_pytest/main.py", line 330, in wrap_session
+INTERNALERROR>     session.exitstatus = doit(config, session) or 0
+INTERNALERROR>                          ~~~~^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/_pytest/main.py", line 384, in _main
+INTERNALERROR>     config.hook.pytest_runtestloop(session=session)
+INTERNALERROR>     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/pluggy/_hooks.py", line 512, in __call__
+INTERNALERROR>     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+INTERNALERROR>            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/pluggy/_manager.py", line 120, in _hookexec
+INTERNALERROR>     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+INTERNALERROR>            ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 167, in _multicall
+INTERNALERROR>     raise exception
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 139, in _multicall
+INTERNALERROR>     teardown.throw(exception)
+INTERNALERROR>     ~~~~~~~~~~~~~~^^^^^^^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/_pytest/logging.py", line 816, in pytest_runtestloop
+INTERNALERROR>     return (yield)  # Run all the tests.
+INTERNALERROR>             ^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 139, in _multicall
+INTERNALERROR>     teardown.throw(exception)
+INTERNALERROR>     ~~~~~~~~~~~~~~^^^^^^^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/_pytest/terminal.py", line 708, in pytest_runtestloop
+INTERNALERROR>     result = yield
+INTERNALERROR>              ^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/pluggy/_callers.py", line 152, in _multicall
+INTERNALERROR>     teardown.send(result)
+INTERNALERROR>     ~~~~~~~~~~~~~^^^^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/pytest_cov/plugin.py", line 352, in pytest_runtestloop
+INTERNALERROR>     self.cov_controller.finish()
+INTERNALERROR>     ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/pytest_cov/engine.py", line 44, in ensure_topdir_wrapper
+INTERNALERROR>     return meth(self, *args, **kwargs)
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/pytest_cov/engine.py", line 271, in finish
+INTERNALERROR>     self.cov.save()
+INTERNALERROR>     ~~~~~~~~~~~~~^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/control.py", line 864, in save
+INTERNALERROR>     data = self.get_data()
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/control.py", line 944, in get_data
+INTERNALERROR>     if self._collector.flush_data():
+INTERNALERROR>        ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/collector.py", line 482, in flush_data
+INTERNALERROR>     self.covdata.add_arcs(self.mapped_file_dict(arc_data))
+INTERNALERROR>     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/sqldata.py", line 136, in _wrapped
+INTERNALERROR>     return method(self, *args, **kwargs)
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/sqldata.py", line 591, in add_arcs
+INTERNALERROR>     self._choose_lines_or_arcs(arcs=True)
+INTERNALERROR>     ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/sqldata.py", line 626, in _choose_lines_or_arcs
+INTERNALERROR>     with self._connect() as con:
+INTERNALERROR>          ~~~~~~~~~~~~~^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/sqldata.py", line 396, in _connect
+INTERNALERROR>     self._open_db()
+INTERNALERROR>     ~~~~~~~~~~~~~^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/sqldata.py", line 314, in _open_db
+INTERNALERROR>     self._read_db()
+INTERNALERROR>     ~~~~~~~~~~~~~^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/sqldata.py", line 318, in _read_db
+INTERNALERROR>     with self._dbs[threading.get_ident()] as db:
+INTERNALERROR>          ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/sqlitedb.py", line 96, in __enter__
+INTERNALERROR>     self._connect()
+INTERNALERROR>     ~~~~~~~~~~~~~^^
+INTERNALERROR>   File "/app/.venv/lib/python3.14/site-packages/coverage/sqlitedb.py", line 60, in _connect
+INTERNALERROR>     raise DataError(f"Couldn't use data file {self.filename!r}: {exc}") from exc
+INTERNALERROR> coverage.exceptions.DataError: Couldn't use data file '/app/.coverage.8eb37344e0ed.pid9.X7SIygGx': unable to open database file
+
+2 failed, 2148 passed, 1 skipped, 259 warnings in 959.02s (0:15:59)

@@ -1,0 +1,18 @@
+VISUAL REVIEW: actual integrated Chromium delivery PDF, synthetic fixture only.
+All six rasterized pages inspected on 2026-10-04.
+Input PDF remains unchanged; raster receipt records PDF and page SHA-256 values.
+
+Pages 1-4: readable legacy assessment content; no clipped text, overlap, missing
+glyphs or broken tables observed. Page 4 remains intentionally sparse under the
+existing metadata page break. Legacy AgentLedger references remain visible.
+Page 5: frozen pack identity and source-bounded exposure rows are readable.
+PASS is explicitly a bounded declaration, with verification not established.
+Page 6: selected original owner statement, proposal authority, literal unsafe
+notes and unverified reference are readable. Later live decision is absent,
+as independently asserted by the actual PDF text qualification.
+
+OPEN PAGINATION FINDING: 'Frozen owner decisions' heading and its introductory
+paragraph end page 5 while the first decision card begins page 6. Renderer
+owner notified for a narrow heading/first-card grouping or section page break.
+This review does not close atlas alignment, large-inventory pagination, live
+storage, production services or release qualification.

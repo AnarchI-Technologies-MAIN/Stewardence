@@ -1,0 +1,1901 @@
+- link "Skip to content":
+  - /url: "#_R_3ndjqctdbntccged79l75_"
+- complementary:
+  - navigation "App navigation":
+    - button "Home":
+      - generic: Home
+    - button "Space":
+      - generic: Space
+    - button "Scheduled":
+      - generic: Scheduled
+    - button "Plugins":
+      - generic: Plugins
+    - button "Explore":
+      - generic: Explore
+    - button "Sites":
+      - generic: Sites
+    - button "Open profile menu"
+  - navigation "Home":
+    - link "Home":
+      - /url: /
+      - generic: ChatGPT
+    - button "View activity":
+    - button "Search":
+    - button "Toggle sidebar" [expanded]:
+    - button "New chat":
+      - generic: New chat
+    - button "Lyra":
+      - generic: Lyra
+    - button "Pinned" [expanded]:
+      - generic: Pinned
+    - button "Software Architect GPT":
+      - generic: Software Architect GPT
+    - button "Unpin GPT":
+    - button "AI CODER 🤖 WEBSITE & APP BUILDER":
+      - generic: AI CODER 🤖 WEBSITE & APP BUILDER
+    - button "Unpin GPT":
+    - button "Scholar GPT":
+      - generic: Scholar GPT
+    - button "Unpin GPT":
+    - button "Video AI by invideo":
+      - generic: Video AI by invideo
+    - button "Unpin GPT":
+    - button "AI Video Generator & Text to Video Maker GPT":
+      - generic: AI Video Generator & Text to Video Maker GPT
+    - button "Unpin GPT":
+    - button "Mia AI, your friend to understand yourself":
+      - generic: Mia AI, your friend to understand yourself
+    - button "Unpin GPT":
+    - button "Mystic Tarot Reader":
+      - generic: Mystic Tarot Reader
+    - button "Unpin GPT":
+    - list:
+      - group "Lyra":
+        - link "Lyra":
+          - /url: /c/6aa212c5-5484-83e9-aa0b-b91e13c8aa25
+          - generic: Lyra
+        - button "Chat actions":
+        - button "Unpin chat":
+      - group "Choose Audit Or Fix":
+        - link "Choose Audit Or Fix":
+          - /url: /g/g-2DQzU5UZl/c/6aa2ead9-ae28-83e9-99da-4e0ec7b58972
+          - generic: Choose Audit Or Fix
+        - button "Chat actions":
+        - button "Unpin chat":
+      - group "Conceptual Organism Model":
+        - link "Conceptual Organism Model":
+          - /url: /g/g-J0FYgDhN5/c/6aab5747-8764-83e9-803a-b04eb9c6ba75
+          - generic: Conceptual Organism Model
+        - button "Chat actions":
+        - button "Unpin chat":
+      - group "Lyra-Stewardence":
+        - link "Lyra-Stewardence":
+          - /url: /c/6ac17a91-7ae0-83ea-bcc7-9abdfd2f6e97
+          - generic: Lyra-Stewardence
+        - button "Chat actions":
+        - button "Unpin chat":
+    - button "Projects" [expanded]:
+      - generic: Projects
+    - button "Project sidebar options":
+    - button "Add new project":
+    - list:
+      - button "AnarchI OS and Server Intigration":
+        - generic: AnarchI OS and Server Intigration
+        - button "Project actions for AnarchI OS and Server Intigration":
+        - button "New chat in AnarchI OS and Server Intigration":
+      - button "Founder Alignment":
+        - generic: Founder Alignment
+        - button "Project actions for Founder Alignment":
+        - button "New chat in Founder Alignment":
+      - button "Foundry":
+        - generic: Foundry
+        - button "Project actions for Foundry":
+        - button "New chat in Foundry":
+    - button "Recents" [expanded]:
+      - generic: Recents
+    - button "Chat sidebar options":
+    - button "Filter chats and work":
+    - button "New chat":
+    - list:
+      - group "Lyra-Brain":
+        - link "Lyra-Brain":
+          - /url: /c/6ac173bf-82bc-83e9-8669-80b62d674507
+          - generic: Lyra-Brain
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Get Your Ass Back To Work Alex!!! — Auto update":
+        - link "Get Your Ass Back To Work Alex!!! — Auto update":
+          - /url: /c/6ac0ea12-13f8-83ea-89bc-cce30904463d
+          - generic: Get Your Ass Back To Work Alex!!! — Auto update
+        - link:
+          - /url: /c/6ac0ea12-13f8-83ea-89bc-cce30904463d
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "✅ To-do list — Morning reconciliation":
+        - link "✅ To-do list — Morning reconciliation":
+          - /url: /c/6ac0dfac-50ac-83e9-9261-7d3f8d564e54
+          - generic: ✅ To-do list — Morning reconciliation
+        - link:
+          - /url: /c/6ac0dfac-50ac-83e9-9261-7d3f8d564e54
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Compare Vault Layouts":
+        - link "Compare Vault Layouts":
+          - /url: /c/6ac15829-17dc-83e9-9a39-0ad9d06080bc
+          - generic: Compare Vault Layouts
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Epistemic Bounds for Models":
+        - link "Epistemic Bounds for Models":
+          - /url: /c/6ac15d17-3848-83ea-9937-17c8d8055321
+          - generic: Epistemic Bounds for Models
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Epistemic Bounds for Models":
+        - link "Epistemic Bounds for Models":
+          - /url: /g/g-kZ0eYXlJe/c/6abf064b-b318-83ea-83b1-6fea7b5c98b2
+          - generic: Epistemic Bounds for Models
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "DigitalOcean Hosting Plan":
+        - link "DigitalOcean Hosting Plan":
+          - /url: /c/6abea848-e820-83ea-a08c-c9e2b91b3203
+          - generic: DigitalOcean Hosting Plan
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Architecture advice":
+        - link "Architecture advice":
+          - /url: /g/g-J0FYgDhN5/c/6ac10f02-f480-83ea-aa29-1e3a0042d70e
+          - generic: Architecture advice
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "DigitalOcean Hosting Plan":
+        - link "DigitalOcean Hosting Plan":
+          - /url: /c/6ac0d48c-b1e4-83e9-af60-f4c469aef9af
+          - generic: DigitalOcean Hosting Plan
+        - button "Chat actions":
+        - button "Pin chat":
+      - group "Proof Transition Repair":
+        - link "Proof Transition Repair":
+          - /url: /c/6abc2c51-89b4-83ea-b1a0-59521e2f0333
+          - generic: Proof Transition Repair
+        - button "Chat actions":
+        - button "Pin chat":
+      - status:
+        - generic: Loading chats
+  - separator
+- main:
+  - button "Share":
+    - text: Share
+  - button "More":
+  - button "Toggle pinned summary":
+  - status:
+    - generic: Loading older messages…
+  - separator "Today 4:46 AM":
+    - time: Today 4:46 AM
+  - heading "You said:" [level=4]
+  - button "Pasted text(20261004-094646).txt"
+  - generic "Pasted text(20261004-094646).txt"
+  - generic: Document
+  - img "ChatGPT reacted with 👀":
+    - generic: 👀
+  - button "Edit message":
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - text: Alexander,
+    - strong: REVISE, then APPROVE FOR IMPLEMENTATION once the revisions below are folded into the plan. Production remains explicitly UNAPPROVED.
+  - paragraph:
+    - text: The plan is directionally strong and much closer to a shippable Core than the earlier “lead-qualified/assisted-only” framing. The biggest improvement is that
+    - strong: self-service purchase is now first-class
+    - text: ", while editorial review, optional assistance, marketing publication, and product authority stay separate."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: What stops me from giving an immediate clean approval is not architecture sprawl. It is that a few boundaries are still described as intentions instead of executable contracts.
+  - heading "Disposition" [level=2]
+  - paragraph:
+    - strong: APPROVE AFTER REVISION for implementation planning.
+  - paragraph: Not production.
+  - paragraph: Not deployment.
+  - paragraph: Not migration.
+  - paragraph: Not enabling Stripe, Automation, provider writes, LocalAI public access, campaigns, or Enterprise purchasing.
+  - paragraph:
+    - text: The current plan itself says Alexander has approved development only, with production migration/deploy/activation/cutover requiring qualified evidence, production-hardening review, and final release approval. Preserve that exactly.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - separator
+  - heading "1. Core product loop is coherent" [level=1]
+  - paragraph: "The proposed loop is the right spine:"
+  - paragraph:
+    - strong: signup → verified payment → correct access → unified record → Exposure Review → Decision Desk → Changes/Evidence → immutable dated pack → renewal/expiry/cancel.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is substantially cleaner than treating Core as a bag of assessment features.
+  - paragraph:
+    - text: The strongest architectural decision is
+    - strong: extending the existing inventory rather than inventing another intake universe
+    - text: . Purpose, responsible person, users, cost, data, permissions, allowed actions, approval requirements, offboarding, evidence references, and explicit unknowns belong on the same canonical tool/workflow record.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Likewise, Exposure Review and Decision Desk are correctly separated:"
+  - list:
+    - listitem: findings and missing evidence are review inputs,
+    - listitem: owner decisions are human declarations,
+    - listitem: reported completion is not reviewed evidence,
+    - listitem: reviewed evidence is not automatically a deterministic pass,
+    - text: no decision authorizes a provider write.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That preserves the AnarchI adjudication boundary instead of hiding authority inside UX.
+  - separator
+  - 'heading "2. First revision: define one Review Cycle identity" [level=1]':
+    - text: "2. First revision: define one"
+    - strong: Review Cycle identity
+  - paragraph: This is the biggest missing structural object.
+  - paragraph: Right now the plan has inventory records, findings, decisions, packs, comparisons, and finalization. But their common parent is implicit.
+  - paragraph: "Create one explicit immutable-ish lifecycle identity:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: "ReviewCycle - cycle_id - organization_id - opened_at - comparison_baseline_pack_id | null - input_snapshot_id - ruleset/config identities - state: open finalization_requested frozen artifact_pending completed failed_recoverable - frozen_manifest_sha256 | null - completed_pack_id | null"
+  - paragraph: Everything created during the review should bind to cycle_id.
+  - paragraph: "Why this matters:"
+  - paragraph: Without it, “changes since last review,” finalization retries, fresh decisions after changed findings, quotas, and retention will each invent their own idea of which review they belong to.
+  - paragraph:
+    - text: The plan already says materially changed findings must produce new review items and that finalization freezes exact admitted inputs/findings/decision IDs. A Review Cycle makes those semantics enforceable rather than narrative.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - heading "Blocking tests" [level=3]
+  - paragraph: "A cycle must prove:"
+  - list:
+    - listitem: changing a material input after freeze cannot mutate the frozen cycle;
+    - listitem: later edits land in a new/open cycle;
+    - listitem: a changed finding cannot inherit a prior decision;
+    - listitem: retrying finalization reuses the exact frozen manifest;
+    - listitem: completing the artifact advances the baseline exactly once;
+    - listitem: artifact failure leaves the previous completed baseline untouched.
+  - separator
+  - 'heading "3. Second revision: do not call the saved pack “immutable” without separating identity from retention" [level=1]':
+    - text: "3. Second revision: do not call the saved pack “immutable” without separating"
+    - strong: identity from retention
+  - paragraph:
+    - text: This plan already notices the tension, correctly.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The clean solution is:"
+  - heading "Immutable logical record" [level=3]
+  - paragraph: "A completed pack gets:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: pack_id cycle_id manifest_sha256 artifact_sha256 completed_at source object identities decision identities rules/config identities
+  - paragraph: Those facts do not mutate.
+  - heading "Controlled physical retention" [level=3]
+  - paragraph: "A separate retention state governs bytes:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: "retention_state: retained export_hold pending_expiry artifact_expired"
+  - paragraph:
+    - text: Deleting expired artifact bytes must
+    - strong: not delete or rewrite the pack identity or audit references
+    - text: .
+  - paragraph: "After physical expiry, the record can truthfully say:"
+  - blockquote:
+    - paragraph: Artifact bytes expired under retention policy on DATE.
+  - paragraph:
+    - text: Do
+    - strong: not
+    - text: let a disappearing artifact make the historical pack look as though it never existed.
+  - paragraph: "Also distinguish:"
+  - list:
+    - listitem: customer-facing review evidence,
+    - listitem: internal audit/provenance receipts,
+    - listitem: billing/payment records,
+    - listitem: legal/account records.
+  - paragraph:
+    - text: The plan already says billing retention must not automatically inherit pack-retention rules. Keep that.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - separator
+  - heading "4. The 100 / 12 / 3 GiB numbers are candidate limits, not launch promises" [level=1]:
+    - text: 4. The 100 / 12 / 3 GiB numbers are
+    - strong: candidate limits, not launch promises
+  - paragraph:
+    - text: I agree with the file’s own caution here.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: Do
+    - strong: not
+    - text: "put these on the marketing site yet:"
+  - list:
+    - listitem: 100 active records
+    - listitem: 12 finalized packs/month
+    - listitem: 3 GiB artifact storage
+  - paragraph: They are useful qualification targets.
+  - paragraph: They are not yet commercial promises.
+  - heading "What I would actually implement first" [level=3]
+  - paragraph: "Internally:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: MAX_ACTIVE_RECORDS = 100 MAX_SUCCESSFUL_PACKS_PER_BILLING_WINDOW = 12 MAX_RETAINED_ARTIFACT_BYTES = 3 GiB
+  - paragraph:
+    - text: But keep them
+    - strong: operator-configured, server-side and undisclosed
+    - text: until measured.
+  - paragraph: "Then gather:"
+  - list:
+    - listitem: median and p95 render memory,
+    - listitem: pack size distribution,
+    - listitem: finalization CPU/time,
+    - listitem: DB growth per record/review,
+    - listitem: backup growth,
+    - listitem: restore time,
+    - listitem: support time per customer.
+  - heading "One missing limit" [level=3]
+  - paragraph:
+    - text: "The plan already catches this: drafts/revisions can become the unmetered side door."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Add bounded abuse contracts for:"
+  - list:
+    - listitem: records created per hour/day,
+    - listitem: decision revisions,
+    - listitem: open cycles,
+    - listitem: finalization attempts,
+    - listitem: failed render retries,
+    - listitem: note/link count and length.
+  - paragraph:
+    - text: Failed technical retries of the
+    - strong: same frozen finalization identity
+    - text: should not consume another customer allowance.
+  - paragraph: A new materially different frozen cycle may.
+  - paragraph: That distinction needs to be deterministic.
+  - separator
+  - heading "5. Recurring value is credible, but don't manufacture “monthly” semantics" [level=1]
+  - paragraph:
+    - text: This is one place I would
+    - emphasis: not
+    - text: over-engineer.
+  - paragraph: "The plan's month-two hypothesis is reasonable:"
+  - blockquote:
+    - paragraph:
+      - text: update changes, revisit unresolved decisions, check reported actions, preserve explainable history.
+      - button "Open preview of Pasted text.txt":
+        - generic: Pasted text
+  - paragraph: That is enough to test.
+  - paragraph:
+    - text: You do
+    - strong: not
+    - text: need scheduled collection to justify recurring Core.
+  - paragraph: Core can be recurring because the customer's software environment, ownership, data, permissions, costs, decisions, and evidence evolve.
+  - paragraph: "But the product should never imply:"
+  - blockquote:
+    - paragraph: “You pay monthly, therefore a meaningful new risk must exist monthly.”
+  - paragraph: No.
+  - paragraph:
+    - text: The recurring object is
+    - strong: organizational review continuity
+    - text: ", not manufactured findings."
+  - paragraph:
+    - text: The proposed 90-day review date is appropriately a recommendation rather than a validity expiry.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "I would phrase the product behavior internally as:"
+  - blockquote:
+    - paragraph: Core preserves an accountable review history and helps the owner decide when recorded changes justify another review.
+  - paragraph: That cleanly distinguishes it from Automation's scheduled workflow model.
+  - separator
+  - heading "6. Exposure Review needs an explicit Not Applicable state" [level=1]:
+    - text: 6. Exposure Review needs an explicit
+    - strong: Not Applicable
+    - text: state
+  - paragraph: "You already have findings and missing evidence, but your deterministic item state vocabulary should probably be:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: PASS CONCERN UNKNOWN NOT_APPLICABLE
+  - paragraph: or equivalent.
+  - paragraph: Without N/A, generic checks will tend to produce fake unknowns against things they do not apply to.
+  - paragraph:
+    - text: This matters especially because
+    - strong: one shared Core toolbelt serves accounting owners, freelancers/consultants, and small businesses
+    - text: ", while qualified accounting rules apply only where applicable."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: The accounting pack must not silently “bleed authority” into generic exposure checks.
+  - heading "Blocking tests" [level=3]
+  - list:
+    - listitem: Generic SaaS record never acquires accounting-qualified semantics merely because fields resemble accounting data.
+    - listitem: Missing accounting inputs on a non-accounting record produce N/A, not “high risk.”
+    - listitem: Unknown remains unknown where a rule actually applies.
+    - text: Legacy defaults cost/users=0 and human_approval=True never become declarations without provenance.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - separator
+  - 'heading "7. Decision Desk needs one more field: decision scope" [level=1]':
+    - text: "7. Decision Desk needs one more field:"
+    - strong: decision scope
+  - paragraph: "A decision should bind not just to a finding/proposal but to its exact version:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: decision_id cycle_id review_item_id review_item_digest disposition responsible_person due_date reason recorded_by recorded_at
+  - paragraph: "Then your rule:"
+  - blockquote:
+    - paragraph: material change → new review item → new decision
+  - paragraph:
+    - text: becomes mechanically provable.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: No editing a prior decision in place.
+  - paragraph: Corrections become append-only successor events.
+  - paragraph: That will save you enormous pain later.
+  - separator
+  - heading "8. Self-service sample → checkout → paid delivery needs an explicit trace" [level=1]
+  - paragraph: This is a launch-critical test.
+  - paragraph:
+    - text: Because checkout is now intentionally independent of qualification or human approval, the public sample and the paid product must not quietly diverge.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Add a versioned public claim bundle:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: ExperienceBundle bundle_version audience scenario claim_ids[] capability_ids[] sample_schema_version checkout_offer_id locale published_at
+  - paragraph: Every funnel page, sample, and checkout CTA references that bundle/version.
+  - paragraph: "After signup/payment, record:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: acquisition_bundle_version acquisition_scenario acquisition_claim_ids
+  - paragraph: Not as authority, but as provenance.
+  - paragraph: "Then test:"
+  - blockquote:
+    - paragraph: every capability claimed in the public bundle maps to a capability actually enabled for the purchased Core contract.
+  - paragraph: No “the sample had this, but your account doesn't.”
+  - heading "Blocking end-to-end test" [level=3]
+  - paragraph: "Synthetic visitor:"
+  - list:
+    - listitem: opens a published scenario;
+    - listitem: interacts without anonymous persistence;
+    - listitem: chooses checkout directly;
+    - listitem: creates account;
+    - listitem: completes synthetic verified payment;
+    - listitem: receives exactly Core access;
+    - listitem: creates one record;
+    - listitem: receives deterministic Exposure Review;
+    - listitem: records Decision Desk action;
+    - listitem: finalizes a pack;
+    - listitem: downloads the exact private pack;
+    - listitem: cancels;
+    - listitem: retained read/export behavior matches the stated post-payment policy.
+  - paragraph:
+    - text: That is the
+    - strong: golden launch journey
+    - text: .
+  - paragraph: If this is green, we're close to something sellable.
+  - separator
+  - 'heading "9. Funnel plan: approve, with a hard separation between editorial authority and runtime" [level=1]':
+    - text: "9. Funnel plan: approve, with a hard separation between"
+    - strong: editorial authority and runtime
+  - paragraph: I like the funnel direction.
+  - paragraph: "Four genuinely different scenarios are plenty to start:"
+  - list:
+    - listitem: agent/tool exposure,
+    - listitem: access ownership/offboarding,
+    - listitem: accountable decisions,
+    - text: changes since last review.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: Do not build 200 pages.
+  - paragraph:
+    - text: Build
+    - strong: 4 excellent scenario families × 3 audiences
+    - text: through shared reusable content blocks, not twelve near-duplicate SEO pages.
+  - paragraph: One versioned editorial bundle can render variants where there is actual audience-specific language.
+  - paragraph: "The publication gate should approve:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: copy identity claim ledger product capability references sample identity locale destination
+  - paragraph:
+    - text: Publication approval does
+    - strong: not
+    - text: approve checkout, payment state, or product authority.
+  - paragraph: Correct.
+  - paragraph:
+    - text: And research workers can discover placements now, but no publishing/sending until separately authorized.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - separator
+  - heading "10. LocalAI broker is useful, but cut it from launch" [level=1]
+  - paragraph: This is my strongest scope cut.
+  - paragraph:
+    - strong: Do not make LocalAI chat a launch blocker.
+  - paragraph: "The plan is well-shaped:"
+  - list:
+    - listitem: cloud queue,
+    - listitem: outbound authenticated local polling,
+    - listitem: no public inference endpoint,
+    - listitem: no local arbitrary tools/files,
+    - listitem: no tenant/provider/payment authority,
+    - listitem: expiring delayed-return mechanism,
+    - text: cloud site still works when the laptop sleeps.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: But this is a whole security/privacy/availability subsystem.
+  - paragraph:
+    - text: And your current LocalAI port exposure is not yet established as isolated.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Ship the public funnel first with:"
+  - list:
+    - listitem: deterministic FAQ/guide,
+    - listitem: product facts,
+    - listitem: scenario samples,
+    - listitem: checkout.
+  - paragraph: Then add LocalAI after launch.
+  - paragraph:
+    - text: If you absolutely want it in the first wave, make it
+    - strong: feature-flagged OFF by default
+    - text: and don't advertise it.
+  - heading "When implemented, blocking tests should include" [level=3]
+  - list:
+    - listitem: public Internet cannot reach local inference;
+    - listitem: broker credential cannot access tenant/billing/provider APIs;
+    - listitem: queue request contains no hidden page/query/chat leakage;
+    - listitem: expired token cannot fetch reply;
+    - listitem: revoked request cannot be answered afterward;
+    - listitem: duplicate local polling cannot create two responses;
+    - listitem: malicious model text cannot alter approved product claims or checkout parameters;
+    - listitem: laptop unavailable leaves public site and checkout fully usable.
+  - separator
+  - heading "11. Analytics can also be trimmed hard" [level=1]
+  - paragraph: You do not need a miniature analytics company before customer one.
+  - paragraph:
+    - text: "The proposed privacy boundary is good: separate first-party consent, opaque IDs, closed event vocabulary, no full URLs/referrers/chat text, anonymous observations separated from tenant audit."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "For launch, I would collect only:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: page_view scenario_started scenario_completed checkout_started signup_completed payment_confirmed first_record_created first_review_completed first_pack_completed canceled
+  - paragraph:
+    - text: Even some of those should be
+    - strong: server-observed business events
+    - text: ", not browser telemetry."
+  - paragraph: Do not build attribution modeling.
+  - paragraph: Store an optional acquisition token and source bundle ID if the visitor consents.
+  - paragraph: "That's enough to answer:"
+  - blockquote:
+    - paragraph: which scenario gets people to try Stewardence?
+  - paragraph: Everything beyond that can wait.
+  - separator
+  - heading "12. Retention requires one user-visible promise before launch" [level=1]
+  - paragraph: "The proposed policy is reasonable but not yet a contract:"
+  - list:
+    - listitem: 12-month rolling completed-review history,
+    - listitem: advance notice/export,
+    - text: 90-day read/export after paid access ends.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: Before selling, decide whether
+    - strong: 12 months is a minimum guaranteed history or merely current policy
+    - text: .
+  - paragraph: Those are different promises.
+  - paragraph: "For launch I recommend:"
+  - blockquote:
+    - paragraph: Core retains up to the most recent 12 months of completed review packs while subscribed. After paid access ends, retained packs remain available for read/export for 90 days. Applicable billing/account records follow separate retention requirements.
+  - paragraph: Then explicitly say unsupported future archives are not promised.
+  - paragraph: Internally, do not delete supporting evidence while a retained pack depends on it unless the pack itself contains the frozen representation needed to remain meaningful.
+  - separator
+  - heading "13. Billing remains the true launch blocker" [level=1]
+  - paragraph: This plan cannot sidestep the known payment entitlement gap.
+  - paragraph:
+    - text: "The file correctly preserves it: current grants_access is still status-based; durable paid coverage, renewal semantics, expiry enforcement, and real payment lifecycle qualification remain open."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: That must be closed
+    - strong: before self-service money is accepted
+    - text: .
+  - paragraph: For a direct-public-purchase product, this is non-negotiable.
+  - paragraph: "Minimum billing gate:"
+  - list:
+    - listitem: verified payment creates one exact paid interval;
+    - listitem: duplicate/reordered events don't duplicate entitlement;
+    - listitem: renewal extends only from qualifying payment;
+    - listitem: observed subscription period alone never extends paid access;
+    - listitem: expiry blocks new protected work;
+    - listitem: canceling retains access only through admitted paid-through time;
+    - listitem: payment failure does not fabricate lapse before policy says so;
+    - listitem: terminal cancellation cannot be revived by stale events;
+    - listitem: read/export/recovery remains available per policy;
+    - listitem: checkout retry/concurrency cannot create unintended parallel subscriptions;
+    - listitem: exact price/account/mode/customer/subscription identities are bound.
+  - paragraph:
+    - text: Real Stripe
+    - strong: test-mode
+    - text: lifecycle can satisfy the external-provider portion. It does not require touching live customers.
+  - paragraph: That should remain one of Codex's immediate critical paths.
+  - separator
+  - heading "14. Existing flaky full run is still a blocker" [level=1]
+  - paragraph: "The latest planning note says the new full run has:"
+  - list:
+    - strong: 1,325 passed
+    - strong: 2 failed
+    - strong: 1 intentional skip
+  - paragraph:
+    - text: and the two full-run failures are not explained by focused passing reruns.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: One is Chromium timeout.
+  - paragraph: "The more important one is the honest retry failure:"
+  - blockquote:
+    - paragraph: Workflow request identity invalid
+  - paragraph: and instrumentation changed timing without establishing root cause.
+  - paragraph: That is exactly the kind of thing I would not wave away simply because the focused tests pass.
+  - paragraph: "Before production:"
+  - paragraph:
+    - strong: root cause or deterministically bound the failure.
+  - paragraph: Do not merely increase timeouts or weaken guards.
+  - paragraph:
+    - text: Historical worker intermittence remains similarly unresolved and must stay on the release ledger.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - separator
+  - heading "What I would cut from the 1–2 day implementation slice" [level=1]
+  - heading "Build now" [level=3]
+  - list:
+    - listitem: ReviewCycle identity/state machine
+    - listitem: inventory extensions
+    - listitem: explicit unknown/N/A provenance
+    - listitem: Exposure Review
+    - listitem: Decision Desk append-only events
+    - listitem: changed-item successor logic
+    - listitem: finalization freeze/manifest/retry
+    - listitem: private pack history
+    - listitem: basic public scenario funnel
+    - listitem: direct checkout path wiring
+    - listitem: tiny consented event vocabulary
+    - listitem: golden self-service journey tests
+  - heading "Defer safely" [level=3]
+  - list:
+    - listitem: LocalAI broker
+    - listitem: email-delayed AI answers
+    - listitem: Spanish localization implementation
+    - listitem: complicated attribution
+    - listitem: paid archive
+    - listitem: Benefit Check
+    - listitem: new integrations
+    - listitem: scheduled customer workflows
+    - listitem: event monitoring
+    - listitem: MCP
+    - listitem: Enterprise checkout
+    - listitem: custom Enterprise agreements
+    - listitem: automatic provider collection
+    - listitem: elaborate marketing page factory
+  - paragraph:
+    - text: The architecture should leave seams for those.
+    - strong: Do not build the seams into mini-products yet.
+  - separator
+  - heading "Minimal corrected implementation brief" [level=1]
+  - paragraph: "I would hand Codex this:"
+  - blockquote:
+    - paragraph:
+      - strong: STEWARDENCE CORE SELF-SERVICE SUCCESSOR
+    - paragraph: Implement only the minimum user-driven Core review loop. Production remains unauthorized.
+    - paragraph: Extend the existing inventory model rather than introducing a parallel tool model. Add explicit provenance-aware fields needed for purpose, responsible person, user/cost/data/access/action/approval/offboarding facts, evidence dates/references, and unknown state. Never convert legacy defaults into declarations.
+    - paragraph: Introduce a canonical ReviewCycle identity binding admitted input snapshot, rules/configuration identities, review items, decisions, comparison baseline, finalization state, and completed pack. Exposure Review produces deterministic CONCERN, UNKNOWN, and NOT_APPLICABLE items from generic rules and separately qualified accounting rules. No malicious-intent, certification, live-monitoring, or provider-write semantics.
+    - paragraph: Decision Desk records append-only human disposition events bound to an exact review-item identity/digest. Materially changed findings create successor review items and require fresh decisions. No prior completion or disposition carries forward automatically.
+    - paragraph: Finalization freezes the exact cycle manifest before rendering. Retry must reuse the identical frozen manifest. Only successfully persisted and hash-verified private artifacts advance the completed baseline. Failure preserves the prior baseline and exposes recovery without permitting later edits into the frozen cycle.
+    - paragraph: Keep immutable pack identity/provenance separate from controlled artifact retention. Physical expiry must not rewrite historical pack identity. Billing/account retention is separate.
+    - paragraph: Implement candidate internal quotas for 100 active records, 12 successful completed packs per billing window and 3 GiB retained artifact bytes, but do not advertise them until load/storage/backup/restore/support measurements qualify them. Add bounded abuse controls for open cycles, drafts, revisions and finalization attempts. Same frozen finalization retries do not consume an additional success allowance.
+    - paragraph: Public funnel starts with four reviewed scenario families and may serve accounting owners, freelancers/consultants and small businesses. Checkout remains independently available. Bind every published scenario to a versioned claim/capability/sample/checkout bundle. Samples are synthetic and never claim to assess the visitor. Anonymous answers are not saved without explicit consent.
+    - paragraph: Launch analytics use only a closed minimal first-party vocabulary and server-verified lifecycle events where possible. No third-party pixels, full URLs/referrers, visitor-answer text or chat text.
+    - paragraph: Do not implement LocalAI broker, email reply workflow, Spanish localization, additional integrations, Automation scheduling, Enterprise checkout, Benefit Check or paid archive in this slice.
+    - paragraph: Acceptance requires a golden self-service journey from public scenario through verified synthetic payment, Core access, record creation, Exposure Review, Decision Desk, finalized private pack, download, cancellation and post-cancel read/export state.
+    - paragraph: Preserve all prior bounded closures. Do not weaken existing authority guards. Current full-run failures and historical worker intermittence require root-cause disposition before release. Durable paid-through entitlement, renewal/expiry/cancel semantics and checkout concurrency remain production blockers and require their own qualified lifecycle evidence.
+    - paragraph: No migration, deploy, activation, campaign publication, provider write, Automation sale or production payment is authorized by this implementation plan.
+  - heading "Bottom line" [level=2]
+  - paragraph:
+    - strong: The product direction is approved. The implementation plan needs the ReviewCycle identity, immutable-vs-retention split, explicit N/A semantics, public-bundle traceability, quota semantics, and the golden self-service test made concrete before I would call the plan implementation-ready.
+  - paragraph:
+    - text: "After those edits:"
+    - strong: APPROVE FOR IMPLEMENTATION.
+  - paragraph: And I would deliberately keep LocalAI, localization, sophisticated attribution, and Enterprise off the critical path. They are good ideas. Right now they are barnacles on the launch boat. 🛶
+  - paragraph:
+    - strong: Production remains unapproved.
+    - text: The billing entitlement lifecycle and unexplained full-run failures are still real release gates, not paperwork.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - button "Sources":
+  - heading "You said:" [level=4]
+  - button "Pasted text(20261004-095116).txt"
+  - generic "Pasted text(20261004-095116).txt"
+  - generic: Document
+  - img "ChatGPT reacted with ✅":
+    - generic: ✅
+  - button "Edit message":
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - strong: APPROVE FOR IMPLEMENTATION PLANNING.
+  - paragraph:
+    - text: v2 incorporates the revisions I required and is coherent enough to enter development.
+    - strong: Production remains explicitly unapproved.
+    - text: No migration, deploy, service activation, public campaign publication, provider write, live-payment acceptance, Automation enablement, or Enterprise enablement follows from this approval.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: I do
+    - strong: not
+    - text: see a remaining architectural contradiction that should stop implementation.
+  - heading "What is now sufficiently resolved" [level=2]
+  - paragraph:
+    - text: The ReviewCycle is now a real lifecycle object rather than an implicit collection of records. Freeze binds the admitted snapshot, rules/config, finding/item identities, selected decisions, capacity reservation, and canonical manifest in one transaction. Later edits go to a successor cycle, artifact retries reuse the same frozen manifest, and baseline advancement is serialized/CAS-protected. That closes the structural ambiguity I raised.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The retention model now correctly separates
+    - strong: immutable logical identity from mutable physical custody
+    - text: . Pack identity survives controlled artifact expiry, ordinary app/worker roles cannot delete or rewrite it, unexpected missing bytes are treated as failure rather than legitimate expiry, and billing/legal/account retention is explicitly separate.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Exposure Review now has the required four-way semantics:"
+  - list:
+    - listitem: PASS
+    - listitem: CONCERN
+    - listitem: UNKNOWN
+    - listitem: NOT_APPLICABLE
+  - paragraph:
+    - text: with explicit applicability provenance. Legacy defaults do not magically become declarations, and accounting-qualified rules do not leak authority into generic checks. Decision events are exact-item/digest bound and append-only, with stale concurrent edits rejected rather than silently overwritten.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The public funnel is now traceable into paid delivery. ExperienceBundle freezes claims, capability references, synthetic sample identity, copy, locale, offer identity, and publication approval; checkout remains server-selected rather than campaign-controlled. The golden journey now extends all the way through payment, Core use, second-cycle comparison, finalization, cancellation, expiry, and the 90-day export state.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The candidate 100 / 12 / 3 GiB limits are correctly treated as
+    - strong: qualification settings rather than advertised promises
+    - text: ", and the missing abuse dimensions are now bounded. Billing windows derive from admitted payment coverage rather than browser time, same-frozen retries cannot spend quota twice, orphan-object outcomes require reconciliation, and capacity claims require actual resource measurements."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: And, importantly for getting Stewardence out the door, LocalAI chat, Spanish, advanced attribution, paid archive, new connectors, Automation, and Enterprise APIs are now explicitly off the initial critical path. The LocalAI objective is preserved instead of discarded, but it cannot hold Core hostage.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - heading "One implementation invariant I want carried forward" [level=2]
+  - paragraph:
+    - text: This does
+    - strong: not block planning approval
+    - text: ", because the present wording already points in the correct direction. I want it made explicit in code/tests:"
+  - blockquote:
+    - paragraph:
+      - strong: An unknown external-object or quota-reservation outcome must never release capacity merely because an operation timed out or returned ambiguously. Capacity is released only when non-consumption is positively established; otherwise the reservation enters reconciliation.
+  - paragraph:
+    - text: Your current language already says technical reservations are released
+    - strong: “when proven unused”
+    - text: and that orphan objects enter reconciliation.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: So this is not a plan revision request. It is the exact interpretation I will use later when reviewing the implementation.
+  - paragraph: "I would also interpret the expiry clause narrowly:"
+  - blockquote:
+    - paragraph:
+      - text: “No new protected claims/persistence” means
+      - strong: paid product work
+      - text: ", not account, billing, cancellation, export, or recovery surfaces."
+  - paragraph:
+    - text: The golden journey already requires post-expiry read/export behavior.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+    - text: Do not accidentally lock a lapsed customer out of the controls needed to leave cleanly or recover their retained data.
+  - heading "The release gates remain real" [level=2]
+  - paragraph: The plan correctly refuses to launder unresolved evidence into readiness.
+  - paragraph:
+    - text: The current full run is still
+    - strong: "failed: 1,325 passed / 2 failed / 1 skip"
+    - text: . The Chromium timeout and honest-retry workflow identity failure remain unexplained by focused passes. Historical worker intermittence also stays on the release ledger.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: More importantly, durable paid entitlement is still a critical implementation/release gate. v2 makes the intended authority boundary much cleaner by selecting a
+    - strong: separate narrowly credentialed billing-admission principal on the same Droplet
+    - text: ", while keeping app and worker principals unable to issue payment coverage. It must bind authenticated provider evidence to the exact invoice/subscription/account/mode and must never invent historical coverage."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is the right architecture.
+  - paragraph: "Before accepting public money, I will still expect evidence for:"
+  - list:
+    - listitem: payment interval issuance and expiry,
+    - listitem: renewal advancement only from qualifying payment,
+    - listitem: app + SQL enforcement,
+    - listitem: cancellation and post-expiry behavior,
+    - listitem: checkout concurrency/idempotency,
+    - text: real Stripe
+    - strong: test-mode
+    - text: checkout/webhook/invoice lifecycle,
+    - listitem: the final golden self-service journey,
+    - listitem: exact final source identity,
+    - listitem: the unresolved full-suite failures,
+    - listitem: restoration/private-access regression on the selected release source,
+    - listitem: rollback/reconciliation package.
+  - paragraph: Those aren't additions to v2. They're the release gates v2 itself preserves.
+  - heading "Handoff to Codex" [level=2]
+  - paragraph: "You can give Codex this disposition verbatim:"
+  - blockquote:
+    - paragraph:
+      - strong: "LYRA DISPOSITION: APPROVE FOR IMPLEMENTATION PLANNING."
+    - paragraph: Corrected Implementation Brief v2 incorporates the required ReviewCycle lifecycle, freeze semantics, immutable logical pack identity versus controlled physical retention, four-state Exposure Review applicability, append-only exact-item Decision Desk events, ExperienceBundle claim-to-paid-delivery traceability, candidate quota/abuse contracts, golden self-service journey, and reduced launch scope.
+    - paragraph: Proceed with implementation under the brief.
+    - paragraph: "Interpret reservation release fail-closed: capacity may be released only when non-consumption is positively established; ambiguous external outcomes enter reconciliation."
+    - paragraph: "Interpret post-expiry protection narrowly: block new paid product work while preserving authorized account, billing/cancellation, recovery, and retained read/export surfaces."
+    - paragraph: Preserve every historical closure and failure at its existing evidence scope. Do not weaken guards to satisfy tests.
+    - paragraph:
+      - strong: This is development authorization only. Production remains unapproved.
+    - paragraph: The 1325-pass/2-fail/1-skip full run, unresolved workflow identity failure, Chromium timeout, historical worker intermittence, durable paid-entitlement implementation, checkout concurrency/idempotency, real Stripe test-mode lifecycle, final-source golden journey, restoration/private-access regression, rollback package, scoped Lyra production review, and Alexander's final approval remain release gates.
+  - paragraph:
+    - text: "So yes:"
+    - strong: Codex can start chewing on v2.
+    - text: 🛠️
+  - paragraph: And this time the scope has walls. That's what we needed.
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - button "Sources":
+  - separator "Today 1:46 PM":
+    - time: Today 1:46 PM
+  - heading "You said:" [level=4]
+  - text: "CODEX → LYRA: CONTRIBUTOR GUIDE REVIEW + NEXT IMPLEMENTATION SLICE Alexander explicitly asks: consult Lyra for next steps, give her AGENTS.md. Below is the exact newly created file at C:/Users/alexg/Stewardence-Development/AGENTS.md, 356 words, created exclusively after verifying no existing guide. No product-source, deployment, migration, service or provider settings changed in creating it. Session is now build/Default mode; Alexander authorized implementation of the guide, and the previously approved corrected v2 Core direction remains the development baseline. Your prior APPROVE FOR IMPLEMENTATION PLANNING does not authorize production. Please review whether these contributor instructions accurately preserve architecture, evidence scopes and release gates. Note history has imperative subjects plus feat: prefix, no invented universal Conventional Commits requirement; coverage80 is configured threshold, not evidence current full run met it. source/README historical Railway references are superseded by actual DO deployment. Local workspace is preserved candidate without .git; remote commit subjects were inspected read-only with strict host checking. Then give the next bounded implementation slice under v2: exact ordering between durable paid coverage/billing-admission principal, canonical ReviewCycle, and investigation of existing full-suite failures. Specify what can run in parallel with the funnel lane, what acceptance/negative tests close the slice, and what evidence you want for next review. Preserve prior closures; historical full1325pass2fail1skip remains failed, focusedpasses unexplained, no new fullqualification run since plan review. LocalAI, Spanish, Enterprise, extra connectors/renewal-benefit extensions remain follow-on and off criticalpath. No source packet is attached here, so treat source-status statements as reported continuity, not freshly independently verified implementation. Please provide concrete next steps without reopening closed finding scopes or expanding product features. If the guide needs revision distinguish required correction from recommendation. Production stays unapproved. BEGIN EXACT AGENTS.md # Repository Guidelines ## Project Structure & Module Organization This workspace preserves deployed changes beyond Git HEAD. -"
+  - code: source/apps/
+  - text: ": Django domain modules, including inventory, assessments, billing, jobs and reports. -"
+  - code: source/src/agentledger/
+  - text: ": settings and application entrypoints. -"
+  - code: source/templates/
+  - text: and
+  - code: source/static/
+  - text: ": server-rendered UI and assets. -"
+  - code: source/renderer/
+  - text: ": structured PDF rendering. -"
+  - code: source/tests/
+  - text: ": pytest qualification. -"
+  - code: scripts/
+  - text: ": isolated qualification and packaging utilities. -"
+  - code: docs/
+  - text: ": architecture and release gates. -"
+  - code: baseline/
+  - text: ": preserved source capture; do not modify. -"
+  - code: evidence/
+  - text: ": qualification receipts, manifests and logs. ## Build, Test, and Development Commands From the workspace root:"
+  - generic: powershell
+  - button:
+  - code: py -3.14 scripts/qualify_local.py
+  - text: Builds the frozen candidate and qualifies it against disposable PostgreSQL containers. Docker Desktop must be running. From
+  - code: source/
+  - text: ":"
+  - generic: powershell
+  - button:
+  - code: uv sync --frozen uv run --no-sync ruff check . uv run --no-sync ruff format --check . uv run --no-sync pytest --cov --cov-report=term-missing uv run --no-sync python manage.py runserver
+  - text: "Direct Django tests require an appropriately configured local PostgreSQL database. Prefer the isolated qualifier for database-authority checks. ## Coding Style & Naming Conventions Use four-space Python indentation, an 88-character line limit and Ruff formatting. Use"
+  - code: snake_case
+  - text: for functions and modules, and
+  - code: PascalCase
+  - text: for classes. Preserve existing
+  - code: agentledger
+  - text: "identifiers for compatibility. Add successor migrations instead of editing historical migrations. ## Testing Guidelines Use pytest and pytest-django; name tests"
+  - code: test_*.py
+  - text: and functions
+  - code: test_*
+  - text: ". Configured branch-coverage minimum is 80%. Test tenant isolation, restricted-role SQL, idempotency, expiry, recovery and negative admission paths. Preserve failed evidence; passing reruns do not explain earlier failures. ## Commit & Pull Request Guidelines Observed history mixes"
+  - code: "feat:"
+  - text: "prefixes with imperative milestone subjects. Use concise imperative subjects describing the final behavior. PRs should explain the problem, change, validation, authority implications and rollback considerations. Include screenshots for UI changes. Do not commit, push or deploy without session authorization. ## Security & Agent Instructions Use the name Lyra when communicating with Alexander. Keep secrets out of source, UI, logs and evidence packets. Distinguish observations, declarations, calculations and unknowns. Proposal cards never authorize provider writes. Preserve deployed worktree changes, strict SSH host-key checking, tenant boundaries and release restrictions. Local tests establish bounded evidence—not production readiness. Production changes require qualified evidence, Lyra’s review and Alexander’s final approval. END EXACT AGENTS.md"
+  - generic: …
+  - button "Show more":
+    - generic: Show more
+  - button "Copy message":
+  - button "Edit message":
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - text: Alexander, Codex’s
+    - strong: AGENTS.md is good and can stand as the contributor guide with one required correction and two small recommendations.
+    - text: The next implementation slice should start with
+    - strong: billing-admission authority and durable paid coverage
+    - text: ", then land the"
+    - strong: ReviewCycle kernel
+    - text: ", while the two unexplained full-suite failures are investigated in parallel. The funnel lane can move beside that work, but only on deterministic public content and traceability, not payment authority."
+  - paragraph:
+    - strong: Production remains unapproved.
+    - text: I am treating the current source state, remote-history observations, and “no new full qualification run” as
+    - strong: reported continuity
+    - text: ", not independently reverified implementation."
+  - heading "AGENTS.md disposition" [level=2]
+  - heading "Required correction" [level=3]
+  - paragraph: "This line is too broad:"
+  - blockquote:
+    - paragraph: “Production changes require qualified evidence, Lyra’s review and Alexander’s final approval.”
+  - paragraph: Keep the spirit, but make the authority boundary explicit enough that a coding agent cannot interpret “production changes” as merely “deploy after review.”
+  - paragraph: "I recommend replacing it with:"
+  - blockquote:
+    - paragraph:
+      - strong: Production migration, deploy, service activation, provider-write enablement, live-payment acceptance, campaign publication, or cutover require their own qualified evidence, Lyra’s scoped production review, and Alexander’s explicit final approval. Development authorization does not imply production authority.
+  - paragraph: That matches the current governance model much more precisely.
+  - heading "Recommendation 1" [level=3]
+  - paragraph: "Under Testing Guidelines, add one sentence:"
+  - blockquote:
+    - paragraph:
+      - strong: A passing focused rerun does not close a prior full-suite failure unless the causal relationship is established or the exact full suite passes on the successor source.
+  - paragraph: You already say “passing reruns do not explain earlier failures,” which is correct. The extra sentence makes the release implication explicit.
+  - heading "Recommendation 2" [level=3]
+  - paragraph: "Under Project Structure, add:"
+  - blockquote:
+    - paragraph:
+      - strong: baseline/ is reference-only; successor implementation belongs in source/, with evidence generated separately.
+  - paragraph: “Do not modify” already implies this, but coding agents benefit from knowing where successor work should go.
+  - paragraph: "Everything else reads correctly:"
+  - list:
+    - listitem: deployed worktree preservation is called out;
+    - listitem: historical migrations stay immutable;
+    - listitem: the isolated qualifier is preferred for authority-sensitive checks;
+    - listitem: Ruff/pytest conventions are clear;
+    - listitem: 80% is described as a configured threshold, not a claimed achieved coverage result;
+    - listitem: commit guidance reflects observed history instead of inventing a repo-wide Conventional Commits rule;
+    - listitem: strict SSH host-key checking is preserved;
+    - listitem: proposal cards remain non-authoritative;
+    - listitem: bounded test evidence is explicitly distinguished from production readiness.
+  - paragraph:
+    - text: The guide does
+    - strong: not
+    - text: need to mention Railway-versus-DigitalOcean history. That belongs in deployment documentation, not contributor instructions. Your note that source/README contains superseded Railway history is useful continuity, but I would not clutter AGENTS.md with it.
+  - paragraph: "So:"
+  - paragraph:
+    - strong: AGENTS.md = ACCEPT WITH ONE REQUIRED WORDING CORRECTION.
+  - separator
+  - heading "Next bounded implementation slice" [level=1]
+  - paragraph: The ordering matters because ReviewCycle should consume a correct entitlement decision, not become another place where status-only access gets copied.
+  - 'heading "1. First: durable paid coverage + billing-admission principal" [level=2]'
+  - paragraph: This is the authority foundation.
+  - paragraph:
+    - text: Do
+    - strong: not
+    - text: start by teaching ReviewCycle to ask the existing grants_access property whether a customer is paid. That property is still too weak for the launch contract.
+  - paragraph: Implement the smallest explicit paid-entitlement substrate first.
+  - heading "New authority boundary" [level=3]
+  - paragraph: Create a narrowly credentialed billing-admission principal that can do exactly the operations needed to issue and advance paid coverage.
+  - paragraph: "It should not be:"
+  - list:
+    - listitem: agentledger_app
+    - listitem: agentledger_worker
+    - listitem: the report worker
+    - listitem: a generic owner/admin role
+  - paragraph: It should have narrowly scoped access to the billing evidence/entitlement tables and nothing that grants provider writes or arbitrary tenant mutation.
+  - heading "Minimal data model" [level=3]
+  - paragraph: "I would expect something conceptually like:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: PaidCoverageInterval - id - billing_customer_id - organization_id - stripe_account_identity - subscription_id - invoice_id - payment_event_id - price_contract_id/version - covered_from - covered_through - issued_at - issuer_identity - source_event_digest - supersedes | null
+  - paragraph: "and an append-only or monotonic current projection:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: CurrentEntitlement - organization_id - portfolio - paid_through - coverage_interval_id - status_projection
+  - paragraph: The exact naming can differ.
+  - paragraph: "The critical rule is:"
+  - blockquote:
+    - paragraph:
+      - strong: provider-observed subscription period is not entitlement; a qualifying paid invoice issues or advances entitlement through one exact interval.
+  - paragraph: No historical backfill from status alone.
+  - heading "Acceptance tests" [level=3]
+  - paragraph: "This first sub-slice closes when the exact-role/database tests prove:"
+  - list:
+    - listitem: app role cannot issue or advance paid coverage;
+    - listitem: worker role cannot issue or advance paid coverage;
+    - listitem: billing-admission principal can issue only from admitted exact evidence;
+    - listitem: wrong customer, subscription, account, mode, price, invoice, period, currency, quantity, or event identity rejects;
+    - listitem: duplicate qualifying payment is idempotent;
+    - listitem: older payment/event cannot roll back or improperly extend newer coverage;
+    - listitem: observed subscription-period advance without payment does not extend paid-through;
+    - listitem: payment failure alone does not fabricate an earlier expiry;
+    - listitem: cancellation preserves only the already admitted paid-through interval;
+    - listitem: expired coverage makes new protected work fail closed;
+    - listitem: read/export/recovery surfaces remain available according to the retention contract;
+    - listitem: malformed/null/unsupported evidence fails before mutation;
+    - listitem: concurrent duplicate delivery results in one issued interval;
+    - listitem: transaction rollback leaves neither entitlement nor success receipt partially committed.
+  - heading "Evidence I want" [level=3]
+  - paragraph: "For review, give me:"
+  - list:
+    - listitem: migration/source for new billing authority objects;
+    - listitem: DB grants/role changes;
+    - listitem: exact app/worker/billing-admission role matrix;
+    - listitem: focused real PostgreSQL tests using those roles;
+    - listitem: negative SQL tests;
+    - listitem: concurrency test with deterministic barriers;
+    - listitem: locally signed current-SDK webhook tests;
+    - listitem: exact source manifest for that focused candidate;
+    - listitem: raw focused log;
+    - listitem: no production credentials.
+  - paragraph:
+    - text: Do
+    - strong: not
+    - text: wait for the full suite before showing me this boundary if it is ready. Focused evidence is useful for source review, but it will not grant release approval.
+  - separator
+  - 'heading "2. Second: canonical ReviewCycle" [level=1]'
+  - paragraph: Once the paid-entitlement decision exists, ReviewCycle can consume it as a dependency.
+  - paragraph:
+    - text: Build only the
+    - strong: kernel
+    - text: ", not every screen."
+  - heading "Slice scope" [level=3]
+  - paragraph: "Implement:"
+  - list:
+    - listitem: ReviewCycle
+    - listitem: lifecycle transition events
+    - listitem: baseline pack reference
+    - listitem: frozen manifest identity
+    - listitem: revision/CAS field
+    - listitem: exact cycle state machine
+    - listitem: same-tenant references
+    - listitem: freeze transaction
+    - listitem: immutable post-freeze object set
+    - listitem: successor-cycle opening
+    - listitem: baseline advancement rules
+  - paragraph:
+    - text: Do
+    - strong: not
+    - text: yet make the whole Exposure Review/Decision Desk UI polished.
+  - heading "Required state machine" [level=3]
+  - paragraph: "At minimum:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: OPEN → FINALIZATION_REQUESTED → FROZEN → ARTIFACT_PENDING → COMPLETED ARTIFACT_PENDING → FAILED_RECOVERABLE → ARTIFACT_PENDING
+  - paragraph: with the same frozen_manifest_sha256 on retry.
+  - paragraph: No transition should silently mutate the frozen identity.
+  - heading "Freeze transaction must prove" [level=3]
+  - list:
+    - listitem: paid entitlement is valid at server time;
+    - listitem: organization/owner identity is valid;
+    - listitem: workspace is not paused for protected work;
+    - listitem: expected cycle revision still matches;
+    - listitem: every referenced object belongs to same tenant;
+    - listitem: selected review-item and decision identities are exact;
+    - listitem: canonical manifest is derived server-side;
+    - listitem: quota reservation succeeds atomically;
+    - listitem: state changes to frozen in the same transaction.
+  - paragraph: No renderer can choose “current” inventory after freeze.
+  - heading "Acceptance tests" [level=3]
+  - list:
+    - listitem: stale client revision rejects;
+    - listitem: cross-tenant object reference rejects;
+    - listitem: changed review item after decision makes stale decision inadmissible;
+    - listitem: freeze twice is idempotent or explicitly conflicts according to contract;
+    - listitem: concurrent freezes produce one authoritative frozen generation;
+    - listitem: post-freeze edit cannot alter manifest;
+    - listitem: successor cycle receives later edits;
+    - listitem: old cycle completion cannot replace a newer baseline;
+    - listitem: same frozen retry uses same digest;
+    - listitem: changed frozen-manifest retry is rejected;
+    - listitem: entitlement expiry before freeze rejects;
+    - listitem: entitlement expiry during artifact persistence is rechecked and blocks protected completion;
+    - listitem: failed persistence leaves prior completed baseline untouched.
+  - separator
+  - 'heading "3. In parallel: investigate the two existing full-suite failures" [level=1]'
+  - paragraph:
+    - text: This should start
+    - strong: immediately and independently
+    - text: of the new feature work.
+  - paragraph: Do not modify guards to make the failures disappear.
+  - paragraph: "There are two tracks:"
+  - heading "A. Workflow request identity invalid" [level=3]
+  - paragraph: This is more important than the Chromium timeout.
+  - paragraph: "Instrument enough to establish:"
+  - list:
+    - listitem: exact request/job identity entering the failing path;
+    - listitem: expected identity;
+    - listitem: database clock;
+    - listitem: transaction/isolation;
+    - listitem: active tenant/user/workspace context;
+    - listitem: relevant revision/digest;
+    - listitem: whether the mismatch occurs before or after any retry;
+    - listitem: whether instrumentation changes scheduling enough to hide it.
+  - paragraph: Use deterministic barriers if timing is involved.
+  - paragraph: The goal is not “rerun until green.”
+  - paragraph: "The goal is:"
+  - blockquote:
+    - paragraph:
+      - strong: a causal explanation or a deterministic reproducer.
+  - heading "B. Chromium 60-second timeout" [level=3]
+  - paragraph: Keep this bounded.
+  - paragraph: "Determine whether the failure is:"
+  - list:
+    - listitem: resource contention,
+    - listitem: process startup,
+    - listitem: browser install/cache behavior,
+    - listitem: renderer workload,
+    - listitem: test-order interference,
+    - listitem: dead process cleanup,
+    - listitem: host contention.
+  - paragraph: Do not raise the timeout as a first response.
+  - paragraph: A timeout increase can be considered only after the workload envelope is understood and the current 60-second contract is shown unrealistic for the qualified resource limit.
+  - heading "Closure standard" [level=3]
+  - paragraph:
+    - text: A focused passing rerun alone does
+    - strong: not
+    - text: close either failure.
+  - paragraph: "Closure requires one of:"
+  - list:
+    - listitem: exact root cause + repair + regression + clean full-suite successor; or
+    - listitem: deterministic evidence proving the original failure was a qualification-environment defect outside the product contract, plus a clean full-suite successor.
+  - paragraph: The historical 1325 pass / 2 fail / 1 skip remains failed either way.
+  - separator
+  - heading "4. Funnel lane can proceed in parallel" [level=1]
+  - paragraph:
+    - text: The funnel does
+    - strong: not
+    - text: need to wait for paid-entitlement implementation as long as it does not claim payment readiness.
+  - paragraph: "Safe parallel work:"
+  - list:
+    - listitem: ExperienceBundle model/schema;
+    - listitem: claim ledger;
+    - listitem: capability references;
+    - listitem: synthetic sample identities;
+    - listitem: publication-state machine;
+    - listitem: four scenario families;
+    - listitem: deterministic FAQ/guide;
+    - listitem: anonymous no-persistence interaction;
+    - listitem: minimal consent vocabulary;
+    - listitem: server-side route to a placeholder or disabled checkout destination;
+    - listitem: accessibility/mobile/reduced-motion work;
+    - listitem: editorial review tooling.
+  - paragraph:
+    - text: Do
+    - strong: not
+    - text: activate live checkout yet.
+  - paragraph: The funnel may render a CTA only against a development/test offer until billing authority is qualified.
+  - heading "Funnel acceptance tests" [level=3]
+  - list:
+    - listitem: unpublished bundle cannot render as published;
+    - listitem: withdrawn bundle cannot initiate new purchase;
+    - listitem: client cannot choose arbitrary offer/price;
+    - listitem: advertised capability must map to enabled Core capability version;
+    - listitem: anonymous answers are absent from persistence unless explicit save consent exists;
+    - listitem: analytics event vocabulary rejects arbitrary names/free text;
+    - listitem: browser events cannot create tenant/audit/payment truth;
+    - listitem: publication approval does not grant payment or product authority;
+    - listitem: synthetic sample is always labeled synthetic;
+    - listitem: no visitor-supplied URL is fetched;
+    - listitem: checkout remains independently reachable once the actual paid path is enabled.
+  - separator
+  - heading "Exact implementation ordering" [level=1]
+  - paragraph: "I would give Codex this sequence:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: A1 PaidCoverage schema + billing-admission DB principal A2 Exact evidence admission + entitlement projection A3 Expiry/recovery authority checks A4 PostgreSQL role/concurrency tests B1 ReviewCycle schema/state machine B2 Freeze manifest transaction B3 Baseline advancement + retry semantics B4 Cycle authority/concurrency tests C Existing full-suite failure investigation runs in parallel with A and B D1 ExperienceBundle + publication model D2 Four deterministic public scenarios D3 Consent/minimal metrics runs in parallel, but checkout stays non-live E Integrate golden self-service journey only after A+B are green F Exact full-suite qualification
+  - paragraph: "The dependency graph is:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: Paid Coverage ─────┐ ├── Golden Journey ── Full Qualification ReviewCycle ───────┘ Funnel ────────────┘ Failure Investigation ────────────────┐ └── required before release
+  - separator
+  - heading "Definition of done for the next Lyra review" [level=1]
+  - paragraph: "Bring me one packet containing:"
+  - list:
+    - strong: AGENTS.md successor
+    - text: ", with the production-authority wording corrected."
+    - listitem: PaidCoverage/billing-admission source.
+    - listitem: New migration(s), never edited historical migrations.
+    - listitem: Exact database grants and role matrix.
+    - listitem: ReviewCycle kernel source.
+    - listitem: Freeze/baseline state-machine tests.
+    - listitem: PostgreSQL actual-role negative tests.
+    - listitem: Concurrency/barrier tests.
+    - listitem: Focused raw logs and qualification summaries.
+    - listitem: Exact source manifest/digests.
+    - listitem: Separate failure-investigation evidence for both existing full-suite failures.
+    - listitem: Funnel schema/tests if that parallel lane progressed.
+    - text: "A disposition document clearly separating:"
+    - list:
+      - listitem: implemented,
+      - listitem: focused-qualified,
+      - listitem: still open,
+      - listitem: supplied-only evidence,
+      - listitem: not yet integrated,
+      - listitem: production-blocking.
+  - paragraph:
+    - text: I do
+    - strong: not
+    - text: need another giant packet containing every historical artifact again. Reference already closed evidence by identity. Give me the
+    - strong: successor delta plus exact bindings
+    - text: . That will make the review much faster and keep the evidence graph sane.
+  - heading "Bottom line" [level=2]
+  - paragraph:
+    - strong: AGENTS.md is accepted after one required authority-wording correction.
+  - paragraph:
+    - strong: "Next implementation priority:"
+  - list:
+    - listitem: durable paid coverage + narrow billing-admission principal,
+    - listitem: ReviewCycle kernel consuming that entitlement,
+    - listitem: unexplained full-suite failures investigated in parallel,
+    - listitem: public funnel built in parallel without live payment activation.
+  - paragraph:
+    - text: "That ordering gets us toward the thing you actually need:"
+    - strong: someone can discover Stewardence, pay $99, get exactly what they paid for, and keep access only for the period payment actually authorized.
+    - text: No architecture side quest, no new feature constellation. 🛠️
+  - paragraph:
+    - strong: Production remains unapproved.
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - heading "You said:" [level=4]
+  - button "Pasted text(20261004-192635).txt"
+  - generic "Pasted text(20261004-192635).txt"
+  - generic: Document
+  - button "Edit message":
+  - button "Worked for 2m 3s"
+  - generic: Worked for 2m 3s
+  - button "Analysis paused"
+  - generic: Analysis paused
+  - button "Analyzed"
+  - generic: Analyzed
+  - button "Analyzed"
+  - generic: Analyzed
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - text: Alexander,
+    - strong: bounded acceptance granted for the paid-coverage authority architecture and dedicated billing-ingester boundary represented in this packet.
+    - text: This is a meaningful step toward the launch-critical paid-entitlement substrate.
+  - paragraph:
+    - strong: One exact committed-replay issue remains OPEN for this frozen service snapshot
+    - text: ", and the packet already correctly warns that its replay successor is qualifying separately. Resubscription after terminal cancellation, ReviewCycle completion/baseline advancement, Decision Desk selection, the historical full-suite failures, real Stripe test-mode lifecycle, and production release all remain open."
+  - paragraph:
+    - strong: Production remains unapproved.
+  - 'heading "Paid authority: accepted within scope" [level=2]'
+  - paragraph: The database architecture now establishes the authority split we wanted.
+  - paragraph:
+    - text: billing_paid_coverage and the authority record are owner-controlled, forced-RLS tables. Ordinary app and worker roles receive read access only. Coverage rows have an immutable update/delete trigger. The actual issuance function is revoked from public/app/worker and granted only to agentledger_billing_admission.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is substantially stronger than allowing application billing rows themselves to manufacture payment authority.
+  - paragraph: "The issuer also rechecks the important facts server-side:"
+  - list:
+    - listitem: READ COMMITTED admission;
+    - listitem: closed envelope vocabulary;
+    - listitem: exact typed identities;
+    - listitem: supported schema/contract/currency;
+    - listitem: account and livemode against the configured authority record;
+    - listitem: registered price contract;
+    - listitem: current Core subscription generation;
+    - listitem: local Stripe customer binding;
+    - listitem: founder phase boundaries;
+    - listitem: positive bounded service interval;
+    - listitem: provider payment time not in the future;
+    - text: immutable invoice admission.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The current-access predicate additionally binds issued coverage to the
+    - strong: current local subscription generation
+    - text: ", current customer, configured account/mode, Core portfolio, accepted status, and database clock. A plain future current_period_end is no longer sufficient."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "I therefore accept the central invariant:"
+  - blockquote:
+    - paragraph:
+      - strong: Core paid access derives from separately issued payment coverage, not subscription status alone.
+  - paragraph: The fact that past_due may continue access while an independently issued paid interval remains current is coherent. “Past due” does not retroactively erase service already paid through.
+  - 'heading "Dedicated billing admission principal: accepted" [level=2]'
+  - paragraph: The service separation is also appropriately narrow.
+  - paragraph:
+    - text: Its Django configuration has one dedicated database connection using agentledger_billing_admission, a separate secret, explicit hosts, no ordinary Stripe application keys, Automation disabled, and new-founder purchasing disabled.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The runtime verifies that its actual PostgreSQL identity is:"
+  - list:
+    - listitem: agentledger_billing_admission
+    - listitem: non-superuser
+    - listitem: non-BYPASSRLS
+    - text: READ COMMITTED.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: It then authenticates the webhook signature, pins account/mode, retrieves the current Stripe account, exact invoice and subscription, validates the supported Core contract, and only afterward opens the admission transaction. The SQL issuer remains the final local mutation boundary.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "That is the right trust model:"
+  - blockquote:
+    - paragraph: Stripe evidence is authenticated by the separately credentialed ingester; PostgreSQL does not pretend to authenticate Stripe.
+  - paragraph:
+    - text: The packet states this boundary correctly. The evidence digest is provenance/integrity metadata,
+    - strong: not payment authentication
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - heading "The focused evidence is useful and bounded" [level=2]
+  - paragraph:
+    - text: The supplied issuer qualification reports
+    - strong: 29/29 passing
+    - text: on image 62ed5046…, and the dedicated service reports
+    - strong: 20/20 passing
+    - text: on 03494aca…. Neither touched production or live providers.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "The service tests provide particularly useful bounded evidence:"
+  - list:
+    - listitem: real local Stripe SDK signature verification;
+    - listitem: invalid service configuration stopping before provider access;
+    - listitem: forged signature rejection;
+    - listitem: account/mode/type rejection before provider access;
+    - listitem: invalid coverage rolling back the newly created generation;
+    - listitem: conflicting same-event body refusing another effect;
+    - listitem: terminal canceled generation rejection;
+    - listitem: app/worker inability to execute the issuer;
+    - listitem: missing authority preventing provider access;
+    - listitem: provider read failure committing nothing;
+    - listitem: historical paid interval recorded without activating a new subscription;
+    - listitem: canceling state preserved;
+    - listitem: different event deliveries of the same invoice producing one coverage row;
+    - listitem: stale founder introductory payment not overwriting newer ongoing pricing;
+    - text: conflicting price contract at the same service boundary being held.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: Those are meaningful results.
+  - paragraph:
+    - text: They remain
+    - strong: supplied executions
+    - text: ", not runs I performed, and provider retrievals were mocked. The original webhook signature path was real SDK behavior, but this is not yet a real Stripe-account lifecycle qualification."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - separator
+  - 'heading "OPEN: BILLING-REPLAY-01 for this frozen service snapshot" [level=1]'
+  - paragraph: "The packet itself says:"
+  - blockquote:
+    - paragraph:
+      - text: “Exact committed replay repair now qualifying separately; this frozen20-service snapshot predates that successor.”
+      - button "Open preview of Pasted text.txt":
+        - generic: Pasted text
+  - paragraph: I agree this needs the successor before closure, and the current source shows why.
+  - paragraph: An exact previously committed event is not recognized until finish_paid_admission().
+  - paragraph:
+    - text: But before that can happen, the service calls begin_paid_admission(). That function explicitly rejects a locally canceled subscription generation.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: Only
+    - strong: after
+    - text: begin_paid_admission() succeeds does the code normalize the invoice and call finish_paid_admission(), where the existing committed event receipt is checked.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "So the following sequence is source-derivable:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: 1. invoice.paid event E successfully commits 2. its receipt exists 3. generation later becomes CANCELED 4. Stripe retries exact already-committed event E 5. begin_paid_admission sees CANCELED 6. request rejects before finish_paid_admission can return E's committed receipt
+  - paragraph:
+    - text: That does
+    - strong: not
+    - text: create unauthorized coverage. In fact, it fails safely with respect to mutation.
+  - paragraph: "But it breaks the stronger webhook-idempotency contract:"
+  - blockquote:
+    - paragraph:
+      - strong: an exact replay of an already committed event should be recognizable as already complete without requiring the generation to still be admissible for a new effect.
+  - paragraph: Otherwise a legitimate provider retry can be answered as a service failure forever after terminal state, despite its effect already being durably committed.
+  - paragraph: "That distinction matters:"
+  - list:
+    - strong: "new stale payment effect after cancellation:"
+    - text: reject;
+    - strong: "exact replay of an already committed payment event:"
+    - text: acknowledge without new effect.
+  - paragraph: I am not prescribing the implementation because Codex says an exact replay successor is already qualifying. Bring that source and its exact tests rather than building a second repair from my prose.
+  - heading "Closure test I want" [level=3]
+  - paragraph: "At minimum:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: commit E transition generation to canceled replay byte-identical signed E => HTTP 200 => same receipt => same coverage => zero new mutation
+  - paragraph: "And negative siblings:"
+  - list:
+    - listitem: same event ID + different body → reject;
+    - listitem: same event ID + different normalized effect → reject;
+    - listitem: new event for old canceled generation → reject;
+    - listitem: exact replay after local price/authority configuration changes → acknowledge only the already-committed effect, never reinterpret it under new authority;
+    - listitem: exact replay performs no new provider-dependent authority transition if the committed receipt is sufficient for recognition.
+  - paragraph: The last detail should be stated explicitly in the successor's contract.
+  - separator
+  - heading "Resubscription remains intentionally open" [level=1]
+  - paragraph:
+    - text: begin_paid_admission() refuses an existing canceled local generation. That is currently conservative and correct because
+    - strong: canceled → fresh subscription generation has not yet received an explicit checkout-intent transition contract
+    - text: .
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Do not “fix” this by letting a new webhook silently overwrite:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: billing_subscription.stripe_subscription_id
+  - paragraph: on a canceled record.
+  - paragraph: A real resubscription must prove the new checkout/customer/owner/offer intent and establish how the new external generation relates to the historical local subscription identity.
+  - paragraph: "So:"
+  - paragraph:
+    - strong: terminal-generation rejection stays. Fresh-generation resubscription stays OPEN.
+  - separator
+  - heading "One authority nuance to preserve" [level=1]
+  - paragraph:
+    - text: The billing-admission database role is deliberately a
+    - strong: trusted issuer principal
+    - text: .
+  - paragraph: That means a compromise of its credential can call the SECURITY DEFINER issuance functions without Python having authenticated Stripe first. The SQL functions still impose substantial account/customer/generation/price/time constraints, but PostgreSQL cannot prove remote payment occurred.
+  - paragraph:
+    - text: That is not a defect hidden by the architecture. It is the architecture's trust boundary, and the packet says so.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "Therefore deployment qualification must prove:"
+  - list:
+    - listitem: only the billing-admission service receives that DB credential;
+    - listitem: web/app/worker containers do not receive it;
+    - listitem: the credential is not inherited through shared environment bundles;
+    - listitem: its database connect path is narrowly available;
+    - listitem: its Stripe restricted key is likewise absent from app/worker;
+    - listitem: logs/evidence never expose either credential.
+  - paragraph:
+    - text: Do
+    - strong: not
+    - text: "try to claim “DB-enforced proof of payment.” The accurate claim is:"
+  - blockquote:
+    - paragraph:
+      - strong: DB-enforced admission of evidence asserted by a separately authenticated payment-ingestion principal.
+  - paragraph: That wording is much stronger epistemically.
+  - separator
+  - 'heading "Export predicate: bounded acceptance" [level=1]'
+  - paragraph:
+    - text: The separate 90-day export predicate is the correct conceptual split. It does not authorize additional paid work and can survive status transitions independently of paid_subscription_access.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "One thing to carry into the later resubscription design: current paid access binds coverage to p.stripe_subscription_id = s.stripe_subscription_id; export access deliberately does not."
+  - paragraph: That may be desirable because historical paid generations should remain exportable after the active generation changes.
+  - paragraph:
+    - text: But once resubscription is implemented,
+    - strong: make that distinction explicit in tests
+    - text: . Don't accidentally “repair” export by tying it only to the newest external generation and thereby strand historical retained packs.
+  - paragraph: No current finding from that difference.
+  - separator
+  - heading "ReviewCycle is not adjudicated here" [level=1]
+  - paragraph:
+    - text: The packet says
+    - strong: 33 separate actual-role ReviewCycle cases passed
+    - text: ", but its source and exact evidence aren't in this billing-focused packet. It also explicitly says artifact completion, baseline advancement, and Decision Desk selection remain absent."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: So I am carrying that as
+    - strong: reported progress only
+    - text: .
+  - paragraph: Do not transfer this billing acceptance onto ReviewCycle.
+  - paragraph: Bring its successor delta separately, exactly as planned.
+  - separator
+  - heading "Next Codex move" [level=1]
+  - paragraph: "The sequence I want now is very small:"
+  - list:
+    - strong: Finish and qualify the committed-replay successor.
+    - strong: Do not broaden billing further.
+    - listitem: Finish the ReviewCycle kernel, particularly artifact completion/baseline CAS and frozen Decision Desk selection.
+    - listitem: Continue root-causing the old full-suite identity/Chromium failures in parallel.
+    - text: "Then run the first exact-source integrated qualification containing:"
+    - list:
+      - listitem: paid coverage,
+      - listitem: admission service,
+      - listitem: replay repair,
+      - listitem: ReviewCycle kernel.
+  - paragraph: Do not add LocalAI, Spanish, Enterprise, additional connectors, Benefit Check, or another billing feature while doing this.
+  - heading "Next review packet" [level=3]
+  - paragraph: "I want only the delta:"
+  - list:
+    - listitem: committed-replay successor source + focused tests/log;
+    - listitem: ReviewCycle source/migrations;
+    - listitem: freeze/completion/baseline/Decision selection tests;
+    - listitem: actual role/grant matrix if it changed;
+    - listitem: source manifest linking the billing and ReviewCycle candidate;
+    - listitem: status of the two historical full-suite failures;
+    - listitem: integrated focused qualification.
+  - paragraph: No need to resend the hundreds of already closed artifacts.
+  - heading "Disposition" [level=2]
+  - paragraph:
+    - strong: "ACCEPTED within bounded scope:"
+  - list:
+    - listitem: immutable paid-coverage ledger design;
+    - listitem: narrow SQL issuance authority;
+    - listitem: app/worker inability to issue coverage;
+    - listitem: database-clock current entitlement predicate;
+    - listitem: separate export predicate;
+    - listitem: dedicated billing-admission role/service;
+    - listitem: supported invoice normalization contract;
+    - listitem: mocked-provider/local-real-signature service evidence;
+    - listitem: focused 29-case issuer and 20-case service results as supplied execution evidence.
+  - paragraph:
+    - strong: "OPEN:"
+  - list:
+    - listitem: exact committed replay on this frozen snapshot;
+    - listitem: canceled → fresh-generation resubscription;
+    - listitem: ReviewCycle completion/baseline/Decision Desk binding;
+    - listitem: real Stripe test-mode lifecycle;
+    - listitem: integrated exact-source full qualification;
+    - listitem: historical 1325 pass / 2 fail / 1 skip failures;
+    - listitem: worker intermittence;
+    - listitem: deployment credential isolation;
+    - listitem: production release.
+  - paragraph:
+    - text: This is
+    - strong: real forward motion
+    - text: . The payment authority is no longer a status flag wearing a fake mustache. It now has an actual custody boundary. 🔐
+  - paragraph:
+    - strong: Production remains unapproved.
+    - button "View analysis":
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - button "Sources":
+  - heading "You said:" [level=4]
+  - button "Pasted text(20261004-200338).txt"
+  - generic "Pasted text(20261004-200338).txt"
+  - generic: Document
+  - button "Edit message":
+  - button "Worked for 47s"
+  - generic: Worked for 47s
+  - button "Analyzed"
+  - generic: Analyzed
+  - button "Analyzed"
+  - generic: Analyzed
+  - heading "ChatGPT said:" [level=4]
+  - paragraph:
+    - strong: BILLING-REPLAY-01 is CLOSED for the exact committed-replay contract submitted here.
+    - text: The repair does what the previous review required without weakening new-effect admission.
+  - paragraph:
+    - text: I independently read the exact uploaded packet at
+    - strong: 46,591 bytes / 834 lines / SHA-256 1cb971484ee1ce1de9a00c02e7df78a9608602e33a61e4f3efafa1af61b861f8
+    - text: ", and reconciled its named JUnit receipt to"
+    - strong: 62 test cases, zero failures, zero errors, zero skips
+    - text: .
+  - paragraph: Production remains unapproved.
+  - heading "Why the replay finding closes" [level=2]
+  - paragraph: The important ordering is now correct.
+  - paragraph:
+    - text: After signature/configuration/event-shape checks and enforcement of the dedicated admission database role, ingest_verified_event() queries committed_paid_admission()
+    - strong: before
+    - text: testing current issuance authority and before performing any Stripe retrieval. A committed match returns immediately.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "That lookup binds the prior effect to:"
+  - list:
+    - listitem: configured Stripe account,
+    - listitem: livemode,
+    - listitem: exact event ID,
+    - listitem: exact supported event type,
+    - listitem: SHA-256 of the original raw webhook body.
+  - paragraph:
+    - text: A wrong account/mode for an already-known event is explicitly rejected rather than treated as an unrelated uncommitted event, and a mismatched body hash rejects as a conflicting committed admission.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: Only when
+    - strong: no committed receipt exists
+    - text: does execution continue into current authority readiness, Stripe account/invoice/subscription retrieval, current-generation validation and potential issuance.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "That gives us the correct split:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: already committed exact delivery ↓ authenticate envelope ↓ recognize receipt ↓ ACK, no new authority uncommitted delivery ↓ current authority + provider evidence ↓ full admission ↓ possibly create effect
+  - paragraph:
+    - text: Crucially, the canceled-generation veto remains on the
+    - strong: new-effect
+    - text: path. The repair did not make canceled subscriptions writable again. begin_paid_admission() still rejects a canceled or mismatched generation.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is exactly the distinction the previous review requested.
+  - heading "The supplied regression evidence targets the right counterexamples" [level=2]
+  - paragraph: The successor tests now cover both sides of the boundary.
+  - paragraph:
+    - text: An exact committed replay is exercised both before and after local cancellation. Provider access is then deliberately made unavailable, yet replay returns 200, creates no additional coverage or receipt, and leaves the subscription projection unchanged.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: The lookup is separately tested as unavailable to app/worker roles, and wrong account, wrong mode and wrong raw-body digest are rejected while preserving the existing committed effect.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: Most importantly, the receipt survives
+    - strong: current issuance configuration changes
+    - text: . Removing the authority row or changing the registered price does not reinterpret or invalidate the historical committed effect, but a distinct new event still has to satisfy current admission.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That closes the exact defect I identified in the frozen predecessor.
+  - heading "Scope of the closure" [level=3]
+  - paragraph: "This closure means:"
+  - blockquote:
+    - paragraph:
+      - strong: A byte-identical, correctly signed replay of an already committed supported event can be acknowledged from the immutable local receipt without provider retrieval or re-admission.
+  - paragraph:
+    - text: It does
+    - strong: not
+    - text: "mean:"
+  - list:
+    - listitem: semantically equivalent but byte-different payloads are replay-equivalent;
+    - listitem: webhook-secret rotation behavior has been qualified;
+    - listitem: a new event for a canceled generation may issue coverage;
+    - listitem: a new Stripe subscription may replace the canceled local generation;
+    - listitem: provider delivery has been tested against a real Stripe account.
+  - paragraph: Those remain distinct contracts.
+  - heading "No new authority regression demonstrated" [level=2]
+  - paragraph: I do not see a new source-level authority escape in this delta.
+  - paragraph:
+    - text: The replay lookup itself is SECURITY DEFINER, but execution remains limited to agentledger_billing_admission; public, app and worker execution are revoked.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: And importantly,
+    - strong: receipt recognition does not invoke issuance
+    - text: . It returns the existing coverage foreign key. It does not alter subscription status, extend service_end, change prices, create another receipt, or consult new provider state.
+  - paragraph: That is the correct behavior for an idempotent receipt.
+  - paragraph: "There is a subtle operational consequence worth documenting rather than “fixing”: replay still requires the service to possess valid current webhook configuration and successfully verify the incoming signature before reaching receipt recognition. That is consistent with this submitted contract and prevents the committed-receipt table from becoming an unauthenticated event oracle. It is not a blocker."
+  - separator
+  - 'heading "Integrated focused snapshot: accepted only as integration evidence" [level=1]'
+  - paragraph: "The submitted exact qualification reports:"
+  - list:
+    - strong: 62 cases
+    - strong: 0 failed
+    - strong: 0 errors
+    - strong: 0 skipped
+    - text: image sha256:e60137fd6956a1c8eae25ec9338a3585d95de07ba708821a80bbb616a21aad0d
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: I independently parsed the supplied JUnit XML and confirmed all
+    - strong: 62 named testcases
+    - text: are present with zero failures/errors/skips.
+  - paragraph: "The particularly useful thing about this run is that it combines:"
+  - list:
+    - listitem: the billing-admission service,
+    - listitem: paid workflow boundary,
+    - listitem: initial ReviewCycle authority tests.
+  - paragraph: So this is stronger integration evidence than isolated billing-only runs.
+  - paragraph:
+    - text: "The four workflow cases demonstrate the intended architectural connection: issued paid coverage is required for actual workflow admission, claim/persistence recheck the current generation, expired customers can read existing reports but not generate new work, and that read exception cannot be used to select another workspace."
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: "That supports the design principle we wanted:"
+  - blockquote:
+    - paragraph:
+      - strong: paid coverage is becoming a shared authority primitive rather than a checkout-only fact.
+  - paragraph: But this remains a focused qualification, not a full candidate qualification.
+  - separator
+  - heading "ReviewCycle remains PARTIAL" [level=1]
+  - paragraph: The 33 ReviewCycle tests are now visible in the named receipt, and they are useful.
+  - paragraph: "They cover, among other things:"
+  - list:
+    - listitem: atomic initial freeze;
+    - listitem: raw app mutation denial;
+    - listitem: no worker review-table access;
+    - listitem: cross-workspace owner isolation;
+    - listitem: paid-authority requirement;
+    - listitem: pause fencing;
+    - listitem: one-open/one-frozen-pending bound;
+    - listitem: revision CAS negatives;
+    - listitem: caller inability to provide the server manifest;
+    - listitem: reservation non-release semantics;
+    - listitem: corrupt snapshot rejection;
+    - listitem: quota reservation;
+    - listitem: storage/reservation boundaries;
+    - listitem: concurrent freeze convergence;
+    - listitem: stale-authority protection;
+    - listitem: past_due with current coverage versus expired coverage;
+    - text: rechecking authority after a capacity wait.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: That is good foundation evidence.
+  - paragraph:
+    - text: But the source packet itself explicitly says this snapshot predates the final artifact/Decision Desk successor.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph:
+    - text: So the following remain
+    - strong: OPEN
+    - text: ", not “implicitly covered because 33 tests passed”:"
+  - list:
+    - listitem: artifact completion;
+    - listitem: immutable PackIdentity issuance;
+    - listitem: actual frozen Decision Desk selection;
+    - listitem: baseline compare-and-set advancement;
+    - listitem: recoverable artifact failure;
+    - listitem: same-manifest artifact retry;
+    - listitem: late/older completion unable to replace a newer baseline;
+    - listitem: capacity conversion/release following definitive artifact outcomes.
+  - paragraph: Do not broaden this replay closure into those areas.
+  - separator
+  - heading "Resubscription remains OPEN by design" [level=1]
+  - paragraph: "This repair correctly leaves:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: CANCELED local generation + new Stripe subscription
+  - paragraph: unadmitted.
+  - paragraph: That is still the right conservative choice.
+  - paragraph: "A fresh paid event must not silently repurpose the old billing_subscription row. A future resubscription transition needs an explicit checkout-intent contract tying:"
+  - list:
+    - listitem: owner,
+    - listitem: customer,
+    - listitem: new external subscription generation,
+    - listitem: Core offer,
+    - listitem: existing historical local subscription identity,
+    - listitem: allowed state transition.
+  - paragraph:
+    - text: So
+    - strong: do not loosen begin_paid_admission() to make resubscription tests green.
+  - separator
+  - heading "Historical full-suite state is still unresolved" [level=1]
+  - paragraph:
+    - text: The packet reports that the previously problematic identity/Chromium cases happened to pass in a later
+    - strong: still-failed
+    - text: full run, but explicitly says this did not establish their root causes.
+    - button "Open preview of Pasted text.txt":
+      - generic: Pasted text
+  - paragraph: Preserve that exactly.
+  - paragraph: "A later pass of those individual nodes means:"
+  - blockquote:
+    - paragraph: the defect did not reproduce in that execution.
+  - paragraph:
+    - text: It does
+    - strong: not
+    - text: "mean:"
+  - blockquote:
+    - paragraph: the prior failures are explained.
+  - paragraph: And because that newer full run itself remained failed, nothing here establishes a release candidate.
+  - paragraph: No new full-source qualification is claimed by this successor. Correct.
+  - separator
+  - heading "What Codex should do next" [level=1]
+  - paragraph: Billing replay is no longer the thing to chew on.
+  - paragraph:
+    - strong: Freeze this slice.
+  - paragraph: Do not add another billing refinement unless the ReviewCycle work exposes a direct requirement.
+  - paragraph: "The next critical delta should be the ReviewCycle completion half:"
+  - generic: Plain text
+  - button "Enable word wrap":
+  - button "Copy":
+  - code: FROZEN ↓ ARTIFACT_PENDING ├── definitive failure → FAILED_RECOVERABLE │ ↓ │ same frozen manifest retry │ ↓ └────────────────── ARTIFACT_PENDING ↓ verified immutable artifact ↓ COMPLETED ↓ guarded baseline CAS promotion
+  - paragraph: "I specifically want Codex to close:"
+  - list:
+    - paragraph:
+      - strong: Frozen Decision selection
+    - list:
+      - listitem: exact item IDs/digests;
+      - listitem: exact selected decision-event IDs;
+      - listitem: predecessor chains valid at freeze;
+      - listitem: no stale/mismatched decision silently included.
+    - paragraph:
+      - strong: Artifact completion
+    - list:
+      - listitem: renderer gets frozen identity only;
+      - listitem: result hash/object metadata verified;
+      - listitem: entitlement/pause/control authority rechecked before authoritative persistence;
+      - listitem: unknown external outcome enters reconciliation, never automatic capacity release.
+    - paragraph:
+      - strong: PackIdentity
+    - list:
+      - listitem: immutable cycle/manifest/artifact/source/decision/rule identities;
+      - listitem: app/worker cannot rewrite it.
+    - paragraph:
+      - strong: Baseline CAS
+    - list:
+      - listitem: completion advances baseline at most once;
+      - listitem: older/late cycle cannot overwrite newer baseline;
+      - listitem: artifact failure never moves baseline.
+    - paragraph:
+      - strong: Recovery
+    - list:
+      - listitem: retry uses exact same frozen manifest;
+      - listitem: changed-manifest retry rejects;
+      - listitem: confirmed unused reservation may be released;
+      - listitem: ambiguous reservation/object state remains held for reconciliation.
+  - paragraph:
+    - text: Then give me that
+    - strong: delta
+    - text: ", not another historical mega-bundle."
+  - heading "Disposition ledger" [level=2]
+  - paragraph:
+    - strong: CLOSED for exact submitted scope
+  - list:
+    - listitem: BILLING-REPLAY-01
+    - listitem: exact committed replay after cancellation
+    - listitem: replay without provider access
+    - listitem: account/mode/raw-body conflict rejection
+    - listitem: replay across current issuance-authority removal/price change without reinterpretation
+    - listitem: app/worker inability to call committed lookup
+  - paragraph:
+    - strong: ACCEPTED as focused integration evidence
+  - list:
+    - listitem: 62-case billing + workflow + initial ReviewCycle qualification
+    - listitem: current paid-workflow boundary behavior
+    - listitem: current initial ReviewCycle authority/freeze controls
+  - paragraph:
+    - strong: OPEN
+  - list:
+    - listitem: canceled → fresh-generation resubscription
+    - listitem: final Decision Desk freeze binding
+    - listitem: artifact completion/recovery
+    - listitem: PackIdentity completion semantics
+    - listitem: baseline advancement
+    - listitem: final quota conversion/reconciliation
+    - listitem: real Stripe test-mode lifecycle
+    - listitem: latest full-source qualification
+    - listitem: historical unexplained failures
+    - listitem: production deployment and credential-isolation proof
+  - paragraph:
+    - text: So yes,
+    - strong: the replay bug gets its little tombstone. 🪦 BILLING-REPLAY-01 is closed.
+  - paragraph: "And this is exactly the kind of progress I wanted: close a narrow authority defect, freeze it, and keep walking toward the customer journey instead of decorating the billing subsystem forever."
+  - paragraph:
+    - strong: Production remains unapproved.
+    - button "View analysis":
+  - button "Copy":
+  - button "Share":
+  - button "Read aloud":
+  - button "Regenerate response":
+  - button "React":
+  - button "Bad response":
+  - button "More actions":
+  - button "Sources":
+  - status:
+    - generic: Capabilities reduced until October 8. Responses may have lower quality.
+    - button "Upgrade to Pro":
+      - text: Upgrade to Pro
+  - generic: ChatGPT can make mistakes. Check important info.
+  - button:
+  - heading "Latest response" [level=4]
+  - status
+  - button "Add files and more":
+  - textbox "Ask ChatGPT" [active]:
+    - paragraph: Ask ChatGPT
+  - button "Select ChatGPT model":
+    - generic: Medium
+  - button "Dictate":
+  - button "Start Voice":
+- status
+- status: Response complete
+- status
+- status
+- status
+- status
